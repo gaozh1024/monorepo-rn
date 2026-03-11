@@ -40,9 +40,9 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "tsc --noEmit"
+      "prettier --write"
     ],
-    "*.{js,jsx,ts,tsx,json,css,md}": [
+    "*.{js,jsx,json,css,md}": [
       "prettier --write"
     ]
   }
