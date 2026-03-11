@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 
 // Mock React Native modules
 global.fetch = vi.fn();
