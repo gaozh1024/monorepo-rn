@@ -1,0 +1,17 @@
+{
+  "name": "@panther-expo/monorepo",
+  "private": true,
+  "description": "monorepo workspace 配置",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r clean"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}

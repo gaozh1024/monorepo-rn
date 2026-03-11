@@ -1,0 +1,20 @@
+{
+  "name": "@panther-expo/utils",
+  "version": "0.0.1",
+  "description": "通用工具函数",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src"
+  },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  }
+}
