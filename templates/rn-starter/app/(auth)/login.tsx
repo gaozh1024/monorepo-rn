@@ -13,7 +13,7 @@ import {
   Text,
   VStack,
 } from '@panther-expo/ui';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -39,9 +39,7 @@ export default function LoginScreen() {
           <Heading size="xl" className="text-center text-typography-900">
             欢迎回来
           </Heading>
-          <Text className="text-center text-typography-500 mb-4">
-            请登录您的账户
-          </Text>
+          <Text className="text-center text-typography-500 mb-4">请登录您的账户</Text>
 
           <FormControl>
             <FormControl.Label>邮箱</FormControl.Label>
@@ -68,19 +66,11 @@ export default function LoginScreen() {
             </Input>
           </FormControl>
 
-          <Button
-            action="primary"
-            onPress={handleLogin}
-            isDisabled={isLoading}
-            className="mt-4"
-          >
+          <Button action="primary" onPress={handleLogin} isDisabled={isLoading} className="mt-4">
             <ButtonText>{isLoading ? '登录中...' : '登录'}</ButtonText>
           </Button>
 
-          <Button
-            variant="link"
-            onPress={() => router.push('/(auth)/register')}
-          >
+          <Button variant="link" onPress={() => router.push('/(auth)/register')}>
             <ButtonText>还没有账户？去注册</ButtonText>
           </Button>
         </VStack>

@@ -1,4 +1,5 @@
 import { createLogger } from '../logger';
+import { createBaseAPIStreamRequest, StreamCallbacks, StreamController } from './stream-request';
 
 /** API Logger */
 const apiLogger = createLogger('API');
@@ -267,10 +268,7 @@ export class BaseAPI {
    * @param options 请求配置选项
    * @returns Promise<ApiResponse<T>> API 响应数据
    */
-  protected async get<T>(
-    endpoint: string,
-    options?: ApiRequestOptions
-  ): Promise<ApiResponse<T>> {
+  protected async get<T>(endpoint: string, options?: ApiRequestOptions): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'GET',
       ...options,
@@ -348,5 +346,49 @@ export class BaseAPI {
       body: data ? JSON.stringify(data) : undefined,
       ...options,
     });
+  }
+
+  /**
+   * 流式请求方法（SSE）
+   * 适用于 AI 聊天等需要实时接收数据的场景
+   *
+   * @param endpoint API 端点路径
+   * @param data 请求数据
+   * @param callbacks 流式响应回调
+   * @param options 请求配置选项（支持 timeout、retryCount、retryDelay）
+   * @returns StreamController 控制器，可中断请求
+   *
+   * @example
+   * ```typescript
+   * const controller = api.stream(
+   *   '/chat',
+   *   { message: '你好', model: 'gpt-4' },
+   *   {
+   *     onStart: () => console.log('开始'),
+   *     onMessage: (chunk) => appendToUI(chunk.content),
+   *     onError: (err) => showError(err.message),
+   *     onComplete: () => console.log('完成'),
+   *   },
+   *   { retryCount: 2 }
+   * );
+   *
+   * // 中断生成
+   * controller.abort();
+   * ```
+   */
+  protected stream<T = unknown>(
+    endpoint: string,
+    data: unknown,
+    callbacks: StreamCallbacks<T>,
+    options?: ApiRequestOptions & { timeout?: number; retryCount?: number; retryDelay?: number }
+  ): StreamController {
+    return createBaseAPIStreamRequest(
+      this.baseURL,
+      opts => this.getHeaders(opts),
+      endpoint,
+      data,
+      callbacks,
+      options
+    );
   }
 }

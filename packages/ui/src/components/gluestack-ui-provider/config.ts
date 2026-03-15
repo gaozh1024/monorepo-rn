@@ -4,40 +4,54 @@ import { generateColorPalette } from '@panther-expo/theme/palette';
 import { lightColors, darkColors } from './configs';
 
 /**
+ * 将颜色调色板转换为 CSS 变量格式
+ * @param name - 颜色名称，如 'primary', 'secondary'
+ * @param palette - 颜色调色板对象 { 0: '...', 50: '...', ... }
+ * @returns CSS 变量对象 { '--color-primary-0': '...', ... }
+ */
+const toCssVars = (name: string, palette: Record<string, string>) => {
+  const vars: Record<string, string> = {};
+  for (const [level, value] of Object.entries(palette)) {
+    vars[`--color-${name}-${level}`] = value;
+  }
+  return vars;
+};
+
+/**
  * 将用户主题颜色映射到 Gluestack UI 的颜色变量
  * 使用颜色调色板生成函数，确保修改主题颜色后自动同步
  */
 export const config = {
   light: vars({
     /* Primary - 使用用户的主色调橙色 */
-    ...generateColorPalette(lightColors.primary),
+    ...toCssVars('primary', generateColorPalette(lightColors.primary)),
 
     /* Secondary - 使用用户的次要色 */
-    ...generateColorPalette(lightColors.secondary),
+    ...toCssVars('secondary', generateColorPalette(lightColors.secondary)),
 
     /* Tertiary - 使用用户的第三色 */
-    ...generateColorPalette(lightColors.tertiary),
+    ...toCssVars('tertiary', generateColorPalette(lightColors.tertiary)),
 
     /* Error - 使用用户的错误色 */
-    ...generateColorPalette(lightColors.error),
+    ...toCssVars('error', generateColorPalette(lightColors.error)),
 
     /* Success - 使用用户的成功色 */
-    ...generateColorPalette(lightColors.success),
+    ...toCssVars('success', generateColorPalette(lightColors.success)),
 
     /* Warning - 使用用户的警告色 */
-    ...generateColorPalette(lightColors.warning),
+    ...toCssVars('warning', generateColorPalette(lightColors.warning)),
 
     /* Info - 使用用户的信息色 */
-    ...generateColorPalette(lightColors.info),
+    ...toCssVars('info', generateColorPalette(lightColors.info)),
 
     /* Typography - 使用用户的主要文本色 */
-    ...generateColorPalette(lightColors.text),
+    ...toCssVars('typography', generateColorPalette(lightColors.text)),
 
     /* Outline - 使用用户的边框色 */
-    ...generateColorPalette(lightColors.border),
+    ...toCssVars('outline', generateColorPalette(lightColors.border)),
 
     /* Background - 使用用户的背景色 */
-    ...generateColorPalette(lightColors.background),
+    ...toCssVars('background', generateColorPalette(lightColors.background)),
 
     /* Background Special */
     '--color-background-error': lightColors.errorBg
@@ -68,34 +82,34 @@ export const config = {
   }),
   dark: vars({
     /* Primary - 使用用户的主色调橙色 */
-    ...generateColorPalette(darkColors.primary),
+    ...toCssVars('primary', generateColorPalette(darkColors.primary)),
 
     /* Secondary - 使用用户的次要色 */
-    ...generateColorPalette(darkColors.secondary),
+    ...toCssVars('secondary', generateColorPalette(darkColors.secondary)),
 
     /* Tertiary - 使用用户的第三色 */
-    ...generateColorPalette(darkColors.tertiary),
+    ...toCssVars('tertiary', generateColorPalette(darkColors.tertiary)),
 
     /* Error - 使用用户的错误色 */
-    ...generateColorPalette(darkColors.error),
+    ...toCssVars('error', generateColorPalette(darkColors.error)),
 
     /* Success - 使用用户的成功色 */
-    ...generateColorPalette(darkColors.success),
+    ...toCssVars('success', generateColorPalette(darkColors.success)),
 
     /* Warning - 使用用户的警告色 */
-    ...generateColorPalette(darkColors.warning),
+    ...toCssVars('warning', generateColorPalette(darkColors.warning)),
 
     /* Info - 使用用户的信息色 */
-    ...generateColorPalette(darkColors.info),
+    ...toCssVars('info', generateColorPalette(darkColors.info)),
 
     /* Typography - 使用用户的主要文本色 */
-    ...generateColorPalette(darkColors.text),
+    ...toCssVars('typography', generateColorPalette(darkColors.text)),
 
     /* Outline - 使用用户的边框色 */
-    ...generateColorPalette(darkColors.border),
+    ...toCssVars('outline', generateColorPalette(darkColors.border)),
 
     /* Background - 使用用户的背景色 */
-    ...generateColorPalette(darkColors.background),
+    ...toCssVars('background', generateColorPalette(darkColors.background)),
 
     /* Background Special */
     '--color-background-error': darkColors.errorBg

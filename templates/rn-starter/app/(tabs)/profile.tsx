@@ -11,7 +11,7 @@ import {
   VStack,
 } from '@panther-expo/ui';
 import { ChevronRight, Moon, Settings, Shield } from 'lucide-react-native';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MENU_ITEMS = [
   { id: 'settings', title: '设置', icon: Settings },
@@ -28,24 +28,20 @@ export default function ProfileScreen() {
       <Card className="m-4 p-4">
         <HStack space="md" className="items-center">
           <Avatar size="xl">
-            <AvatarFallbackText>
-              {user?.name?.charAt(0) ?? 'U'}
-            </AvatarFallbackText>
+            <AvatarFallbackText>{user?.name?.charAt(0) ?? 'U'}</AvatarFallbackText>
           </Avatar>
           <VStack>
             <Heading size="md" className="text-typography-900">
               {user?.name ?? '用户'}
             </Heading>
-            <Text className="text-sm text-typography-500">
-              {user?.email ?? 'user@example.com'}
-            </Text>
+            <Text className="text-sm text-typography-500">{user?.email ?? 'user@example.com'}</Text>
           </VStack>
         </HStack>
       </Card>
 
       {/* 菜单列表 */}
       <VStack space="xs" className="mx-4">
-        {MENU_ITEMS.map((item) => (
+        {MENU_ITEMS.map(item => (
           <Pressable key={item.id}>
             <Card className="p-4">
               <HStack className="items-center justify-between">
@@ -61,9 +57,7 @@ export default function ProfileScreen() {
       </VStack>
 
       {/* 版本信息 */}
-      <Text className="text-center text-xs text-typography-400 mt-auto mb-4">
-        Version 1.0.0
-      </Text>
+      <Text className="text-center text-xs text-typography-400 mt-auto mb-4">Version 1.0.0</Text>
     </Box>
   );
 }

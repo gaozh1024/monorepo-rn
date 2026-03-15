@@ -6,24 +6,27 @@ const STORAGE_KEYS = {
   SETTINGS: '@app_settings',
 } as const;
 
+// 单例模式：只创建一次 storage 实例
+const storage = createSecureStorage(STORAGE_KEYS);
+
 export const secureStorage = {
-  ...createSecureStorage(STORAGE_KEYS),
+  ...storage,
 
   // Token 快捷方法
-  getToken: () => createSecureStorage(STORAGE_KEYS).getString(STORAGE_KEYS.TOKEN),
-  setToken: (token: string) => createSecureStorage(STORAGE_KEYS).setString(STORAGE_KEYS.TOKEN, token),
-  removeToken: () => createSecureStorage(STORAGE_KEYS).delete(STORAGE_KEYS.TOKEN),
+  getToken: () => storage.getString(STORAGE_KEYS.TOKEN),
+  setToken: (token: string) => storage.setString(STORAGE_KEYS.TOKEN, token),
+  removeToken: () => storage.delete(STORAGE_KEYS.TOKEN),
 
   // User 快捷方法
   getUser: async () => {
-    const data = await createSecureStorage(STORAGE_KEYS).getObject(STORAGE_KEYS.USER);
+    const data = await storage.getObject(STORAGE_KEYS.USER);
     return data as { id: string; name: string; email: string } | null;
   },
-  setUser: (user: object) => createSecureStorage(STORAGE_KEYS).setObject(STORAGE_KEYS.USER, user),
-  removeUser: () => createSecureStorage(STORAGE_KEYS).delete(STORAGE_KEYS.USER),
+  setUser: (user: object) => storage.setObject(STORAGE_KEYS.USER, user),
+  removeUser: () => storage.delete(STORAGE_KEYS.USER),
 
   // 清除所有
-  clearAll: () => createSecureStorage(STORAGE_KEYS).clearAll(),
+  clearAll: () => storage.clearAll(),
 };
 
 export type StorageKeys = keyof typeof STORAGE_KEYS;

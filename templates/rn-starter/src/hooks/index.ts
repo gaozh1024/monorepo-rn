@@ -1,1 +1,2 @@
-export * from './use-auth';
+// Custom hooks exports
+export { useAuth } from '@/contexts/AuthContext';

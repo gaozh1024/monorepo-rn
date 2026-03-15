@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Center, Text } from '@panther-expo/ui';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function InitScreen() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function InitScreen() {
 
   return (
     <Center className="flex-1 bg-background-0">
-      <ActivityIndicator size="large" color="#f38b32" />
+      <ActivityIndicator size="large" className="text-primary-500" />
       <Text className="mt-4 text-typography-700">加载中...</Text>
     </Center>
   );

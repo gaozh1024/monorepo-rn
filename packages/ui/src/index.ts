@@ -49,24 +49,34 @@ export { HStack } from './components/hstack';
 export { VStack } from './components/vstack';
 
 // ==================== 表单 ====================
+export { Button, ButtonText, ButtonSpinner, ButtonIcon, ButtonGroup } from './components/button';
 export {
-  Button,
-  ButtonText,
-  ButtonSpinner,
-  ButtonIcon,
-  ButtonGroup,
-} from './components/button';
-export { Checkbox } from './components/checkbox';
+  Checkbox,
+  CheckboxIndicator,
+  CheckboxLabel,
+  CheckboxIcon,
+  CheckboxGroup,
+} from './components/checkbox';
 export { Radio } from './components/radio';
 export { Select } from './components/select';
 export { Slider } from './components/slider';
 export { Switch } from './components/switch';
 export { Input, InputField, InputIcon, InputSlot } from './components/input';
 export { Textarea } from './components/textarea';
-export { FormControl } from './components/form-control';
+export {
+  FormControl,
+  FormControlError,
+  FormControlErrorText,
+  FormControlErrorIcon,
+  FormControlLabel,
+  FormControlLabelText,
+  FormControlLabelAstrick,
+  FormControlHelper,
+  FormControlHelperText,
+} from './components/form-control';
 
 // ==================== 反馈 ====================
-export { Alert } from './components/alert';
+export { Alert, AlertText, AlertIcon } from './components/alert';
 export { AlertDialog } from './components/alert-dialog';
 export { Skeleton } from './components/skeleton';
 export { Spinner } from './components/spinner';
@@ -84,8 +94,14 @@ export { Portal } from './components/portal';
 
 // ==================== 展示 ====================
 export { Accordion } from './components/accordion';
-export { Avatar } from './components/avatar';
-export { Badge } from './components/badge';
+export {
+  Avatar,
+  AvatarBadge,
+  AvatarFallbackText,
+  AvatarImage,
+  AvatarGroup,
+} from './components/avatar';
+export { Badge, BadgeText, BadgeIcon } from './components/badge';
 export { Fab } from './components/fab';
 export { Heading } from './components/heading';
 export { Image } from './components/image';

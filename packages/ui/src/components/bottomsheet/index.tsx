@@ -36,12 +36,12 @@ const bottomSheetItemStyle = tva({
 
 const BottomSheetContext = createContext<{
   visible: boolean;
-  bottomSheetRef: React.RefObject<GorhomBottomSheet | null>;
+  bottomSheetRef: React.RefObject<GorhomBottomSheet>;
   handleClose: () => void;
   handleOpen: () => void;
 }>({
   visible: false,
-  bottomSheetRef: { current: null },
+  bottomSheetRef: { current: null } as unknown as React.RefObject<GorhomBottomSheet>,
   handleClose: () => {},
   handleOpen: () => {},
 });

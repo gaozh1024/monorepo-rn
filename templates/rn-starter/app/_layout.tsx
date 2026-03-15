@@ -4,7 +4,8 @@ import { ThemeProvider } from '@panther-expo/theme';
 import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
-import '@/global.css';
+import { AuthProvider } from '@/contexts/AuthContext';
+import '../global.css';
 
 const lightColors = {
   primary: '#f38b32',
@@ -25,8 +26,10 @@ export default function RootLayout() {
     <ThemeProvider lightColors={lightColors} darkColors={darkColors}>
       <QueryProvider>
         <GluestackUIProvider mode={colorScheme ?? 'light'}>
-          <Slot />
-          <StatusBar style="auto" />
+          <AuthProvider>
+            <Slot />
+            <StatusBar style="auto" />
+          </AuthProvider>
         </GluestackUIProvider>
       </QueryProvider>
     </ThemeProvider>

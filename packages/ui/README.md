@@ -4,8 +4,54 @@
 
 ## 📦 安装
 
+### 必需依赖
+
+UI 库依赖 `react-native-reanimated` 和 `react-native-gesture-handler` 来实现动画和手势效果，这两个库必须**同时安装**：
+
 ```bash
-npm install @panther-expo/ui nativewind tailwindcss
+npm install @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
+```
+
+或使用 pnpm/yarn：
+
+```bash
+# pnpm
+pnpm add @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
+
+# yarn
+yarn add @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
+```
+
+### 配置 Babel
+
+在项目的 `babel.config.js` 中添加 reanimated 插件：
+
+```javascript
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [
+      'nativewind/babel',
+      'react-native-reanimated/plugin', // 必须添加
+    ],
+  };
+};
+```
+
+### 配置 Metro（可选）
+
+如果在 Web 端使用，需要在 `metro.config.js` 中配置：
+
+```javascript
+const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+// 支持 react-native-reanimated
+config.resolver.sourceExts = ['js', 'jsx', 'json', 'ts', 'tsx', 'cjs', 'mjs'];
+
+module.exports = config;
 ```
 
 ## 🚀 快速开始
@@ -72,12 +118,12 @@ npx @panther-expo/ui generate-theme [options]
 
 ### 选项
 
-| 选项 | 说明 | 示例 |
-|------|------|------|
-| `orange` | 活力橙主题（默认） | `npx @panther-expo/ui generate-theme orange` |
-| `blue` | 现代蓝主题 | `npx @panther-expo/ui generate-theme blue` |
-| `purple` | 专业紫主题 | `npx @panther-expo/ui generate-theme purple` |
-| `#RRGGBB` | 自定义颜色 | `npx @panther-expo/ui generate-theme #3b82f6` |
+| 选项      | 说明               | 示例                                          |
+| --------- | ------------------ | --------------------------------------------- |
+| `orange`  | 活力橙主题（默认） | `npx @panther-expo/ui generate-theme orange`  |
+| `blue`    | 现代蓝主题         | `npx @panther-expo/ui generate-theme blue`    |
+| `purple`  | 专业紫主题         | `npx @panther-expo/ui generate-theme purple`  |
+| `#RRGGBB` | 自定义颜色         | `npx @panther-expo/ui generate-theme #3b82f6` |
 
 ### 生成的文件
 
@@ -125,11 +171,11 @@ module.exports = {
         primary: {
           500: 'rgb(var(--color-primary-500)/<alpha-value>)',
           /* ... */
-        }
-      }
-    }
-  }
-}
+        },
+      },
+    },
+  },
+};
 ```
 
 ---
@@ -141,7 +187,7 @@ module.exports = {
 ### 1. 安装依赖
 
 ```bash
-npm install @panther-expo/ui nativewind tailwindcss
+npm install @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
 ```
 
 ### 2. 配置 CSS 变量
@@ -157,7 +203,7 @@ npm install @panther-expo/ui nativewind tailwindcss
   --color-primary-200: 254 215 170;
   --color-primary-300: 253 186 116;
   --color-primary-400: 251 146 60;
-  --color-primary-500: 243 139 50;    /* 你的主色 */
+  --color-primary-500: 243 139 50; /* 你的主色 */
   --color-primary-600: 234 88 12;
   --color-primary-700: 194 65 12;
   --color-primary-800: 154 52 16;
@@ -185,11 +231,11 @@ module.exports = {
         primary: {
           500: 'rgb(var(--color-primary-500)/<alpha-value>)',
           // ... 其他色阶
-        }
-      }
-    }
-  }
-}
+        },
+      },
+    },
+  },
+};
 ```
 
 ---
@@ -285,6 +331,50 @@ npm run build
 # 生成主题（测试）
 npm run generate-theme
 ```
+
+---
+
+## ⚙️ 依赖说明
+
+### 必需依赖 (peerDependencies)
+
+| 依赖                           | 版本     | 用途              |
+| ------------------------------ | -------- | ----------------- |
+| `react`                        | >=18.0.0 | React 核心        |
+| `react-native`                 | >=0.81.0 | React Native 核心 |
+| `tailwindcss`                  | ^3.4.0   | CSS 工具类框架    |
+| `@panther-expo/theme`          | \*       | 主题系统          |
+| `react-native-reanimated`      | >=3.16.0 | 动画库（必需）    |
+| `react-native-gesture-handler` | >=2.16.1 | 手势处理（必需）  |
+
+### 为什么需要 reanimated 和 gesture-handler？
+
+这两个库是以下组件的必需依赖：
+
+| 组件            | 使用场景              |
+| --------------- | --------------------- |
+| **Actionsheet** | 底部动作菜单动画      |
+| **BottomSheet** | 底部弹出层 + 手势拖拽 |
+| **Modal**       | 模态框动画效果        |
+| **Popover**     | 气泡弹窗动画          |
+| **Drawer**      | 侧边抽屉 + 手势滑动   |
+| **Tooltip**     | 提示框动画            |
+| **AlertDialog** | 警告对话框动画        |
+| **Menu**        | 菜单动画              |
+| **Select**      | 选择器动画            |
+| **Toast**       | 消息提示动画          |
+
+**不安装这些依赖会导致：**
+
+- 应用白屏崩溃
+- 所有弹出类组件无法显示
+- 动画效果缺失
+
+### 可选依赖
+
+| 依赖                  | 用途                 |
+| --------------------- | -------------------- |
+| `@expo/html-elements` | Web 端 HTML 元素支持 |
 
 ---
 

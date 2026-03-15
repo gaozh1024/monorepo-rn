@@ -102,6 +102,8 @@ export interface GluestackColors {
   border950: string;
 }
 
+import { generateColorPalette } from './palette';
+
 /**
  * Gluestack UI 标准 Tailwind 配置预设
  *
@@ -124,7 +126,17 @@ export interface GluestackColors {
  * }
  * ```
  */
-export const gluestackColors = (config: Partial<GluestackColors>) => {
-  // 返回完整的颜色配置，使用传入的颜色生成调色板
-  return config;
+export const gluestackColors = (config: Record<string, string>) => {
+  const result: Record<string, string> = {};
+
+  for (const [name, color] of Object.entries(config)) {
+    const palette = generateColorPalette(color);
+    for (const [level, value] of Object.entries(palette)) {
+      result[`${name}-${level}`] = `rgb(${value})`;
+    }
+    // 保留原始颜色
+    result[name] = color;
+  }
+
+  return result;
 };

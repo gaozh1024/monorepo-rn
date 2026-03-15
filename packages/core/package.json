@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --treeshake --splitting",
+    "build": "tsup src/index.ts src/api/index.ts src/storage/index.ts src/query/index.ts src/logger/index.ts --format cjs,esm --dts --treeshake --splitting",
     "lint": "eslint src",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -40,12 +40,13 @@
     "expo-secure-store": "~15.0.8"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-native": ">=0.81.0",
-    "@tanstack/react-query": ">=5.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-native": "^0.76.0 || ^0.79.0 || ^0.81.0",
+    "@tanstack/react-query": "^5.0.0"
   },
   "devDependencies": {
     "react": "^19.0.0",
-    "@types/react": "^19.0.0"
+    "@types/react": "~19.0.0",
+    "@tanstack/react-query": "^5.0.0"
   }
 }
