@@ -1,39 +1,63 @@
-/**
- * 将十六进制颜色转换为 RGB 格式
- * @param hex - 十六进制颜色值，如 '#f38b32' 或 '#fff'
- * @returns RGB 格式字符串，如 '243 139 50'
- */
-export function hexToRgb(hex: string): string {
-  const hexValue = hex.replace('#', '');
-
-  let r: string;
-  let g: string;
-  let b: string;
-
-  if (hexValue.length === 3) {
-    r = parseInt(hexValue[0] + hexValue[0], 16).toString();
-    g = parseInt(hexValue[1] + hexValue[1], 16).toString();
-    b = parseInt(hexValue[2] + hexValue[2], 16).toString();
-  } else if (hexValue.length === 6) {
-    r = parseInt(hexValue.substring(0, 2), 16).toString();
-    g = parseInt(hexValue.substring(2, 4), 16).toString();
-    b = parseInt(hexValue.substring(4, 6), 16).toString();
-  } else {
-    throw new Error(`Invalid hex color: ${hex}`);
-  }
-
-  return `${r} ${g} ${b}`;
+export interface RgbObject {
+  r: number;
+  g: number;
+  b: number;
 }
 
-/**
- * 将 RGBA 颜色转换为 RGB 格式
- * @param rgba - RGBA 颜色值，如 'rgba(243, 139, 50, 0.1)'
- * @returns RGB 格式字符串，如 '243 139 50'
- */
-export function rgbaToRgb(rgba: string): string {
-  const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if (!match) {
-    throw new Error(`Invalid rgba color: ${rgba}`);
+export interface ColorPalette {
+  0: string;
+  50: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+  950: string;
+}
+
+export function hexToRgbObject(hex: string): RgbObject {
+  const clean = hex.replace('#', '');
+  const bigint = parseInt(clean, 16);
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255,
+  };
+}
+
+export function rgbObjectToHex(rgb: RgbObject): string {
+  return '#' + [rgb.r, rgb.g, rgb.b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+export function adjustBrightness(rgb: RgbObject, factor: number): RgbObject {
+  const adjust = (c: number) =>
+    Math.max(0, Math.min(255, c + (factor > 0 ? (255 - c) * factor : c * factor)));
+  return { r: adjust(rgb.r), g: adjust(rgb.g), b: adjust(rgb.b) };
+}
+
+export function generateColorPalette(baseHex: string): ColorPalette {
+  const rgb = hexToRgbObject(baseHex);
+  const factors: Record<number, number> = {
+    0: 0.95,
+    50: 0.9,
+    100: 0.75,
+    200: 0.5,
+    300: 0.3,
+    400: 0.1,
+    500: 0,
+    600: -0.1,
+    700: -0.25,
+    800: -0.4,
+    900: -0.55,
+    950: -0.7,
+  };
+  const result = {} as ColorPalette;
+  for (const [level, factor] of Object.entries(factors)) {
+    result[parseInt(level) as keyof ColorPalette] = rgbObjectToHex(adjustBrightness(rgb, factor));
   }
-  return `${match[1]} ${match[2]} ${match[3]}`;
+  return result;
 }

@@ -1,23 +1,30 @@
-/**
- * @panther-expo/utils - React Native 通用工具函数包
- *
- * 提供 RN 开发中常用的工具函数：
- * - 表单验证：与 Zod 集成的验证错误处理
- * - 颜色工具：颜色格式转换函数
- *
- * @example
- * ```typescript
- * import { getValidationErrors, hexToRgb } from '@panther-expo/utils';
- *
- * // 处理验证错误
- * const errors = getValidationErrors(zodError);
- *
- * // 颜色转换
- * const rgb = hexToRgb('#f38b32');
- * ```
- */
+// className 合并工具
+export { cn, clsx, twMerge, type ClassValue } from './cn';
 
-export * from './validation';
-export * from './color';
-export * from './color-palette';
-export * from './date';
+// 颜色工具
+export {
+  hexToRgbObject,
+  rgbObjectToHex,
+  adjustBrightness,
+  generateColorPalette,
+  type RgbObject,
+  type ColorPalette,
+} from './color';
+
+// 平台工具
+export { isDevelopment } from './platform';
+
+// 日期工具
+export { formatDate, formatRelativeTime } from './date/index';
+
+// 字符串工具
+export { truncate, slugify, capitalize } from './string/index';
+
+// 数字工具
+export { formatNumber, formatCurrency, formatPercent, clamp } from './number/index';
+
+// 对象工具
+export { deepMerge, pick, omit } from './object/index';
+
+// 验证工具
+export { getValidationErrors, isValidEmail, isValidPhone } from './validation/index';

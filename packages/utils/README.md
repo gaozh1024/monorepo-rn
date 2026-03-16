@@ -1,570 +1,442 @@
-# @panther-expo/utils
+# @gaozh1024/rn-utils
 
-React Native 通用工具函数包，提供开发中常用的工具函数和辅助方法。
+> Panther Expo 框架的工具函数库，提供颜色处理、字符串操作、日期格式化等常用工具函数。
 
 ## 📦 安装
 
 ```bash
-npm install @panther-expo/utils
+npm install @gaozh1024/rn-utils
+# 或
+pnpm add @gaozh1024/rn-utils
 ```
 
-**依赖要求**：
-- `zod` ^4.0.0（验证工具需要）
+> **注意：** 本库为纯工具库，无额外依赖要求。`clsx` 和 `tailwind-merge` 会自动随包安装。
+
+---
 
 ## 🚀 快速开始
 
-### 1. 表单验证工具
+```ts
+import { cn, formatDate, generateColorPalette } from '@gaozh1024/rn-utils';
 
-```typescript
-import { z } from 'zod';
-import { getValidationErrors, hasErrors, getFieldError } from '@panther-expo/utils';
+// 合并 className
+const className = cn('text-red-500', 'bg-blue-500', { 'font-bold': true });
 
-// 定义验证模式
-const loginSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少需要6个字符'),
-});
+// 格式化日期
+const dateStr = formatDate(new Date(), 'yyyy-MM-dd');
 
-// 验证表单
-try {
-  loginSchema.parse({ email: 'user@example.com', password: '123456' });
-  console.log('验证通过');
-} catch (error) {
-  if (error instanceof z.ZodError) {
-    // 获取字段错误映射
-    const errors = getValidationErrors(error);
-    console.log(errors);  // { email: '...', password: '...' }
-    
-    // 检查是否有错误
-    if (hasErrors(errors)) {
-      console.log('表单有错误');
-    }
-    
-    // 获取特定字段错误
-    const emailError = getFieldError(errors, 'email');
-    console.log(emailError);  // '请输入有效的邮箱地址'
-  }
-}
-```
-
-### 2. 颜色转换工具
-
-```typescript
-import { hexToRgb, rgbaToRgb } from '@panther-expo/utils';
-
-// 十六进制转 RGB
-const rgb = hexToRgb('#f38b32');
-console.log(rgb);  // '243 139 50'
-
-// RGBA 转 RGB
-const rgb2 = rgbaToRgb('rgba(243, 139, 50, 0.1)');
-console.log(rgb2);  // '243 139 50'
-```
-
-### 3. 颜色调色板生成
-
-```typescript
-import { generateColorPalette, generateFullCssConfig } from '@panther-expo/utils';
-
-// 生成单个颜色调色板
+// 生成色板
 const palette = generateColorPalette('#f38b32');
-console.log(palette[500]);   // '243 139 50' (原色)
-console.log(palette[600]);   // '219 125 45' (变暗)
-console.log(palette[400]);   // '247 174 112' (变亮)
+```
 
-// 生成完整 CSS 配置
-const css = generateFullCssConfig({
-  primary: '#f38b32',
-  secondary: '#4A5568',
-  success: '#52C41A',
-  error: '#FF4D4F',
-});
+## 📚 API 文档
 
-console.log(css);
-// 输出完整的 CSS 变量代码
+### ClassName 工具
+
+#### `cn(...inputs)`
+
+使用 `clsx` 和 `tailwind-merge` 合并 Tailwind CSS 类名，自动处理冲突。
+
+```ts
+import { cn } from '@gaozh1024/rn-utils';
+
+cn('text-red-500', 'bg-blue-500');
+// => 'text-red-500 bg-blue-500'
+
+cn('px-4 py-2', { 'font-bold': true, hidden: false });
+// => 'px-4 py-2 font-bold'
+
+// 自动合并冲突类名
+cn('text-red-500', 'text-blue-500');
+// => 'text-blue-500'
+```
+
+**参数：**
+
+- `inputs: ClassValue[]` - 任意数量的类名值
+
+**返回值：**
+
+- `string` - 合并后的类名字符串
+
+---
+
+### 颜色工具
+
+#### `hexToRgbObject(hex)`
+
+将十六进制颜色转换为 RGB 对象。
+
+```ts
+import { hexToRgbObject } from '@gaozh1024/rn-utils';
+
+hexToRgbObject('#f38b32');
+// => { r: 243, g: 139, b: 50 }
+```
+
+**参数：**
+
+- `hex: string` - 十六进制颜色字符串
+
+**返回值：**
+
+- `RgbObject` - `{ r: number, g: number, b: number }`
+
+---
+
+#### `rgbObjectToHex(rgb)`
+
+将 RGB 对象转换为十六进制颜色。
+
+```ts
+import { rgbObjectToHex } from '@gaozh1024/rn-utils';
+
+rgbObjectToHex({ r: 243, g: 139, b: 50 });
+// => '#f38b32'
 ```
 
 ---
 
-## 📚 API 文档
+#### `adjustBrightness(rgb, factor)`
 
-### 表单验证工具
+调整 RGB 颜色的亮度。
 
-#### getValidationErrors(error: z.ZodError): Record<string, string>
+```ts
+import { adjustBrightness, hexToRgbObject } from '@gaozh1024/rn-utils';
 
-将 Zod 验证错误转换为字段错误映射对象。
+const rgb = hexToRgbObject('#f38b32');
+adjustBrightness(rgb, 0.2); // 提亮 20%
+adjustBrightness(rgb, -0.2); // 变暗 20%
+```
 
-**参数**：
-- `error` - ZodError 实例
+**参数：**
 
-**返回值**：
-- `Record<string, string>` - 字段名到错误消息的映射
+- `rgb: RgbObject` - RGB 颜色对象
+- `factor: number` - 亮度调整因子，正数提亮，负数变暗
 
-**示例**：
+---
 
-```typescript
+#### `generateColorPalette(baseHex)`
+
+从基础颜色生成完整的色阶色板（0-950）。
+
+```ts
+import { generateColorPalette } from '@gaozh1024/rn-utils';
+
+const palette = generateColorPalette('#f38b32');
+// => {
+//   0: '#fff7ed',
+//   50: '#fff0dd',
+//   100: '#fed9b5',
+//   200: '#fcb58d',
+//   300: '#fa9a66',
+//   400: '#f78d4d',
+//   500: '#f38b32',
+//   600: '#db7d2d',
+//   700: '#c26e27',
+//   800: '#a85f22',
+//   900: '#8f501d',
+//   950: '#754118'
+// }
+
+// 使用色板
+palette[500]; // 基础色
+palette[100]; // 浅色背景
+palette[700]; // 深色文字
+```
+
+**参数：**
+
+- `baseHex: string` - 基础十六进制颜色
+
+**返回值：**
+
+- `ColorPalette` - 包含 0-950 色阶的色板对象
+
+---
+
+### 平台工具
+
+#### `isDevelopment()`
+
+检查当前是否处于开发环境。
+
+```ts
+import { isDevelopment } from '@gaozh1024/rn-utils';
+
+if (isDevelopment()) {
+  console.log('开发环境');
+}
+```
+
+---
+
+### 日期工具
+
+#### `formatDate(date, format)`
+
+格式化日期为指定格式。
+
+```ts
+import { formatDate } from '@gaozh1024/rn-utils';
+
+formatDate(new Date('2024-03-15'), 'yyyy-MM-dd');
+// => '2024-03-15'
+
+formatDate(new Date('2024-03-15'), 'yyyy/MM/dd');
+// => '2024/03/15'
+```
+
+**参数：**
+
+- `date: Date` - 日期对象
+- `format: string` - 格式字符串，支持 `yyyy`, `MM`, `dd`
+
+---
+
+#### `formatRelativeTime(date)`
+
+格式化为相对时间（刚刚、几分钟前等）。
+
+```ts
+import { formatRelativeTime } from '@gaozh1024/rn-utils';
+
+formatRelativeTime(new Date(Date.now() - 5 * 60000));
+// => '5分钟前'
+
+formatRelativeTime(new Date(Date.now() - 2 * 3600000));
+// => '2小时前'
+
+formatRelativeTime(new Date('2024-01-01'));
+// => '2024-01-01' (超过30天返回日期)
+```
+
+---
+
+### 字符串工具
+
+#### `truncate(str, length, suffix)`
+
+截断字符串并添加后缀。
+
+```ts
+import { truncate } from '@gaozh1024/rn-utils';
+
+truncate('Hello World', 8);
+// => 'Hello...'
+
+truncate('Hello World', 8, '---');
+// => 'Hello---'
+```
+
+---
+
+#### `slugify(str)`
+
+将字符串转换为 URL 友好的 slug。
+
+```ts
+import { slugify } from '@gaozh1024/rn-utils';
+
+slugify('Hello World!');
+// => 'hello-world'
+
+slugify('React Native App');
+// => 'react-native-app'
+```
+
+---
+
+#### `capitalize(str)`
+
+首字母大写。
+
+```ts
+import { capitalize } from '@gaozh1024/rn-utils';
+
+capitalize('hello');
+// => 'Hello'
+```
+
+---
+
+### 数字工具
+
+#### `formatNumber(num)`
+
+格式化数字为千分位格式。
+
+```ts
+import { formatNumber } from '@gaozh1024/rn-utils';
+
+formatNumber(1234567);
+// => '1,234,567'
+```
+
+---
+
+#### `formatCurrency(num, currency)`
+
+格式化为货币格式。
+
+```ts
+import { formatCurrency } from '@gaozh1024/rn-utils';
+
+formatCurrency(1234.5);
+// => '¥1,234.5'
+
+formatCurrency(1234.5, '$');
+// => '$1,234.5'
+```
+
+---
+
+#### `formatPercent(num, decimals)`
+
+格式化为百分比。
+
+```ts
+import { formatPercent } from '@gaozh1024/rn-utils';
+
+formatPercent(0.1567);
+// => '15.67%'
+
+formatPercent(0.1567, 1);
+// => '15.7%'
+```
+
+---
+
+#### `clamp(num, min, max)`
+
+将数字限制在指定范围内。
+
+```ts
+import { clamp } from '@gaozh1024/rn-utils';
+
+clamp(100, 0, 50);
+// => 50
+
+clamp(-10, 0, 50);
+// => 0
+```
+
+---
+
+### 对象工具
+
+#### `deepMerge(target, source)`
+
+深度合并两个对象。
+
+```ts
+import { deepMerge } from '@gaozh1024/rn-utils';
+
+const target = { a: 1, b: { c: 2 } };
+const source = { b: { d: 3 }, e: 4 };
+
+deepMerge(target, source);
+// => { a: 1, b: { c: 2, d: 3 }, e: 4 }
+```
+
+---
+
+#### `pick(obj, keys)`
+
+从对象中选取指定属性。
+
+```ts
+import { pick } from '@gaozh1024/rn-utils';
+
+const user = { id: 1, name: 'Tom', age: 25, password: 'secret' };
+
+pick(user, ['id', 'name']);
+// => { id: 1, name: 'Tom' }
+```
+
+---
+
+#### `omit(obj, keys)`
+
+从对象中排除指定属性。
+
+```ts
+import { omit } from '@gaozh1024/rn-utils';
+
+const user = { id: 1, name: 'Tom', age: 25, password: 'secret' };
+
+omit(user, ['password']);
+// => { id: 1, name: 'Tom', age: 25 }
+```
+
+---
+
+### 验证工具
+
+#### `isValidEmail(email)`
+
+验证邮箱格式。
+
+```ts
+import { isValidEmail } from '@gaozh1024/rn-utils';
+
+isValidEmail('user@example.com');
+// => true
+
+isValidEmail('invalid-email');
+// => false
+```
+
+---
+
+#### `isValidPhone(phone)`
+
+验证中国大陆手机号格式。
+
+```ts
+import { isValidPhone } from '@gaozh1024/rn-utils';
+
+isValidPhone('13800138000');
+// => true
+
+isValidPhone('12345678901');
+// => false
+```
+
+---
+
+#### `getValidationErrors(error)`
+
+从 Zod 错误中提取字段错误信息。
+
+```ts
+import { getValidationErrors } from '@gaozh1024/rn-utils';
 import { z } from 'zod';
-import { getValidationErrors } from '@panther-expo/utils';
 
 const schema = z.object({
   email: z.string().email(),
   age: z.number().min(18),
 });
 
-try {
-  schema.parse({ email: 'invalid', age: 16 });
-} catch (error) {
-  if (error instanceof z.ZodError) {
-    const errors = getValidationErrors(error);
-    console.log(errors);
-    // {
-    //   email: 'Invalid email',
-    //   age: 'Number must be greater than or equal to 18'
-    // }
-  }
+const result = schema.safeParse({ email: 'invalid', age: 15 });
+if (!result.success) {
+  const errors = getValidationErrors(result.error);
+  // => { email: 'Invalid email', age: 'Number must be >= 18' }
 }
 ```
 
 ---
 
-#### hasErrors(errors: Record<string, string>): boolean
+## 🧪 测试
 
-检查表单是否有错误。
+```bash
+# 运行测试
+pnpm test
 
-**参数**：
-- `errors` - 字段错误映射对象
-
-**返回值**：
-- `boolean` - 是否存在错误
-
-**示例**：
-
-```typescript
-import { hasErrors } from '@panther-expo/utils';
-
-const errors = { email: 'Invalid email' };
-
-if (hasErrors(errors)) {
-  console.log('表单验证失败');
-} else {
-  console.log('表单验证通过');
-}
+# 查看覆盖率
+pnpm test:coverage
 ```
 
----
-
-#### getFieldError(errors: Record<string, string>, field: string): string | undefined
-
-获取指定字段的错误消息。
-
-**参数**：
-- `errors` - 字段错误映射对象
-- `field` - 字段名称
-
-**返回值**：
-- `string | undefined` - 错误消息或 undefined
-
-**示例**：
-
-```typescript
-import { getFieldError } from '@panther-expo/utils';
-
-const errors = {
-  email: '邮箱格式不正确',
-  password: '密码太短',
-};
-
-const emailError = getFieldError(errors, 'email');
-console.log(emailError);  // '邮箱格式不正确'
-
-const phoneError = getFieldError(errors, 'phone');
-console.log(phoneError);  // undefined
-```
-
----
-
-### 颜色工具
-
-#### hexToRgb(hex: string): string
-
-将十六进制颜色转换为 RGB 格式字符串。
-
-**参数**：
-- `hex` - 十六进制颜色值，如 `'#f38b32'` 或 `'#fff'`
-
-**返回值**：
-- `string` - RGB 格式字符串，如 `'243 139 50'`
-
-**示例**：
-
-```typescript
-import { hexToRgb } from '@panther-expo/utils';
-
-// 6位十六进制
-hexToRgb('#f38b32');  // '243 139 50'
-
-// 3位十六进制
-hexToRgb('#f38');     // '255 51 136'
-
-// 带 # 前缀
-hexToRgb('#ffffff');  // '255 255 255'
-```
-
----
-
-#### rgbaToRgb(rgba: string): string
-
-将 RGBA 颜色字符串转换为 RGB 格式字符串。
-
-**参数**：
-- `rgba` - RGBA 颜色字符串，如 `'rgba(243, 139, 50, 0.1)'`
-
-**返回值**：
-- `string` - RGB 格式字符串，如 `'243 139 50'`
-
-**示例**：
-
-```typescript
-import { rgbaToRgb } from '@panther-expo/utils';
-
-rgbaToRgb('rgba(243, 139, 50, 0.1)');  // '243 139 50'
-rgbaToRgb('rgba(255, 255, 255, 1)');   // '255 255 255'
-```
-
----
-
-### 颜色调色板工具
-
-#### generateColorPalette(baseColor: string): ColorPalette
-
-根据基础颜色生成 0-950 完整色阶。
-
-**参数**：
-- `baseColor` - 基础颜色，十六进制如 `'#f38b32'` 或 RGBA 如 `'rgba(243, 139, 50, 0.1)'`
-
-**返回值**：
-- `ColorPalette` - 包含 0-950 色阶的对象
-
-**ColorPalette 结构**：
-
-```typescript
-interface ColorPalette {
-  0: string;    // 最亮（接近白色）
-  50: string;
-  100: string;
-  200: string;
-  300: string;
-  400: string;
-  500: string;  // 原色
-  600: string;
-  700: string;
-  800: string;
-  900: string;
-  950: string;  // 最暗（接近黑色）
-}
-```
-
-**示例**：
-
-```typescript
-import { generateColorPalette } from '@panther-expo/utils';
-
-const palette = generateColorPalette('#f38b32');
-
-console.log(palette);
-// {
-//   0: '255 247 237',
-//   50: '254 243 235',
-//   100: '253 226 204',
-//   200: '251 197 153',
-//   300: '249 174 112',
-//   400: '247 157 82',
-//   500: '243 139 50',    // 原色
-//   600: '219 125 45',    // 变暗 10%
-//   700: '182 104 38',    // 变暗 25%
-//   800: '146 83 30',     // 变暗 40%
-//   900: '109 62 23',     // 变暗 55%
-//   950: '73 42 15'       // 变暗 70%
-// }
-
-// 使用在样式中
-const primaryColor = palette[500];      // 主色
-const hoverColor = palette[600];        // hover 状态
-const lightBg = palette[50];            // 浅色背景
-```
-
----
-
-#### generateColorPalettes(colors: Record<string, string>): Record<string, ColorPalette>
-
-批量生成多个颜色的调色板。
-
-**参数**：
-- `colors` - 颜色配置对象，key 为颜色名，value 为十六进制颜色值
-
-**返回值**：
-- `Record<string, ColorPalette>` - 包含所有颜色调色板的对象
-
-**示例**：
-
-```typescript
-import { generateColorPalettes } from '@panther-expo/utils';
-
-const palettes = generateColorPalettes({
-  primary: '#f38b32',
-  secondary: '#4A5568',
-  success: '#52C41A',
-  error: '#FF4D4F',
-});
-
-console.log(palettes.primary[500]);    // '243 139 50'
-console.log(palettes.secondary[500]);  // '74 85 104'
-console.log(palettes.success[500]);    // '82 196 26'
-```
-
----
-
-#### generateCssVariables(name: string, palette: ColorPalette): string
-
-生成 CSS 变量配置字符串。
-
-**参数**：
-- `name` - 颜色名称，如 `'primary'`, `'success'`
-- `palette` - 颜色调色板对象
-
-**返回值**：
-- `string` - CSS 变量字符串
-
-**示例**：
-
-```typescript
-import { generateCssVariables, generateColorPalette } from '@panther-expo/utils';
-
-const palette = generateColorPalette('#f38b32');
-const css = generateCssVariables('primary', palette);
-
-console.log(css);
-//   --color-primary-0: 255 247 237;
-//   --color-primary-50: 254 243 235;
-//   --color-primary-100: 253 226 204;
-//   ...
-```
-
----
-
-#### generateFullCssConfig(theme: Record<string, string>): string
-
-生成完整的 CSS 变量配置。
-
-**参数**：
-- `theme` - 主题颜色配置对象
-
-**返回值**：
-- `string` - 完整的 CSS 代码
-
-**示例**：
-
-```typescript
-import { generateFullCssConfig } from '@panther-expo/utils';
-
-const css = generateFullCssConfig({
-  primary: '#f38b32',
-  secondary: '#4A5568',
-  success: '#52C41A',
-  error: '#FF4D4F',
-  warning: '#FAAD14',
-  info: '#1890FF',
-});
-
-console.log(css);
-// 输出完整的 :root CSS 代码，包含所有颜色的 0-950 色阶
-```
-
----
-
-## 📝 完整示例
-
-### 表单验证示例
-
-```typescript
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button } from 'react-native';
-import { z } from 'zod';
-import { getValidationErrors, hasErrors, getFieldError } from '@panther-expo/utils';
-
-// 定义验证模式
-const registerSchema = z.object({
-  username: z.string().min(3, '用户名至少需要3个字符'),
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少需要6个字符'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: '两次输入的密码不一致',
-  path: ['confirmPassword'],
-});
-
-export function RegisterForm() {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const handleSubmit = () => {
-    try {
-      registerSchema.parse(formData);
-      // 验证通过，提交表单
-      console.log('提交表单:', formData);
-      setErrors({});
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setErrors(getValidationErrors(error));
-      }
-    }
-  };
-
-  return (
-    <View>
-      <TextInput
-        placeholder="用户名"
-        value={formData.username}
-        onChangeText={(text) => setFormData({ ...formData, username: text })}
-      />
-      {getFieldError(errors, 'username') && (
-        <Text style={{ color: 'red' }}>{getFieldError(errors, 'username')}</Text>
-      )}
-
-      <TextInput
-        placeholder="邮箱"
-        value={formData.email}
-        onChangeText={(text) => setFormData({ ...formData, email: text })}
-        keyboardType="email-address"
-      />
-      {getFieldError(errors, 'email') && (
-        <Text style={{ color: 'red' }}>{getFieldError(errors, 'email')}</Text>
-      )}
-
-      <TextInput
-        placeholder="密码"
-        value={formData.password}
-        onChangeText={(text) => setFormData({ ...formData, password: text })}
-        secureTextEntry
-      />
-      {getFieldError(errors, 'password') && (
-        <Text style={{ color: 'red' }}>{getFieldError(errors, 'password')}</Text>
-      )}
-
-      <TextInput
-        placeholder="确认密码"
-        value={formData.confirmPassword}
-        onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
-        secureTextEntry
-      />
-      {getFieldError(errors, 'confirmPassword') && (
-        <Text style={{ color: 'red' }}>{getFieldError(errors, 'confirmPassword')}</Text>
-      )}
-
-      <Button 
-        title={hasErrors(errors) ? '请修正错误' : '注册'} 
-        onPress={handleSubmit} 
-        disabled={hasErrors(errors)}
-      />
-    </View>
-  );
-}
-```
-
-### 主题配置生成示例
-
-```typescript
-// scripts/generate-theme.ts
-import { generateFullCssConfig } from '@panther-expo/utils';
-import * as fs from 'fs';
-
-const css = generateFullCssConfig({
-  primary: '#f38b32',
-  secondary: '#4A5568',
-  success: '#52C41A',
-  error: '#FF4D4F',
-  warning: '#FAAD14',
-  info: '#1890FF',
-});
-
-fs.writeFileSync('theme.css', css);
-console.log('主题配置已生成到 theme.css');
-```
-
----
-
-## 🎨 最佳实践
-
-### 1. 表单验证组合
-
-```typescript
-import { z } from 'zod';
-import { getValidationErrors, hasErrors, getFieldError } from '@panther-expo/utils';
-
-// 创建自定义 hook
-function useFormValidation<T extends z.ZodType>(schema: T) {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const validate = (data: unknown): boolean => {
-    try {
-      schema.parse(data);
-      setErrors({});
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setErrors(getValidationErrors(error));
-      }
-      return false;
-    }
-  };
-
-  const getError = (field: string) => getFieldError(errors, field);
-  const hasError = () => hasErrors(errors);
-
-  return { errors, validate, getError, hasError };
-}
-
-// 使用
-const { validate, getError, hasError } = useFormValidation(loginSchema);
-```
-
-### 2. 颜色工具组合
-
-```typescript
-import { generateColorPalette, hexToRgb } from '@panther-expo/utils';
-
-// 创建主题工具
-export const themeUtils = {
-  // 生成品牌色板
-  generateBrandPalette: (primaryColor: string) => {
-    return generateColorPalette(primaryColor);
-  },
-
-  // 转换为 Tailwind 配置格式
-  toTailwindConfig: (palette: ColorPalette) => {
-    const config: Record<number, string> = {};
-    for (const [key, value] of Object.entries(palette)) {
-      config[parseInt(key)] = `rgb(${value})`;
-    }
-    return config;
-  },
-
-  // 检查颜色亮度
-  isLightColor: (hex: string) => {
-    const rgb = hexToRgb(hex).split(' ').map(Number);
-    const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-    return brightness > 128;
-  },
-};
-```
-
----
-
-## 📄 License
+## 📄 许可证
 
 MIT

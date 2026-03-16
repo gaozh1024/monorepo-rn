@@ -1,383 +1,702 @@
-# @panther-expo/ui
+# @gaozh1024/rn-ui
 
-基于 Gluestack UI + NativeWind 的 React Native 组件库
+> Panther Expo 框架的 UI 组件库，提供原子组件、布局组件、反馈组件等，基于 NativeWind 和 Tailwind CSS。
 
 ## 📦 安装
 
-### 必需依赖
-
-UI 库依赖 `react-native-reanimated` 和 `react-native-gesture-handler` 来实现动画和手势效果，这两个库必须**同时安装**：
-
 ```bash
-npm install @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
+npm install @gaozh1024/rn-ui
+# 或
+pnpm add @gaozh1024/rn-ui
 ```
 
-或使用 pnpm/yarn：
+### ⚠️ 前置要求
+
+本库依赖 **NativeWind v4** 来处理样式，使用前需要完成以下配置：
+
+#### 1. 安装依赖
 
 ```bash
-# pnpm
-pnpm add @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
-
-# yarn
-yarn add @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
+npm install nativewind tailwindcss react-native-reanimated react-native-svg
+# 或
+pnpm add nativewind tailwindcss react-native-reanimated react-native-svg
 ```
 
-### 配置 Babel
+> **注意：** `react-native-reanimated` 和 `react-native-svg` 是必需的 peer 依赖，动画功能和图标组件需要它们。
 
-在项目的 `babel.config.js` 中添加 reanimated 插件：
+#### 2. 配置 Tailwind CSS
 
-```javascript
+创建 `tailwind.config.js`：
+
+```js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './App.{js,jsx,ts,tsx}',
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/@gaozh1024/rn-ui/**/*.{js,jsx,ts,tsx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+          950: '#431407',
+        },
+        // 其他主题色...
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+#### 3. 配置 Metro（重要）
+
+创建或修改 `metro.config.js`：
+
+```js
+const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+
+const config = getDefaultConfig(__dirname);
+
+// 配置 NativeWind
+module.exports = withNativeWind(config, {
+  input: './global.css',
+});
+```
+
+#### 4. 配置 Babel
+
+修改 `babel.config.js`：
+
+```js
 module.exports = function (api) {
   api.cache(true);
   return {
     presets: ['babel-preset-expo'],
     plugins: [
       'nativewind/babel',
-      'react-native-reanimated/plugin', // 必须添加
+      'react-native-reanimated/plugin', // 必须添加，用于动画
     ],
   };
 };
 ```
 
-### 配置 Metro（可选）
+#### 5. 创建 CSS 文件
 
-如果在 Web 端使用，需要在 `metro.config.js` 中配置：
+在项目根目录创建 `global.css`：
 
-```javascript
-const { getDefaultConfig } = require('expo/metro-config');
-
-const config = getDefaultConfig(__dirname);
-
-// 支持 react-native-reanimated
-config.resolver.sourceExts = ['js', 'jsx', 'json', 'ts', 'tsx', 'cjs', 'mjs'];
-
-module.exports = config;
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 ```
+
+#### 6. 导入样式
+
+在应用入口（如 `App.tsx`）导入：
+
+```tsx
+import './global.css';
+// 或者对于 Expo Router 项目，在 app/_layout.tsx 中导入
+```
+
+更多配置详情请参考 [NativeWind 文档](https://www.nativewind.dev/)。
+
+#### ✅ 配置检查清单
+
+确保以下文件都已正确配置：
+
+```
+项目根目录/
+├── metro.config.js      # 配置 withNativeWind
+├── babel.config.js      # 添加 nativewind/babel 插件
+├── tailwind.config.js   # 配置 content 路径
+├── global.css           # Tailwind 指令
+└── App.tsx              # 导入 global.css
+```
+
+#### 🚨 常见问题
+
+**Q: 样式不生效？**
+
+- 检查 `metro.config.js` 是否正确配置了 `withNativeWind`
+- 检查 `global.css` 是否正确导入
+- 检查 `tailwind.config.js` 的 `content` 是否包含组件路径
+
+**Q: 动画不工作？**
+
+- 确保 `babel.config.js` 中添加了 `'react-native-reanimated/plugin'`
+- 确保已安装 `react-native-reanimated`
+
+**Q: 图标不显示？**
+
+- 确保已安装 `react-native-svg`
+
+---
 
 ## 🚀 快速开始
 
-### 第一步：生成主题配置
+```tsx
+import {
+  AppView,
+  AppText,
+  AppButton,
+  Row,
+  Col,
+  Center,
+  ToastUI,
+  AlertUI,
+  LoadingUI,
+  Progress,
+} from '@gaozh1024/rn-ui';
 
-使用 CLI 工具快速生成主题配置：
+function Example() {
+  return (
+    <AppView flex p={4} gap={4}>
+      <AppText size="xl" weight="bold">
+        欢迎使用 Panther UI
+      </AppText>
 
-```bash
-# 使用默认主题（活力橙）
-npx @panther-expo/ui generate-theme
+      <Row gap={2}>
+        <AppButton onPress={() => {}}>主要按钮</AppButton>
+        <AppButton variant="outline" color="secondary">
+          次要按钮
+        </AppButton>
+      </Row>
 
-# 使用预设主题
-npx @panther-expo/ui generate-theme orange    # 活力橙
-npx @panther-expo/ui generate-theme blue      # 现代蓝
-npx @panther-expo/ui generate-theme purple    # 专业紫
-
-# 使用自定义颜色
-npx @panther-expo/ui generate-theme #3b82f6
+      <Progress value={75} size="md" color="primary" />
+    </AppView>
+  );
+}
 ```
 
-### 第二步：应用配置
+## 📚 组件文档
 
-将生成的文件复制到你的项目中：
+### 🔷 原子组件 (Primitives)
 
-```bash
-# 复制 CSS 变量到全局样式
-cp theme-generated/colors.css global.css
+基础 UI 组件，封装了 React Native 原生组件并添加 Tailwind 支持。
 
-# 或追加到现有 global.css
-cat theme-generated/colors.css >> global.css
+#### AppView
 
-# 复制 Tailwind 配置
-cp theme-generated/tailwind.config.js tailwind.config.js
+增强的 View 组件，支持便捷的布局属性。
+
+```tsx
+import { AppView } from '@gaozh1024/rn-ui';
+
+<AppView
+  flex // flex-1 或 flex-{number}
+  row // flex-row（默认为 column）
+  center // items-center justify-center
+  between // justify-between
+  items="center" // items-{start|center|end|stretch}
+  justify="between" // justify-{start|center|end|between|around}
+  p={4} // padding
+  px={2} // padding-horizontal
+  py={3} // padding-vertical
+  gap={2} // gap
+  bg="primary-500" // background-color
+  rounded="lg" // border-radius
+  className="shadow-md"
+>
+  <Text>内容</Text>
+</AppView>;
 ```
 
-### 第三步：使用组件
+**属性：**
 
-```typescript
-import { Button, Input, Card, Text } from '@panther-expo/ui';
+| 属性        | 类型                                                    | 说明                    |
+| ----------- | ------------------------------------------------------- | ----------------------- |
+| `flex`      | `boolean \| number`                                     | 弹性布局                |
+| `row`       | `boolean`                                               | 水平排列                |
+| `center`    | `boolean`                                               | 居中                    |
+| `between`   | `boolean`                                               | 两端对齐                |
+| `items`     | `'start' \| 'center' \| 'end' \| 'stretch'`             | 交叉轴对齐              |
+| `justify`   | `'start' \| 'center' \| 'end' \| 'between' \| 'around'` | 主轴对齐                |
+| `p`         | `number`                                                | 内边距                  |
+| `px`        | `number`                                                | 水平内边距              |
+| `py`        | `number`                                                | 垂直内边距              |
+| `gap`       | `number`                                                | 间距                    |
+| `bg`        | `string`                                                | 背景色（Tailwind 类名） |
+| `rounded`   | `string`                                                | 圆角（Tailwind 类名）   |
+| `className` | `string`                                                | 自定义类名              |
+
+---
+
+#### AppText
+
+增强的 Text 组件，支持预设大小和字重。
+
+```tsx
+import { AppText } from '@gaozh1024/rn-ui';
+
+<AppText
+  size="lg" // xs, sm, md, lg, xl, 2xl, 3xl
+  weight="bold" // normal, medium, semibold, bold
+  color="primary-500" // 文字颜色
+  className="text-center"
+>
+  标题文字
+</AppText>;
+```
+
+**属性：**
+
+| 属性        | 类型                                                     | 说明                      |
+| ----------- | -------------------------------------------------------- | ------------------------- |
+| `size`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| '2xl' \| '3xl'` | 文字大小                  |
+| `weight`    | `'normal' \| 'medium' \| 'semibold' \| 'bold'`           | 字重                      |
+| `color`     | `string`                                                 | 文字颜色（Tailwind 类名） |
+| `className` | `string`                                                 | 自定义类名                |
+
+**尺寸映射：**
+
+```
+xs  -> text-xs  (12px)
+sm  -> text-sm  (14px)
+md  -> text-base (16px)
+lg  -> text-lg  (18px)
+xl  -> text-xl  (20px)
+2xl -> text-2xl (24px)
+3xl -> text-3xl (30px)
+```
+
+---
+
+#### AppPressable
+
+增强的 Pressable 组件，支持按下状态样式。
+
+```tsx
+import { AppPressable } from '@gaozh1024/rn-ui';
+
+<AppPressable
+  className="px-4 py-3 bg-blue-500 rounded-lg"
+  pressedClassName="bg-blue-600" // 按下时的样式
+  onPress={() => console.log('pressed')}
+>
+  <Text className="text-white">点击我</Text>
+</AppPressable>;
+```
+
+**属性：**
+
+| 属性               | 类型     | 说明         |
+| ------------------ | -------- | ------------ |
+| `className`        | `string` | 默认样式     |
+| `pressedClassName` | `string` | 按下时的样式 |
+
+---
+
+#### AppInput
+
+带标签和错误提示的输入框组件。
+
+```tsx
+import { AppInput } from '@gaozh1024/rn-ui';
+
+<AppInput
+  label="邮箱地址"
+  placeholder="请输入邮箱"
+  value={email}
+  onChangeText={setEmail}
+  error={errors.email} // 错误信息，有值时显示红色边框
+/>;
+```
+
+**属性：**
+
+| 属性        | 类型     | 说明       |
+| ----------- | -------- | ---------- |
+| `label`     | `string` | 标签文字   |
+| `error`     | `string` | 错误信息   |
+| `className` | `string` | 自定义类名 |
+
+继承 `TextInput` 的所有其他属性。
+
+---
+
+### 📐 布局组件 (Layout)
+
+简化常用布局的组件。
+
+#### Row
+
+水平排列容器。
+
+```tsx
+import { Row } from '@gaozh1024/rn-ui';
+
+<Row
+  justify="between" // start, center, end, between, around
+  align="center" // start, center, end, stretch
+  gap={2}
+>
+  <Text>左侧</Text>
+  <Text>右侧</Text>
+</Row>;
+```
+
+---
+
+#### Col
+
+垂直排列容器。
+
+```tsx
+import { Col } from '@gaozh1024/rn-ui';
+
+<Col justify="start" align="stretch" gap={4}>
+  <Text>第一行</Text>
+  <Text>第二行</Text>
+</Col>;
+```
+
+---
+
+#### Center
+
+居中对齐容器。
+
+```tsx
+import { Center } from '@gaozh1024/rn-ui';
+
+<Center flex>  {/* flex 属性控制是否填充父容器 */}
+  <Text>居中内容</Text>
+</Center>
+
+<Center>  {/* 仅包裹内容 */}
+  <Icon name="check" />
+</Center>
+```
+
+---
+
+### 🔘 组合组件 (Composables)
+
+复杂交互组件。
+
+#### AppButton
+
+多功能按钮组件，支持多种变体和状态。
+
+```tsx
+import { AppButton } from '@gaozh1024/rn-ui';
+
+// 基础用法
+<AppButton onPress={handlePress}>点击我</AppButton>
+
+// 变体
+<AppButton variant="solid">实心按钮</AppButton>
+<AppButton variant="outline">描边按钮</AppButton>
+<AppButton variant="ghost">幽灵按钮</AppButton>
+
+// 颜色
+<AppButton color="primary">主要</AppButton>
+<AppButton color="secondary">次要</AppButton>
+<AppButton color="danger">危险</AppButton>
+
+// 尺寸
+<AppButton size="sm">小</AppButton>
+<AppButton size="md">中</AppButton>
+<AppButton size="lg">大</AppButton>
+
+// 状态
+<AppButton loading>加载中</AppButton>
+<AppButton disabled>禁用</AppButton>
+```
+
+**属性：**
+
+| 属性        | 类型                                   | 默认值      | 说明       |
+| ----------- | -------------------------------------- | ----------- | ---------- |
+| `variant`   | `'solid' \| 'outline' \| 'ghost'`      | `'solid'`   | 按钮样式   |
+| `size`      | `'sm' \| 'md' \| 'lg'`                 | `'md'`      | 按钮尺寸   |
+| `color`     | `'primary' \| 'secondary' \| 'danger'` | `'primary'` | 主题色     |
+| `loading`   | `boolean`                              | `false`     | 加载状态   |
+| `disabled`  | `boolean`                              | `false`     | 禁用状态   |
+| `onPress`   | `() => void`                           | -           | 点击回调   |
+| `className` | `string`                               | -           | 自定义类名 |
+
+---
+
+### 💬 反馈组件 (Feedback)
+
+用户反馈相关组件。
+
+#### ToastUI
+
+轻量级消息提示。
+
+```tsx
+import { ToastUI } from '@gaozh1024/rn-ui';
+
+// 成功提示
+<ToastUI type="success" message="操作成功" />
+
+// 错误提示
+<ToastUI type="error" message="操作失败" />
+
+// 警告提示
+<ToastUI type="warning" message="请注意" />
+
+// 信息提示
+<ToastUI type="info" message="普通消息" />
+
+// 控制显示
+<ToastUI visible={showToast} type="success" message="保存成功" />
+```
+
+**属性：**
+
+| 属性      | 类型                                          | 默认值   | 说明     |
+| --------- | --------------------------------------------- | -------- | -------- |
+| `message` | `string`                                      | 必填     | 消息内容 |
+| `type`    | `'success' \| 'error' \| 'warning' \| 'info'` | `'info'` | 消息类型 |
+| `visible` | `boolean`                                     | `true`   | 是否显示 |
+
+---
+
+#### AlertUI
+
+对话框组件。
+
+```tsx
+import { AlertUI } from '@gaozh1024/rn-ui';
+
+<AlertUI
+  title="确认删除"
+  message="此操作不可撤销，是否继续？"
+  confirmText="删除"
+  cancelText="取消"
+  onConfirm={() => handleDelete()}
+  onCancel={() => setShowAlert(false)}
+  visible={showAlert}
+/>
+
+// 仅确认按钮
+<AlertUI
+  title="提示"
+  message="操作已完成"
+  confirmText="知道了"
+  onConfirm={() => setShowAlert(false)}
+/>
+```
+
+**属性：**
+
+| 属性          | 类型         | 默认值   | 说明         |
+| ------------- | ------------ | -------- | ------------ |
+| `title`       | `string`     | 必填     | 标题         |
+| `message`     | `string`     | -        | 消息内容     |
+| `confirmText` | `string`     | `'确认'` | 确认按钮文字 |
+| `cancelText`  | `string`     | `'取消'` | 取消按钮文字 |
+| `onConfirm`   | `() => void` | -        | 确认回调     |
+| `onCancel`    | `() => void` | -        | 取消回调     |
+| `visible`     | `boolean`    | `true`   | 是否显示     |
+
+---
+
+#### LoadingUI
+
+加载指示器。
+
+```tsx
+import { LoadingUI } from '@gaozh1024/rn-ui';
+
+// 简单加载
+<LoadingUI />
+
+// 带文字
+<LoadingUI text="加载中..." />
+
+// 全屏遮罩
+<LoadingUI overlay text="请稍候..." />
+
+// 条件显示
+<LoadingUI visible={isLoading} overlay text="提交中..." />
+```
+
+**属性：**
+
+| 属性      | 类型      | 默认值  | 说明         |
+| --------- | --------- | ------- | ------------ |
+| `text`    | `string`  | -       | 加载文字     |
+| `overlay` | `boolean` | `false` | 是否显示遮罩 |
+| `visible` | `boolean` | `true`  | 是否显示     |
+
+---
+
+### 📊 数据展示 (Components)
+
+#### Progress
+
+进度条组件。
+
+```tsx
+import { Progress } from '@gaozh1024/rn-ui';
+
+// 基础用法
+<Progress value={50} />
+
+// 自定义最大值
+<Progress value={3} max={5} />
+
+// 尺寸
+<Progress value={50} size="xs" />  // 4px
+<Progress value={50} size="sm" />  // 6px
+<Progress value={50} size="md" />  // 8px
+<Progress value={50} size="lg" />  // 12px
+<Progress value={50} size="xl" />  // 16px
+
+// 颜色
+<Progress value={50} color="primary" />
+<Progress value={50} color="secondary" />
+<Progress value={50} color="success" />
+<Progress value={50} color="warning" />
+<Progress value={50} color="error" />
+```
+
+**属性：**
+
+| 属性    | 类型                                                            | 默认值      | 说明   |
+| ------- | --------------------------------------------------------------- | ----------- | ------ |
+| `value` | `number`                                                        | 必填        | 当前值 |
+| `max`   | `number`                                                        | `100`       | 最大值 |
+| `size`  | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                          | `'md'`      | 尺寸   |
+| `color` | `'primary' \| 'secondary' \| 'success' \| 'warning' \| 'error'` | `'primary'` | 颜色   |
+
+---
+
+## 🎨 主题集成
+
+组件与 `@gaozh1024/rn-theme` 无缝集成：
+
+```tsx
+import { ThemeProvider, createTheme } from '@gaozh1024/rn-theme';
+import { AppView, AppText, AppButton } from '@gaozh1024/rn-ui';
+
+const theme = createTheme({
+  colors: {
+    primary: '#f38b32',
+    secondary: '#6366f1',
+  },
+});
 
 function App() {
   return (
-    <Card>
-      <Text>欢迎使用</Text>
-      <Input placeholder="请输入" />
-      <Button action="primary">
-        <ButtonText>提交</ButtonText>
-      </Button>
-    </Card>
+    <ThemeProvider light={theme}>
+      <AppView flex p={4} className="bg-primary-50">
+        <AppText size="xl" weight="bold" className="text-primary-500">
+          主题集成示例
+        </AppText>
+        <AppButton color="primary">主题按钮</AppButton>
+      </AppView>
+    </ThemeProvider>
   );
 }
 ```
 
 ---
 
-## 🛠️ CLI 工具详细说明
+## 💡 完整示例
 
-### 命令
+### 登录表单
 
-```bash
-npx @panther-expo/ui generate-theme [options]
-```
+```tsx
+import { useState } from 'react';
+import {
+  AppView,
+  AppText,
+  AppInput,
+  AppButton,
+  Col,
+  Center,
+  ToastUI,
+  LoadingUI,
+} from '@gaozh1024/rn-ui';
 
-### 选项
+function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; message: string }>({
+    show: false,
+    message: '',
+  });
 
-| 选项      | 说明               | 示例                                          |
-| --------- | ------------------ | --------------------------------------------- |
-| `orange`  | 活力橙主题（默认） | `npx @panther-expo/ui generate-theme orange`  |
-| `blue`    | 现代蓝主题         | `npx @panther-expo/ui generate-theme blue`    |
-| `purple`  | 专业紫主题         | `npx @panther-expo/ui generate-theme purple`  |
-| `#RRGGBB` | 自定义颜色         | `npx @panther-expo/ui generate-theme #3b82f6` |
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      await api.login({ email, password });
+      setToast({ show: true, message: '登录成功' });
+    } catch (err) {
+      setToast({ show: true, message: '登录失败' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-### 生成的文件
+  return (
+    <Center flex p={6}>
+      <Col gap={4} className="w-full">
+        <AppText size="2xl" weight="bold" className="text-center">
+          欢迎登录
+        </AppText>
 
-运行命令后会在 `./theme-generated/` 目录生成：
+        <AppInput
+          label="邮箱"
+          placeholder="请输入邮箱"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
 
-```
-theme-generated/
-├── colors.css              # CSS 变量配置
-├── tailwind.config.js      # Tailwind 配置
-└── README.md               # 使用说明
-```
+        <AppInput
+          label="密码"
+          placeholder="请输入密码"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-#### colors.css
+        <AppButton size="lg" loading={loading} onPress={handleLogin}>
+          登录
+        </AppButton>
+      </Col>
 
-包含所有 Gluestack UI 需要的 CSS 变量：
+      <LoadingUI visible={loading} overlay />
 
-```css
-:root {
-  --color-primary-500: 243 139 50;
-  --color-primary-600: 219 125 45;
-  --color-success-500: 82 196 26;
-  --color-error-500: 255 77 79;
-  /* ... 更多颜色 */
-}
-
-.dark {
-  /* 暗色模式配置 */
-}
-```
-
-#### tailwind.config.js
-
-完整的 Tailwind 配置，包含所有颜色定义：
-
-```javascript
-module.exports = {
-  content: [
-    './app/**/*.{js,jsx,ts,tsx}',
-    './node_modules/@panther-expo/ui/dist/**/*.{js,jsx,ts,tsx}',
-  ],
-  presets: [require('nativewind/preset')],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          500: 'rgb(var(--color-primary-500)/<alpha-value>)',
-          /* ... */
-        },
-      },
-    },
-  },
-};
-```
-
----
-
-## 📚 手动配置（不使用 CLI）
-
-如果你不想使用 CLI，可以手动配置：
-
-### 1. 安装依赖
-
-```bash
-npm install @panther-expo/ui nativewind tailwindcss react-native-reanimated react-native-gesture-handler
-```
-
-### 2. 配置 CSS 变量
-
-在 `global.css` 中添加：
-
-```css
-:root {
-  /* 主色 */
-  --color-primary-0: 255 255 255;
-  --color-primary-50: 255 247 237;
-  --color-primary-100: 255 237 213;
-  --color-primary-200: 254 215 170;
-  --color-primary-300: 253 186 116;
-  --color-primary-400: 251 146 60;
-  --color-primary-500: 243 139 50; /* 你的主色 */
-  --color-primary-600: 234 88 12;
-  --color-primary-700: 194 65 12;
-  --color-primary-800: 154 52 16;
-  --color-primary-900: 124 45 18;
-  --color-primary-950: 67 20 7;
-
-  /* 其他颜色... */
+      <ToastUI visible={toast.show} type="success" message={toast.message} />
+    </Center>
+  );
 }
 ```
 
-### 3. 配置 Tailwind
-
-在 `tailwind.config.js` 中：
-
-```javascript
-module.exports = {
-  content: [
-    './app/**/*.{js,jsx,ts,tsx}',
-    './node_modules/@panther-expo/ui/dist/**/*.{js,jsx,ts,tsx}',
-  ],
-  presets: [require('nativewind/preset')],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          500: 'rgb(var(--color-primary-500)/<alpha-value>)',
-          // ... 其他色阶
-        },
-      },
-    },
-  },
-};
-```
-
 ---
 
-## 🎨 API 使用
-
-### generateColorPalette
-
-生成单个颜色的完整色阶：
-
-```typescript
-import { generateColorPalette } from '@panther-expo/ui/theme';
-
-const palette = generateColorPalette('#f38b32');
-
-console.log(palette);
-// {
-//   0: '255 247 237',
-//   50: '254 231 205',
-//   100: '253 205 153',
-//   ...
-//   500: '243 139 50',
-//   600: '219 125 45',
-//   ...
-//   950: '99 46 10'
-// }
-```
-
-### generateFullCssConfig
-
-生成完整 CSS 配置：
-
-```typescript
-import { generateFullCssConfig } from '@panther-expo/ui/theme';
-
-const css = generateFullCssConfig({
-  primary: '#f38b32',
-  secondary: '#4A5568',
-  success: '#52C41A',
-  error: '#FF4D4F',
-});
-
-console.log(css);
-// 输出完整的 CSS 变量代码
-```
-
----
-
-## 📦 可用组件
-
-### 布局组件
-
-- `Box` - 基础容器
-- `Card` - 卡片容器
-
-### 表单组件
-
-- `Button` / `ButtonText` / `ButtonIcon` / `ButtonSpinner` / `ButtonGroup` - 按钮
-- `Input` / `InputField` / `InputIcon` / `InputSlot` - 输入框
-
-### 展示组件
-
-- `Text` - 文本
-
----
-
-## 📖 文档
-
-- [主题配置详细说明](./THEME_SETUP.md)
-
----
-
-## 📝 注意事项
-
-1. **必须配置颜色**：组件依赖 CSS 变量，缺少颜色会导致样式异常
-2. **RGB 格式**：CSS 变量使用 `R G B` 格式，不是 hex
-3. **暗色模式**：支持亮色/暗色模式切换
-
----
-
-## 🔧 开发
+## 🧪 测试
 
 ```bash
-# 克隆仓库
-git clone <repository>
+# 运行测试
+pnpm test
 
-# 安装依赖
-npm install
-
-# 构建
-npm run build
-
-# 生成主题（测试）
-npm run generate-theme
+# 查看覆盖率
+pnpm test:coverage
 ```
 
----
-
-## ⚙️ 依赖说明
-
-### 必需依赖 (peerDependencies)
-
-| 依赖                           | 版本     | 用途              |
-| ------------------------------ | -------- | ----------------- |
-| `react`                        | >=18.0.0 | React 核心        |
-| `react-native`                 | >=0.81.0 | React Native 核心 |
-| `tailwindcss`                  | ^3.4.0   | CSS 工具类框架    |
-| `@panther-expo/theme`          | \*       | 主题系统          |
-| `react-native-reanimated`      | >=3.16.0 | 动画库（必需）    |
-| `react-native-gesture-handler` | >=2.16.1 | 手势处理（必需）  |
-
-### 为什么需要 reanimated 和 gesture-handler？
-
-这两个库是以下组件的必需依赖：
-
-| 组件            | 使用场景              |
-| --------------- | --------------------- |
-| **Actionsheet** | 底部动作菜单动画      |
-| **BottomSheet** | 底部弹出层 + 手势拖拽 |
-| **Modal**       | 模态框动画效果        |
-| **Popover**     | 气泡弹窗动画          |
-| **Drawer**      | 侧边抽屉 + 手势滑动   |
-| **Tooltip**     | 提示框动画            |
-| **AlertDialog** | 警告对话框动画        |
-| **Menu**        | 菜单动画              |
-| **Select**      | 选择器动画            |
-| **Toast**       | 消息提示动画          |
-
-**不安装这些依赖会导致：**
-
-- 应用白屏崩溃
-- 所有弹出类组件无法显示
-- 动画效果缺失
-
-### 可选依赖
-
-| 依赖                  | 用途                 |
-| --------------------- | -------------------- |
-| `@expo/html-elements` | Web 端 HTML 元素支持 |
-
----
-
-## 📄 License
+## 📄 许可证
 
 MIT

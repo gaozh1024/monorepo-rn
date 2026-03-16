@@ -1,28 +1,13 @@
-# Source
+# @panther-expo/core - NPM Ignore
 src/
-tsconfig.json
-
-# Tests
 __tests__/
 *.test.ts
 *.test.tsx
 *.spec.ts
-*.spec.tsx
-
-# Build info
-*.tsbuildinfo
-
-# Development
-.eslintrc*
-.prettierrc*
-jest.config.*
-
-# Documentation (keep README)
-CHANGELOG.md
-CONTRIBUTING.md
-
-# CI
-.github/
-
-# Git
+vitest.config.ts
+tsconfig.json
+*.log
+.env
+.git/
 .gitignore
+CHANGELOG.md

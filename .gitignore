@@ -1,107 +1,140 @@
-# Dependencies
-node_modules/
-.pnpm-store/
-.pnpm-debug.log*
+# ============================================================================
+# 📁 Panther Expo Framework - Git Ignore
+# ============================================================================
 
-# Build outputs
+# ----------------------------------------------------------------------------
+# 依赖 (Dependencies)
+# ----------------------------------------------------------------------------
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+.pnpm-store/
+
+# ----------------------------------------------------------------------------
+# 构建输出 (Build Outputs)
+# ----------------------------------------------------------------------------
+# 根目录
 dist/
 build/
-*.tsbuildinfo
+out/
 
-# Testing
+# 各包构建输出 (packages/*)
+packages/*/dist/
+packages/*/build/
+
+# ----------------------------------------------------------------------------
+# 测试 (Testing)
+# ----------------------------------------------------------------------------
 coverage/
-*.log
+*.lcov
+.nyc_output/
 
-# Environment
+# ----------------------------------------------------------------------------
+# 环境变量 (Environment Variables)
+# ----------------------------------------------------------------------------
 .env
 .env.local
 .env.*.local
+.env.development
+.env.test
+.env.production
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Temporary files
-*.tmp
-*.temp
-tmp/
-temp/
-
-# Logs
+# ----------------------------------------------------------------------------
+# 日志 (Logs)
+# ----------------------------------------------------------------------------
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+.pnpm-debug.log*
 
-# Expo
-.expo/
-web-build/
+# ----------------------------------------------------------------------------
+# 编辑器 (Editor)
+# ----------------------------------------------------------------------------
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
 
-# Metro
-.metro-health-check*
+# IDEA
+.idea/
+*.iml
 
-# Debug
-.chrome/
-
-# TypeScript
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional stylelint cache
-.stylelintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn
-.yarn-integrity
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# Package manager lock files (keep one, ignore others if needed)
-# package-lock.json
-# yarn.lock
-
-# Generated theme files (for testing)
-theme-generated/
-
-# Examples and templates build outputs
-examples/**/node_modules/
-examples/**/dist/
-examples/**/.expo/
-examples/**/web-build/
-templates/**/node_modules/
-templates/**/dist/
-templates/**/.expo/
-templates/**/web-build/
+# Vim
+*.swp
+*.swo
+*~
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
 
 # Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# ----------------------------------------------------------------------------
+# 运行时 (Runtime)
+# ----------------------------------------------------------------------------
+*.pid
+*.seed
+*.pid.lock
+
+# ----------------------------------------------------------------------------
+# 缓存 (Cache)
+# ----------------------------------------------------------------------------
+.eslintcache
+.stylelintcache
+.parcel-cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# ----------------------------------------------------------------------------
+# TypeScript
+# ----------------------------------------------------------------------------
+*.tsbuildinfo
+
+# ----------------------------------------------------------------------------
+# 可选 (Optional)
+# ----------------------------------------------------------------------------
+*.tgz
+*.tar.gz
+
+# ----------------------------------------------------------------------------
+# 项目特定 (Project Specific)
+# ----------------------------------------------------------------------------
+# yalc本地发布
+.yalc/
+yalc.lock
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 本地历史
+.history/
+
+# Expo/React Native
+.expo/
+expo-env.d.ts
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Metro
+.metro-health-check*
