@@ -1,13 +1,13 @@
-# @gaozh1024/rn-theme
+# @gaozh/rn-theme
 
 > Panther Expo 框架的主题系统，提供颜色色板生成、明暗主题切换、间距和圆角配置。
 
 ## 📦 安装
 
 ```bash
-npm install @gaozh1024/rn-theme
+npm install @gaozh/rn-theme
 # 或
-pnpm add @gaozh1024/rn-theme
+pnpm add @gaozh/rn-theme
 ```
 
 ### ⚠️ 前置要求
@@ -25,7 +25,7 @@ pnpm add react react-native
 ## 🚀 快速开始
 
 ```tsx
-import { ThemeProvider, createTheme, useTheme } from '@gaozh1024/rn-theme';
+import { ThemeProvider, createTheme, useTheme } from '@gaozh/rn-theme';
 
 // 创建主题配置
 const lightTheme = createTheme({
@@ -77,7 +77,7 @@ function MyComponent() {
 创建主题配置对象。
 
 ```ts
-import { createTheme } from '@gaozh1024/rn-theme';
+import { createTheme } from '@gaozh/rn-theme';
 
 const theme = createTheme({
   colors: {
@@ -143,7 +143,7 @@ interface ColorPalette {
 主题提供者组件，用于包裹应用并提供主题上下文。
 
 ```tsx
-import { ThemeProvider } from '@gaozh1024/rn-theme';
+import { ThemeProvider } from '@gaozh/rn-theme';
 
 <ThemeProvider
   light={lightTheme} // 浅色主题配置
@@ -170,7 +170,7 @@ import { ThemeProvider } from '@gaozh1024/rn-theme';
 获取主题上下文，包含当前主题、明暗状态和控制方法。
 
 ```tsx
-import { useTheme } from '@gaozh1024/rn-theme';
+import { useTheme } from '@gaozh/rn-theme';
 
 function MyComponent() {
   const { theme, isDark, toggleTheme } = useTheme();
@@ -195,34 +195,6 @@ function MyComponent() {
   theme: Theme;           // 当前主题对象
   isDark: boolean;        // 是否深色模式
   toggleTheme: () => void; // 切换主题函数
-}
-```
-
----
-
-### generateColorPalette
-
-从基础颜色生成完整的色阶色板。
-
-```ts
-import { generateColorPalette } from '@gaozh1024/rn-theme';
-
-const palette = generateColorPalette('#f38b32');
-
-// 返回色阶对象
-{
-  0: '#fff7ed',   // 极浅，用于背景
-  50: '#fff0dd',
-  100: '#fed9b5',
-  200: '#fcb58d',
-  300: '#fa9a66',
-  400: '#f78d4d',
-  500: '#f38b32', // 基础色
-  600: '#db7d2d',
-  700: '#c26e27',
-  800: '#a85f22',
-  900: '#8f501d',
-  950: '#754118'  // 极深，用于文字
 }
 ```
 
@@ -283,7 +255,7 @@ const theme = createTheme({
 ### 明暗主题切换
 
 ```tsx
-import { ThemeProvider, createTheme, useTheme } from '@gaozh1024/rn-theme';
+import { ThemeProvider, createTheme, useTheme } from '@gaozh/rn-theme';
 
 const light = createTheme({
   colors: {
@@ -323,11 +295,11 @@ function HomeScreen() {
 
 ### 与 Tailwind CSS 结合
 
-配合 `@gaozh1024/rn-ui` 组件使用主题：
+配合 `@gaozh/rn-ui` 组件使用主题：
 
 ```tsx
-import { AppView, AppText } from '@gaozh1024/rn-ui';
-import { useTheme } from '@gaozh1024/rn-theme';
+import { AppView, AppText } from '@gaozh/rn-ui';
+import { useTheme } from '@gaozh/rn-theme';
 
 function Card() {
   const { theme } = useTheme();

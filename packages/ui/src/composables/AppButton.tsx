@@ -1,6 +1,6 @@
 import { ActivityIndicator } from 'react-native';
 import { AppPressable, AppText } from '../primitives';
-import { cn } from '@gaozh1024/rn-utils';
+import { cn } from '@gaozh/rn-utils';
 
 export interface AppButtonProps {
   variant?: 'solid' | 'outline' | 'ghost';

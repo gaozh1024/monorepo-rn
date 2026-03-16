@@ -1,19 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { hexToRgbObject, rgbObjectToHex, adjustBrightness, generateColorPalette } from '../color';
+import { hexToRgb, rgbToHex, adjustBrightness, generateColorPalette } from '../color';
 
-describe('hexToRgbObject', () => {
+describe('hexToRgb', () => {
   it('应该将hex转为RGB对象', () => {
-    expect(hexToRgbObject('#FF5733')).toEqual({ r: 255, g: 87, b: 51 });
-    expect(hexToRgbObject('#000000')).toEqual({ r: 0, g: 0, b: 0 });
-    expect(hexToRgbObject('#FFFFFF')).toEqual({ r: 255, g: 255, b: 255 });
+    expect(hexToRgb('#FF5733')).toEqual({ r: 255, g: 87, b: 51 });
+    expect(hexToRgb('#000000')).toEqual({ r: 0, g: 0, b: 0 });
+    expect(hexToRgb('#FFFFFF')).toEqual({ r: 255, g: 255, b: 255 });
   });
 });
 
-describe('rgbObjectToHex', () => {
+describe('rgbToHex', () => {
   it('应该将RGB对象转为hex', () => {
-    expect(rgbObjectToHex({ r: 255, g: 87, b: 51 })).toBe('#ff5733');
-    expect(rgbObjectToHex({ r: 0, g: 0, b: 0 })).toBe('#000000');
-    expect(rgbObjectToHex({ r: 255, g: 255, b: 255 })).toBe('#ffffff');
+    expect(rgbToHex({ r: 255, g: 87, b: 51 })).toBe('#ff5733');
+    expect(rgbToHex({ r: 0, g: 0, b: 0 })).toBe('#000000');
+    expect(rgbToHex({ r: 255, g: 255, b: 255 })).toBe('#ffffff');
   });
 });
 

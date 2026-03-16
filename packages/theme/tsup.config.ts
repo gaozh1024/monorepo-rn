@@ -9,5 +9,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-native', '@gaozh1024/rn-utils'],
+  external: ['react', 'react-native', '@gaozh/rn-utils'],
 });

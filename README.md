@@ -40,7 +40,7 @@ cd monorepo-rn
 ```tsx
 import { ThemeProvider, createTheme } from '@gaozh1024/rn-theme';
 import { createAPI } from '@gaozh1024/rn-core';
-import { AppView, AppText, AppButton } from '@gaozh1024/rn-ui';
+import { AppView, AppText, AppButton, Toast, Loading } from '@gaozh1024/rn-ui';
 
 // 创建主题
 const theme = createTheme({

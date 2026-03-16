@@ -1,1 +1,1 @@
-export { SecureStorage, storage } from './secure-storage';
+export { MemoryStorage, storage } from './memory-storage';

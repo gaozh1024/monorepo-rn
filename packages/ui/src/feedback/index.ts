@@ -1,3 +1,3 @@
-export { ToastUI, type ToastUIProps } from './ToastUI';
-export { AlertUI, type AlertUIProps } from './AlertUI';
-export { LoadingUI, type LoadingUIProps } from './LoadingUI';
+export { Toast, type ToastProps } from './Toast';
+export { Alert, type AlertProps } from './Alert';
+export { Loading, type LoadingProps } from './Loading';

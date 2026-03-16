@@ -1,0 +1,38 @@
+import React from 'react';
+import { AppPressable, AppText } from '../primitives';
+import { Icon, IconSize } from '../components/Icon';
+
+export interface RadioProps {
+  checked?: boolean;
+  onPress?: () => void;
+  disabled?: boolean;
+  color?: string;
+  size?: IconSize;
+  children?: React.ReactNode;
+}
+
+export function Radio({
+  checked = false,
+  onPress,
+  disabled = false,
+  color = 'primary-500',
+  size = 'md',
+  children,
+}: RadioProps) {
+  const iconSize = typeof size === 'number' ? size * 1.2 : size;
+
+  return (
+    <AppPressable
+      disabled={disabled}
+      onPress={onPress}
+      className={`flex-row items-center gap-2 ${disabled ? 'opacity-50' : ''}`}
+    >
+      <Icon
+        name={checked ? 'radio-button-checked' : 'radio-button-unchecked'}
+        size={iconSize}
+        color={checked ? color : 'gray-400'}
+      />
+      {children && <AppText className={checked ? '' : 'text-gray-600'}>{children}</AppText>}
+    </AppPressable>
+  );
+}

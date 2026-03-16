@@ -3,8 +3,8 @@ export { cn, clsx, twMerge, type ClassValue } from './cn';
 
 // 颜色工具
 export {
-  hexToRgbObject,
-  rgbObjectToHex,
+  hexToRgb,
+  rgbToHex,
   adjustBrightness,
   generateColorPalette,
   type RgbObject,

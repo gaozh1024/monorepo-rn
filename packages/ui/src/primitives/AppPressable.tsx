@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Pressable, PressableProps } from 'react-native';
-import { cn } from '@gaozh1024/rn-utils';
+import { cn } from '@gaozh/rn-utils';
 
 export interface AppPressableProps extends PressableProps {
   className?: string;

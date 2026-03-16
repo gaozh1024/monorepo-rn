@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, ViewProps } from 'react-native';
-import { cn } from '@gaozh1024/rn-utils';
+import { cn } from '@gaozh/rn-utils';
 
 export interface CardProps extends ViewProps {
   className?: string;

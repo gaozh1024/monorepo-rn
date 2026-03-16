@@ -1,13 +1,13 @@
-# @gaozh1024/rn-ui
+# @gaozh/rn-ui
 
 > Panther Expo 框架的 UI 组件库，提供原子组件、布局组件、反馈组件等，基于 NativeWind 和 Tailwind CSS。
 
 ## 📦 安装
 
 ```bash
-npm install @gaozh1024/rn-ui
+npm install @gaozh/rn-ui
 # 或
-pnpm add @gaozh1024/rn-ui
+pnpm add @gaozh/rn-ui
 ```
 
 ### ⚠️ 前置要求
@@ -34,7 +34,7 @@ module.exports = {
   content: [
     './App.{js,jsx,ts,tsx}',
     './src/**/*.{js,jsx,ts,tsx}',
-    './node_modules/@gaozh1024/rn-ui/**/*.{js,jsx,ts,tsx}',
+    './node_modules/@gaozh/rn-ui/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
     extend: {
@@ -157,11 +157,11 @@ import {
   Col,
   Center,
   Card,
-  ToastUI,
-  AlertUI,
-  LoadingUI,
+  Toast,
+  Alert,
+  Loading,
   Progress,
-} from '@gaozh1024/rn-ui';
+} from '@gaozh/rn-ui';
 
 function Example() {
   return (
@@ -194,7 +194,7 @@ function Example() {
 增强的 View 组件，支持便捷的布局属性。
 
 ```tsx
-import { AppView } from '@gaozh1024/rn-ui';
+import { AppView } from '@gaozh/rn-ui';
 
 <AppView
   flex // flex-1 或 flex-{number}
@@ -240,7 +240,7 @@ import { AppView } from '@gaozh1024/rn-ui';
 增强的 Text 组件，支持预设大小和字重。
 
 ```tsx
-import { AppText } from '@gaozh1024/rn-ui';
+import { AppText } from '@gaozh/rn-ui';
 
 <AppText
   size="lg" // xs, sm, md, lg, xl, 2xl, 3xl
@@ -280,7 +280,7 @@ xl  -> text-xl  (20px)
 增强的 Pressable 组件，支持按下状态样式。
 
 ```tsx
-import { AppPressable } from '@gaozh1024/rn-ui';
+import { AppPressable } from '@gaozh/rn-ui';
 
 <AppPressable
   className="px-4 py-3 bg-blue-500 rounded-lg"
@@ -305,7 +305,7 @@ import { AppPressable } from '@gaozh1024/rn-ui';
 带标签和错误提示的输入框组件。
 
 ```tsx
-import { AppInput } from '@gaozh1024/rn-ui';
+import { AppInput } from '@gaozh/rn-ui';
 
 <AppInput
   label="邮箱地址"
@@ -337,11 +337,11 @@ import { AppInput } from '@gaozh1024/rn-ui';
 水平排列容器。
 
 ```tsx
-import { Row } from '@gaozh1024/rn-ui';
+import { Row } from '@gaozh/rn-ui';
 
 <Row
   justify="between" // start, center, end, between, around
-  align="center" // start, center, end, stretch
+  items="center" // start, center, end, stretch
   gap={2}
 >
   <Text>左侧</Text>
@@ -355,14 +355,14 @@ import { Row } from '@gaozh1024/rn-ui';
 
 垂直排列容器。
 
-```tsx
-import { Col } from '@gaozh1024/rn-ui';
+````tsx
+import { Col } from '@gaozh/rn-ui';
 
-<Col justify="start" align="stretch" gap={4}>
+<Col justify="start" items="stretch" gap={4}>
   <Text>第一行</Text>
   <Text>第二行</Text>
 </Col>;
-```
+` ``
 
 ---
 
@@ -371,7 +371,7 @@ import { Col } from '@gaozh1024/rn-ui';
 居中对齐容器。
 
 ```tsx
-import { Center } from '@gaozh1024/rn-ui';
+import { Center } from '@gaozh/rn-ui';
 
 <Center flex>  {/* flex 属性控制是否填充父容器 */}
   <Text>居中内容</Text>
@@ -380,7 +380,7 @@ import { Center } from '@gaozh1024/rn-ui';
 <Center>  {/* 仅包裹内容 */}
   <Icon name="check" />
 </Center>
-```
+````
 
 ---
 
@@ -393,7 +393,7 @@ import { Center } from '@gaozh1024/rn-ui';
 多功能按钮组件，支持多种变体和状态。
 
 ```tsx
-import { AppButton } from '@gaozh1024/rn-ui';
+import { AppButton } from '@gaozh/rn-ui';
 
 // 基础用法
 <AppButton onPress={handlePress}>点击我</AppButton>
@@ -436,27 +436,27 @@ import { AppButton } from '@gaozh1024/rn-ui';
 
 用户反馈相关组件。
 
-#### ToastUI
+#### Toast
 
 轻量级消息提示。
 
 ```tsx
-import { ToastUI } from '@gaozh1024/rn-ui';
+import { Toast } from '@gaozh/rn-ui';
 
 // 成功提示
-<ToastUI type="success" message="操作成功" />
+<Toast type="success" message="操作成功" />
 
 // 错误提示
-<ToastUI type="error" message="操作失败" />
+<Toast type="error" message="操作失败" />
 
 // 警告提示
-<ToastUI type="warning" message="请注意" />
+<Toast type="warning" message="请注意" />
 
 // 信息提示
-<ToastUI type="info" message="普通消息" />
+<Toast type="info" message="普通消息" />
 
 // 控制显示
-<ToastUI visible={showToast} type="success" message="保存成功" />
+<Toast visible={showToast} type="success" message="保存成功" />
 ```
 
 **属性：**
@@ -469,14 +469,14 @@ import { ToastUI } from '@gaozh1024/rn-ui';
 
 ---
 
-#### AlertUI
+#### Alert
 
 对话框组件。
 
 ```tsx
-import { AlertUI } from '@gaozh1024/rn-ui';
+import { Alert } from '@gaozh/rn-ui';
 
-<AlertUI
+<Alert
   title="确认删除"
   message="此操作不可撤销，是否继续？"
   confirmText="删除"
@@ -487,7 +487,7 @@ import { AlertUI } from '@gaozh1024/rn-ui';
 />
 
 // 仅确认按钮
-<AlertUI
+<Alert
   title="提示"
   message="操作已完成"
   confirmText="知道了"
@@ -509,24 +509,24 @@ import { AlertUI } from '@gaozh1024/rn-ui';
 
 ---
 
-#### LoadingUI
+#### Loading
 
 加载指示器。
 
 ```tsx
-import { LoadingUI } from '@gaozh1024/rn-ui';
+import { Loading } from '@gaozh/rn-ui';
 
 // 简单加载
-<LoadingUI />
+<Loading />
 
 // 带文字
-<LoadingUI text="加载中..." />
+<Loading text="加载中..." />
 
 // 全屏遮罩
-<LoadingUI overlay text="请稍候..." />
+<Loading overlay text="请稍候..." />
 
 // 条件显示
-<LoadingUI visible={isLoading} overlay text="提交中..." />
+<Loading visible={isLoading} overlay text="提交中..." />
 ```
 
 **属性：**
@@ -546,7 +546,7 @@ import { LoadingUI } from '@gaozh1024/rn-ui';
 卡片容器组件，用于包裹内容。
 
 ```tsx
-import { Card, AppText, AppView } from '@gaozh1024/rn-ui';
+import { Card, AppText, AppView } from '@gaozh/rn-ui';
 
 // 基础用法
 <Card className="p-4">
@@ -582,7 +582,7 @@ import { Card, AppText, AppView } from '@gaozh1024/rn-ui';
 进度条组件。
 
 ```tsx
-import { Progress } from '@gaozh1024/rn-ui';
+import { Progress } from '@gaozh/rn-ui';
 
 // 基础用法
 <Progress value={50} />
@@ -618,11 +618,11 @@ import { Progress } from '@gaozh1024/rn-ui';
 
 ## 🎨 主题集成
 
-组件与 `@gaozh1024/rn-theme` 无缝集成：
+组件与 `@gaozh/rn-theme` 无缝集成：
 
 ```tsx
-import { ThemeProvider, createTheme } from '@gaozh1024/rn-theme';
-import { AppView, AppText, AppButton } from '@gaozh1024/rn-ui';
+import { ThemeProvider, createTheme } from '@gaozh/rn-theme';
+import { AppView, AppText, AppButton } from '@gaozh/rn-ui';
 
 const theme = createTheme({
   colors: {
@@ -663,7 +663,7 @@ import {
   Center,
   ToastUI,
   LoadingUI,
-} from '@gaozh1024/rn-ui';
+} from '@gaozh/rn-ui';
 
 function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -719,7 +719,7 @@ function LoginScreen() {
 
       <LoadingUI visible={loading} overlay />
 
-      <ToastUI visible={toast.show} type="success" message={toast.message} />
+      <Toast visible={toast.show} type="success" message={toast.message} />
     </Center>
   );
 }

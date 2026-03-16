@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SecureStorage } from '../../storage/secure-storage';
+import { MemoryStorage } from '../../storage/memory-storage';
 
-describe('SecureStorage', () => {
-  let storage: SecureStorage;
+describe('MemoryStorage', () => {
+  let storage: MemoryStorage;
 
   beforeEach(() => {
-    storage = new SecureStorage();
+    storage = new MemoryStorage();
   });
 
   it('应该存储和读取字符串', async () => {

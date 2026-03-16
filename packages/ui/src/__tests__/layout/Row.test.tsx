@@ -16,8 +16,8 @@ describe('Row', () => {
     expect(row.props.className).toContain('justify-between');
   });
 
-  it('应该应用align样式', () => {
-    const { getByTestId } = render(<Row align="center" testID="row" />);
+  it('应该应用items样式', () => {
+    const { getByTestId } = render(<Row items="center" testID="row" />);
     const row = getByTestId('row');
     expect(row.props.className).toContain('items-center');
   });

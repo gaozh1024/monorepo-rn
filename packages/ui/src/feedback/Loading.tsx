@@ -1,13 +1,13 @@
 import { ActivityIndicator } from 'react-native';
 import { AppView, AppText } from '../primitives';
 
-export interface LoadingUIProps {
+export interface LoadingProps {
   text?: string;
   overlay?: boolean;
   visible?: boolean;
 }
 
-export function LoadingUI({ text, overlay = false, visible = true }: LoadingUIProps) {
+export function Loading({ text, overlay = false, visible = true }: LoadingProps) {
   if (!visible) return null;
   const content = (
     <AppView center gap={3}>

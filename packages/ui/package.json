@@ -1,6 +1,6 @@
 {
-  "name": "@gaozh1024/rn-ui",
-  "version": "0.1.0",
+  "name": "@gaozh/rn-ui",
+  "version": "0.2.0-beta.0",
   "description": "React Native UI component library with Tailwind styling",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,8 +10,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@gaozh1024/rn-utils": "0.1.0",
-    "@gaozh1024/rn-theme": "0.1.0",
+    "@gaozh/rn-utils": "workspace:*",
+    "@gaozh/rn-theme": "workspace:*",
     "nativewind": "^4.0.0",
     "react-native-svg": "^14.0.0"
   },

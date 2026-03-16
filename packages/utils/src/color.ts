@@ -19,7 +19,7 @@ export interface ColorPalette {
   950: string;
 }
 
-export function hexToRgbObject(hex: string): RgbObject {
+export function hexToRgb(hex: string): RgbObject {
   const clean = hex.replace('#', '');
   const bigint = parseInt(clean, 16);
   return {
@@ -29,7 +29,7 @@ export function hexToRgbObject(hex: string): RgbObject {
   };
 }
 
-export function rgbObjectToHex(rgb: RgbObject): string {
+export function rgbToHex(rgb: RgbObject): string {
   return '#' + [rgb.r, rgb.g, rgb.b].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
@@ -40,7 +40,7 @@ export function adjustBrightness(rgb: RgbObject, factor: number): RgbObject {
 }
 
 export function generateColorPalette(baseHex: string): ColorPalette {
-  const rgb = hexToRgbObject(baseHex);
+  const rgb = hexToRgb(baseHex);
   const factors: Record<number, number> = {
     0: 0.95,
     50: 0.9,
@@ -57,7 +57,7 @@ export function generateColorPalette(baseHex: string): ColorPalette {
   };
   const result = {} as ColorPalette;
   for (const [level, factor] of Object.entries(factors)) {
-    result[parseInt(level) as keyof ColorPalette] = rgbObjectToHex(adjustBrightness(rgb, factor));
+    result[parseInt(level) as keyof ColorPalette] = rgbToHex(adjustBrightness(rgb, factor));
   }
   return result;
 }

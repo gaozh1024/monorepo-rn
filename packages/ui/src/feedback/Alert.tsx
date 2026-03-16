@@ -1,6 +1,6 @@
 import { AppView, AppText, AppPressable } from '../primitives';
 
-export interface AlertUIProps {
+export interface AlertProps {
   title: string;
   message?: string;
   confirmText?: string;
@@ -10,7 +10,7 @@ export interface AlertUIProps {
   visible?: boolean;
 }
 
-export function AlertUI({
+export function Alert({
   title,
   message,
   confirmText = '确认',
@@ -18,7 +18,7 @@ export function AlertUI({
   onConfirm,
   onCancel,
   visible = true,
-}: AlertUIProps) {
+}: AlertProps) {
   if (!visible) return null;
   return (
     <AppView center flex className="absolute inset-0 bg-black/50">

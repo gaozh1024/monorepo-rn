@@ -1,4 +1,4 @@
-import type { APICreateConfig, EndpointConfig } from './types';
+import type { ApiConfig, ApiEndpointConfig } from './types';
 import { ZodError } from 'zod';
 import { ErrorCode, type AppError } from '../error';
 
@@ -11,8 +11,8 @@ function parseZodError(error: ZodError): AppError {
   };
 }
 
-export function createAPI<TEndpoints extends Record<string, EndpointConfig<any, any>>>(
-  config: APICreateConfig<TEndpoints>
+export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<any, any>>>(
+  config: ApiConfig<TEndpoints>
 ): { [K in keyof TEndpoints]: (input?: any) => Promise<any> } {
   const endpoints = {} as any;
 

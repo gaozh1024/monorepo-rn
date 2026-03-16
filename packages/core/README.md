@@ -1,13 +1,13 @@
-# @gaozh1024/rn-core
+# @gaozh/rn-core
 
 > Panther Expo 框架的核心业务层，提供类型安全的 API 工厂、统一的错误处理、安全存储等功能。
 
 ## 📦 安装
 
 ```bash
-npm install @gaozh1024/rn-core
+npm install @gaozh/rn-core
 # 或
-pnpm add @gaozh1024/rn-core
+pnpm add @gaozh/rn-core
 ```
 
 ### ⚠️ 前置要求
@@ -29,7 +29,7 @@ pnpm add react react-native zod @tanstack/react-query
 ## 🚀 快速开始
 
 ```tsx
-import { createAPI, z, ErrorCode, useAsync, storage } from '@gaozh1024/rn-core';
+import { createAPI, z, ErrorCode, useAsyncState, storage } from '@gaozh/rn-core';
 
 // 1. 定义 API
 const api = createAPI({
@@ -64,12 +64,12 @@ const newUser = await api.createUser({
 });
 
 // 3. 错误处理
-const { execute, loading, error, data } = useAsync();
+const { execute, loading, error, data } = useAsyncState();
 
 async function handleSubmit() {
   try {
     await execute(api.createUser(formData));
-  } catch (err) {
+  } catch (err: any) {
     if (err.isValidation) {
       // 处理验证错误
     }
@@ -89,7 +89,7 @@ async function handleSubmit() {
 创建类型安全的 API 客户端。
 
 ```ts
-import { createAPI, z } from '@gaozh1024/rn-core';
+import { createAPI, z } from '@gaozh/rn-core';
 
 const api = createAPI({
   baseURL: 'https://api.example.com',
@@ -129,12 +129,12 @@ const users = await api.listUsers();
 **配置类型：**
 
 ```ts
-interface APICreateConfig<TEndpoints> {
+interface ApiConfig<TEndpoints> {
   baseURL: string;
   endpoints: TEndpoints;
 }
 
-interface EndpointConfig<TInput, TOutput> {
+interface ApiEndpointConfig<TInput, TOutput> {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   path: string; // 支持路径参数 :id
   input?: ZodSchema<TInput>; // 请求参数验证（可选）
@@ -158,11 +158,12 @@ interface EndpointConfig<TInput, TOutput> {
 预定义的错误代码枚举。
 
 ```ts
-import { ErrorCode } from '@gaozh1024/rn-core';
+import { ErrorCode } from '@gaozh/rn-core';
 
 ErrorCode.VALIDATION; // 验证错误
 ErrorCode.NETWORK; // 网络错误
-ErrorCode.AUTH; // 认证/授权错误
+ErrorCode.UNAUTHORIZED; // 未认证 (401)
+ErrorCode.FORBIDDEN; // 无权限 (403)
 ErrorCode.SERVER; // 服务器错误
 ErrorCode.BUSINESS; // 业务逻辑错误
 ErrorCode.UNKNOWN; // 未知错误
@@ -188,9 +189,10 @@ interface AppError {
 将 HTTP 状态码映射为错误代码。
 
 ```ts
-import { mapHttpStatus, ErrorCode } from '@gaozh1024/rn-core';
+import { mapHttpStatus, ErrorCode } from '@gaozh/rn-core';
 
-mapHttpStatus(401); // ErrorCode.AUTH
+mapHttpStatus(401); // ErrorCode.UNAUTHORIZED
+mapHttpStatus(403); // ErrorCode.FORBIDDEN
 mapHttpStatus(500); // ErrorCode.SERVER
 mapHttpStatus(422); // ErrorCode.VALIDATION
 ```
@@ -200,7 +202,7 @@ mapHttpStatus(422); // ErrorCode.VALIDATION
 增强错误对象，添加便捷属性。
 
 ```ts
-import { enhanceError } from '@gaozh1024/rn-core';
+import { enhanceError } from '@gaozh/rn-core';
 
 const error = { code: ErrorCode.NETWORK, message: 'Timeout' };
 const enhanced = enhanceError(error);
@@ -215,15 +217,15 @@ enhanced.isRetryable; // true (网络错误默认可重试)
 
 ### React Hooks
 
-#### `useAsync()`
+#### `useAsyncState()`
 
 管理异步操作的 Hook。
 
 ```tsx
-import { useAsync } from '@gaozh1024/rn-core';
+import { useAsyncState } from '@gaozh/rn-core';
 
 function UserProfile({ userId }: { userId: string }) {
-  const { data, error, loading, execute, reset } = useAsync();
+  const { data, error, loading, execute, reset } = useAsyncState();
 
   const loadUser = async () => {
     try {
@@ -263,7 +265,7 @@ function UserProfile({ userId }: { userId: string }) {
   message: string;
   isValidation: boolean; // 是否为验证错误
   isNetwork: boolean; // 是否为网络错误
-  isAuth: boolean; // 是否为认证错误
+  isAuth: boolean; // 是否为认证/授权错误
   isRetryable: boolean; // 是否可重试
 }
 ```
@@ -277,7 +279,7 @@ function UserProfile({ userId }: { userId: string }) {
 安全存储实例（基于内存实现，生产环境可替换为加密存储）。
 
 ```ts
-import { storage } from '@gaozh1024/rn-core';
+import { storage } from '@gaozh/rn-core';
 
 // 存储数据
 await storage.setItem('token', 'abc123');
@@ -289,18 +291,18 @@ const token = await storage.getItem('token');
 await storage.removeItem('token');
 ```
 
-#### `SecureStorage`
+#### `MemoryStorage`
 
 存储类，可创建独立实例或自定义存储后端。
 
 ```ts
-import { SecureStorage } from '@gaozh1024/rn-core';
+import { MemoryStorage } from '@gaozh/rn-core';
 
 // 创建新实例
-const customStorage = new SecureStorage();
+const customStorage = new MemoryStorage();
 
 // 自定义存储后端（示例：AsyncStorage）
-class AsyncStorageBackend extends SecureStorage {
+class AsyncStorageBackend extends MemoryStorage {
   async setItem(key: string, value: string) {
     await AsyncStorage.setItem(key, value);
   }
@@ -322,7 +324,7 @@ class AsyncStorageBackend extends SecureStorage {
 库重新导出 `zod` 以方便使用：
 
 ```ts
-import { z } from '@gaozh1024/rn-core';
+import { z } from '@gaozh/rn-core';
 
 const schema = z.object({
   name: z.string().min(2),
@@ -336,7 +338,7 @@ const schema = z.object({
 库重新导出 `@tanstack/react-query` 的核心 API：
 
 ```ts
-import { useQuery, useMutation } from '@gaozh1024/rn-core';
+import { useQuery, useMutation } from '@gaozh/rn-core';
 
 // 配合 API 使用
 const { data } = useQuery({
@@ -357,7 +359,7 @@ const mutation = useMutation({
 
 ```ts
 // api.ts
-import { createAPI, z } from '@gaozh1024/rn-core';
+import { createAPI, z } from '@gaozh/rn-core';
 
 const UserSchema = z.object({
   id: z.string(),
@@ -405,7 +407,7 @@ export type User = z.infer<typeof UserSchema>;
 
 ```tsx
 // ErrorBoundary.tsx
-import { ErrorCode, type AppError } from '@gaozh1024/rn-core';
+import { ErrorCode, type AppError } from '@gaozh/rn-core';
 
 function ErrorFallback({ error }: { error: AppError }) {
   switch (error.code) {
@@ -425,7 +427,7 @@ function ErrorFallback({ error }: { error: AppError }) {
 
 ```tsx
 // LoginForm.tsx
-import { useAsync, z } from '@gaozh1024/rn-core';
+import { useAsync, z } from '@gaozh/rn-core';
 
 const LoginSchema = z.object({
   email: z.string().email('请输入有效的邮箱'),
@@ -433,7 +435,7 @@ const LoginSchema = z.object({
 });
 
 function LoginForm() {
-  const { execute, loading, error } = useAsync();
+  const { execute, loading, error } = useAsyncState();
   const [form, setForm] = useState({ email: '', password: '' });
 
   const handleSubmit = async () => {
@@ -478,7 +480,7 @@ function LoginForm() {
 
 ```ts
 // auth.ts
-import { storage } from '@gaozh1024/rn-core';
+import { storage } from '@gaozh/rn-core';
 
 const TOKEN_KEY = 'auth_token';
 

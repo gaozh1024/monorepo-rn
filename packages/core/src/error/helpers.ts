@@ -1,7 +1,8 @@
 import { ErrorCode, type AppError } from './types';
 
 export function mapHttpStatus(status: number): ErrorCode {
-  if (status === 401 || status === 403) return ErrorCode.AUTH;
+  if (status === 401) return ErrorCode.UNAUTHORIZED;
+  if (status === 403) return ErrorCode.FORBIDDEN;
   if (status >= 400 && status < 500) return ErrorCode.VALIDATION;
   if (status >= 500) return ErrorCode.SERVER;
   return ErrorCode.UNKNOWN;
@@ -22,7 +23,7 @@ export function enhanceError(error: AppError): AppError & {
       return error.code === ErrorCode.NETWORK;
     },
     get isAuth() {
-      return error.code === ErrorCode.AUTH;
+      return error.code === ErrorCode.UNAUTHORIZED || error.code === ErrorCode.FORBIDDEN;
     },
     get isRetryable() {
       return error.retryable ?? error.code === ErrorCode.NETWORK;

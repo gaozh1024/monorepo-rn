@@ -1,6 +1,6 @@
 {
-  "name": "@gaozh1024/rn-theme",
-  "version": "0.1.0",
+  "name": "@gaozh/rn-theme",
+  "version": "0.2.0-beta.0",
   "description": "Theme system with design tokens and NativeWind configuration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@gaozh1024/rn-utils": "0.1.0"
+    "@gaozh/rn-utils": "workspace:*"
   },
   "peerDependencies": {
     "react": "*",

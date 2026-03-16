@@ -1,4 +1,4 @@
-export class SecureStorage {
+export class MemoryStorage {
   private memory = new Map<string, string>();
 
   async setItem(key: string, value: string): Promise<void> {
@@ -14,4 +14,4 @@ export class SecureStorage {
   }
 }
 
-export const storage = new SecureStorage();
+export const storage = new MemoryStorage();

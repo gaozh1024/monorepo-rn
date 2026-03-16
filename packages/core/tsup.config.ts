@@ -9,5 +9,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-native', 'zod', '@tanstack/react-query', '@gaozh1024/rn-utils'],
+  external: ['react', 'react-native', 'zod', '@tanstack/react-query', '@gaozh/rn-utils'],
 });

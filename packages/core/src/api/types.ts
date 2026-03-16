@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
-export interface EndpointConfig<TInput, TOutput> {
+export interface ApiEndpointConfig<TInput, TOutput> {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   path: string;
   input?: z.ZodSchema<TInput>;
   output?: z.ZodSchema<TOutput>;
 }
 
-export interface APICreateConfig<TEndpoints extends Record<string, EndpointConfig<any, any>>> {
+export interface ApiConfig<TEndpoints extends Record<string, ApiEndpointConfig<any, any>>> {
   baseURL: string;
   endpoints: TEndpoints;
 }

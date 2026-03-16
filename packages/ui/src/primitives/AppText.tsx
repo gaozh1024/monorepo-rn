@@ -1,5 +1,5 @@
 import { Text, TextProps } from 'react-native';
-import { cn } from '@gaozh1024/rn-utils';
+import { cn } from '@gaozh/rn-utils';
 
 export interface AppTextProps extends TextProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';

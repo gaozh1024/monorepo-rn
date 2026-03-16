@@ -15,7 +15,7 @@ export interface UseAsyncState<T> {
   loading: boolean;
 }
 
-export function useAsync<T = any>() {
+export function useAsyncState<T = any>() {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<UseAsyncState<T>['error']>(null);
   const [loading, setLoading] = useState(false);

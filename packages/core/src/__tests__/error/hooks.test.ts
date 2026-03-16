@@ -1,17 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useAsync } from '../../error/hooks';
+import { useAsyncState } from '../../error/hooks';
 
-describe('useAsync', () => {
+describe('useAsyncState', () => {
   it('初始状态应该是空闲的', () => {
-    const { result } = renderHook(() => useAsync());
+    const { result } = renderHook(() => useAsyncState());
     expect(result.current.data).toBeNull();
     expect(result.current.error).toBeNull();
     expect(result.current.loading).toBe(false);
   });
 
   it('应该成功执行异步操作', async () => {
-    const { result } = renderHook(() => useAsync<string>());
+    const { result } = renderHook(() => useAsyncState<string>());
 
     // 使用延迟的 Promise
     const promise = new Promise<string>(resolve => {
@@ -34,7 +34,7 @@ describe('useAsync', () => {
   });
 
   it('应该捕获错误', async () => {
-    const { result } = renderHook(() => useAsync());
+    const { result } = renderHook(() => useAsyncState());
 
     const error = new Error('test error');
     const promise = Promise.reject(error);
@@ -52,7 +52,7 @@ describe('useAsync', () => {
   });
 
   it('reset应该清空状态', async () => {
-    const { result } = renderHook(() => useAsync<string>());
+    const { result } = renderHook(() => useAsyncState<string>());
 
     await result.current.execute(Promise.resolve('data'));
     result.current.reset();

@@ -1,6 +1,5 @@
-import { View } from 'react-native';
 import { AppView } from '../primitives';
-import { cn } from '@gaozh1024/rn-utils';
+import { cn } from '@gaozh/rn-utils';
 
 export interface ProgressProps {
   value: number;

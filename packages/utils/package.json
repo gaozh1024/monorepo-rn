@@ -1,6 +1,6 @@
 {
-  "name": "@gaozh1024/rn-utils",
-  "version": "0.1.0",
+  "name": "@gaozh/rn-utils",
+  "version": "0.2.0-beta.0",
   "description": "Shared utility functions and helpers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

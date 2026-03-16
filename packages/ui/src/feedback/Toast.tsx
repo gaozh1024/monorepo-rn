@@ -1,7 +1,7 @@
 import { AppView, AppText } from '../primitives';
-import { cn } from '@gaozh1024/rn-utils';
+import { cn } from '@gaozh/rn-utils';
 
-export interface ToastUIProps {
+export interface ToastProps {
   message: string;
   type?: 'success' | 'error' | 'warning' | 'info';
   visible?: boolean;
@@ -14,7 +14,7 @@ const typeStyles = {
   info: 'bg-blue-500',
 };
 
-export function ToastUI({ message, type = 'info', visible = true }: ToastUIProps) {
+export function Toast({ message, type = 'info', visible = true }: ToastProps) {
   if (!visible) return null;
   return (
     <AppView className={cn('px-4 py-3 rounded-lg', typeStyles[type])}>

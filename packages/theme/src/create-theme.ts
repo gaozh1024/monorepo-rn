@@ -1,4 +1,4 @@
-import { generateColorPalette, type ColorPalette } from '@gaozh1024/rn-utils';
+import { generateColorPalette, type ColorPalette } from '@gaozh/rn-utils';
 import type { ColorToken } from './types';
 import type { Theme, ThemeConfig } from './types';
 
@@ -26,15 +26,35 @@ const defaultBorderRadius = {
   full: 9999,
 };
 
+// 默认颜色，用于导航等组件
+const defaultColors = {
+  background: '#ffffff',
+  card: '#ffffff',
+  text: '#1f2937',
+  border: '#e5e7eb',
+  error: '#ef4444',
+  success: '#22c55e',
+  warning: '#f59e0b',
+  info: '#3b82f6',
+};
+
 function resolveColor(token: ColorToken): ColorPalette {
   return typeof token === 'string' ? generateColorPalette(token) : token;
 }
 
 export function createTheme(config: ThemeConfig): Theme {
   const colors: Record<string, ColorPalette> = {};
+
+  // 先生成默认颜色
+  for (const [name, value] of Object.entries(defaultColors)) {
+    colors[name] = resolveColor(value);
+  }
+
+  // 用户配置覆盖默认颜色
   for (const [name, token] of Object.entries(config.colors)) {
     colors[name] = resolveColor(token);
   }
+
   return {
     colors,
     spacing: config.spacing ?? defaultSpacing,

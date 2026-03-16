@@ -3,12 +3,12 @@ import { ErrorCode } from '../../error/types';
 import { mapHttpStatus, enhanceError } from '../../error/helpers';
 
 describe('mapHttpStatus', () => {
-  it('应该将401映射为AUTH', () => {
-    expect(mapHttpStatus(401)).toBe(ErrorCode.AUTH);
+  it('应该将401映射为UNAUTHORIZED', () => {
+    expect(mapHttpStatus(401)).toBe(ErrorCode.UNAUTHORIZED);
   });
 
-  it('应该将403映射为AUTH', () => {
-    expect(mapHttpStatus(403)).toBe(ErrorCode.AUTH);
+  it('应该将403映射为FORBIDDEN', () => {
+    expect(mapHttpStatus(403)).toBe(ErrorCode.FORBIDDEN);
   });
 
   it('应该将400-499映射为VALIDATION', () => {
