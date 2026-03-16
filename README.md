@@ -29,7 +29,7 @@
 ```bash
 # 克隆项目
 git clone <repository-url>
-cd panther-expo
+cd monorepo-rn
 
 # 一键初始化
 ./init.sh
@@ -118,15 +118,13 @@ pnpm -r test:coverage
 ## 📁 项目结构
 
 ```
-panther-expo/
+monorepo-rn/
 ├── packages/
 │   ├── utils/          # 工具函数
 │   ├── theme/          # 主题系统
 │   ├── core/           # 核心业务
 │   └── ui/             # UI 组件
 ├── docs/               # 文档
-├── templates/          # 项目模板
-├── examples/           # 示例项目
 ├── init.sh             # 初始化脚本
 └── README.md           # 本文件
 ```

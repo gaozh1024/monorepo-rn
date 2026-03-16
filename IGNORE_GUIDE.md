@@ -12,7 +12,7 @@
 ## 项目结构
 
 ```
-panther-expo/
+monorepo-rn/
 ├── .gitignore                    ← Git忽略（根目录统一）
 ├── IGNORE_GUIDE.md               ← 📖 本指南
 ├── packages/
@@ -63,7 +63,7 @@ coverage/
 
 **作用**：告诉npm publish时哪些文件不应该发布到registry
 
-### @panther-expo/utils/.npmignore
+### @gaozh1024/rn-utils/.npmignore
 
 ```gitignore
 # 源代码（只发布编译后的dist/）
@@ -120,7 +120,7 @@ internal-docs/          # 内部文档
 
 ```json
 {
-  "name": "@panther-expo/utils",
+  "name": "@gaozh1024/rn-utils",
   "files": ["dist/", "README.md", "LICENSE"]
 }
 ```

@@ -71,7 +71,7 @@ echo "📦 为各包安装依赖..."
 
 # utils
 if [ -d "packages/utils" ]; then
-  echo "  - @panther-expo/utils"
+  echo "  - @gaozh1024/rn-utils"
   cd packages/utils
   if ! grep -q "clsx" package.json 2>/dev/null; then
     pnpm add clsx tailwind-merge
@@ -81,30 +81,30 @@ fi
 
 # theme
 if [ -d "packages/theme" ]; then
-  echo "  - @panther-expo/theme"
+  echo "  - @gaozh1024/rn-theme"
   cd packages/theme
-  if ! grep -q "@panther-expo/utils" package.json 2>/dev/null; then
-    pnpm add @panther-expo/utils
+  if ! grep -q "@gaozh1024/rn-utils" package.json 2>/dev/null; then
+    pnpm add @gaozh1024/rn-utils
   fi
   cd ../..
 fi
 
 # core
 if [ -d "packages/core" ]; then
-  echo "  - @panther-expo/core"
+  echo "  - @gaozh1024/rn-core"
   cd packages/core
   if ! grep -q "zod" package.json 2>/dev/null; then
-    pnpm add zod @tanstack/react-query @panther-expo/utils
+    pnpm add zod @tanstack/react-query @gaozh1024/rn-utils
   fi
   cd ../..
 fi
 
 # ui
 if [ -d "packages/ui" ]; then
-  echo "  - @panther-expo/ui"
+  echo "  - @gaozh1024/rn-ui"
   cd packages/ui
   if ! grep -q "nativewind" package.json 2>/dev/null; then
-    pnpm add nativewind react-native-svg @panther-expo/utils @panther-expo/theme
+    pnpm add nativewind react-native-svg @gaozh1024/rn-utils @gaozh1024/rn-theme
   fi
   cd ../..
 fi
@@ -119,7 +119,7 @@ declare -a BUILD_ORDER=("utils" "theme" "core" "ui")
 
 for pkg in "${BUILD_ORDER[@]}"; do
   if [ -d "packages/$pkg" ]; then
-    echo "  构建 @panther-expo/$pkg..."
+    echo "  构建 @gaozh1024/rn-$pkg..."
     cd "packages/$pkg"
     
     # 确保package.json中有build脚本
@@ -160,7 +160,7 @@ echo "📚 可用命令："
 echo "  pnpm install          - 安装所有依赖"
 echo "  pnpm -r build         - 构建所有包"
 echo "  pnpm -r test          - 运行所有测试"
-echo "  pnpm --filter @panther-expo/utils build"
+echo "  pnpm --filter @gaozh1024/rn-utils build"
 echo "                        - 构建特定包"
 echo ""
 echo "📖 查看详细文档：SETUP.md"

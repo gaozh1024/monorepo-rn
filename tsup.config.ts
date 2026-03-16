@@ -17,9 +17,9 @@ export default defineConfig({
     'zod',
     'clsx',
     'tailwind-merge',
-    '@panther-expo/utils',
-    '@panther-expo/theme',
-    '@panther-expo/core',
-    '@panther-expo/ui',
+    '@gaozh1024/rn-utils',
+    '@gaozh1024/rn-theme',
+    '@gaozh1024/rn-core',
+    '@gaozh1024/rn-ui',
   ],
 });

@@ -19,12 +19,12 @@ npm install -g pnpm
 
 ```bash
 # 克隆仓库（如果是已有项目）
-git clone <repository-url> panther-expo
-cd panther-expo
+git clone <repository-url> monorepo-rn
+cd monorepo-rn
 
 # 或者创建新项目
-mkdir panther-expo
-cd panther-expo
+mkdir monorepo-rn
+cd monorepo-rn
 ```
 
 ### 3. 初始化pnpm workspace
@@ -68,16 +68,16 @@ pnpm install
 # 为每个包创建package.json并安装依赖
 
 # utils包
-pnpm --filter @panther-expo/utils add clsx tailwind-merge
+pnpm --filter @gaozh1024/rn-utils add clsx tailwind-merge
 
 # theme包
-pnpm --filter @panther-expo/theme add @panther-expo/utils
+pnpm --filter @gaozh1024/rn-theme add @gaozh1024/rn-utils
 
 # core包
-pnpm --filter @panther-expo/core add zod @tanstack/react-query @panther-expo/utils
+pnpm --filter @gaozh1024/rn-core add zod @tanstack/react-query @gaozh1024/rn-utils
 
 # ui包
-pnpm --filter @panther-expo/ui add nativewind react-native-svg @panther-expo/utils @panther-expo/theme
+pnpm --filter @gaozh1024/rn-ui add nativewind react-native-svg @gaozh1024/rn-utils @gaozh1024/rn-theme
 ```
 
 ### 6. 构建所有包
@@ -86,16 +86,16 @@ pnpm --filter @panther-expo/ui add nativewind react-native-svg @panther-expo/uti
 # 按依赖顺序构建
 
 # 1. 先构建utils（无依赖）
-pnpm --filter @panther-expo/utils build
+pnpm --filter @gaozh1024/rn-utils build
 
 # 2. 构建theme（依赖utils）
-pnpm --filter @panther-expo/theme build
+pnpm --filter @gaozh1024/rn-theme build
 
 # 3. 构建core（依赖utils）
-pnpm --filter @panther-expo/core build
+pnpm --filter @gaozh1024/rn-core build
 
 # 4. 构建ui（依赖utils和theme）
-pnpm --filter @panther-expo/ui build
+pnpm --filter @gaozh1024/rn-ui build
 
 # 或者一键构建所有
 pnpm -r build
@@ -108,7 +108,7 @@ pnpm -r build
 pnpm test
 
 # 运行特定包测试
-pnpm --filter @panther-expo/utils test
+pnpm --filter @gaozh1024/rn-utils test
 
 # 运行测试并显示覆盖率
 pnpm test:coverage
@@ -121,23 +121,23 @@ pnpm test:coverage
 npm install -g yalc
 
 # 2. 构建并发布到本地
-pnpm --filter @panther-expo/utils build
+pnpm --filter @monorepo-rn/utils build
 yalc publish packages/utils
 
-pnpm --filter @panther-expo/theme build
+pnpm --filter @monorepo-rn/theme build
 yalc publish packages/theme
 
-pnpm --filter @panther-expo/core build
+pnpm --filter @monorepo-rn/core build
 yalc publish packages/core
 
-pnpm --filter @panther-expo/ui build
+pnpm --filter @monorepo-rn/ui build
 yalc publish packages/ui
 
 # 3. 在目标项目中使用
-yalc add @panther-expo/utils
-yalc add @panther-expo/theme
-yalc add @panther-expo/core
-yalc add @panther-expo/ui
+yalc add @gaozh1024/rn-utils
+yalc add @gaozh1024/rn-theme
+yalc add @gaozh1024/rn-core
+yalc add @gaozh1024/rn-ui
 ```
 
 ## 常用命令速查
@@ -151,13 +151,13 @@ yalc add @panther-expo/ui
 pnpm install
 
 # 添加依赖到特定包
-pnpm --filter @panther-expo/utils add lodash
+pnpm --filter @gaozh1024/rn-utils add lodash
 
 # 添加开发依赖到根目录
 pnpm add -D typescript
 
 # 添加peer依赖
-pnpm --filter @panther-expo/ui add react --save-peer
+pnpm --filter @gaozh1024/rn-ui add react --save-peer
 
 # 更新所有依赖
 pnpm update -r
@@ -170,10 +170,10 @@ pnpm update -r
 pnpm -r build
 
 # 构建特定包及其依赖
-pnpm --filter @panther-expo/ui... build
+pnpm --filter @gaozh1024/rn-ui... build
 
 # 监听模式构建
-pnpm --filter @panther-expo/utils dev
+pnpm --filter @gaozh1024/rn-utils dev
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🧪 测试
@@ -183,10 +183,10 @@ pnpm --filter @panther-expo/utils dev
 pnpm -r test
 
 # 运行特定包测试
-pnpm --filter @panther-expo/utils test
+pnpm --filter @monorepo-rn/utils test
 
 # 监听模式测试
-pnpm --filter @panther-expo/utils test:watch
+pnpm --filter @gaozh1024/rn-utils test:watch
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🔗 本地链接
@@ -196,7 +196,7 @@ pnpm --filter @panther-expo/utils test:watch
 yalc publish packages/utils
 
 # 在目标项目链接
-yalc add @panther-expo/utils
+yalc add @monorepo-rn/utils
 
 # 更新本地包
 yalc push packages/utils
@@ -235,7 +235,7 @@ pnpm -r typecheck
 ## 项目结构说明
 
 ```
-panther-expo/
+monorepo-rn/
 ├── package.json              ← 根package.json
 ├── pnpm-workspace.yaml       ← pnpm工作区配置
 ├── .npmrc                    ← pnpm配置
@@ -277,10 +277,10 @@ vim packages/utils/src/new-feature.ts
 vim packages/utils/src/__tests__/new-feature.test.ts
 
 # 3. 运行测试
-pnpm --filter @panther-expo/utils test
+pnpm --filter @monorepo-rn/utils test
 
 # 4. 构建
-pnpm --filter @panther-expo/utils build
+pnpm --filter @monorepo-rn/utils build
 
 # 5. 发布到本地（如果使用yalc）
 yalc push packages/utils
@@ -312,8 +312,8 @@ pnpm install
 
 ```bash
 # 确保按正确顺序构建
-pnpm --filter @panther-expo/utils build
-pnpm --filter @panther-expo/theme build
+pnpm --filter @monorepo-rn/utils build
+pnpm --filter @monorepo-rn/theme build
 # ...依此类推
 ```
 
@@ -334,8 +334,8 @@ pnpm test
 
 ```bash
 # 重新链接
-yalc remove @panther-expo/utils
-yalc add @panther-expo/utils
+yalc remove @gaozh1024/rn-utils
+yalc add @monorepo-rn/utils
 
 # 或者使用yalc push强制更新
 yalc push packages/utils --force

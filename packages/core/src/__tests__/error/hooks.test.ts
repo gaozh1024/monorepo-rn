@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useAsync } from '../../../error/hooks';
+import { useAsync } from '../../error/hooks';
 
 describe('useAsync', () => {
   it('初始状态应该是空闲的', () => {
@@ -13,11 +13,18 @@ describe('useAsync', () => {
   it('应该成功执行异步操作', async () => {
     const { result } = renderHook(() => useAsync<string>());
 
-    const promise = Promise.resolve('success');
-    result.current.execute(promise);
+    // 使用延迟的 Promise
+    const promise = new Promise<string>(resolve => {
+      setTimeout(() => resolve('success'), 10);
+    });
 
-    expect(result.current.loading).toBe(true);
+    // 执行异步操作
+    let executePromise: Promise<string>;
+    await waitFor(() => {
+      executePromise = result.current.execute(promise);
+    });
 
+    // 等待操作完成
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });

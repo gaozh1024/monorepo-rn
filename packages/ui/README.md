@@ -156,6 +156,7 @@ import {
   Row,
   Col,
   Center,
+  Card,
   ToastUI,
   AlertUI,
   LoadingUI,
@@ -540,6 +541,42 @@ import { LoadingUI } from '@gaozh1024/rn-ui';
 
 ### 📊 数据展示 (Components)
 
+#### Card
+
+卡片容器组件，用于包裹内容。
+
+```tsx
+import { Card, AppText, AppView } from '@gaozh1024/rn-ui';
+
+// 基础用法
+<Card className="p-4">
+  <AppText>卡片内容</AppText>
+</Card>
+
+// 自定义样式
+<Card className="m-4 p-6 bg-gray-50">
+  <AppText size="lg" weight="bold">标题</AppText>
+  <AppText className="mt-2 text-gray-600">描述文字</AppText>
+</Card>
+```
+
+**默认样式：**
+
+- 白色背景 (`bg-white`)
+- 圆角 (`rounded-lg`)
+- 轻微阴影 (`shadow-sm`)
+- 边框 (`border border-gray-200`)
+
+**属性：**
+
+| 属性        | 类型     | 说明       |
+| ----------- | -------- | ---------- |
+| `className` | `string` | 自定义类名 |
+
+继承 `View` 的所有其他属性。
+
+---
+
 #### Progress
 
 进度条组件。
@@ -621,6 +658,7 @@ import {
   AppText,
   AppInput,
   AppButton,
+  Card,
   Col,
   Center,
   ToastUI,
@@ -650,32 +688,34 @@ function LoginScreen() {
 
   return (
     <Center flex p={6}>
-      <Col gap={4} className="w-full">
-        <AppText size="2xl" weight="bold" className="text-center">
-          欢迎登录
-        </AppText>
+      <Card className="w-full max-w-md p-6">
+        <Col gap={4}>
+          <AppText size="2xl" weight="bold" className="text-center">
+            欢迎登录
+          </AppText>
 
-        <AppInput
-          label="邮箱"
-          placeholder="请输入邮箱"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
+          <AppInput
+            label="邮箱"
+            placeholder="请输入邮箱"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
 
-        <AppInput
-          label="密码"
-          placeholder="请输入密码"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+          <AppInput
+            label="密码"
+            placeholder="请输入密码"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
 
-        <AppButton size="lg" loading={loading} onPress={handleLogin}>
-          登录
-        </AppButton>
-      </Col>
+          <AppButton size="lg" loading={loading} onPress={handleLogin}>
+            登录
+          </AppButton>
+        </Col>
+      </Card>
 
       <LoadingUI visible={loading} overlay />
 

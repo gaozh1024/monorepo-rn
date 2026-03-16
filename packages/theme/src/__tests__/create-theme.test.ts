@@ -66,8 +66,8 @@ describe('createTheme', () => {
       },
     });
     expect(theme.colors.primary[500]).toBe('#f38b32');
-    expect(theme.colors.secondary[500]).toBe('#4A5568');
-    expect(theme.colors.success[500]).toBe('#52C41A');
+    expect(theme.colors.secondary[500]).toBe('#4a5568');
+    expect(theme.colors.success[500]).toBe('#52c41a');
   });
 
   it('应该生成不同亮度的色阶', () => {

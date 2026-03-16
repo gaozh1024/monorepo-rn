@@ -13,9 +13,9 @@
     "template:pack": "cd templates/rn-starter && npm pack",
     "template:publish": "cd templates/rn-starter && npm publish --access public",
     "test-app": "cd examples/test-app && npm start",
-    "yalc:publish": "pnpm -r --filter='@panther-expo/*' exec yalc publish",
-    "yalc:push": "pnpm -r --filter='@panther-expo/*' exec yalc push",
-    "yalc:update": "pnpm -r --filter='@panther-expo/*' exec yalc push --replace",
+    "yalc:publish": "pnpm -r --filter='@gaozh1024/*' exec yalc publish",
+    "yalc:push": "pnpm -r --filter='@gaozh1024/*' exec yalc push",
+    "yalc:update": "pnpm -r --filter='@gaozh1024/*' exec yalc push --replace",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
     "metro-transform-worker": "~0.80.12",
     "msw": "^2.12.10",
     "prettier": "^3.8.1",
-    "react-test-renderer": "^18.3.1",
+    "react-test-renderer": "^19.0.0",
     "tsup": "^8.5.1",
     "typescript": "~5.9.2",
     "vitest": "^4.0.18"

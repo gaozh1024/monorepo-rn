@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Pressable, PressableProps } from 'react-native';
 import { cn } from '@gaozh1024/rn-utils';
 
@@ -12,9 +13,19 @@ export function AppPressable({
   children,
   ...props
 }: AppPressableProps) {
+  const [isPressed, setIsPressed] = React.useState(false);
+
   return (
     <Pressable
-      className={({ pressed }: { pressed: boolean }) => cn(className, pressed && pressedClassName)}
+      className={cn(className, isPressed && pressedClassName)}
+      onPressIn={e => {
+        setIsPressed(true);
+        props.onPressIn?.(e);
+      }}
+      onPressOut={e => {
+        setIsPressed(false);
+        props.onPressOut?.(e);
+      }}
       {...props}
     >
       {children}
