@@ -1,7 +1,7 @@
 {
-  "name": "@panther-expo/monorepo",
+  "name": "@gaozh1024/monorepo",
   "private": true,
-  "description": "Panther Expo Framework Monorepo",
+  "description": "React Native Monorepo - Core packages for building React Native apps",
   "scripts": {
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",

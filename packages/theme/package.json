@@ -1,6 +1,7 @@
 {
   "name": "@gaozh1024/rn-theme",
   "version": "0.1.0",
+  "description": "Theme system with design tokens and NativeWind configuration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
