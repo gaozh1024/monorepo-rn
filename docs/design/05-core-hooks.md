@@ -1,6 +1,6 @@
 # 核心 Hooks 设计文档
 
-> 位置: `packages/core/src/hooks/` 和 `packages/ui/src/hooks/`
+> 位置: `packages/framework/src/core/src/hooks/` 和 `packages/framework/src/ui/src/hooks/`
 > 分类: 数据获取 / UI交互 / 状态管理 / 设备能力
 
 ---
@@ -18,35 +18,35 @@
 
 ### 2.1 数据获取 Hooks（`@gaozh1024/rn-core`）
 
-| Hook            | 用途             | 已有/新增 |
-| --------------- | ---------------- | --------- |
-| `useAsyncState` | 管理异步操作状态 | ✅ 已有   |
-| `useRequest`    | 自动化的请求管理 | 🆕 新增   |
-| `usePagination` | 分页列表数据     | 🆕 新增   |
-| `useRefresh`    | 下拉刷新逻辑     | 🆕 新增   |
-| `useInfinite`   | 无限滚动逻辑     | 🆕 新增   |
+| Hook            | 用途             | 状态 |
+| --------------- | ---------------- | ---- |
+| `useAsyncState` | 管理异步操作状态 | ✅   |
+| `useRequest`    | 自动化的请求管理 | ✅   |
+| `usePagination` | 分页列表数据     | ✅   |
+| `useRefresh`    | 下拉刷新逻辑     | ✅   |
+| `useInfinite`   | 无限滚动逻辑     | ✅   |
 
 ### 2.2 UI 交互 Hooks（`@gaozh1024/rn-ui`）
 
-| Hook             | 用途         | 已有/新增         |
-| ---------------- | ------------ | ----------------- |
-| `useToggle`      | 布尔值切换   | 🆕 新增           |
-| `useDebounce`    | 防抖         | 🆕 新增           |
-| `useThrottle`    | 节流         | 🆕 新增           |
-| `useKeyboard`    | 键盘状态监听 | 🆕 新增           |
-| `useDimensions`  | 屏幕尺寸变化 | 🆕 新增           |
-| `useOrientation` | 横竖屏切换   | 🆕 新增           |
-| `useBackHandler` | 安卓返回键   | 🆕 新增（导航包） |
+| Hook             | 用途         | 状态 |
+| ---------------- | ------------ | ---- |
+| `useToggle`      | 布尔值切换   | ✅   |
+| `useDebounce`    | 防抖         | ✅   |
+| `useThrottle`    | 节流         | ✅   |
+| `useKeyboard`    | 键盘状态监听 | ✅   |
+| `useDimensions`  | 屏幕尺寸变化 | ✅   |
+| `useOrientation` | 横竖屏切换   | ✅   |
+| `useBackHandler` | 安卓返回键   | ✅   |
 
 ### 2.3 状态管理 Hooks（`@gaozh1024/rn-core`）
 
-| Hook              | 用途                     | 已有/新增 |
-| ----------------- | ------------------------ | --------- |
-| `usePrevious`     | 上一次的值               | 🆕 新增   |
-| `useSetState`     | 合并 setState            | 🆕 新增   |
-| `useStorage`      | 本地存储同步             | 🆕 新增   |
-| `useMemoizedFn`   | 持久化函数引用           | 🆕 新增   |
-| `useUpdateEffect` | 跳过首次执行的 useEffect | 🆕 新增   |
+| Hook              | 用途                     | 状态 |
+| ----------------- | ------------------------ | ---- |
+| `usePrevious`     | 上一次的值               | ✅   |
+| `useSetState`     | 合并 setState            | ✅   |
+| `useStorage`      | 本地存储同步             | ✅   |
+| `useMemoizedFn`   | 持久化函数引用           | ✅   |
+| `useUpdateEffect` | 跳过首次执行的 useEffect | ✅   |
 
 ---
 
@@ -514,7 +514,7 @@ packages/
 ### useRequest 实现
 
 ```typescript
-// packages/core/src/hooks/useRequest.ts
+// packages/framework/src/core/src/hooks/useRequest.ts
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
@@ -648,14 +648,15 @@ export function useRequest<T, P extends any[] = any[]>(
 
 ## 6. 验收标准
 
-- [ ] 所有 hooks 有完整 TypeScript 类型
-- [ ] 每个 hook 有单元测试
-- [ ] 文档包含使用示例
-- [ ] 实现参考 ahooks / react-use 最佳实践
-- [ ] 不依赖外部 UI 库（纯逻辑）
+- [x] 所有 hooks 有完整 TypeScript 类型
+- [x] 每个 hook 有单元测试
+- [x] 文档包含使用示例
+- [x] 不依赖外部 UI 库（纯逻辑）
 
 ---
 
-**审核状态**: 📝 待审核  
-**预计开发时间**: 3-4 天  
-**优先级**: P1（高，提升开发效率）
+**状态**: ✅ 已完成
+
+---
+
+**状态**: ✅ 已完成

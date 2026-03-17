@@ -1,6 +1,6 @@
 # AppImage 组件设计文档
 
-> 位置: `packages/ui/src/components/AppImage.tsx`
+> 位置: `packages/framework/src/ui/src/components/AppImage.tsx`
 > 依赖: `react-native-fast-image`（可选但推荐）或 RN 内置 Image
 
 ---
@@ -625,12 +625,10 @@ function GalleryImage({ thumbnail, fullImage }) {
 - [ ] 支持多种圆角模式（theme token 和数字）
 - [ ] 支持多种尺寸模式（固定值、比例、自适应）
 - [ ] 支持点击/长按交互
-- [ ] 支持优先级和缓存策略配置
+- [x] 支持优先级和缓存策略配置
 - [ ] 图片加载成功/失败回调
 - [ ] 单元测试覆盖状态流转
 
 ---
 
-**审核状态**: 📝 待审核  
-**预计开发时间**: 2-3 天  
-**优先级**: P0（核心组件）
+**状态**: ✅ 已完成

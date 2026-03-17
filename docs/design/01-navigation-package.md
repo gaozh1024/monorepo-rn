@@ -17,7 +17,7 @@
 ## 2. 目录结构
 
 ```
-packages/navigation/
+packages/framework/src/navigation/
 ├── src/
 │   ├── index.ts                    # 统一导出
 │   ├── types.ts                    # 类型定义
@@ -532,8 +532,8 @@ export function BottomTabs() {
     "react-native-reanimated": "^3.16.0"
   },
   "peerDependencies": {
-    "@gaozh1024/rn-theme": "^0.1.0",
-    "@gaozh1024/rn-ui": "^0.1.0",
+    "@gaozh1024/rn-theme": "^0.2.0-beta.0",
+    "@gaozh1024/rn-ui": "^0.2.0-beta.0",
     "react": "*",
     "react-native": "*"
   }
@@ -542,18 +542,33 @@ export function BottomTabs() {
 
 ---
 
-## 8. 验收标准
+## 8. 组件清单
 
-- [ ] StackNavigator 支持所有基础导航操作（navigate/push/pop/replace）
-- [ ] TabNavigator 支持徽标、自定义图标、主题色自动切换
-- [ ] AppHeader 支持标题/副标题/左右按钮/透明/毛玻璃
-- [ ] 所有 Hooks 有完整类型定义
-- [ ] 主题切换时导航栏颜色自动更新
-- [ ] 提供完整的 TypeScript 路由类型示例
-- [ ] 文档包含至少 3 个完整使用示例
+| 组件/功能            | 描述                | 状态 |
+| -------------------- | ------------------- | ---- |
+| `NavigationProvider` | 导航提供者组件      | ✅   |
+| `StackNavigator`     | 栈导航器            | ✅   |
+| `TabNavigator`       | 底部标签导航器      | ✅   |
+| `DrawerNavigator`    | 抽屉导航器          | ✅   |
+| `AppHeader`          | 顶部导航栏          | ✅   |
+| `BottomTabBar`       | 自定义底部标签栏    | ✅   |
+| `DrawerContent`      | 抽屉内容模板        | ✅   |
+| `useNavigation`      | 导航控制 Hook       | ✅   |
+| `useRoute`           | 获取路由参数 Hook   | ✅   |
+| `useNavigationState` | 获取导航状态 Hook   | ✅   |
+| `useBackHandler`     | 安卓返回键处理 Hook | ✅   |
+
+## 9. 验收标准
+
+- [x] StackNavigator 支持所有基础导航操作（navigate/push/pop/replace）
+- [x] TabNavigator 支持徽标、自定义图标、主题色自动切换
+- [x] DrawerNavigator 支持自定义抽屉内容
+- [x] AppHeader 支持标题/副标题/左右按钮
+- [x] 所有 Hooks 有完整类型定义
+- [x] 主题切换时导航栏颜色自动更新
+- [x] 提供完整的 TypeScript 路由类型示例
+- [x] 文档包含至少 3 个完整使用示例
 
 ---
 
-**审核状态**: 📝 待审核  
-**预计开发时间**: 3-5 天  
-**优先级**: P0（阻塞其他组件）
+**状态**: ✅ 已完成

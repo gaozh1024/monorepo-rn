@@ -6,51 +6,26 @@
 # 1. 登录 npm
 npm login
 
-# 2. 运行发布脚本
-./scripts/publish-beta.sh
-```
-
-## 手动逐步发布
-
-如果脚本执行失败，可以手动发布：
-
-### 1. 发布 @gaozh1024/rn-utils
-
-```bash
-cd packages/utils
-npm version 0.2.0-beta.0 --no-git-tag-version
+# 2. 构建并发布
+pnpm -r build
+cd packages/framework
 npm publish --tag beta --access public
 ```
 
-### 2. 发布 @gaozh1024/rn-theme
+## 手动发布
+
+### 1. 构建
 
 ```bash
-cd packages/theme
-npm version 0.2.0-beta.0 --no-git-tag-version
-npm publish --tag beta --access public
+# 构建框架包
+pnpm --filter @gaozh1024/rn-kit build
 ```
 
-### 3. 发布 @gaozh1024/rn-core
+### 2. 发布
 
 ```bash
-cd packages/core
+cd packages/framework
 npm version 0.2.0-beta.0 --no-git-tag-version
-npm publish --tag beta --access public
-```
-
-### 4. 发布 @gaozh1024/rn-ui
-
-```bash
-cd packages/ui
-npm version 0.2.0-beta.0 --no-git-tag-version
-npm publish --tag beta --access public
-```
-
-### 5. 发布 @gaozh1024/rn-navigation
-
-```bash
-cd packages/navigation
-npm version 0.1.0-beta.0 --no-git-tag-version
 npm publish --tag beta --access public
 ```
 
@@ -58,21 +33,31 @@ npm publish --tag beta --access public
 
 ```bash
 # 查看已发布的版本
-npm view @gaozh1024/rn-ui versions --json | grep beta
+npm view @gaozh1024/rn-kit versions --json | grep beta
 
 # 安装测试
-pnpm add @gaozh1024/rn-ui@beta @gaozh1024/rn-navigation@beta
+pnpm add @gaozh1024/rn-kit@beta
 ```
 
 ## 发布后升级正式版
 
 ```bash
 # 删除 beta 标签
-npm dist-tag rm @gaozh1024/rn-ui beta
+npm dist-tag rm @gaozh1024/rn-kit beta
 
 # 或者发布正式版
 npm version 0.2.0
 npm publish --access public
+```
+
+## Yalc 本地发布
+
+```bash
+# 发布到本地 yalc
+pnpm yalc:publish
+
+# 推送到已链接的项目
+pnpm yalc:push
 ```
 
 ## 常见问题

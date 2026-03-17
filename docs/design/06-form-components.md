@@ -1,6 +1,6 @@
 # 表单组件设计文档
 
-> 位置: `packages/ui/src/form/`
+> 位置: `packages/framework/src/ui/src/form/`
 > 验证: Zod 集成
 > 包含: Checkbox/Radio/Switch/Select/Form/useForm
 
@@ -17,18 +17,18 @@
 
 ## 2. 组件清单
 
-| 组件            | 用途               | 复杂度 |
-| --------------- | ------------------ | ------ |
-| `Checkbox`      | 复选框             | 低     |
-| `CheckboxGroup` | 复选框组           | 中     |
-| `Radio`         | 单选框             | 低     |
-| `RadioGroup`    | 单选框组           | 中     |
-| `Switch`        | 开关               | 低     |
-| `Select`        | 选择器（底部弹出） | 高     |
-| `DatePicker`    | 日期选择器         | 高     |
-| `Form`          | 表单容器           | 中     |
-| `FormItem`      | 表单项包装         | 中     |
-| `useForm`       | 表单状态管理       | 中     |
+| 组件            | 用途               | 复杂度 | 状态 |
+| --------------- | ------------------ | ------ | ---- |
+| `Checkbox`      | 复选框             | 低     | ✅   |
+| `CheckboxGroup` | 复选框组           | 中     | ✅   |
+| `Radio`         | 单选框             | 低     | ✅   |
+| `RadioGroup`    | 单选框组           | 中     | ✅   |
+| `Switch`        | 开关               | 低     | ✅   |
+| `Select`        | 选择器（底部弹出） | 高     | ✅   |
+| `DatePicker`    | 日期选择器         | 高     | ✅   |
+| `Form`          | 表单容器           | 中     | ✅   |
+| `FormItem`      | 表单项包装         | 中     | ✅   |
+| `useForm`       | 表单状态管理       | 中     | ✅   |
 
 ---
 
@@ -331,7 +331,7 @@ interface UseFormReturn<T> {
 ## 4. 目录结构
 
 ```
-packages/ui/src/form/
+packages/framework/src/ui/src/form/
 ├── index.ts
 ├── Checkbox.tsx
 ├── CheckboxGroup.tsx
@@ -659,17 +659,15 @@ function UserSettings() {
 
 ## 8. 验收标准
 
-- [ ] Checkbox/Radio/Switch 支持主题色
-- [ ] Select 支持单选/多选/搜索
-- [ ] Form 与 Zod 深度集成
-- [ ] FormItem 自动显示验证错误
-- [ ] 支持表单提交状态管理
-- [ ] 支持表单重置
-- [ ] 所有组件有无障碍支持
-- [ ] 提供完整使用示例
+- [x] Checkbox/Radio/Switch 支持主题色
+- [x] Select 支持单选/多选/搜索
+- [x] Form 与 Zod 深度集成
+- [x] FormItem 自动显示验证错误
+- [x] 支持表单提交状态管理
+- [x] 支持表单重置
+- [x] 所有组件有无障碍支持
+- [x] 提供完整使用示例
 
 ---
 
-**审核状态**: 📝 待审核  
-**预计开发时间**: 5-7 天（Select 和 DatePicker 较复杂）  
-**优先级**: P1（高，业务必需）
+**状态**: ✅ 已完成

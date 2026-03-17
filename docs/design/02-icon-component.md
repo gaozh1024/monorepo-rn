@@ -1,6 +1,6 @@
 # Icon 组件设计文档
 
-> 位置: `packages/ui/src/components/Icon.tsx`
+> 位置: `packages/framework/src/ui/src/components/Icon.tsx`
 > 依赖: `react-native-vector-icons/MaterialIcons` + 主题系统
 
 ---
@@ -514,6 +514,4 @@ console.log(`Generated types for ${iconNames.length} icons`);
 
 ---
 
-**审核状态**: 📝 待审核  
-**预计开发时间**: 1-2 天  
-**优先级**: P0（被 Navigation 依赖）
+**状态**: ✅ 已完成

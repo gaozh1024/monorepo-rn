@@ -8,48 +8,52 @@
 
 - 🎨 **主题系统** - 自动生成色阶，支持明暗主题切换
 - 🔌 **API 工厂** - 声明式 API 配置，Zod 类型安全
-- 🧩 **原子组件** - 灵活的 UI 组件系统
+- 🧩 **原子组件** - 灵活的 UI 组件系统（View、Text、Button、Input 等）
+- 📋 **表单组件** - Checkbox、Radio、Switch、Select、DatePicker
+- 🪝 **实用 Hooks** - useToggle、useDebounce、useThrottle、useKeyboard、useInfinite 等
+- 🧭 **导航组件** - Stack、Tab、Drawer 导航器，支持主题集成
 - 🛡️ **错误处理** - 统一的错误分类和处理
 - 📝 **TypeScript** - 完整的类型支持
 - 🧪 **测试覆盖** - 全面的单元测试
 
-## 📦 包结构
+## 📦 安装
 
-| 包名                                    | 描述       | 版本  |
-| --------------------------------------- | ---------- | ----- |
-| [@gaozh1024/rn-utils](./packages/utils) | 工具函数库 | 0.1.0 |
-| [@gaozh1024/rn-theme](./packages/theme) | 主题系统   | 0.1.0 |
-| [@gaozh1024/rn-core](./packages/core)   | 核心业务   | 0.1.0 |
-| [@gaozh1024/rn-ui](./packages/ui)       | UI 组件库  | 0.1.0 |
+```bash
+npm install @gaozh1024/rn-kit
+# 或
+pnpm add @gaozh1024/rn-kit
+# 或
+yarn add @gaozh1024/rn-kit
+```
+
+### 前置依赖
+
+```bash
+npm install react react-native
+npm install react-native-screens react-native-safe-area-context
+npm install react-native-gesture-handler react-native-reanimated
+npm install react-native-svg
+```
 
 ## 🚀 快速开始
 
-### 安装
-
-```bash
-# 克隆项目
-git clone <repository-url>
-cd monorepo-rn
-
-# 一键初始化
-./init.sh
-```
-
-### 使用
-
 ```tsx
-import { ThemeProvider, createTheme } from '@gaozh1024/rn-theme';
-import { createAPI } from '@gaozh1024/rn-core';
-import { AppView, AppText, AppButton, Toast, Loading } from '@gaozh1024/rn-ui';
+import {
+  ThemeProvider,
+  createTheme,
+  AppView,
+  AppText,
+  AppButton,
+  useToggle,
+  createAPI,
+} from '@gaozh1024/rn-kit';
 
-// 创建主题
 const theme = createTheme({
   colors: {
     primary: '#f38b32',
   },
 });
 
-// 创建 API
 const api = createAPI({
   baseURL: 'https://api.example.com',
   endpoints: {
@@ -60,12 +64,13 @@ const api = createAPI({
   },
 });
 
-// 使用组件
 function App() {
+  const [visible, { toggle }] = useToggle(false);
+
   return (
     <ThemeProvider light={theme}>
       <AppView flex p={4}>
-        <AppText size="lg">Hello Panther!</AppText>
+        <AppText size="xl">Hello Panther!</AppText>
         <AppButton onPress={() => api.getUser({ id: '1' })}>获取用户</AppButton>
       </AppView>
     </ThemeProvider>
@@ -73,18 +78,98 @@ function App() {
 }
 ```
 
-## 📚 文档
+## 📚 API 概览
 
-- [架构设计文档](./docs/架构设计-v2-实战版.md)
+### 🎨 主题系统
+
+```tsx
+import { ThemeProvider, createTheme, useTheme } from '@gaozh1024/rn-kit';
+```
+
+### 🧩 UI 组件
+
+```tsx
+import {
+  AppView,
+  AppText,
+  AppPressable,
+  AppInput, // 原子组件
+  Row,
+  Col,
+  Center, // 布局
+  AppButton, // 组合组件
+  Toast,
+  Alert,
+  Loading,
+  Progress, // 反馈
+  Card,
+  Icon,
+  AppImage,
+  AppList, // 数据展示
+  Checkbox,
+  Radio,
+  Switch,
+  Select,
+  DatePicker, // 表单
+} from '@gaozh1024/rn-kit';
+```
+
+### 🪝 Hooks
+
+```tsx
+import {
+  // UI Hooks
+  useToggle,
+  useDebounce,
+  useThrottle,
+  useKeyboard,
+  useDimensions,
+  useOrientation,
+  // Core Hooks
+  useAsyncState,
+  useRequest,
+  usePagination,
+  useRefresh,
+  useInfinite,
+  useStorage,
+} from '@gaozh1024/rn-kit';
+```
+
+### 🧭 导航
+
+```tsx
+import {
+  NavigationProvider,
+  StackNavigator,
+  TabNavigator,
+  DrawerNavigator,
+  useNavigation,
+  useRoute,
+} from '@gaozh1024/rn-kit';
+```
+
+### 🔌 API 工厂
+
+```tsx
+import { createAPI, z, storage, ErrorCode } from '@gaozh1024/rn-kit';
+```
+
+## 📄 文档
+
+- [框架文档](./packages/framework/README.md) - 详细使用文档
+- [文档索引](./docs/README.md) - 所有文档的入口
 - [初始化指南](./SETUP.md)
+- [发布指南](./PUBLISH.md)
 - [Ignore 配置指南](./IGNORE_GUIDE.md)
 
-### 包文档
+### 设计文档
 
-- [@gaozh1024/rn-utils](./packages/utils/README.md) - 工具函数
-- [@gaozh1024/rn-theme](./packages/theme/README.md) - 主题系统
-- [@gaozh1024/rn-core](./packages/core/README.md) - 核心业务
-- [@gaozh1024/rn-ui](./packages/ui/README.md) - UI 组件
+- [01-导航包设计](./docs/design/01-navigation-package.md)
+- [02-Icon 组件设计](./docs/design/02-icon-component.md)
+- [03-AppImage 组件设计](./docs/design/03-app-image-component.md)
+- [04-AppList 组件设计](./docs/design/04-app-list-component.md)
+- [05-核心 Hooks 设计](./docs/design/05-core-hooks.md)
+- [06-表单组件设计](./docs/design/06-form-components.md)
 
 ## 🛠️ 开发
 
@@ -92,14 +177,14 @@ function App() {
 # 安装依赖
 pnpm install
 
-# 构建所有包
+# 构建
 pnpm -r build
 
 # 运行测试
 pnpm -r test
 
 # 开发模式
-pnpm --filter @gaozh1024/rn-ui dev
+pnpm --filter @gaozh1024/rn-kit dev
 ```
 
 ## 🧪 测试
@@ -107,9 +192,6 @@ pnpm --filter @gaozh1024/rn-ui dev
 ```bash
 # 运行所有测试
 pnpm -r test
-
-# 运行特定包测试
-pnpm --filter @gaozh1024/rn-utils test
 
 # 查看覆盖率
 pnpm -r test:coverage
@@ -120,10 +202,7 @@ pnpm -r test:coverage
 ```
 monorepo-rn/
 ├── packages/
-│   ├── utils/          # 工具函数
-│   ├── theme/          # 主题系统
-│   ├── core/           # 核心业务
-│   └── ui/             # UI 组件
+│   └── framework/      # 统一框架包 (@gaozh1024/rn-kit)
 ├── docs/               # 文档
 ├── init.sh             # 初始化脚本
 └── README.md           # 本文件

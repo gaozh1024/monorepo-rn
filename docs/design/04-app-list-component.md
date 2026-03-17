@@ -1,6 +1,6 @@
 # AppList 组件设计文档
 
-> 位置: `packages/ui/src/components/AppList.tsx`
+> 位置: `packages/framework/src/ui/src/components/AppList.tsx`
 > 依赖: React Native FlatList + 主题系统
 
 ---
@@ -771,6 +771,4 @@ function ProductGrid() {
 
 ---
 
-**审核状态**: 📝 待审核  
-**预计开发时间**: 2-3 天  
-**优先级**: P0（核心组件）
+**状态**: ✅ 已完成
