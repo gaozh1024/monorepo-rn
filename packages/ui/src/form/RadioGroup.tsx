@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppView } from '../primitives';
 import { Radio } from './Radio';
 

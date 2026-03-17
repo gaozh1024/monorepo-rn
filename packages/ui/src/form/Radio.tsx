@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppPressable, AppText } from '../primitives';
 import { Icon, IconSize } from '../components/Icon';
 
@@ -9,6 +8,7 @@ export interface RadioProps {
   color?: string;
   size?: IconSize;
   children?: React.ReactNode;
+  testID?: string;
 }
 
 export function Radio({
@@ -18,6 +18,7 @@ export function Radio({
   color = 'primary-500',
   size = 'md',
   children,
+  testID,
 }: RadioProps) {
   const iconSize = typeof size === 'number' ? size * 1.2 : size;
 
@@ -25,6 +26,7 @@ export function Radio({
     <AppPressable
       disabled={disabled}
       onPress={onPress}
+      testID={testID}
       className={`flex-row items-center gap-2 ${disabled ? 'opacity-50' : ''}`}
     >
       <Icon

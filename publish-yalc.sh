@@ -21,13 +21,12 @@ yalc_publish() {
     
     echo ""
     echo "📦 发布 $pkg_name 到 yalc..."
-    cd "$pkg_path"
     
     # 构建
-    pnpm build
+    (cd "$pkg_path" && pnpm build)
     
     # 发布到 yalc
-    yalc publish
+    (cd "$pkg_path" && yalc publish)
     
     echo "   ✅ $pkg_name 已发布到 yalc"
 }

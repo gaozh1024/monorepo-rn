@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppView, AppText } from '../primitives';
 
 export interface FormItemProps {

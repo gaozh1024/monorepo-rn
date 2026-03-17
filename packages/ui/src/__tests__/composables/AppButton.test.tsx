@@ -10,14 +10,14 @@ describe('AppButton', () => {
   });
 
   it('应该响应onPress', () => {
-    const onPress = jest.fn();
+    const onPress = vi.fn();
     const { getByText } = render(<AppButton onPress={onPress}>Click</AppButton>);
     fireEvent.press(getByText('Click'));
     expect(onPress).toHaveBeenCalled();
   });
 
   it('应该在disabled时不响应', () => {
-    const onPress = jest.fn();
+    const onPress = vi.fn();
     const { getByText } = render(
       <AppButton onPress={onPress} disabled>
         Click

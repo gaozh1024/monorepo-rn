@@ -15,7 +15,7 @@ describe('Alert', () => {
   });
 
   it('应该调用onConfirm', () => {
-    const onConfirm = jest.fn();
+    const onConfirm = vi.fn();
     const { getByText } = render(<Alert title="Confirm" onConfirm={onConfirm} visible />);
     fireEvent.press(getByText('确认'));
     expect(onConfirm).toHaveBeenCalled();

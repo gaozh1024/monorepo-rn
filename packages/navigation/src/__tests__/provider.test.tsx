@@ -3,6 +3,7 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import { NavigationProvider } from '../provider';
 import { ThemeProvider, createTheme } from '@gaozh/rn-theme';
+import { View, Text } from 'react-native';
 
 const theme = createTheme({
   colors: { primary: '#f38b32' },
@@ -13,7 +14,9 @@ describe('NavigationProvider', () => {
     const { getByTestId } = render(
       <ThemeProvider light={theme}>
         <NavigationProvider>
-          <div testID="child">Child</div>
+          <View testID="child">
+            <Text>Child</Text>
+          </View>
         </NavigationProvider>
       </ThemeProvider>
     );

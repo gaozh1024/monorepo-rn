@@ -1,4 +1,3 @@
-import React from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '@gaozh/rn-theme';
@@ -12,6 +11,7 @@ export interface IconProps {
   color?: string;
   style?: StyleProp<TextStyle>;
   onPress?: () => void;
+  testID?: string;
 }
 
 const sizeMap: Record<string, number> = {
@@ -38,20 +38,28 @@ function resolveColor(color: string = 'gray-600', theme: any): string {
   return color;
 }
 
-export function Icon({ name, size = 'md', color = 'gray-600', style, onPress }: IconProps) {
+export function Icon({ name, size = 'md', color = 'gray-600', style, onPress, testID }: IconProps) {
   const { theme } = useTheme();
   const resolvedSize = resolveSize(size);
   const resolvedColor = resolveColor(color, theme);
 
-  const icon = (
-    <MaterialIcons name={name as any} size={resolvedSize} color={resolvedColor} style={style} />
-  );
-
   if (onPress) {
-    return <AppPressable onPress={onPress}>{icon}</AppPressable>;
+    return (
+      <AppPressable onPress={onPress} testID={testID}>
+        <MaterialIcons name={name as any} size={resolvedSize} color={resolvedColor} style={style} />
+      </AppPressable>
+    );
   }
 
-  return icon;
+  return (
+    <MaterialIcons
+      name={name as any}
+      size={resolvedSize}
+      color={resolvedColor}
+      style={style}
+      testID={testID}
+    />
+  );
 }
 
 // 预设图标常量

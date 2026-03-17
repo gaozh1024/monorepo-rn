@@ -12,7 +12,7 @@ vi.mock('expo-secure-store', () => ({
 
 // Mock @react-navigation/native
 vi.mock('@react-navigation/native', () => ({
-  NavigationContainer: ({ children }: { children: React.ReactNode }) => children,
+  NavigationContainer: ({ children }: { children: any }) => children,
   useNavigation: () => ({
     navigate: vi.fn(),
     goBack: vi.fn(),

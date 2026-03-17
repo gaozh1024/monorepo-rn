@@ -10,30 +10,27 @@ describe('Progress', () => {
   });
 
   it('应该应用正确的宽度', () => {
-    const { getByTestId } = render(<Progress value={75} testID="progress" />);
-    const progress = getByTestId('progress');
-    // 查找子元素（进度填充）
-    const fill = progress.children[0];
-    expect(fill.props.style.width).toBe('75%');
+    const { container } = render(<Progress value={75} testID="progress" />);
+    // 查找进度填充元素（第二个 div，第一个是容器）
+    const fill = container.querySelector('[style*="width: 75%"]');
+    expect(fill).toBeTruthy();
   });
 
   it('应该限制在0-100范围内', () => {
-    const { getByTestId } = render(<Progress value={150} testID="progress" />);
-    const progress = getByTestId('progress');
-    const fill = progress.children[0];
-    expect(fill.props.style.width).toBe('100%');
+    const { container } = render(<Progress value={150} testID="progress" />);
+    const fill = container.querySelector('[style*="width: 100%"]');
+    expect(fill).toBeTruthy();
   });
 
   it('应该应用size样式', () => {
     const { getByTestId } = render(<Progress value={50} size="lg" testID="progress" />);
     const progress = getByTestId('progress');
-    expect(progress.props.className).toContain('h-3');
+    expect(progress.className).toContain('h-3');
   });
 
   it('应该应用color样式', () => {
-    const { getByTestId } = render(<Progress value={50} color="success" testID="progress" />);
-    const progress = getByTestId('progress');
-    const fill = progress.children[0];
-    expect(fill.props.className).toContain('bg-success-500');
+    const { container } = render(<Progress value={50} color="success" testID="progress" />);
+    const fill = container.querySelector('.bg-success-500');
+    expect(fill).toBeTruthy();
   });
 });

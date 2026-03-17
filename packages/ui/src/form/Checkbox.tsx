@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppPressable, AppText } from '../primitives';
 import { Icon, IconSize } from '../components/Icon';
 
@@ -11,6 +10,7 @@ export interface CheckboxProps {
   uncheckedIcon?: string;
   size?: IconSize;
   children?: React.ReactNode;
+  testID?: string;
 }
 
 export function Checkbox({
@@ -22,6 +22,7 @@ export function Checkbox({
   uncheckedIcon = 'check-box-outline-blank',
   size = 'md',
   children,
+  testID,
 }: CheckboxProps) {
   const handlePress = () => {
     if (!disabled && onChange) {
@@ -33,6 +34,7 @@ export function Checkbox({
     <AppPressable
       disabled={disabled}
       onPress={handlePress}
+      testID={testID}
       className={`flex-row items-center gap-2 ${disabled ? 'opacity-50' : ''}`}
     >
       <Icon

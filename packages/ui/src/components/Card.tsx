@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { View, ViewProps } from 'react-native';
 import { cn } from '@gaozh/rn-utils';
 

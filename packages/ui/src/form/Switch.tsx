@@ -1,4 +1,3 @@
-import React from 'react';
 import { Switch as RNSwitch } from 'react-native';
 import { AppView, AppText } from '../primitives';
 import { useTheme } from '@gaozh/rn-theme';

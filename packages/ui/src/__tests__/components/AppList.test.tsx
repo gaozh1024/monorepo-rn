@@ -3,6 +3,11 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import { AppList } from '../../components/AppList';
 import { AppText } from '../../primitives';
+import { ThemeProvider, createTheme } from '@gaozh/rn-theme';
+
+const theme = createTheme({
+  colors: { primary: '#f38b32' },
+});
 
 describe('AppList', () => {
   const mockData = [
@@ -13,11 +18,13 @@ describe('AppList', () => {
 
   it('应该渲染列表项', () => {
     const { getByText } = render(
-      <AppList
-        data={mockData}
-        renderItem={({ item }) => <AppText>{item.title}</AppText>}
-        keyExtractor={item => item.id}
-      />
+      <ThemeProvider light={theme}>
+        <AppList
+          data={mockData}
+          renderItem={({ item }) => <AppText>{item.title}</AppText>}
+          keyExtractor={item => item.id}
+        />
+      </ThemeProvider>
     );
 
     expect(getByText('Item 1')).toBeTruthy();
@@ -27,7 +34,9 @@ describe('AppList', () => {
 
   it('应该渲染空状态', () => {
     const { getByText } = render(
-      <AppList data={[]} renderItem={() => null} emptyTitle="暂无数据" />
+      <ThemeProvider light={theme}>
+        <AppList data={[]} renderItem={() => null} emptyTitle="暂无数据" />
+      </ThemeProvider>
     );
 
     expect(getByText('暂无数据')).toBeTruthy();
@@ -35,7 +44,9 @@ describe('AppList', () => {
 
   it('应该显示加载状态', () => {
     const { getAllByTestId } = render(
-      <AppList data={[]} renderItem={() => null} loading skeletonCount={3} />
+      <ThemeProvider light={theme}>
+        <AppList data={[]} renderItem={() => null} loading skeletonCount={3} />
+      </ThemeProvider>
     );
 
     // 骨架屏项

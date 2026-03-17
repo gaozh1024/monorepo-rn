@@ -4,6 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2020",
+    "jsx": "react-jsx",
     "skipLibCheck": true,
     "strict": false,
     "noImplicitAny": false

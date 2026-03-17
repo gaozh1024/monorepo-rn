@@ -55,7 +55,7 @@ function SkeletonItem({ render }: { render?: () => React.ReactElement }) {
     return render();
   }
   return (
-    <AppView p={4} gap={3}>
+    <AppView p={4} gap={3} testID="skeleton">
       <AppView row gap={3}>
         <AppView className="w-16 h-16 rounded-lg bg-gray-200" />
         <AppView flex gap={2}>
