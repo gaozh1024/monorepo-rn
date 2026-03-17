@@ -10,6 +10,18 @@ vi.mock('expo-secure-store', () => ({
   deleteItemAsync: vi.fn(() => Promise.resolve()),
 }));
 
+// Mock @react-navigation/native
+vi.mock('@react-navigation/native', () => ({
+  NavigationContainer: ({ children }: { children: React.ReactNode }) => children,
+  useNavigation: () => ({
+    navigate: vi.fn(),
+    goBack: vi.fn(),
+  }),
+  useRoute: () => ({
+    params: {},
+  }),
+}));
+
 // Setup before each test
 beforeEach(() => {
   vi.clearAllMocks();
