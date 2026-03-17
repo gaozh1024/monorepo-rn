@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { AppList } from '../../components/AppList';
+import { AppList } from '../../display/AppList';
 import { AppText } from '../../primitives';
 import { ThemeProvider, createTheme } from '@/theme';
 

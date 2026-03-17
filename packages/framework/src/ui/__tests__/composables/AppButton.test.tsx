@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { AppButton } from '../../composables/AppButton';
+import { AppButton } from '../../actions/AppButton';
 
 describe('AppButton', () => {
   it('应该显示文本', () => {

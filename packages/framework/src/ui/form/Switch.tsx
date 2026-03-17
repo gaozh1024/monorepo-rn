@@ -1,6 +1,7 @@
 import { Switch as RNSwitch } from 'react-native';
-import { AppView, AppText } from '../primitives';
+import { AppView, AppText } from '@/ui/primitives';
 import { useTheme } from '@/theme';
+import { cn } from '@/utils';
 
 export interface SwitchProps {
   checked?: boolean;
@@ -9,6 +10,8 @@ export interface SwitchProps {
   color?: string;
   size?: 'sm' | 'md' | 'lg';
   children?: React.ReactNode;
+  /** 自定义样式 */
+  className?: string;
 }
 
 const sizeMap = {
@@ -24,6 +27,7 @@ export function Switch({
   color = 'primary-500',
   size = 'md',
   children,
+  className,
 }: SwitchProps) {
   const { theme } = useTheme();
   const { scale } = sizeMap[size];
@@ -32,7 +36,7 @@ export function Switch({
   const trackColorValue = trackColor?.[500] || '#f38b32';
 
   return (
-    <AppView row items="center" gap={3} className={disabled ? 'opacity-50' : ''}>
+    <AppView row items="center" gap={3} className={cn(disabled && 'opacity-50', className)}>
       <RNSwitch
         value={checked}
         onValueChange={onChange}

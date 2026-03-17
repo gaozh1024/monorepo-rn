@@ -1,7 +1,7 @@
 import { StyleProp, TextStyle } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '@/theme';
-import { AppPressable } from '../primitives';
+import { AppPressable } from '@/ui/primitives';
 
 export type IconSize = number | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 

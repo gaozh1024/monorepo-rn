@@ -1,3 +1,4 @@
+export { AppInput, type AppInputProps } from './AppInput';
 export { Checkbox, type CheckboxProps } from './Checkbox';
 export { CheckboxGroup, type CheckboxGroupProps } from './CheckboxGroup';
 export { Radio, type RadioProps } from './Radio';

@@ -7,8 +7,8 @@ import {
   TextInput,
   GestureResponderEvent,
 } from 'react-native';
-import { AppView, AppText, AppPressable } from '../primitives';
-import { Icon } from '../components';
+import { AppView, AppText, AppPressable } from '@/ui/primitives';
+import { Icon } from '@/ui/display';
 import { cn } from '@/utils';
 
 export interface SelectOption {

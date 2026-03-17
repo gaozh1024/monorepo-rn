@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Modal, TouchableOpacity } from 'react-native';
-import { AppView, AppText, AppPressable } from '../primitives';
-import { Icon } from '../components';
+import { AppView, AppText, AppPressable } from '@/ui/primitives';
+import { Icon } from '@/ui/display';
 import { cn, formatDate } from '@/utils';
 
 export interface DatePickerProps {

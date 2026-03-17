@@ -1,6 +1,15 @@
 import { TextInput, TextInputProps, View, Text } from 'react-native';
 import { cn } from '@/utils';
 
+/**
+ * 输入框组件
+ * @example
+ * ```tsx
+ * <AppInput placeholder="请输入内容" />
+ * <AppInput label="用户名" error="不能为空" />
+ * ```
+ */
+
 export interface AppInputProps extends TextInputProps {
   label?: string;
   error?: string;

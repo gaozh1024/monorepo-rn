@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { Progress } from '../../components/Progress';
+import { Progress } from '../../display/Progress';
 
 describe('Progress', () => {
   it('应该渲染进度条', () => {

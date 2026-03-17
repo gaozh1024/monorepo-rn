@@ -1,5 +1,6 @@
-import { AppPressable, AppText } from '../primitives';
-import { Icon, IconSize } from '../components/Icon';
+import { AppPressable, AppText } from '@/ui/primitives';
+import { Icon, IconSize } from '@/ui/display';
+import { cn } from '@/utils';
 
 export interface RadioProps {
   checked?: boolean;
@@ -9,6 +10,8 @@ export interface RadioProps {
   size?: IconSize;
   children?: React.ReactNode;
   testID?: string;
+  /** 自定义样式 */
+  className?: string;
 }
 
 export function Radio({
@@ -19,6 +22,7 @@ export function Radio({
   size = 'md',
   children,
   testID,
+  className,
 }: RadioProps) {
   const iconSize = typeof size === 'number' ? size * 1.2 : size;
 
@@ -27,7 +31,7 @@ export function Radio({
       disabled={disabled}
       onPress={onPress}
       testID={testID}
-      className={`flex-row items-center gap-2 ${disabled ? 'opacity-50' : ''}`}
+      className={cn('flex-row items-center gap-2', disabled && 'opacity-50', className)}
     >
       <Icon
         name={checked ? 'radio-button-checked' : 'radio-button-unchecked'}

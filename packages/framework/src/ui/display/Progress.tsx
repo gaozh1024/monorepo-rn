@@ -1,4 +1,4 @@
-import { AppView } from '../primitives';
+import { AppView } from '@/ui/primitives';
 import { cn } from '@/utils';
 
 export interface ProgressProps {
@@ -7,6 +7,10 @@ export interface ProgressProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error';
   testID?: string;
+  /** 自定义容器样式 */
+  className?: string;
+  /** 自定义进度条样式 */
+  barClassName?: string;
 }
 
 const sizeMap = { xs: 'h-1', sm: 'h-1.5', md: 'h-2', lg: 'h-3', xl: 'h-4' };
@@ -24,12 +28,17 @@ export function Progress({
   size = 'md',
   color = 'primary',
   testID,
+  className,
+  barClassName,
 }: ProgressProps) {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
   return (
-    <AppView className={cn('w-full rounded-full bg-gray-200', sizeMap[size])} testID={testID}>
+    <AppView
+      className={cn('w-full rounded-full bg-gray-200', sizeMap[size], className)}
+      testID={testID}
+    >
       <AppView
-        className={cn('rounded-full', sizeMap[size], colorMap[color])}
+        className={cn('rounded-full', sizeMap[size], colorMap[color], barClassName)}
         style={{ width: `${percentage}%` }}
       />
     </AppView>

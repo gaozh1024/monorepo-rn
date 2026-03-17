@@ -1,4 +1,5 @@
-import { AppView, AppText } from '../primitives';
+import { AppView, AppText } from '@/ui/primitives';
+import { cn } from '@/utils';
 
 export interface FormItemProps {
   name: string;
@@ -7,13 +8,26 @@ export interface FormItemProps {
   help?: string;
   required?: boolean;
   children: React.ReactNode;
+  /** 自定义样式 */
+  className?: string;
+  /** 标签样式 */
+  labelClassName?: string;
 }
 
-export function FormItem({ name: _name, label, error, help, required, children }: FormItemProps) {
+export function FormItem({
+  name: _name,
+  label,
+  error,
+  help,
+  required,
+  children,
+  className,
+  labelClassName,
+}: FormItemProps) {
   return (
-    <AppView className="mb-4">
+    <AppView className={cn('mb-4', className)}>
       {label && (
-        <AppView row items="center" gap={1} className="mb-2">
+        <AppView row items="center" gap={1} className={cn('mb-2', labelClassName)}>
           <AppText size="sm" weight="medium" color="gray-700">
             {label}
           </AppText>

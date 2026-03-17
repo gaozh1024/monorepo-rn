@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { Icon } from '../../components/Icon';
+import { Icon } from '../../display/Icon';
 import { ThemeProvider, createTheme } from '@/theme';
 
 const theme = createTheme({

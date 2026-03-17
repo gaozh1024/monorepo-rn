@@ -1,4 +1,4 @@
-import { AppView, type AppViewProps } from '../primitives/AppView';
+import { AppView, type AppViewProps } from '@/ui/primitives';
 import { cn } from '@/utils';
 
 export interface RowProps extends AppViewProps {

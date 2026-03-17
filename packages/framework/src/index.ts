@@ -13,3 +13,6 @@ export * from '@/ui';
 
 // Navigation
 export * from '@/navigation';
+
+// Overlay (AppProvider + Global UI)
+export * from '@/overlay';

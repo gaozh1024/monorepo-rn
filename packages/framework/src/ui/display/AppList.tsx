@@ -8,9 +8,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useTheme } from '@/theme';
-import { AppView, AppText, AppPressable } from '../primitives';
+import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from './Icon';
-import { Center } from '../layout';
+import { Center } from '@/ui/layout';
 
 export interface AppListProps<T = any> {
   data: T[];

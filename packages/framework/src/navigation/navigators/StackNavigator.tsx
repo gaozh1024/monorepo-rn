@@ -12,6 +12,7 @@ export interface StackNavigatorProps {
 
 const defaultScreenOptions: StackScreenOptions = {
   headerShown: false, // 默认隐藏头部，使用自定义 AppHeader
+  animation: 'slide_from_right', // iOS 风格：从右侧滑入滑出
 };
 
 export function StackNavigator({ initialRouteName, screenOptions, children }: StackNavigatorProps) {

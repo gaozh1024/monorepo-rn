@@ -1,11 +1,15 @@
 import { defineConfig } from 'tsup';
 
+/**
+ * 根目录 tsup 配置
+ * 用于统一构建配置模板，子包请使用各自的 tsup.config.ts
+ */
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
   dts: true,
   splitting: false,
-  sourcemap: true,
+  sourceMap: true,
   clean: true,
   minify: false,
   external: [
@@ -17,9 +21,5 @@ export default defineConfig({
     'zod',
     'clsx',
     'tailwind-merge',
-    '@gaozh1024/rn-utils',
-    '@gaozh1024/rn-theme',
-    '@gaozh1024/rn-core',
-    '@gaozh1024/rn-ui',
   ],
 });

@@ -1,4 +1,4 @@
-import { AppView } from '../primitives';
+import { AppView } from '@/ui/primitives';
 import { Radio } from './Radio';
 
 export interface Option {

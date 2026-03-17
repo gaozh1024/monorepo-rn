@@ -1,6 +1,15 @@
 import { ActivityIndicator } from 'react-native';
-import { AppPressable, AppText } from '../primitives';
+import { AppPressable, AppText } from '@/ui/primitives';
 import { cn } from '@/utils';
+
+/**
+ * 按钮组件
+ * @example
+ * ```tsx
+ * <AppButton onPress={handlePress}>确定</AppButton>
+ * <AppButton variant="outline" color="danger">删除</AppButton>
+ * ```
+ */
 
 export interface AppButtonProps {
   variant?: 'solid' | 'outline' | 'ghost';

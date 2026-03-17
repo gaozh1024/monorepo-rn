@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/theme';
 import { AppText } from '@/ui';
@@ -11,6 +12,8 @@ export interface CustomBottomTabBarProps extends BottomTabBarProps {
   activeTintColor?: string;
   /** 未激活颜色 */
   inactiveTintColor?: string;
+  /** TabBar 高度（默认 65） */
+  height?: number;
 }
 
 /**
@@ -24,6 +27,8 @@ export interface CustomBottomTabBarProps extends BottomTabBarProps {
  * </TabNavigator>
  * ```
  */
+const DEFAULT_TAB_BAR_HEIGHT = 65;
+
 export function BottomTabBar({
   state,
   descriptors,
@@ -31,15 +36,22 @@ export function BottomTabBar({
   showLabel = true,
   activeTintColor,
   inactiveTintColor,
+  height = DEFAULT_TAB_BAR_HEIGHT,
 }: CustomBottomTabBarProps) {
   const { theme, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const activeColor = activeTintColor || theme.colors.primary?.[500] || '#f38b32';
   const inactiveColor = inactiveTintColor || (isDark ? '#9ca3af' : '#6b7280');
   const backgroundColor = isDark ? '#1f2937' : '#ffffff';
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor, height: height + insets.bottom, paddingBottom: insets.bottom },
+      ]}
+    >
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
@@ -133,8 +145,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    minHeight: 56,
+    paddingVertical: 6,
   },
   iconContainer: {
     position: 'relative',

@@ -39,7 +39,6 @@ export function AppView({
       className={cn(
         flex === true && 'flex-1',
         typeof flex === 'number' && `flex-${flex}`,
-        !flex && 'flex',
         row ? 'flex-row' : 'flex-col',
         center && 'items-center justify-center',
         between && 'justify-between',

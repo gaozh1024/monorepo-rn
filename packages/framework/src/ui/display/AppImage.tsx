@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useTheme } from '@/theme';
 import { cn } from '@/utils';
-import { AppPressable, AppView } from '../primitives';
+import { AppPressable, AppView } from '@/ui/primitives';
 import { Icon } from './Icon';
 
 export type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center';

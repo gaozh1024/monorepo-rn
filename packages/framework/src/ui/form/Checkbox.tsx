@@ -1,5 +1,6 @@
-import { AppPressable, AppText } from '../primitives';
-import { Icon, IconSize } from '../components/Icon';
+import { AppPressable, AppText } from '@/ui/primitives';
+import { Icon, IconSize } from '@/ui/display';
+import { cn } from '@/utils';
 
 export interface CheckboxProps {
   checked?: boolean;
@@ -11,6 +12,8 @@ export interface CheckboxProps {
   size?: IconSize;
   children?: React.ReactNode;
   testID?: string;
+  /** 自定义样式 */
+  className?: string;
 }
 
 export function Checkbox({
@@ -23,6 +26,7 @@ export function Checkbox({
   size = 'md',
   children,
   testID,
+  className,
 }: CheckboxProps) {
   const handlePress = () => {
     if (!disabled && onChange) {
@@ -35,7 +39,7 @@ export function Checkbox({
       disabled={disabled}
       onPress={handlePress}
       testID={testID}
-      className={`flex-row items-center gap-2 ${disabled ? 'opacity-50' : ''}`}
+      className={cn('flex-row items-center gap-2', disabled && 'opacity-50', className)}
     >
       <Icon
         name={checked ? checkedIcon : uncheckedIcon}
