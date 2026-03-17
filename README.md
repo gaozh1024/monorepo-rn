@@ -162,15 +162,6 @@ import { createAPI, z, storage, ErrorCode } from '@gaozh1024/rn-kit';
 - [发布指南](./PUBLISH.md)
 - [Ignore 配置指南](./IGNORE_GUIDE.md)
 
-### 设计文档
-
-- [01-导航包设计](./docs/design/01-navigation-package.md)
-- [02-Icon 组件设计](./docs/design/02-icon-component.md)
-- [03-AppImage 组件设计](./docs/design/03-app-image-component.md)
-- [04-AppList 组件设计](./docs/design/04-app-list-component.md)
-- [05-核心 Hooks 设计](./docs/design/05-core-hooks.md)
-- [06-表单组件设计](./docs/design/06-form-components.md)
-
 ## 🛠️ 开发
 
 ```bash
