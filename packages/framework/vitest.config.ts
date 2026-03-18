@@ -2,14 +2,33 @@ import { defineConfig } from 'vitest/config';
 import path from 'path';
 
 export default defineConfig({
+  esbuild: {
+    jsxInject: `import React from 'react'`,
+  },
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['../../test-setup.ts'],
+    setupFiles: ['./test/setup.ts'],
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      {
+        find: /^react-native$/,
+        replacement: path.resolve(__dirname, './test/react-native-alias.ts'),
+      },
+      {
+        find: /^react-native\/.+$/,
+        replacement: path.resolve(__dirname, './test/react-native-alias.ts'),
+      },
+      {
+        find: 'react-native-vector-icons/MaterialIcons',
+        replacement: path.resolve(__dirname, './test/material-icons-alias.ts'),
+      },
+      {
+        find: 'react-native-safe-area-context',
+        replacement: path.resolve(__dirname, './test/safe-area-context-alias.ts'),
+      },
+    ],
   },
 });

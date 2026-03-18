@@ -4,10 +4,25 @@
   "description": "Panther Expo Framework - All-in-one React Native framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "TAILWIND_SETUP.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
-    "test": "vitest"
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.0.0",
@@ -17,6 +32,7 @@
     "@tanstack/react-query": "^5.0.0",
     "clsx": "^2.1.0",
     "nativewind": "^4.0.0",
+    "react-native-vector-icons": "^10.2.0",
     "react-native-svg": "^14.0.0",
     "tailwind-merge": "^2.2.0",
     "zod": "^3.22.0"

@@ -1,0 +1,229 @@
+# 三方库二次导出策略
+
+> 本文档是下一阶段架构任务 A3 的交付物
+>
+> 创建日期: 2026-03-18
+>
+> 用途: 明确三方库二次导出的决策依据和迁移路径
+
+## 背景
+
+当前框架从以下三方库二次导出部分 API：
+
+| 库                         | 导出内容                                                           | 位置                  |
+| -------------------------- | ------------------------------------------------------------------ | --------------------- |
+| `zod`                      | `z`                                                                | `core/index.ts`       |
+| `@tanstack/react-query`    | `useQuery`, `useMutation`                                          | `core/index.ts`       |
+| `@react-navigation/native` | `NavigationContainer`, `NavigationState`, `NavigationContainerRef` | `navigation/index.ts` |
+
+## 决策原则
+
+### 二次导出的收益
+
+1. **简化安装**: 用户只需安装框架，无需关心具体依赖版本
+2. **版本锁定**: 框架可以控制依赖版本，确保兼容性
+3. **统一入口**: 所有功能从一个包导入，学习成本低
+
+### 二次导出的成本
+
+1. **版本绑死**: 用户无法独立升级三方库版本
+2. **功能受限**: 只能使用框架导出的部分，无法访问完整 API
+3. **心智负担**: 用户需要理解哪些是框架封装，哪些是原生导出
+4. **维护成本**: 三方库升级时需要同步更新框架
+
+### 决策标准
+
+| 标准       | 保留二次导出          | 移除二次导出        |
+| ---------- | --------------------- | ------------------- |
+| 使用频率   | 高频使用（>80% 项目） | 低频使用或可选      |
+| 封装程度   | 有框架层封装或配置    | 纯透传导出          |
+| 版本敏感   | 需要严格控制版本      | 用户可自行管理版本  |
+| API 稳定性 | 三方库 API 稳定       | 三方库 API 可能变化 |
+
+---
+
+## 逐个库决策
+
+### 1. zod
+
+**当前状态**: 二次导出 `z`，并已添加 `@deprecated` 标记
+
+```typescript
+// core/index.ts
+export { z } from 'zod';
+```
+
+**使用场景**: 表单验证、API 响应校验
+
+**决策**: 🔴 **建议移除**
+
+**理由**:
+
+- `zod` 是独立的基础库，与框架核心功能无紧密耦合
+- 用户可能已经在项目中使用特定版本的 `zod`
+- 框架对 `zod` 无封装，纯透传导出
+- `zod` API 稳定，用户可自行管理版本
+
+**迁移路径**:
+
+```typescript
+// 之前
+import { z } from '@gaozh1024/rn-kit';
+
+// 之后
+import { z } from 'zod';
+```
+
+**版本策略**:
+
+- 下一中版本（minor）标记为 deprecated
+- 下一大版本（major）移除
+- 提供迁移指南
+
+---
+
+### 2. @tanstack/react-query
+
+**当前状态**: 二次导出 `useQuery`, `useMutation`，并已添加 `@deprecated` 标记
+
+```typescript
+// core/index.ts
+export { useQuery, useMutation } from '@tanstack/react-query';
+```
+
+**使用场景**: 服务端状态管理
+
+**决策**: 🔴 **建议移除**
+
+**理由**:
+
+- `@tanstack/react-query` 是大型独立库，有自己的生态
+- 用户可能使用 `useInfiniteQuery`, `useQueries` 等其他 API，框架未导出
+- 框架对 react-query 无封装，纯透传导出
+- react-query 版本迭代快，二次导出会限制用户升级
+
+**迁移路径**:
+
+```typescript
+// 之前
+import { useQuery, useMutation } from '@gaozh1024/rn-kit';
+
+// 之后
+import { useQuery, useMutation } from '@tanstack/react-query';
+```
+
+**版本策略**:
+
+- 下一中版本（minor）标记为 deprecated
+- 下一大版本（major）移除
+- 提供迁移指南
+
+---
+
+### 3. @react-navigation/native
+
+**当前状态**: 二次导出部分 API
+
+```typescript
+// navigation/index.ts
+export {
+  NavigationContainer,
+  type NavigationState,
+  type NavigationContainerRef,
+} from '@react-navigation/native';
+```
+
+**使用场景**: 导航容器、类型定义
+
+**决策**: 🟡 **保留，但限制范围**
+
+**理由**:
+
+- Navigation 模块是框架的核心功能，与 React Navigation 深度集成
+- `NavigationContainer` 在 `AppProvider` 中被使用，是完整方案的一部分
+- 类型定义需要与框架类型组合使用
+
+**限制措施**:
+
+- 仅保留与框架封装相关的必要导出
+- 不导出完整的 React Navigation API
+- 文档中明确说明：其他 React Navigation API 请从原库导入
+
+**保留清单**:
+
+- ✅ `NavigationContainer` - 与 `NavigationProvider` 配合使用
+- ✅ `NavigationState` - 框架类型依赖
+- ❌ `useNavigation`, `useRoute` 等 Hooks - 从框架 `navigation` 模块导入
+
+---
+
+## 实施计划
+
+### 阶段 1: 标记废弃 (当前已完成)
+
+1. 在代码中添加 `@deprecated` 标记
+2. 在文档中更新迁移指南
+3. 在 changelog 中记录
+
+```typescript
+/**
+ * @deprecated 将在 v1.0.0 移除，请直接从 'zod' 导入
+ * import { z } from 'zod';
+ */
+export { z } from 'zod';
+```
+
+### 阶段 2: 移除导出 (v1.0.0)
+
+1. 移除废弃的导出
+2. 更新所有内部引用
+3. 发布迁移指南
+
+---
+
+## 决策记录
+
+| 日期       | 决策                                                   | 参与者 | 理由                       |
+| ---------- | ------------------------------------------------------ | ------ | -------------------------- |
+| 2026-03-18 | 移除 `zod` 二次导出                                    | -      | 纯透传，无封装价值         |
+| 2026-03-18 | 移除 `@tanstack/react-query` 二次导出                  | -      | 纯透传，限制用户选择       |
+| 2026-03-18 | 保留 `@react-navigation/native` 核心导出               | -      | 与框架封装深度集成         |
+| 2026-03-18 | 为 `z` / `useQuery` / `useMutation` 添加 `@deprecated` | -      | 先以低风险方式发出迁移信号 |
+
+---
+
+## 迁移指南模板
+
+### 从框架导入改为直接导入
+
+```typescript
+// ===== zod =====
+// 之前
+import { z } from '@gaozh1024/rn-kit';
+
+// 之后
+import { z } from 'zod';
+
+// ===== react-query =====
+// 之前
+import { useQuery, useMutation } from '@gaozh1024/rn-kit';
+
+// 之后
+import { useQuery, useMutation } from '@tanstack/react-query';
+```
+
+### 安装依赖
+
+```bash
+# 如果需要 zod
+npm install zod
+
+# 如果需要 react-query
+npm install @tanstack/react-query
+```
+
+---
+
+## 关联文档
+
+- [公共 API 清单](./public-api-manifest.md) - 了解当前所有导出项

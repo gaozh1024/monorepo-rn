@@ -1,0 +1,59 @@
+/**
+ * Alert 子系统 Provider
+ * @module overlay/alert/provider
+ */
+
+import React, { useState, useCallback } from 'react';
+import { AlertContext } from './context';
+import { AlertModal } from './component';
+import type { AlertOptions } from './types';
+
+type AlertState = (AlertOptions & { visible: boolean }) | null;
+
+/**
+ * Alert Provider
+ */
+export function AlertProvider({ children }: { children: React.ReactNode }) {
+  const [alert, setAlert] = useState<AlertState>(null);
+
+  const showAlert = useCallback((options: AlertOptions) => {
+    setAlert({ ...options, visible: true });
+  }, []);
+
+  const confirm = useCallback(
+    (options: Omit<AlertOptions, 'showCancel'>) => {
+      showAlert({ ...options, showCancel: true });
+    },
+    [showAlert]
+  );
+
+  const hide = useCallback(() => {
+    setAlert(null);
+  }, []);
+
+  const handleConfirm = useCallback(() => {
+    alert?.onConfirm?.();
+    hide();
+  }, [alert, hide]);
+
+  const handleCancel = useCallback(() => {
+    alert?.onCancel?.();
+    hide();
+  }, [alert, hide]);
+
+  return (
+    <AlertContext.Provider value={{ alert: showAlert, confirm }}>
+      {children}
+      <AlertModal
+        visible={alert?.visible ?? false}
+        title={alert?.title}
+        message={alert?.message}
+        confirmText={alert?.confirmText}
+        cancelText={alert?.cancelText}
+        showCancel={alert?.showCancel}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
+    </AlertContext.Provider>
+  );
+}

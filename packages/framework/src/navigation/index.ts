@@ -114,7 +114,7 @@ export {
   type DrawerNavigationProp,
   type RouteProp,
   type NavigationProp,
-} from './hooks/useNavigation';
+} from './hooks';
 
 // ============================================================================
 // Types

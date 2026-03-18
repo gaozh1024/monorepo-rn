@@ -1,26 +1,19 @@
 /**
  * 导航 Hooks
  *
- * @module navigation/hooks
+ * @module navigation/hooks/useNavigation
  * @description 提供导航相关的 React Hooks
  */
 
 import { useEffect } from 'react';
-import {
-  useNavigation as useRNNavigation,
-  useRoute as useRNRoute,
-  useNavigationState as useRNNavigationState,
-  useIsFocused,
-  useFocusEffect,
-  useScrollToTop,
-} from '@react-navigation/native';
+import { useNavigation as useRNNavigation } from '@react-navigation/native';
 import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import type { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { DrawerNavigationProp, DrawerScreenProps } from '@react-navigation/drawer';
-import type { RouteProp, NavigationProp, NavigationState } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import type {
   StackParamList,
   TabParamList,
@@ -100,99 +93,6 @@ export function useDrawerNavigation(): DrawerNavigation {
   return useRNNavigation<DrawerNavigationProp<DrawerParamList>>();
 }
 
-/**
- * 获取当前路由信息
- *
- * @returns 当前路由对象，包含 name、params、key 等
- *
- * @example
- * ```tsx
- * function DetailScreen() {
- *   const route = useRoute<'Detail'>();
- *   const { id } = route.params;
- *
- *   return <Text>详情 ID: {id}</Text>;
- * }
- * ```
- */
-export function useRoute<T extends keyof StackParamList>(): RouteProp<StackParamList, T> {
-  return useRNRoute<RouteProp<StackParamList, T>>();
-}
-
-// ============================================================================
-// 导航状态 Hooks
-// ============================================================================
-
-/**
- * 获取导航状态
- *
- * @param selector - 状态选择器函数
- * @returns 选中的状态值
- *
- * @example
- * ```tsx
- * // 获取当前路由名称
- * const routeName = useNavigationState(state => state.routes[state.index].name);
- *
- * // 获取路由历史
- * const routes = useNavigationState(state => state.routes);
- * ```
- */
-export function useNavigationState<T>(selector: (state: NavigationState) => T): T {
-  return useRNNavigationState(selector);
-}
-
-/**
- * 监听屏幕聚焦状态
- *
- * @returns 屏幕是否处于聚焦状态
- *
- * @example
- * ```tsx
- * function ProfileScreen() {
- *   const isFocused = useIsFocused();
- *
- *   useEffect(() => {
- *     if (isFocused) {
- *       // 刷新数据
- *       refreshData();
- *     }
- *   }, [isFocused]);
- *
- *   return <ProfileView />;
- * }
- * ```
- */
-export { useIsFocused };
-
-/**
- * 屏幕聚焦时执行副作用
- *
- * 每次屏幕获得焦点时都会执行回调函数
- *
- * @param callback - 回调函数，可以返回清理函数
- *
- * @example
- * ```tsx
- * function HomeScreen() {
- *   useFocusEffect(
- *     useCallback(() => {
- *       // 获取最新数据
- *       fetchData();
- *
- *       // 可选：返回清理函数
- *       return () => {
- *         // 取消请求等清理操作
- *       };
- *     }, [])
- *   );
- *
- *   return <HomeView />;
- * }
- * ```
- */
-export { useFocusEffect };
-
 // ============================================================================
 // 特殊功能 Hooks
 // ============================================================================
@@ -235,30 +135,6 @@ export function useBackHandler(handler: () => boolean): void {
     return unsubscribe;
   }, [navigation, handler]);
 }
-
-/**
- * 滚动到顶部
- *
- * 当用户点击标签栏已激活的 Tab 时，自动滚动到顶部
- *
- * @param ref - 可滚动组件的 ref（ScrollView、FlatList 等）
- *
- * @example
- * ```tsx
- * function HomeScreen() {
- *   const scrollViewRef = useRef<ScrollView>(null);
- *
- *   useScrollToTop(scrollViewRef);
- *
- *   return (
- *     <ScrollView ref={scrollViewRef}>
- *       <LongContent />
- *     </ScrollView>
- *   );
- * }
- * ```
- */
-export { useScrollToTop };
 
 // ============================================================================
 // 类型导出

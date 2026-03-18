@@ -9,7 +9,7 @@ import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, type ThemeConfig } from '@/theme';
 import { NavigationProvider, type NavigationProviderProps } from '@/navigation';
-import { OverlayProvider } from './OverlayHost';
+import { OverlayProvider } from './provider';
 
 // ============================================================================
 // 默认主题配置
@@ -180,20 +180,25 @@ export function AppProvider({
   defaultDark = false,
   ...navigationProps
 }: AppProviderProps) {
-  // 从内到外套娃
+  // 从外到内套娃（外层包裹内层）
+  // 正确的顺序: SafeArea → Theme → Navigation → Overlay
+  // Overlay 在最内层，可以访问所有其他 Provider 的上下文
+  // SafeArea 在最外层，确保所有内容都在安全区域内
+
   let content = children;
 
   // 1. Overlay (Loading/Toast/Alert) - 最内层
+  // 需要访问 Navigation 和 Theme 上下文
   if (enableOverlay) {
     content = <OverlayProvider>{content}</OverlayProvider>;
   }
 
-  // 2. Navigation
+  // 2. Navigation - 需要 Theme 上下文来创建导航主题
   if (enableNavigation) {
     content = <NavigationProvider {...navigationProps}>{content}</NavigationProvider>;
   }
 
-  // 3. Theme
+  // 3. Theme - 需要被 SafeArea 包裹
   if (enableTheme) {
     content = (
       <ThemeProvider light={lightTheme} dark={darkTheme} defaultDark={defaultDark}>
@@ -202,7 +207,7 @@ export function AppProvider({
     );
   }
 
-  // 4. SafeArea (最外层)
+  // 4. SafeArea - 最外层
   if (enableSafeArea) {
     content = <SafeAreaProvider>{content}</SafeAreaProvider>;
   }

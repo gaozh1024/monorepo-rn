@@ -19,3 +19,4 @@ export {
   type InfiniteFetchParams,
   type InfiniteFetchResult,
 } from './useInfinite';
+export { useAsyncState, type UseAsyncState } from './useAsyncState';

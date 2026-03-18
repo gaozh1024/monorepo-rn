@@ -16,3 +16,6 @@ export * from '@/navigation';
 
 // Overlay (AppProvider + Global UI)
 export * from '@/overlay';
+
+// External Providers - 方便用户自定义包裹
+export { SafeAreaProvider } from 'react-native-safe-area-context';

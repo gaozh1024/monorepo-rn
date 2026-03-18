@@ -1,4 +1,13 @@
+/**
+ * @deprecated 将在后续大版本移除，请直接从 `zod` 导入。
+ * `import { z } from 'zod'`
+ */
 export { z } from 'zod';
+
+/**
+ * @deprecated 将在后续大版本移除，请直接从 `@tanstack/react-query` 导入。
+ * `import { useQuery, useMutation } from '@tanstack/react-query'`
+ */
 export { useQuery, useMutation } from '@tanstack/react-query';
 
 export * from './error';

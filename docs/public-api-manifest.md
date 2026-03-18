@@ -1,0 +1,457 @@
+# 公共 API 清单
+
+> 本文档是下一阶段架构任务 A1 的交付物
+>
+> 创建日期: 2026-03-18
+>
+> 用途: 明确哪些导出属于稳定公共 API，哪些只是内部实现细节
+
+## 概览
+
+| 模块         | 稳定性    | 说明                                       |
+| ------------ | --------- | ------------------------------------------ |
+| `utils`      | ✅ 稳定   | 通用工具函数，变动频率低                   |
+| `theme`      | ✅ 稳定   | 主题系统核心 API                           |
+| `core`       | ⚠️ 待观察 | 包含三方库二次导出，需决策                 |
+| `ui`         | ✅ 稳定   | UI 组件库，公共组件稳定                    |
+| `navigation` | ✅ 稳定   | 类型与 Hook 已拆分，公共入口已收敛         |
+| `overlay`    | ✅ 稳定   | Loading / Toast / Alert 已拆分为独立子系统 |
+
+---
+
+## 1. Utils 模块 (`@/utils`)
+
+### 稳定性: ✅ 稳定
+
+所有导出均为**稳定公共 API**，建议长期使用。
+
+| 导出项                 | 类型     | 稳定性  | 备注               |
+| ---------------------- | -------- | ------- | ------------------ |
+| `cn`                   | function | ✅ 稳定 | className 合并工具 |
+| `clsx`                 | function | ✅ 稳定 | className 条件合并 |
+| `twMerge`              | function | ✅ 稳定 | Tailwind 类名合并  |
+| `ClassValue`           | type     | ✅ 稳定 | clsx 输入类型      |
+| `hexToRgb`             | function | ✅ 稳定 | 颜色转换           |
+| `rgbToHex`             | function | ✅ 稳定 | 颜色转换           |
+| `adjustBrightness`     | function | ✅ 稳定 | 颜色亮度调整       |
+| `generateColorPalette` | function | ✅ 稳定 | 生成色板           |
+| `RgbObject`            | type     | ✅ 稳定 | RGB 对象类型       |
+| `ColorPalette`         | type     | ✅ 稳定 | 色板类型           |
+| `isDevelopment`        | function | ✅ 稳定 | 环境判断           |
+| `formatDate`           | function | ✅ 稳定 | 日期格式化         |
+| `formatRelativeTime`   | function | ✅ 稳定 | 相对时间格式化     |
+| `truncate`             | function | ✅ 稳定 | 字符串截断         |
+| `slugify`              | function | ✅ 稳定 | URL 友好字符串     |
+| `capitalize`           | function | ✅ 稳定 | 首字母大写         |
+| `formatNumber`         | function | ✅ 稳定 | 数字格式化         |
+| `formatCurrency`       | function | ✅ 稳定 | 货币格式化         |
+| `formatPercent`        | function | ✅ 稳定 | 百分比格式化       |
+| `clamp`                | function | ✅ 稳定 | 数值限制           |
+| `deepMerge`            | function | ✅ 稳定 | 对象深度合并       |
+| `pick`                 | function | ✅ 稳定 | 对象属性选取       |
+| `omit`                 | function | ✅ 稳定 | 对象属性排除       |
+| `getValidationErrors`  | function | ✅ 稳定 | 获取验证错误       |
+| `isValidEmail`         | function | ✅ 稳定 | 邮箱验证           |
+| `isValidPhone`         | function | ✅ 稳定 | 手机号验证         |
+
+---
+
+## 2. Theme 模块 (`@/theme`)
+
+### 稳定性: ✅ 稳定
+
+主题系统核心 API，建议长期使用。
+
+| 导出项               | 类型      | 稳定性  | 备注                |
+| -------------------- | --------- | ------- | ------------------- |
+| `Theme`              | type      | ✅ 稳定 | 主题类型            |
+| `ThemeConfig`        | type      | ✅ 稳定 | 主题配置类型        |
+| `ColorPalette`       | type      | ✅ 稳定 | 色板类型            |
+| `ColorToken`         | type      | ✅ 稳定 | 颜色令牌类型        |
+| `createTheme`        | function  | ✅ 稳定 | 创建主题            |
+| `ThemeProvider`      | component | ✅ 稳定 | 主题提供者          |
+| `useTheme`           | hook      | ✅ 稳定 | 获取主题上下文      |
+| `ThemeProviderProps` | type      | ✅ 稳定 | Provider Props 类型 |
+
+**注意**: 根入口 `index.ts` 将 `ColorPalette` 重命名为 `ThemeColorPalette` 导出，以避免与 `utils` 中的同名类型冲突。
+
+---
+
+## 3. Core 模块 (`@/core`)
+
+### 稳定性: ⚠️ 待观察
+
+包含三方库二次导出，需要决策（参见 A3 任务）。
+
+### 3.1 Error 子模块
+
+| 导出项          | 类型     | 稳定性      | 备注                                    |
+| --------------- | -------- | ----------- | --------------------------------------- |
+| `ErrorCode`     | enum     | ✅ 稳定     | 错误码枚举                              |
+| `AppError`      | type     | ✅ 稳定     | 应用错误类型                            |
+| `mapHttpStatus` | function | ✅ 稳定     | HTTP 状态映射                           |
+| `enhanceError`  | function | ✅ 稳定     | 错误增强                                |
+| `useAsyncState` | hook     | ⚠️ 兼容导出 | 已迁移至 `core/hooks`，当前仅保留兼容层 |
+| `UseAsyncState` | type     | ⚠️ 兼容导出 | 已迁移至 `core/hooks`，当前仅保留兼容层 |
+
+### 3.2 API 子模块
+
+| 导出项              | 类型     | 稳定性  | 备注         |
+| ------------------- | -------- | ------- | ------------ |
+| `ApiEndpointConfig` | type     | ✅ 稳定 | API 端点配置 |
+| `ApiConfig`         | type     | ✅ 稳定 | API 全局配置 |
+| `createAPI`         | function | ✅ 稳定 | API 创建函数 |
+
+### 3.3 Storage 子模块
+
+| 导出项          | 类型     | 稳定性  | 备注         |
+| --------------- | -------- | ------- | ------------ |
+| `MemoryStorage` | class    | ✅ 稳定 | 内存存储实现 |
+| `storage`       | instance | ✅ 稳定 | 默认存储实例 |
+
+### 3.4 Hooks 子模块
+
+| 导出项                 | 类型 | 稳定性  | 备注                  |
+| ---------------------- | ---- | ------- | --------------------- |
+| `useRequest`           | hook | ✅ 稳定 | 请求 Hook             |
+| `usePagination`        | hook | ✅ 稳定 | 分页 Hook             |
+| `UsePaginationReturn`  | type | ✅ 稳定 | 分页返回类型          |
+| `UsePaginationOptions` | type | ✅ 稳定 | 分页选项类型          |
+| `PaginationParams`     | type | ✅ 稳定 | 分页参数类型          |
+| `PaginationResult`     | type | ✅ 稳定 | 分页结果类型          |
+| `usePrevious`          | hook | ✅ 稳定 | 获取上一次的值        |
+| `useSetState`          | hook | ✅ 稳定 | 状态合并更新          |
+| `useMemoizedFn`        | hook | ✅ 稳定 | 函数记忆化            |
+| `useUpdateEffect`      | hook | ✅ 稳定 | 跳过首次执行的 effect |
+| `useStorage`           | hook | ✅ 稳定 | 存储 Hook             |
+| `useRefresh`           | hook | ✅ 稳定 | 下拉刷新              |
+| `UseRefreshReturn`     | type | ✅ 稳定 | 刷新返回类型          |
+| `useInfinite`          | hook | ✅ 稳定 | 无限滚动              |
+| `UseInfiniteReturn`    | type | ✅ 稳定 | 无限滚动返回类型      |
+| `UseInfiniteOptions`   | type | ✅ 稳定 | 无限滚动选项          |
+| `InfiniteFetchParams`  | type | ✅ 稳定 | 无限滚动参数          |
+| `InfiniteFetchResult`  | type | ✅ 稳定 | 无限滚动结果          |
+| `useAsyncState`        | hook | ✅ 稳定 | 已迁移到 hooks 主入口 |
+| `UseAsyncState`        | type | ✅ 稳定 | 已迁移到 hooks 主入口 |
+
+### 3.5 三方库二次导出 (待决策)
+
+| 导出项        | 来源                    | 稳定性    | 备注               |
+| ------------- | ----------------------- | --------- | ------------------ |
+| `z`           | `zod`                   | ❓ 需决策 | 是否继续二次导出？ |
+| `useQuery`    | `@tanstack/react-query` | ❓ 需决策 | 是否继续二次导出？ |
+| `useMutation` | `@tanstack/react-query` | ❓ 需决策 | 是否继续二次导出？ |
+
+**建议**: 考虑移除三方库二次导出，让用户直接依赖原始库。
+
+---
+
+## 4. UI 模块 (`@/ui`)
+
+### 稳定性: ✅ 稳定
+
+UI 组件库，所有组件均为**稳定公共 API**。
+
+### 4.1 Primitives 基础组件
+
+| 导出项              | 类型      | 稳定性  | 备注       |
+| ------------------- | --------- | ------- | ---------- |
+| `AppView`           | component | ✅ 稳定 | 视图容器   |
+| `AppViewProps`      | type      | ✅ 稳定 | Props 类型 |
+| `AppText`           | component | ✅ 稳定 | 文本组件   |
+| `AppTextProps`      | type      | ✅ 稳定 | Props 类型 |
+| `AppPressable`      | component | ✅ 稳定 | 可按压组件 |
+| `AppPressableProps` | type      | ✅ 稳定 | Props 类型 |
+
+### 4.2 Layout 布局组件
+
+| 导出项            | 类型      | 稳定性  | 备注            |
+| ----------------- | --------- | ------- | --------------- |
+| `Row`             | component | ✅ 稳定 | 水平布局        |
+| `RowProps`        | type      | ✅ 稳定 | Props 类型      |
+| `Col`             | component | ✅ 稳定 | 垂直布局        |
+| `ColProps`        | type      | ✅ 稳定 | Props 类型      |
+| `Center`          | component | ✅ 稳定 | 居中布局        |
+| `CenterProps`     | type      | ✅ 稳定 | Props 类型      |
+| `SafeScreen`      | component | ✅ 稳定 | 安全区域屏幕    |
+| `Page`            | component | ✅ 稳定 | SafeScreen 别名 |
+| `SafeBottom`      | component | ✅ 稳定 | 底部安全区域    |
+| `SafeScreenProps` | type      | ✅ 稳定 | Props 类型      |
+
+### 4.3 Actions 操作组件
+
+| 导出项           | 类型      | 稳定性  | 备注       |
+| ---------------- | --------- | ------- | ---------- |
+| `AppButton`      | component | ✅ 稳定 | 按钮组件   |
+| `AppButtonProps` | type      | ✅ 稳定 | Props 类型 |
+
+### 4.4 Feedback 反馈组件
+
+| 导出项         | 类型      | 稳定性  | 备注         |
+| -------------- | --------- | ------- | ------------ |
+| `Toast`        | component | ✅ 稳定 | Toast 组件   |
+| `ToastProps`   | type      | ✅ 稳定 | Props 类型   |
+| `Alert`        | component | ✅ 稳定 | Alert 组件   |
+| `AlertProps`   | type      | ✅ 稳定 | Props 类型   |
+| `Loading`      | component | ✅ 稳定 | Loading 组件 |
+| `LoadingProps` | type      | ✅ 稳定 | Props 类型   |
+
+### 4.5 Display 展示组件
+
+| 导出项            | 类型      | 稳定性  | 备注         |
+| ----------------- | --------- | ------- | ------------ |
+| `Progress`        | component | ✅ 稳定 | 进度条       |
+| `ProgressProps`   | type      | ✅ 稳定 | Props 类型   |
+| `Card`            | component | ✅ 稳定 | 卡片         |
+| `CardProps`       | type      | ✅ 稳定 | Props 类型   |
+| `Icon`            | component | ✅ 稳定 | 图标组件     |
+| `IconProps`       | type      | ✅ 稳定 | Props 类型   |
+| `IconSize`        | type      | ✅ 稳定 | 图标尺寸     |
+| `NavigationIcons` | object    | ✅ 稳定 | 导航图标集合 |
+| `ActionIcons`     | object    | ✅ 稳定 | 操作图标集合 |
+| `StatusIcons`     | object    | ✅ 稳定 | 状态图标集合 |
+| `FileIcons`       | object    | ✅ 稳定 | 文件图标集合 |
+| `AppImage`        | component | ✅ 稳定 | 图片组件     |
+| `AppImageProps`   | type      | ✅ 稳定 | Props 类型   |
+| `AppList`         | component | ✅ 稳定 | 列表组件     |
+| `AppListProps`    | type      | ✅ 稳定 | Props 类型   |
+
+### 4.6 Form 表单组件
+
+| 导出项               | 类型      | 稳定性  | 备注       |
+| -------------------- | --------- | ------- | ---------- |
+| `AppInput`           | component | ✅ 稳定 | 输入框     |
+| `AppInputProps`      | type      | ✅ 稳定 | Props 类型 |
+| `Checkbox`           | component | ✅ 稳定 | 复选框     |
+| `CheckboxProps`      | type      | ✅ 稳定 | Props 类型 |
+| `CheckboxGroup`      | component | ✅ 稳定 | 复选框组   |
+| `CheckboxGroupProps` | type      | ✅ 稳定 | Props 类型 |
+| `Radio`              | component | ✅ 稳定 | 单选框     |
+| `RadioProps`         | type      | ✅ 稳定 | Props 类型 |
+| `RadioGroup`         | component | ✅ 稳定 | 单选框组   |
+| `RadioGroupProps`    | type      | ✅ 稳定 | Props 类型 |
+| `Switch`             | component | ✅ 稳定 | 开关       |
+| `SwitchProps`        | type      | ✅ 稳定 | Props 类型 |
+| `Slider`             | component | ✅ 稳定 | 滑块       |
+| `SliderProps`        | type      | ✅ 稳定 | Props 类型 |
+| `Select`             | component | ✅ 稳定 | 选择器     |
+| `SelectProps`        | type      | ✅ 稳定 | Props 类型 |
+| `SelectOption`       | type      | ✅ 稳定 | 选项类型   |
+| `DatePicker`         | component | ✅ 稳定 | 日期选择器 |
+| `DatePickerProps`    | type      | ✅ 稳定 | Props 类型 |
+| `FormItem`           | component | ✅ 稳定 | 表单项     |
+| `FormItemProps`      | type      | ✅ 稳定 | Props 类型 |
+| `useForm`            | hook      | ✅ 稳定 | 表单管理   |
+
+### 4.7 Hooks UI 相关 Hooks
+
+| 导出项                 | 类型 | 稳定性  | 备注         |
+| ---------------------- | ---- | ------- | ------------ |
+| `useToggle`            | hook | ✅ 稳定 | 布尔状态切换 |
+| `UseToggleActions`     | type | ✅ 稳定 | 切换操作类型 |
+| `useDebounce`          | hook | ✅ 稳定 | 防抖         |
+| `useThrottle`          | hook | ✅ 稳定 | 节流         |
+| `useKeyboard`          | hook | ✅ 稳定 | 键盘状态     |
+| `UseKeyboardReturn`    | type | ✅ 稳定 | 键盘返回类型 |
+| `useDimensions`        | hook | ✅ 稳定 | 屏幕尺寸     |
+| `UseDimensionsReturn`  | type | ✅ 稳定 | 尺寸返回类型 |
+| `useOrientation`       | hook | ✅ 稳定 | 屏幕方向     |
+| `UseOrientationReturn` | type | ✅ 稳定 | 方向返回类型 |
+| `Orientation`          | type | ✅ 稳定 | 方向类型     |
+
+---
+
+## 5. Navigation 模块 (`@/navigation`)
+
+### 稳定性: ✅ 稳定
+
+导航类型和 Hook 已完成拆分，当前主要风险集中在对 React Navigation 原始类型的二次暴露策略。
+
+### 5.1 Provider
+
+| 导出项                    | 类型      | 稳定性    | 备注                       |
+| ------------------------- | --------- | --------- | -------------------------- |
+| `NavigationProvider`      | component | ✅ 稳定   | 导航提供者                 |
+| `NavigationProviderProps` | type      | ⚠️ 待观察 | 依赖 React Navigation 类型 |
+
+### 5.2 Navigators
+
+| 导出项                    | 类型      | 稳定性    | 备注                      |
+| ------------------------- | --------- | --------- | ------------------------- |
+| `StackNavigator`          | component | ✅ 稳定   | 堆栈导航器                |
+| `TabNavigator`            | component | ✅ 稳定   | 标签导航器                |
+| `DrawerNavigator`         | component | ✅ 稳定   | 抽屉导航器                |
+| `createStackScreens`      | function  | ✅ 稳定   | 创建堆栈屏幕              |
+| `createTabScreens`        | function  | ✅ 稳定   | 创建标签屏幕              |
+| `createDrawerScreens`     | function  | ✅ 稳定   | 创建抽屉屏幕              |
+| `StackNavigatorProps`     | type      | ✅ 稳定   | 已从独立类型模块导出      |
+| `TabNavigatorProps`       | type      | ✅ 稳定   | 已从独立类型模块导出      |
+| `DrawerNavigatorProps`    | type      | ✅ 稳定   | 已从独立类型模块导出      |
+| `NativeStackScreenProps`  | type      | ⚠️ 待观察 | React Navigation 原始类型 |
+| `BottomTabScreenProps`    | type      | ⚠️ 待观察 | React Navigation 原始类型 |
+| `NativeDrawerScreenProps` | type      | ⚠️ 待观察 | React Navigation 原始类型 |
+
+### 5.3 Components
+
+| 导出项                    | 类型      | 稳定性  | 备注       |
+| ------------------------- | --------- | ------- | ---------- |
+| `AppHeader`               | component | ✅ 稳定 | 应用头部   |
+| `AppHeaderProps`          | type      | ✅ 稳定 | Props 类型 |
+| `BottomTabBar`            | component | ✅ 稳定 | 底部标签栏 |
+| `CustomBottomTabBarProps` | type      | ✅ 稳定 | Props 类型 |
+| `DrawerContent`           | component | ✅ 稳定 | 抽屉内容   |
+| `DrawerContentProps`      | type      | ✅ 稳定 | Props 类型 |
+| `DrawerItem`              | type      | ✅ 稳定 | 抽屉项类型 |
+
+### 5.4 Hooks
+
+| 导出项                      | 类型 | 稳定性    | 备注                       |
+| --------------------------- | ---- | --------- | -------------------------- |
+| `useStackNavigation`        | hook | ✅ 稳定   | 堆栈导航 Hook              |
+| `useTabNavigation`          | hook | ✅ 稳定   | 标签导航 Hook              |
+| `useDrawerNavigation`       | hook | ✅ 稳定   | 抽屉导航 Hook              |
+| `useRoute`                  | hook | ✅ 稳定   | 获取当前路由               |
+| `useNavigationState`        | hook | ✅ 稳定   | 获取导航状态               |
+| `useBackHandler`            | hook | ✅ 稳定   | 安卓返回键处理             |
+| `useIsFocused`              | hook | ✅ 稳定   | React Navigation 官方 Hook |
+| `useFocusEffect`            | hook | ✅ 稳定   | React Navigation 官方 Hook |
+| `useScrollToTop`            | hook | ✅ 稳定   | React Navigation 官方 Hook |
+| `NativeStackNavigationProp` | type | ⚠️ 待观察 | React Navigation 原始类型  |
+| `BottomTabNavigationProp`   | type | ⚠️ 待观察 | React Navigation 原始类型  |
+| `DrawerNavigationProp`      | type | ⚠️ 待观察 | React Navigation 原始类型  |
+| `RouteProp`                 | type | ⚠️ 待观察 | React Navigation 原始类型  |
+| `NavigationProp`            | type | ⚠️ 待观察 | React Navigation 原始类型  |
+
+### 5.5 Types
+
+| 导出项                | 类型      | 稳定性  | 备注         |
+| --------------------- | --------- | ------- | ------------ |
+| `StackParamList`      | interface | ✅ 稳定 | 用户扩展类型 |
+| `TabParamList`        | interface | ✅ 稳定 | 用户扩展类型 |
+| `DrawerParamList`     | interface | ✅ 稳定 | 用户扩展类型 |
+| `ParamListBase`       | type      | ✅ 稳定 | 基础参数类型 |
+| `RouteConfig`         | interface | ✅ 稳定 | 路由配置     |
+| `StackRouteConfig`    | interface | ✅ 稳定 | 堆栈路由配置 |
+| `TabRouteConfig`      | interface | ✅ 稳定 | 标签路由配置 |
+| `DrawerRouteConfig`   | interface | ✅ 稳定 | 抽屉路由配置 |
+| `StackScreenOptions`  | interface | ✅ 稳定 | 屏幕选项     |
+| `TabScreenOptions`    | interface | ✅ 稳定 | 屏幕选项     |
+| `TabBarOptions`       | interface | ✅ 稳定 | 标签栏选项   |
+| `DrawerScreenOptions` | interface | ✅ 稳定 | 屏幕选项     |
+| `DrawerOptions`       | interface | ✅ 稳定 | 抽屉选项     |
+| `StackScreenProps`    | type      | ✅ 稳定 | 屏幕 Props   |
+| `TabScreenProps`      | type      | ✅ 稳定 | 屏幕 Props   |
+| `DrawerScreenProps`   | type      | ✅ 稳定 | 屏幕 Props   |
+| `StackNavigation`     | type      | ✅ 稳定 | 导航类型     |
+| `TabNavigation`       | type      | ✅ 稳定 | 导航类型     |
+| `DrawerNavigation`    | type      | ✅ 稳定 | 导航类型     |
+| `AppNavigation`       | type      | ✅ 稳定 | 通用导航类型 |
+| `LinkingConfig`       | interface | ✅ 稳定 | 深度链接配置 |
+| `PathConfig`          | interface | ✅ 稳定 | 路径配置     |
+
+### 5.6 Utils
+
+| 导出项                  | 类型     | 稳定性  | 备注         |
+| ----------------------- | -------- | ------- | ------------ |
+| `createNavigationTheme` | function | ✅ 稳定 | 创建导航主题 |
+
+### 5.7 React Navigation 二次导出
+
+| 导出项                   | 来源                       | 稳定性    | 备注               |
+| ------------------------ | -------------------------- | --------- | ------------------ |
+| `NavigationContainer`    | `@react-navigation/native` | ⚠️ 待观察 | 是否继续二次导出？ |
+| `NavigationState`        | `@react-navigation/native` | ⚠️ 待观察 | 类型               |
+| `NavigationContainerRef` | `@react-navigation/native` | ⚠️ 待观察 | 类型               |
+
+---
+
+## 6. Overlay 模块 (`@/overlay`)
+
+### 稳定性: ✅ 稳定
+
+Overlay 已按 loading / toast / alert / provider 拆分，对外 API 保持不变。
+
+| 导出项               | 类型      | 稳定性  | 备注                         |
+| -------------------- | --------- | ------- | ---------------------------- |
+| `AppProvider`        | component | ✅ 稳定 | 统一 Provider                |
+| `AppProviderProps`   | type      | ✅ 稳定 | Props 类型                   |
+| `OverlayProvider`    | component | ✅ 稳定 | 已拆分为独立 provider 组合层 |
+| `useLoading`         | hook      | ✅ 稳定 | Loading 控制                 |
+| `useToast`           | hook      | ✅ 稳定 | Toast 控制                   |
+| `useAlert`           | hook      | ✅ 稳定 | Alert 控制                   |
+| `LoadingContextType` | type      | ✅ 稳定 | Loading 上下文类型           |
+| `LoadingState`       | type      | ✅ 稳定 | Loading 状态类型             |
+| `ToastContextType`   | type      | ✅ 稳定 | Toast 上下文类型             |
+| `ToastItem`          | type      | ✅ 稳定 | Toast 数据类型               |
+| `ToastType`          | type      | ✅ 稳定 | Toast 类型                   |
+| `AlertContextType`   | type      | ✅ 稳定 | Alert 上下文类型             |
+| `AlertOptions`       | type      | ✅ 稳定 | Alert 配置类型               |
+
+**内部实现** (已完成拆分，不对外暴露):
+
+- `LoadingProvider` - 内部组件
+- `ToastProvider` - 内部组件
+- `AlertProvider` - 内部组件
+- `LoadingModal` - 内部组件
+- `ToastItemView` - 内部组件
+
+---
+
+## 待下线或待迁移的导出清单
+
+### 1. 三方库二次导出 (需决策)
+
+| 导出项        | 当前位置        | 建议操作 | 迁移路径                                                       |
+| ------------- | --------------- | -------- | -------------------------------------------------------------- |
+| `z`           | `core/index.ts` | 建议移除 | 用户直接 `import { z } from 'zod'`                             |
+| `useQuery`    | `core/index.ts` | 建议移除 | 用户直接 `import { useQuery } from '@tanstack/react-query'`    |
+| `useMutation` | `core/index.ts` | 建议移除 | 用户直接 `import { useMutation } from '@tanstack/react-query'` |
+
+**理由**:
+
+- 避免框架版本与三方库版本绑死
+- 减少不必要的抽象层
+- 用户可以直接使用原始库的完整功能
+
+### 2. 兼容导出 (已完成迁移)
+
+| 导出项          | 当前位置     | 建议操作   | 说明                          |
+| --------------- | ------------ | ---------- | ----------------------------- |
+| `useAsyncState` | `core/error` | 保留兼容层 | 主导出已迁移到 `core/hooks`   |
+| `UseAsyncState` | `core/error` | 保留兼容层 | 类型定义已迁移到 `core/hooks` |
+
+### 3. 类型重命名 (已存在)
+
+| 导出项         | 根入口名称          | 原始名称       | 原因                                    |
+| -------------- | ------------------- | -------------- | --------------------------------------- |
+| `ColorPalette` | `ThemeColorPalette` | `ColorPalette` | 避免与 `utils` 中的 `ColorPalette` 冲突 |
+
+---
+
+## 验证要求
+
+根据路线图统一验证要求，每次修改后需执行:
+
+```bash
+# 类型检查
+pnpm -r typecheck
+
+# 测试
+pnpm -r test
+
+# 构建
+pnpm --filter @gaozh1024/rn-kit build
+```
+
+---
+
+## 后续任务关联
+
+| 任务 | 关联内容                                  |
+| ---- | ----------------------------------------- |
+| A3   | 三方库二次导出策略决策                    |
+| A4   | 单包边界说明文档                          |
+| B1   | `core` 目录职责重整，迁移 `useAsyncState` |
+| B2   | `overlay` 目录拆分                        |
+| B3   | `navigation` 类型和 Hook 拆分             |
+| C1   | 高风险模块测试补强                        |

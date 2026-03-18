@@ -23,6 +23,40 @@ npm install react-native-gesture-handler react-native-reanimated
 npm install react-native-svg
 ```
 
+### ⚠️ 样式配置（必看）
+
+本框架使用 **Tailwind CSS** 类名实现样式（如 `bg-primary-500`, `flex-1`, `p-4`），需要在你的项目中配置 **NativeWind** 才能正常显示样式。
+
+```bash
+npm install nativewind
+npm install -D tailwindcss
+```
+
+创建 `tailwind.config.js`：
+
+```javascript
+module.exports = {
+  content: [
+    './App.{js,jsx,ts,tsx}',
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/@gaozh1024/rn-kit/dist/**/*.{js,mjs}', // 必须包含框架路径
+  ],
+  theme: { extend: {} },
+  plugins: [],
+};
+```
+
+修改 `babel.config.js`：
+
+```javascript
+module.exports = {
+  presets: ['babel-preset-expo'],
+  plugins: ['nativewind/babel'],
+};
+```
+
+📖 [查看完整 Tailwind 配置指南](./TAILWIND_SETUP.md)
+
 ## 🚀 快速开始
 
 ```tsx
@@ -144,7 +178,6 @@ const api = createAPI({
 ## 📄 文档
 
 - [框架文档](../../docs/README.md) - 完整文档索引
-- [设计文档](../../docs/design/) - 架构设计文档
 
 ## 📄 许可证
 

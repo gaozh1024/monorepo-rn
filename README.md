@@ -35,6 +35,10 @@ npm install react-native-gesture-handler react-native-reanimated
 npm install react-native-svg
 ```
 
+### ⚠️ 样式配置（必看）
+
+本框架使用 **Tailwind CSS** 类名实现样式，需要配置 **NativeWind**。详见 [Tailwind 配置指南](./packages/framework/TAILWIND_SETUP.md)。
+
 ## 🚀 快速开始
 
 ```tsx
@@ -195,7 +199,6 @@ monorepo-rn/
 ├── packages/
 │   └── framework/      # 统一框架包 (@gaozh1024/rn-kit)
 ├── docs/               # 文档
-├── init.sh             # 初始化脚本
 └── README.md           # 本文件
 ```
 

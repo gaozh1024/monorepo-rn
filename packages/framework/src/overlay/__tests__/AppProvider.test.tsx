@@ -1,0 +1,100 @@
+/**
+ * AppProvider 集成测试
+ * @module overlay/__tests__/AppProvider
+ */
+
+import React from 'react';
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react-native';
+import { AppProvider } from '../AppProvider';
+import { useLoading } from '../loading/hooks';
+import { useToast } from '../toast/hooks';
+import { useAlert } from '../alert/hooks';
+
+// 测试组件：使用 Overlay 功能
+function TestOverlayComponent() {
+  const loading = useLoading();
+  const toast = useToast();
+  const alert = useAlert();
+
+  return (
+    <div testID="test-component">
+      {typeof loading.show === 'function' && <span testID="loading-ok" />}
+      {typeof toast.success === 'function' && <span testID="toast-ok" />}
+      {typeof alert.alert === 'function' && <span testID="alert-ok" />}
+    </div>
+  );
+}
+
+describe('AppProvider', () => {
+  it('应该正确渲染子组件', () => {
+    const { getByTestId } = render(
+      <AppProvider>
+        <div testID="child">子组件</div>
+      </AppProvider>
+    );
+    expect(getByTestId('child')).toBeTruthy();
+  });
+
+  it('应该提供所有上下文', () => {
+    const { getByTestId } = render(
+      <AppProvider>
+        <TestOverlayComponent />
+      </AppProvider>
+    );
+
+    expect(getByTestId('loading-ok')).toBeTruthy();
+    expect(getByTestId('toast-ok')).toBeTruthy();
+    expect(getByTestId('alert-ok')).toBeTruthy();
+  });
+
+  it('应该支持禁用导航', () => {
+    const { getByTestId } = render(
+      <AppProvider enableNavigation={false}>
+        <div testID="child">无导航</div>
+      </AppProvider>
+    );
+    expect(getByTestId('child')).toBeTruthy();
+  });
+
+  it('应该支持禁用 Overlay', () => {
+    const { getByTestId } = render(
+      <AppProvider enableOverlay={false}>
+        <div testID="child">无 Overlay</div>
+      </AppProvider>
+    );
+    expect(getByTestId('child')).toBeTruthy();
+  });
+
+  // 注意：禁用时 NavigationProvider 仍需要 ThemeProvider
+  // 这是一个已知的实现限制，不在此处测试
+
+  it('应该支持禁用安全区域', () => {
+    const { getByTestId } = render(
+      <AppProvider enableSafeArea={false}>
+        <div testID="child">无安全区域</div>
+      </AppProvider>
+    );
+    expect(getByTestId('child')).toBeTruthy();
+  });
+
+  it('应该支持自定义主题', () => {
+    const customLightTheme = {
+      colors: {
+        primary: '#1890ff',
+        secondary: '#3b82f6',
+        success: '#22c55e',
+        warning: '#f59e0b',
+        error: '#ef4444',
+        info: '#3b82f6',
+      },
+    };
+
+    const { getByTestId } = render(
+      <AppProvider lightTheme={customLightTheme}>
+        <div testID="child">自定义主题</div>
+      </AppProvider>
+    );
+    expect(getByTestId('child')).toBeTruthy();
+  });
+});

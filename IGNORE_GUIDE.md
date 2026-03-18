@@ -16,19 +16,11 @@ monorepo-rn/
 ├── .gitignore                    ← Git忽略（根目录统一）
 ├── IGNORE_GUIDE.md               ← 📖 本指南
 ├── packages/
-│   ├── utils/
-│   │   ├── src/                  ← 源代码
-│   │   ├── dist/                 ← 编译输出 ✅发布
-│   │   ├── .npmignore           ← ✅ NPM忽略（每个包需要）
-│   │   └── package.json
-│   ├── theme/
-│   │   ├── src/
-│   │   ├── dist/
-│   │   └── .npmignore           ← ✅ NPM忽略
-│   ├── core/
-│   │   └── .npmignore           ← ✅ NPM忽略
-│   └── ui/
-│       └── .npmignore           ← ✅ NPM忽略
+│   └── framework/                ← 统一框架包 @gaozh1024/rn-kit
+│       ├── src/                  ← 源代码
+│       ├── dist/                 ← 编译输出 ✅发布
+│       ├── package.json          ← 包含 files 字段控制发布内容
+│       └── README.md
 ```
 
 ## .gitignore（根目录统一）
@@ -63,7 +55,18 @@ coverage/
 
 **作用**：告诉npm publish时哪些文件不应该发布到registry
 
-### @gaozh1024/rn-utils/.npmignore
+### @gaozh1024/rn-kit 发布边界
+
+通过 `package.json` 的 `files` 字段控制发布内容：
+
+```json
+{
+  "name": "@gaozh1024/rn-kit",
+  "files": ["dist/", "README.md", "LICENSE"]
+}
+```
+
+或使用 `.npmignore`：
 
 ```gitignore
 # 源代码（只发布编译后的dist/）
@@ -73,6 +76,7 @@ src/
 
 # 测试
 __tests__/
+test/
 *.test.ts
 *.test.tsx
 coverage/
@@ -80,6 +84,7 @@ coverage/
 # 配置
 vitest.config.ts
 tsconfig.json
+tsup.config.ts
 
 # 其他
 .git/
@@ -120,14 +125,14 @@ internal-docs/          # 内部文档
 
 ```json
 {
-  "name": "@gaozh1024/rn-utils",
+  "name": "@gaozh1024/rn-kit",
   "files": ["dist/", "README.md", "LICENSE"]
 }
 ```
 
 **优先级**：`files` > `.npmignore` > `.gitignore`
 
-**推荐**：使用`.npmignore`，因为它更灵活（可以排除特定文件）
+**推荐**：使用 `files` 字段，因为它更简单明确（白名单模式），且与 `.npmignore` 不冲突
 
 ## 发布前检查
 
@@ -156,11 +161,11 @@ tar -tzf *.tgz
 - .env (环境变量！危险！)
 ```
 
-### ❌ 错误2：使用根目录.npmignore
+### ❌ 错误2：根目录配置未生效
 
 ```
 根目录的.npmignore不会被读取！
-每个包必须有自己的.npmignore
+需要在每个发布包中通过 files 字段或 .npmignore 控制发布内容
 ```
 
 ### ✅ 正确做法
@@ -177,11 +182,11 @@ tar -tzf *.tgz
 
 发布前确认：
 
-- [ ] 每个包都有.npmignore
-- [ ] .npmignore排除了src/和测试
-- [ ] .npmignore排除了敏感文件(.env等)
-- [ ] 保留了dist/和必要的类型定义
-- [ ] 运行`npm publish --dry-run`检查
+- [ ] package.json 配置了 files 字段或有 .npmignore
+- [ ] 排除了 src/ 和测试文件
+- [ ] 排除了敏感文件(.env等)
+- [ ] 保留了 dist/ 和必要的类型定义
+- [ ] 运行 `npm pack --dry-run` 检查
 
 ## 参考
 

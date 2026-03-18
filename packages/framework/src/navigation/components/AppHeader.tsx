@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar, type ViewStyle } from 'react-native';
+import { StatusBar, type ViewStyle, StyleSheet } from 'react-native';
 import { useTheme } from '@/theme';
 import { AppView, AppText, AppPressable, Icon } from '@/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,10 +24,8 @@ export interface AppHeaderProps {
   title?: string;
   /** 副标题 */
   subtitle?: string;
-  /** 标题是否居中（默认根据左侧图标自适应） */
-  titleCenter?: boolean;
   /** 左侧图标名称（默认为 'arrow-back'） */
-  leftIcon?: string;
+  leftIcon?: string | null;
   /** 左侧图标点击回调 */
   onLeftPress?: () => void;
   /** 右侧图标列表 */
@@ -45,7 +43,7 @@ export interface AppHeaderProps {
 /**
  * 应用头部组件
  *
- * 统一的应用顶部导航栏，支持自定义左右按钮、标题、徽标等
+ * iOS 风格的顶部导航栏，标题始终居中，不受左右按钮影响
  *
  * @example
  * ```tsx
@@ -63,6 +61,9 @@ export interface AppHeaderProps {
  *
  * // 透明背景
  * <AppHeader title="详情" transparent onLeftPress={() => navigation.goBack()} />
+ *
+ * // 无左侧按钮
+ * <AppHeader title="首页" leftIcon={null} />
  * ```
  */
 export function AppHeader({
@@ -101,39 +102,49 @@ export function AppHeader({
         backgroundColor={backgroundColor}
         translucent={transparent}
       />
-      <AppView row items="center" justify="between" px={4} style={{ height: 56 }}>
-        {/* Left */}
-        <AppView style={{ width: 80 }}>
+      {/* iOS 风格导航栏：标题始终居中 */}
+      <AppView row items="center" px={4} style={styles.container}>
+        {/* 左侧按钮区域 - 固定宽度 70，左对齐 */}
+        <AppView style={[styles.sideContainer, styles.leftContainer]}>
           {leftIcon && (
-            <AppPressable onPress={onLeftPress} className="p-2">
+            <AppPressable onPress={onLeftPress} style={styles.iconButton}>
               <Icon name={leftIcon} size={24} color={textColor} />
             </AppPressable>
           )}
         </AppView>
 
-        {/* Center */}
-        <AppView flex center>
+        {/* 中间标题区域 - 绝对居中 */}
+        <AppView style={styles.centerContainer}>
           {title && (
-            <AppText size="lg" weight="semibold" style={{ color: textColor }} numberOfLines={1}>
+            <AppText
+              size="lg"
+              weight="semibold"
+              style={[styles.title, { color: textColor }]}
+              numberOfLines={1}
+            >
               {title}
             </AppText>
           )}
           {subtitle && (
-            <AppText size="sm" color="gray-500" numberOfLines={1}>
+            <AppText
+              size="xs"
+              style={[styles.subtitle, { color: isDark ? '#9ca3af' : '#6b7280' }]}
+              numberOfLines={1}
+            >
               {subtitle}
             </AppText>
           )}
         </AppView>
 
-        {/* Right */}
-        <AppView row items="center" justify="end" style={{ width: 80 }} gap={2}>
+        {/* 右侧按钮区域 - 固定宽度 70，右对齐 */}
+        <AppView row items="center" style={[styles.sideContainer, styles.rightContainer]}>
           {rightIcons.map((icon, index) => (
-            <AppPressable key={index} onPress={icon.onPress} className="p-2">
+            <AppPressable key={index} onPress={icon.onPress} style={styles.iconButton}>
               <AppView>
                 <Icon name={icon.icon} size={24} color={textColor} />
                 {icon.badge ? (
-                  <AppView className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-error-500 items-center justify-center">
-                    <AppText size="xs" color="white">
+                  <AppView style={styles.badge}>
+                    <AppText size="xs" color="white" style={styles.badgeText}>
                       {icon.badge > 99 ? '99+' : icon.badge}
                     </AppText>
                   </AppView>
@@ -146,3 +157,51 @@ export function AppHeader({
     </AppView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    height: 44, // iOS 标准导航栏高度
+  },
+  sideContainer: {
+    width: 70, // 固定宽度，确保标题居中
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  leftContainer: {
+    justifyContent: 'flex-start',
+  },
+  rightContainer: {
+    justifyContent: 'flex-end',
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    textAlign: 'center',
+  },
+  subtitle: {
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  iconButton: {
+    padding: 8,
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#ef4444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+});
