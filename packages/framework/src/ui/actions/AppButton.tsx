@@ -3,25 +3,70 @@ import { AppPressable, AppText } from '@/ui/primitives';
 import { cn } from '@/utils';
 
 /**
- * 按钮组件
- * @example
- * ```tsx
- * <AppButton onPress={handlePress}>确定</AppButton>
- * <AppButton variant="outline" color="danger">删除</AppButton>
- * ```
+ * AppButton 组件属性接口
  */
-
 export interface AppButtonProps {
+  /** 按钮样式变体：solid(实心)、outline(描边)、ghost(透明) */
   variant?: 'solid' | 'outline' | 'ghost';
+  /** 按钮尺寸：sm(小)、md(中)、lg(大) */
   size?: 'sm' | 'md' | 'lg';
+  /** 按钮颜色主题 */
   color?: 'primary' | 'secondary' | 'danger';
+  /** 是否显示加载状态 */
   loading?: boolean;
+  /** 是否禁用 */
   disabled?: boolean;
+  /** 点击回调 */
   onPress?: () => void;
+  /** 按钮内容 */
   children: React.ReactNode;
+  /** 自定义类名 */
   className?: string;
 }
 
+/**
+ * AppButton - 按钮组件
+ *
+ * 功能完善的按钮组件，支持多种样式变体、尺寸和颜色主题
+ * 内置加载状态和禁用状态处理，提供统一的用户交互体验
+ *
+ * @example
+ * ```tsx
+ * // 基础使用
+ * <AppButton onPress={handlePress}>确定</AppButton>
+ *
+ * // 不同变体
+ * <AppButton variant="solid">实心按钮</AppButton>
+ * <AppButton variant="outline">描边按钮</AppButton>
+ * <AppButton variant="ghost">透明按钮</AppButton>
+ *
+ * // 不同尺寸
+ * <AppButton size="sm">小按钮</AppButton>
+ * <AppButton size="md">中按钮</AppButton>
+ * <AppButton size="lg">大按钮</AppButton>
+ *
+ * // 不同颜色
+ * <AppButton color="primary">主题色</AppButton>
+ * <AppButton color="secondary">次要色</AppButton>
+ * <AppButton color="danger">危险操作</AppButton>
+ *
+ * // 加载状态
+ * <AppButton loading>加载中</AppButton>
+ *
+ * // 禁用状态
+ * <AppButton disabled>不可用</AppButton>
+ *
+ * // 组合使用
+ * <AppButton
+ *   variant="outline"
+ *   color="danger"
+ *   size="lg"
+ *   onPress={handleDelete}
+ * >
+ *   删除账号
+ * </AppButton>
+ * ```
+ */
 export function AppButton({
   variant = 'solid',
   size = 'md',

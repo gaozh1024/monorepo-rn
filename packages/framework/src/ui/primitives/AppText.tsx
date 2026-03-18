@@ -1,13 +1,50 @@
 import { Text, TextProps } from 'react-native';
 import { cn } from '@/utils';
 
+/**
+ * AppText 组件属性接口
+ */
 export interface AppTextProps extends TextProps {
+  /** 字体大小：xs(12px)、sm(14px)、md(16px)、lg(18px)、xl(20px)、2xl(24px)、3xl(30px) */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  /** 字重：normal(400)、medium(500)、semibold(600)、bold(700) */
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
+  /** 文字颜色，支持 Tailwind 颜色类名 */
   color?: string;
+  /** 自定义类名 */
   className?: string;
 }
 
+/**
+ * AppText - 基础文本组件
+ *
+ * 基于 React Native 的 Text 组件封装，提供预设的字体大小、字重和颜色选项
+ * 支持 Tailwind CSS 类名，简化文本样式定义
+ *
+ * @example
+ * ```tsx
+ * // 基础使用
+ * <AppText>默认文本</AppText>
+ *
+ * // 不同大小
+ * <AppText size="xs">超小文本</AppText>
+ * <AppText size="lg">大文本</AppText>
+ * <AppText size="2xl">超大文本</AppText>
+ *
+ * // 不同字重
+ * <AppText weight="bold">粗体文本</AppText>
+ * <AppText weight="semibold">半粗文本</AppText>
+ *
+ * // 自定义颜色
+ * <AppText color="primary-500">主题色文本</AppText>
+ * <AppText color="red-500">红色文本</AppText>
+ *
+ * // 组合使用
+ * <AppText size="xl" weight="bold" color="gray-800">
+ *   标题文本
+ * </AppText>
+ * ```
+ */
 export function AppText({
   size = 'md',
   weight = 'normal',

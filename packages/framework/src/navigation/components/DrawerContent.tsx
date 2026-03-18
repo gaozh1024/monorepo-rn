@@ -4,6 +4,9 @@ import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-nav
 import { useTheme } from '@/theme';
 import { AppText, AppView, Icon } from '@/ui';
 
+/**
+ * 抽屉菜单项配置
+ */
 export interface DrawerItem {
   /** 路由名称 */
   name: string;
@@ -15,10 +18,13 @@ export interface DrawerItem {
   badge?: number | string;
 }
 
+/**
+ * 抽屉内容组件 Props
+ */
 export interface DrawerContentProps extends DrawerContentComponentProps {
-  /** 头部内容 */
+  /** 头部内容（如用户信息） */
   header?: React.ReactNode;
-  /** 底部内容 */
+  /** 底部内容（如退出按钮） */
   footer?: React.ReactNode;
   /** 自定义项目列表（如果不提供则使用路由列表） */
   items?: DrawerItem[];
@@ -31,19 +37,27 @@ export interface DrawerContentProps extends DrawerContentComponentProps {
 }
 
 /**
- * 抽屉内容模板
+ * 抽屉内容组件
+ *
+ * 自定义抽屉导航的内容模板，支持头部、底部、自定义菜单项等
+ *
  * @example
  * ```tsx
  * <DrawerNavigator
  *   drawerContent={props => (
  *     <DrawerContent
  *       {...props}
- *       header={<UserInfo />}
+ *       header={<UserInfo name="张三" email="zhangsan@example.com" />}
  *       footer={<LogoutButton />}
+ *       items={[
+ *         { name: 'Home', label: '首页', icon: 'home' },
+ *         { name: 'Settings', label: '设置', icon: 'settings' }
+ *       ]}
  *     />
  *   )}
  * >
- *   {...}
+ *   <DrawerNavigator.Screen name="Home" component={HomeScreen} />
+ *   <DrawerNavigator.Screen name="Settings" component={SettingsScreen} />
  * </DrawerNavigator>
  * ```
  */
@@ -137,6 +151,7 @@ export function DrawerContent({
   );
 }
 
+/** 组件样式 */
 const styles = StyleSheet.create({
   container: {
     flex: 1,

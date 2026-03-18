@@ -1,5 +1,11 @@
 export { useRequest } from './useRequest';
-export { usePagination } from './usePagination';
+export {
+  usePagination,
+  type UsePaginationReturn,
+  type UsePaginationOptions,
+  type PaginationParams,
+  type PaginationResult,
+} from './usePagination';
 export { usePrevious } from './usePrevious';
 export { useSetState } from './useSetState';
 export { useMemoizedFn } from './useMemoizedFn';

@@ -4,25 +4,67 @@ import { useTheme } from '@/theme';
 import { AppView, AppText, AppPressable, Icon } from '@/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+/**
+ * 右侧图标配置
+ */
 export interface RightIcon {
+  /** 图标名称 */
   icon: string;
+  /** 点击回调 */
   onPress: () => void;
+  /** 徽标数量（可选） */
   badge?: number;
 }
 
+/**
+ * 应用头部组件 Props
+ */
 export interface AppHeaderProps {
+  /** 标题 */
   title?: string;
+  /** 副标题 */
   subtitle?: string;
+  /** 标题是否居中（默认根据左侧图标自适应） */
   titleCenter?: boolean;
+  /** 左侧图标名称（默认为 'arrow-back'） */
   leftIcon?: string;
+  /** 左侧图标点击回调 */
   onLeftPress?: () => void;
+  /** 右侧图标列表 */
   rightIcons?: RightIcon[];
+  /** 是否透明背景 */
   transparent?: boolean;
+  /** 是否启用模糊效果（暂未实现） */
   blur?: boolean;
+  /** 是否包含安全区域（默认为 true） */
   safeArea?: boolean;
+  /** 自定义样式 */
   style?: ViewStyle;
 }
 
+/**
+ * 应用头部组件
+ *
+ * 统一的应用顶部导航栏，支持自定义左右按钮、标题、徽标等
+ *
+ * @example
+ * ```tsx
+ * // 基本用法
+ * <AppHeader title="首页" />
+ *
+ * // 带右侧按钮
+ * <AppHeader
+ *   title="消息"
+ *   rightIcons={[
+ *     { icon: 'search', onPress: () => {} },
+ *     { icon: 'notifications', onPress: () => {}, badge: 5 }
+ *   ]}
+ * />
+ *
+ * // 透明背景
+ * <AppHeader title="详情" transparent onLeftPress={() => navigation.goBack()} />
+ * ```
+ */
 export function AppHeader({
   title,
   subtitle,

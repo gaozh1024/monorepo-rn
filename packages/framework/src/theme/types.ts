@@ -11,6 +11,7 @@ export interface ColorPalette {
   800: string;
   900: string;
   950: string;
+  [key: string]: string;
 }
 
 export type ColorToken = string | ColorPalette;

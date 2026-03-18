@@ -1,25 +1,103 @@
 import { useState, useCallback, useRef } from 'react';
 
-interface PaginationParams {
+/**
+ * 分页参数
+ */
+export interface PaginationParams {
+  /** 当前页码 */
   current: number;
+  /** 每页数量 */
   pageSize: number;
+  /** 其他自定义参数 */
+  [key: string]: any;
 }
 
-interface PaginationResult<T> {
-  list: T[];
+/**
+ * 分页结果
+ * 支持 data 或 list 作为数据字段
+ */
+export interface PaginationResult<T> {
+  /** 数据列表（推荐） */
+  data?: T[];
+  /** 数据列表（兼容旧版本） */
+  list?: T[];
+  /** 总数据条数 */
   total: number;
 }
 
-interface UsePaginationOptions {
+/**
+ * 分页选项
+ */
+export interface UsePaginationOptions {
+  /** 默认当前页码 */
   defaultCurrent?: number;
+  /** 默认每页数量 */
   defaultPageSize?: number;
+  /** 依赖数组 */
   deps?: any[];
 }
 
+/**
+ * 分页返回值
+ */
+export interface UsePaginationReturn<T> {
+  /** 数据列表 */
+  data: T[];
+  /** 当前页码 */
+  current: number;
+  /** 每页数量 */
+  pageSize: number;
+  /** 总数据条数 */
+  total: number;
+  /** 是否还有更多数据 */
+  hasMore: boolean;
+  /** 是否加载中 */
+  loading: boolean;
+  /** 是否刷新中 */
+  refreshing: boolean;
+  /** 是否加载更多中 */
+  loadingMore: boolean;
+  /** 错误信息 */
+  error: Error | null;
+  /** 刷新数据 */
+  refresh: () => Promise<void>;
+  /** 加载更多数据 */
+  loadMore: () => Promise<void>;
+  /** 切换页码 */
+  changePage: (page: number) => Promise<void>;
+}
+
+/**
+ * 分页逻辑 Hook
+ * @param service - 分页数据请求函数
+ * @param options - 配置选项
+ * @returns 分页状态和控制方法
+ *
+ * @example
+ * ```tsx
+ * const {
+ *   data,
+ *   current,
+ *   total,
+ *   hasMore,
+ *   loading,
+ *   refreshing,
+ *   loadingMore,
+ *   refresh,
+ *   loadMore,
+ * } = usePagination(
+ *   async ({ current, pageSize, keyword }) => {
+ *     const res = await api.getList({ page: current, size: pageSize, keyword });
+ *     return { data: res.items, total: res.total };
+ *   },
+ *   { defaultPageSize: 20 }
+ * );
+ * ```
+ */
 export function usePagination<T>(
   service: (params: PaginationParams) => Promise<PaginationResult<T>>,
   options: UsePaginationOptions = {}
-) {
+): UsePaginationReturn<T> {
   const { defaultCurrent = 1, defaultPageSize = 10 } = options;
 
   const [data, setData] = useState<T[]>([]);
@@ -40,10 +118,13 @@ export function usePagination<T>(
     try {
       const result = await serviceRef.current(params);
 
+      // 支持 data 或 list 字段
+      const items = result.data ?? result.list ?? [];
+
       if (isRefresh) {
-        setData(result.list);
+        setData(items);
       } else {
-        setData(prev => [...prev, ...result.list]);
+        setData(prev => [...prev, ...items]);
       }
       setTotal(result.total);
       setError(null);

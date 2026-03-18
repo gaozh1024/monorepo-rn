@@ -5,6 +5,10 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/theme';
 import { AppText } from '@/ui';
 
+/**
+ * 自定义底部标签栏组件 Props
+ * 继承自 @react-navigation/bottom-tabs 的 BottomTabBarProps
+ */
 export interface CustomBottomTabBarProps extends BottomTabBarProps {
   /** 是否显示标签 */
   showLabel?: boolean;
@@ -16,19 +20,24 @@ export interface CustomBottomTabBarProps extends BottomTabBarProps {
   height?: number;
 }
 
+/** 默认 TabBar 高度 */
+const DEFAULT_TAB_BAR_HEIGHT = 65;
+
 /**
- * 自定义底部标签栏
+ * 自定义底部标签栏组件
+ *
+ * 自定义样式的底部标签栏，支持徽标、图标、标签等
+ *
  * @example
  * ```tsx
  * <TabNavigator
- *   tabBar={props => <BottomTabBar {...props} showLabel={true} />}
+ *   tabBar={props => <BottomTabBar {...props} showLabel={true} activeTintColor="#f38b32" />}
  * >
- *   {...}
+ *   <TabNavigator.Screen name="Home" component={HomeScreen} />
+ *   <TabNavigator.Screen name="Profile" component={ProfileScreen} />
  * </TabNavigator>
  * ```
  */
-const DEFAULT_TAB_BAR_HEIGHT = 65;
-
 export function BottomTabBar({
   state,
   descriptors,
@@ -130,6 +139,7 @@ export function BottomTabBar({
   );
 }
 
+/** 组件样式 */
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',

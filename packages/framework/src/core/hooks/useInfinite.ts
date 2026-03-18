@@ -32,28 +32,44 @@ export interface UseInfiniteReturn<T> {
   reset: () => void;
 }
 
+/**
+ * 无限滚动获取参数
+ * 支持扩展自定义参数
+ */
 export interface InfiniteFetchParams {
+  /** 当前页码 */
   page: number;
+  /** 每页数量 */
   pageSize: number;
+  /** 其他自定义参数 */
+  [key: string]: any;
 }
 
+/**
+ * 无限滚动获取结果
+ * 支持 data 或 list 作为数据字段
+ */
 export interface InfiniteFetchResult<T> {
-  list: T[];
+  /** 数据列表（推荐） */
+  data?: T[];
+  /** 数据列表（兼容旧版本） */
+  list?: T[];
+  /** 是否还有更多数据 */
   hasMore: boolean;
 }
 
 /**
  * 无限滚动逻辑 Hook
- * @param fetcher - 数据获取函数，接收 { page, pageSize } 参数
+ * @param fetcher - 数据获取函数，接收 { page, pageSize, ...其他参数 } 参数
  * @param options - 配置选项
  * @returns 无限滚动状态和控制方法
  *
  * @example
  * ```tsx
  * const { data, loading, loadingMore, hasMore, loadMore, refresh } = useInfinite(
- *   async ({ page, pageSize }) => {
- *     const res = await api.getList({ page, size: pageSize });
- *     return { list: res.items, hasMore: res.hasMore };
+ *   async ({ page, pageSize, keyword }) => {
+ *     const res = await api.getList({ page, size: pageSize, keyword });
+ *     return { data: res.items, hasMore: res.hasMore };
  *   },
  *   { pageSize: 20 }
  * );
@@ -91,10 +107,13 @@ export function useInfinite<T>(
       try {
         const result = await fetcher({ page: targetPage, pageSize });
 
+        // 支持 data 或 list 字段
+        const items = result.data ?? result.list ?? [];
+
         if (isLoadMore) {
-          setData(prev => [...prev, ...result.list]);
+          setData(prev => [...prev, ...items]);
         } else {
-          setData(result.list);
+          setData(items);
         }
 
         setHasMore(result.hasMore);

@@ -1,10 +1,21 @@
+/**
+ * 统一应用 Provider
+ *
+ * @module overlay/AppProvider
+ * @description 整合所有必要的 Provider，简化应用初始化
+ */
+
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, type ThemeConfig } from '@/theme';
 import { NavigationProvider, type NavigationProviderProps } from '@/navigation';
 import { OverlayProvider } from './OverlayHost';
 
+// ============================================================================
 // 默认主题配置
+// ============================================================================
+
+/** 默认亮色主题 */
 const defaultLightTheme: ThemeConfig = {
   colors: {
     primary: '#f38b32',
@@ -16,6 +27,7 @@ const defaultLightTheme: ThemeConfig = {
   },
 };
 
+/** 默认暗色主题 */
 const defaultDarkTheme: ThemeConfig = {
   colors: {
     primary: '#f38b32',
@@ -27,11 +39,19 @@ const defaultDarkTheme: ThemeConfig = {
   },
 };
 
+// ============================================================================
+// 组件 Props
+// ============================================================================
+
+/**
+ * AppProvider Props
+ */
 export interface AppProviderProps extends Omit<NavigationProviderProps, 'children'> {
+  /** 子元素 */
   children: React.ReactNode;
   /**
    * 是否启用导航（默认 true）
-   * 使用 Expo Router 等外部导航方案时，请设置为 false
+   * 如果已在其他地方提供 NavigationContainer，请设为 false
    */
   enableNavigation?: boolean;
   /** 是否启用全局 Overlay（Loading/Toast/Alert，默认 true） */
@@ -48,15 +68,21 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
   defaultDark?: boolean;
 }
 
+// ============================================================================
+// 主组件
+// ============================================================================
+
 /**
  * 统一应用 Provider
  *
  * 整合：SafeAreaProvider + ThemeProvider + NavigationProvider + OverlayProvider
+ * 提供一键式应用初始化方案
  *
  * @example
- * 标准 React Navigation 使用：
  * ```tsx
+ * // 基础使用
  * import { AppProvider } from '@gaozh1024/rn-kit';
+ * import { RootNavigator } from './navigation';
  *
  * export default function App() {
  *   return (
@@ -67,23 +93,34 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
  * }
  * ```
  *
- * Expo Router 使用（禁用内置导航）：
+ * @example
  * ```tsx
- * // app/_layout.tsx
+ * // 带深度链接
  * import { AppProvider } from '@gaozh1024/rn-kit';
- * import { Stack } from 'expo-router';
  *
- * export default function RootLayout() {
+ * export default function App() {
  *   return (
- *     <AppProvider enableNavigation={false}>
- *       <Stack />
+ *     <AppProvider
+ *       linking={{
+ *         prefixes: ['myapp://', 'https://myapp.com'],
+ *         config: {
+ *           screens: {
+ *             Home: 'home',
+ *             Detail: 'detail/:id',
+ *           },
+ *         },
+ *       }}
+ *       fallback={<LoadingScreen />}
+ *     >
+ *       <RootNavigator />
  *     </AppProvider>
  *   );
  * }
  * ```
  *
- * 按需启用功能：
+ * @example
  * ```tsx
+ * // 禁用部分功能
  * <AppProvider
  *   enableNavigation={true}
  *   enableOverlay={true}
@@ -94,9 +131,43 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
  * </AppProvider>
  * ```
  *
- * ⚠️ 重要提示：
- * 1. 导航配置文件不要放在 Expo Router 的 `app/` 目录内
- * 2. 使用 Expo Router 时，必须设置 enableNavigation={false}
+ * @example
+ * ```tsx
+ * // 自定义主题
+ * <AppProvider
+ *   lightTheme={{
+ *     colors: {
+ *       primary: '#1890ff',
+ *       success: '#52c41a',
+ *       // ... 其他颜色
+ *     },
+ *   }}
+ *   darkTheme={{
+ *     colors: {
+ *       primary: '#40a9ff',
+ *       // ... 其他颜色
+ *     },
+ *   }}
+ * >
+ *   <App />
+ * </AppProvider>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // 使用外部 NavigationContainer
+ * import { NavigationContainer } from '@react-navigation/native';
+ *
+ * export default function App() {
+ *   return (
+ *     <NavigationContainer>
+ *       <AppProvider enableNavigation={false}>
+ *         <RootNavigator />
+ *       </AppProvider>
+ *     </NavigationContainer>
+ *   );
+ * }
+ * ```
  */
 export function AppProvider({
   children,
@@ -112,7 +183,7 @@ export function AppProvider({
   // 从内到外套娃
   let content = children;
 
-  // 1. Overlay (Loading/Toast/Alert)
+  // 1. Overlay (Loading/Toast/Alert) - 最内层
   if (enableOverlay) {
     content = <OverlayProvider>{content}</OverlayProvider>;
   }

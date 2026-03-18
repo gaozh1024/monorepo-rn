@@ -4,6 +4,9 @@ import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
 import { cn, formatDate } from '@/utils';
 
+/**
+ * DatePicker 组件属性接口
+ */
 export interface DatePickerProps {
   /** 选中日期 */
   value?: Date;
@@ -24,7 +27,69 @@ export interface DatePickerProps {
 }
 
 /**
- * 日期选择器组件
+ * DatePicker - 日期选择器组件
+ *
+ * 提供完整的日期选择功能，支持年、月、日三级选择
+ * 包含日期范围限制、快捷操作（今天、最早、最晚）等功能
+ * 采用底部弹窗形式，提供良好的移动端交互体验
+ *
+ * @example
+ * ```tsx
+ * // 基础使用
+ * <DatePicker
+ *   value={date}
+ *   onChange={setDate}
+ * />
+ *
+ * // 带占位文字
+ * <DatePicker
+ *   value={birthday}
+ *   onChange={setBirthday}
+ *   placeholder="请选择生日"
+ * />
+ *
+ * // 自定义日期格式
+ * <DatePicker
+ *   value={date}
+ *   onChange={setDate}
+ *   format="yyyy年MM月dd日"
+ * />
+ *
+ * // 日期范围限制
+ * <DatePicker
+ *   value={startDate}
+ *   onChange={setStartDate}
+ *   minDate={new Date(2020, 0, 1)}
+ *   maxDate={new Date()}
+ * />
+ *
+ * // 禁用状态
+ * <DatePicker
+ *   value={date}
+ *   onChange={setDate}
+ *   disabled={isSubmitting}
+ * />
+ *
+ * // 表单中使用
+ * const [form, setForm] = useState({
+ *   name: '',
+ *   birthday: null as Date | null,
+ * });
+ *
+ * <Col gap={4}>
+ *   <Input
+ *     label="姓名"
+ *     value={form.name}
+ *     onChangeText={(name) => setForm({ ...form, name })}
+ *   />
+ *   <DatePicker
+ *     label="生日"
+ *     value={form.birthday || undefined}
+ *     onChange={(birthday) => setForm({ ...form, birthday })}
+ *     placeholder="请选择生日"
+ *   />
+ * </Col>
+ * ```
  */
 export function DatePicker({
   value,
