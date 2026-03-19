@@ -47,11 +47,11 @@ export function HomeScreen() {
 
       {/* Banner */}
       <AppView className="px-4 mt-6">
-        <Card className="p-6 bg-gradient-to-r from-primary-500 to-primary-600">
+        <Card className="p-6 bg-primary-500">
           <AppText size="lg" weight="bold" className="text-white">
             {homeBanners[0]?.title}
           </AppText>
-          <AppText size="sm" className="text-white/80 mt-1">
+          <AppText size="sm" className="text-white mt-1" style={{ opacity: 0.8 }}>
             {homeBanners[0]?.subtitle}
           </AppText>
         </Card>
@@ -59,12 +59,12 @@ export function HomeScreen() {
 
       {/* 快捷入口 */}
       <AppView className="px-4 mt-6">
-        <AppText size="base" weight="semibold" className="mb-4">
+        <AppText size="md" weight="semibold" className="mb-4">
           快捷入口
         </AppText>
-        <AppView row wrap className="gap-3">
+        <AppView row className="gap-3" style={{ flexWrap: 'wrap' }}>
           {quickActions.map(action => (
-            <AppPressable key={action.key} className="w-[calc(50%-6px)]">
+            <AppPressable key={action.key} style={{ width: '48%' }}>
               <Card className="p-4 flex-row items-center gap-3">
                 <AppView className="w-10 h-10 rounded-full bg-primary-50 items-center justify-center">
                   <Icon name={action.icon} size={20} color="primary-500" />

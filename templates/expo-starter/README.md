@@ -2,6 +2,16 @@
 
 基于 `@gaozh1024/rn-kit` 的 React Native 项目模板。
 
+## 通过 create-expo-app 创建项目
+
+推荐使用带 scope 的包名发布模板，避免 `expo-starter` 这类通用包名和 npm 上已有包冲突：
+
+```bash
+npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
+```
+
+> 如果你发布后仍使用 `--template expo-starter`，create-expo-app 解析到的可能不是你的模板包。
+
 ## 特性
 
 - ✅ Provider 初始化顺序固定，开箱可跑
@@ -32,8 +42,7 @@
 
 ```
 expo-starter/
-├── app/                          # Expo 入口
-│   └── _layout.tsx               # 根布局，导入 reanimated 和 global.css
+├── App.tsx                       # Expo 入口
 ├── src/
 │   ├── app/                      # 应用级装配代码
 │   │   ├── RootApp.tsx           # 根应用，启动流程控制
@@ -91,14 +100,21 @@ pnpm install
 npx expo start
 ```
 
+## 发布前检查
+
+1. 先发布 `@gaozh1024/rn-kit`
+2. 再发布当前模板包
+3. 确认 `app.json` 中的 `icon / splash / adaptiveIcon / favicon` 对应资源都已打包
+4. 确认模板里的 `expo` 版本和你希望支持的 Expo Go SDK 一致
+
 ### 运行到设备
 
 ```bash
 # iOS
-npx expo run:ios
+npx expo start --ios
 
 # Android
-npx expo run:android
+npx expo start --android
 ```
 
 ## 开发指南

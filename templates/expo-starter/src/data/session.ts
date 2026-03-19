@@ -1,4 +1,4 @@
-import { memoryStorage } from '@gaozh1024/rn-kit';
+import { storage } from '@gaozh1024/rn-kit';
 import { STORAGE_KEYS } from '../bootstrap/constants';
 import type { User } from './schemas';
 
@@ -9,29 +9,29 @@ export const session = {
   /**
    * 获取 Token
    */
-  getToken(): string | null {
-    return memoryStorage.getItem(STORAGE_KEYS.TOKEN);
+  async getToken(): Promise<string | null> {
+    return storage.getItem(STORAGE_KEYS.TOKEN);
   },
 
   /**
    * 设置 Token
    */
-  setToken(token: string): void {
-    memoryStorage.setItem(STORAGE_KEYS.TOKEN, token);
+  async setToken(token: string): Promise<void> {
+    await storage.setItem(STORAGE_KEYS.TOKEN, token);
   },
 
   /**
    * 清除 Token
    */
-  clearToken(): void {
-    memoryStorage.removeItem(STORAGE_KEYS.TOKEN);
+  async clearToken(): Promise<void> {
+    await storage.removeItem(STORAGE_KEYS.TOKEN);
   },
 
   /**
    * 获取用户信息
    */
-  getUser(): User | null {
-    const userStr = memoryStorage.getItem(STORAGE_KEYS.USER_INFO);
+  async getUser(): Promise<User | null> {
+    const userStr = await storage.getItem(STORAGE_KEYS.USER_INFO);
     if (!userStr) return null;
     try {
       return JSON.parse(userStr) as User;
@@ -43,29 +43,29 @@ export const session = {
   /**
    * 设置用户信息
    */
-  setUser(user: User): void {
-    memoryStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(user));
+  async setUser(user: User): Promise<void> {
+    await storage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(user));
   },
 
   /**
    * 清除用户信息
    */
-  clearUser(): void {
-    memoryStorage.removeItem(STORAGE_KEYS.USER_INFO);
+  async clearUser(): Promise<void> {
+    await storage.removeItem(STORAGE_KEYS.USER_INFO);
   },
 
   /**
    * 清除所有 Session
    */
-  clearAll(): void {
-    this.clearToken();
-    this.clearUser();
+  async clearAll(): Promise<void> {
+    await this.clearToken();
+    await this.clearUser();
   },
 
   /**
    * 是否已登录
    */
-  isLoggedIn(): boolean {
-    return !!this.getToken();
+  async isLoggedIn(): Promise<boolean> {
+    return !!(await this.getToken());
   },
 };

@@ -8,7 +8,6 @@ import { THEME_MODES, LANGUAGES, type ThemeMode, type Language } from '../bootst
 interface UIState {
   // 主题
   themeMode: ThemeMode;
-  isDark: boolean;
 
   // 语言
   language: Language;
@@ -26,15 +25,11 @@ interface UIState {
 export const useUIStore = create<UIState>(set => ({
   // 初始状态
   themeMode: appConfig.defaultThemeMode,
-  isDark: false,
   language: appConfig.defaultLanguage as Language,
 
   // 设置主题模式
   setThemeMode: mode => {
-    set({
-      themeMode: mode,
-      isDark: mode === 'dark' || (mode === 'system' && false), // 系统检测逻辑
-    });
+    set({ themeMode: mode });
   },
 
   // 设置语言
@@ -44,12 +39,8 @@ export const useUIStore = create<UIState>(set => ({
 
   // 切换主题
   toggleTheme: () => {
-    set(state => {
-      const newMode = state.isDark ? THEME_MODES.LIGHT : THEME_MODES.DARK;
-      return {
-        themeMode: newMode,
-        isDark: !state.isDark,
-      };
-    });
+    set(state => ({
+      themeMode: state.themeMode === THEME_MODES.DARK ? THEME_MODES.LIGHT : THEME_MODES.DARK,
+    }));
   },
 }));

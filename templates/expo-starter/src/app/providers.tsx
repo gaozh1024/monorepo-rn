@@ -1,4 +1,5 @@
 import React from 'react';
+import { useColorScheme } from 'react-native';
 import { AppProvider } from '@gaozh1024/rn-kit';
 import { lightTheme, darkTheme } from '../bootstrap/theme';
 import { useUIStore } from '../store/ui.store';
@@ -12,15 +13,16 @@ interface ProvidersProps {
  * 统一包裹 AppProvider，挂主题和全局配置
  */
 export function Providers({ children }: ProvidersProps) {
-  const { isDark } = useUIStore();
+  const colorScheme = useColorScheme();
+  const { themeMode } = useUIStore();
+  const isDark = themeMode === 'dark' || (themeMode === 'system' && colorScheme === 'dark');
 
   return (
     <AppProvider
-      theme={{
-        light: lightTheme,
-        dark: darkTheme,
-      }}
-      initialTheme={isDark ? 'dark' : 'light'}
+      key={isDark ? 'dark' : 'light'}
+      lightTheme={lightTheme}
+      darkTheme={darkTheme}
+      defaultDark={isDark}
     >
       {children}
     </AppProvider>

@@ -1,7 +1,24 @@
 {
-  "name": "expo-starter",
-  "version": "0.1.0",
-  "main": "expo-router/entry",
+  "name": "@gaozh1024/expo-starter",
+  "version": "0.1.1",
+  "description": "Expo starter template based on @gaozh1024/rn-kit",
+  "main": "node_modules/expo/AppEntry.js",
+  "files": [
+    ".env.example",
+    ".gitignore",
+    "App.tsx",
+    "README.md",
+    "app.json",
+    "assets",
+    "babel.config.js",
+    "expo-env.d.ts",
+    "global.css",
+    "metro.config.js",
+    "nativewind-env.d.ts",
+    "src",
+    "tailwind.config.js",
+    "tsconfig.json"
+  ],
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -9,37 +26,44 @@
     "web": "expo start --web",
     "lint": "tsc --noEmit"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "expo",
+    "expo-template",
+    "react-native",
+    "starter",
+    "template"
+  ],
+  "license": "MIT",
   "dependencies": {
     "@gaozh1024/rn-kit": "^0.2.0-beta.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
-    "@react-navigation/bottom-tabs": "^7.0.0",
-    "@react-navigation/native": "^7.0.0",
-    "@react-navigation/stack": "^7.0.0",
-    "expo": "~52.0.0",
-    "expo-asset": "~11.0.0",
-    "expo-constants": "~17.0.0",
-    "expo-file-system": "~18.0.0",
-    "expo-font": "~13.0.0",
-    "expo-linking": "~7.0.0",
-    "expo-router": "~4.0.0",
-    "expo-status-bar": "~2.0.0",
-    "nativewind": "^4.0.0",
-    "react": "18.3.1",
-    "react-native": "0.76.0",
-    "react-native-gesture-handler": "~2.20.0",
-    "react-native-reanimated": "~3.16.0",
-    "react-native-safe-area-context": "4.12.0",
-    "react-native-screens": "~4.0.0",
-    "react-native-svg": "15.8.0",
+    "@react-navigation/bottom-tabs": "^7.4.0",
+    "@react-navigation/native": "^7.1.8",
+    "@react-navigation/stack": "^7.8.5",
+    "expo": "~54.0.33",
+    "expo-status-bar": "~3.0.9",
+    "nativewind": "^4.2.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "^15.12.1",
     "react-native-vector-icons": "^10.2.0",
-    "tailwindcss": "^3.4.0",
+    "react-native-web": "~0.21.0",
+    "react-native-worklets": "0.5.1",
+    "tailwindcss": "^3.4.19",
     "zod": "^3.22.0",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.0",
-    "@types/react": "~18.3.0",
-    "typescript": "^5.3.0"
-  },
-  "private": true
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
+  }
 }

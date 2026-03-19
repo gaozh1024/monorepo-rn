@@ -2,8 +2,7 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 import { AppView, AppText, Card, AppHeader, Center } from '@gaozh1024/rn-kit';
 import { useNavigation } from '@react-navigation/native';
-import { Logo, LogoIcon } from '../../../components/common/Logo';
-import { appConfig } from '../../../bootstrap/app-config';
+import { Logo } from '../../../components/common/Logo';
 import { appInfo } from '../../../data/mocks/app.mock';
 
 /**

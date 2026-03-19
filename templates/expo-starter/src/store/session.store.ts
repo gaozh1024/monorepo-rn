@@ -13,10 +13,10 @@ interface SessionState {
   isLoading: boolean;
 
   // 动作
-  login: (token: string, user: User) => void;
-  logout: () => void;
+  login: (token: string, user: User) => Promise<void>;
+  logout: () => Promise<void>;
   updateUser: (user: Partial<User>) => void;
-  restoreSession: () => void;
+  restoreSession: () => Promise<boolean>;
 }
 
 /**
@@ -31,15 +31,15 @@ export const useSessionStore = create<SessionState>(set => ({
   isLoading: true,
 
   // 登录
-  login: (token, user) => {
-    session.setToken(token);
-    session.setUser(user);
+  login: async (token, user) => {
+    await session.setToken(token);
+    await session.setUser(user);
     set({ isLoggedIn: true, token, user, isLoading: false });
   },
 
   // 登出
-  logout: () => {
-    session.clearAll();
+  logout: async () => {
+    await session.clearAll();
     set({ isLoggedIn: false, token: null, user: null, isLoading: false });
   },
 
@@ -48,19 +48,21 @@ export const useSessionStore = create<SessionState>(set => ({
     set(state => {
       if (!state.user) return state;
       const newUser = { ...state.user, ...userData };
-      session.setUser(newUser);
+      void session.setUser(newUser);
       return { user: newUser };
     });
   },
 
   // 恢复 Session
-  restoreSession: () => {
-    const token = session.getToken();
-    const user = session.getUser();
+  restoreSession: async () => {
+    const token = await session.getToken();
+    const user = await session.getUser();
     if (token && user) {
       set({ isLoggedIn: true, token, user, isLoading: false });
+      return true;
     } else {
       set({ isLoggedIn: false, token: null, user: null, isLoading: false });
+      return false;
     }
   },
 }));

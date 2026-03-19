@@ -60,6 +60,35 @@ pnpm yalc:publish
 pnpm yalc:push
 ```
 
+## Expo 模板发布
+
+如果要让用户通过 `create-expo-app` 直接创建项目，推荐发布模板包而不是让用户手动复制目录。
+
+### 发布顺序
+
+```bash
+# 1. 先发布框架包（模板依赖它）
+cd packages/framework
+npm publish --tag beta --access public
+
+# 2. 再发布模板包
+cd ../../templates/expo-starter
+npm publish --access public
+```
+
+### 推荐使用方式
+
+```bash
+npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
+```
+
+### 注意事项
+
+1. 不要使用过于通用的无 scope 包名（例如 `expo-starter`），否则 `--template` 可能命中别人的包
+2. 模板包必须是可发布状态，不能保留 `private: true`
+3. 模板依赖的 `@gaozh1024/rn-kit` 必须已经发布，否则创建出的项目无法安装依赖
+4. 每次升级 Expo SDK 后，都要同步更新模板里的 `expo` 版本并重新发布
+
 ## 常见问题
 
 1. **401 Unauthorized**: 需要登录 npm
