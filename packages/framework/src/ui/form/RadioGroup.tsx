@@ -28,7 +28,7 @@ export function RadioGroup({
         <Radio
           key={option.value}
           checked={value === option.value}
-          onPress={() => onChange?.(option.value)}
+          onChange={() => onChange?.(option.value)}
           disabled={disabled || option.disabled}
         >
           {option.label}

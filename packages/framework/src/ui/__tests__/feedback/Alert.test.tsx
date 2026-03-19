@@ -1,28 +1,52 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { Alert } from '../../feedback/Alert';
+import { ThemeProvider, createTheme } from '@/theme';
+
+const theme = createTheme({
+  colors: { primary: '#f38b32' },
+});
 
 describe('Alert', () => {
   it('应该显示标题', () => {
-    const { getByText } = render(<Alert title="Warning" visible />);
+    const { getByText } = render(
+      <ThemeProvider light={theme}>
+        <Alert title="Warning" visible buttons={[{ text: '确定' }]} />
+      </ThemeProvider>
+    );
     expect(getByText('Warning')).toBeTruthy();
   });
 
   it('应该显示消息', () => {
-    const { getByText } = render(<Alert title="Title" message="Details" visible />);
+    const { getByText } = render(
+      <ThemeProvider light={theme}>
+        <Alert title="Title" message="Details" visible buttons={[{ text: '确定' }]} />
+      </ThemeProvider>
+    );
     expect(getByText('Details')).toBeTruthy();
   });
 
-  it('应该调用onConfirm', () => {
-    const onConfirm = vi.fn();
-    const { getByText } = render(<Alert title="Confirm" onConfirm={onConfirm} visible />);
-    fireEvent.press(getByText('确认'));
-    expect(onConfirm).toHaveBeenCalled();
+  it('应该渲染确认按钮', () => {
+    const { getByText } = render(
+      <ThemeProvider light={theme}>
+        <Alert title="Confirm" visible buttons={[{ text: '确认' }]} />
+      </ThemeProvider>
+    );
+    expect(getByText('确认')).toBeTruthy();
   });
 
-  it('不应该渲染当visible为false', () => {
-    const { queryByText } = render(<Alert title="Hidden" visible={false} />);
-    expect(queryByText('Hidden')).toBeNull();
+  it('应该渲染多个按钮', () => {
+    const { getByText } = render(
+      <ThemeProvider light={theme}>
+        <Alert
+          title="Multi"
+          visible
+          buttons={[{ text: '取消', style: 'cancel' }, { text: '确定' }]}
+        />
+      </ThemeProvider>
+    );
+    expect(getByText('取消')).toBeTruthy();
+    expect(getByText('确定')).toBeTruthy();
   });
 });

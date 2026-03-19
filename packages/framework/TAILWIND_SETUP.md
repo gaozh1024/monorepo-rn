@@ -8,6 +8,8 @@
 
 这些类名需要 **NativeWind** 在构建时解析并转换为 React Native 的 StyleSheet。
 
+`AppHeader` 也是同样的机制。它的布局依赖 `AppView` 生成的 `flex-row`、`items-center`、`px-4` 等类名，所以如果 app 没把 NativeWind 和 Tailwind 配完整，`AppHeader` 会直接表现成“没有样式”。
+
 ## 安装依赖
 
 ```bash
@@ -29,8 +31,22 @@ module.exports = {
     './App.{js,jsx,ts,tsx}',
     './src/**/*.{js,jsx,ts,tsx}',
 
-    // 必须包含框架组件路径
+    // 使用发布包时，必须包含框架产物路径
     './node_modules/@gaozh1024/rn-kit/dist/**/*.{js,mjs}',
+
+    // 如果你通过 workspace / file: / 本地源码接入框架，
+    // 还需要把实际源码路径加进来
+    // '../rn-monorepo/packages/framework/src/**/*.{ts,tsx}',
+  ],
+  safelist: [
+    { pattern: /^(flex)-(1|2|3|4|5|6|7|8|9|10|11|12)$/ },
+    { pattern: /^(items)-(start|center|end|stretch)$/ },
+    { pattern: /^(justify)-(start|center|end|between|around)$/ },
+    { pattern: /^(p|px|py|gap)-(0|1|2|3|4|5|6|8|10|12)$/ },
+    { pattern: /^(rounded)-(none|sm|md|lg|xl|2xl|full)$/ },
+    {
+      pattern: /^(bg|text)-(primary|secondary|success|warning|error|info|gray|white|black)(-.+)?$/,
+    },
   ],
   theme: {
     extend: {
@@ -58,6 +74,28 @@ module.exports = {
 };
 ```
 
+### 为什么还需要 `safelist`？
+
+因为框架部分组件会通过 props 动态生成类名，例如：
+
+```tsx
+<AppView px={4} items="center" bg="primary-500" rounded="lg" />
+```
+
+这类写法在运行时才会变成：
+
+- `px-4`
+- `items-center`
+- `bg-primary-500`
+- `rounded-lg`
+
+如果不通过 `safelist` 提前告诉 Tailwind，这些类名可能不会被生成，最终表现为：
+
+- 间距不生效
+- 背景色不生效
+- 圆角不生效
+- `AppHeader` 没有布局
+
 ### 2. 配置 Babel
 
 修改 `babel.config.js`：
@@ -66,8 +104,25 @@ module.exports = {
 module.exports = function (api) {
   api.cache(true);
   return {
+    presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
+  };
+};
+```
+
+关键点：
+
+- `nativewind/babel` 在 NativeWind 4.x 里是 `preset`，不要放进 `plugins`
+- Expo 项目需要在 `babel-preset-expo` 上补 `jsxImportSource: 'nativewind'`
+- 对 Expo SDK 54 + Reanimated 4 场景，不需要再额外挂 `react-native-reanimated/plugin`
+
+错误示例：
+
+```javascript
+module.exports = function (api) {
+  api.cache(true);
+  return {
     presets: ['babel-preset-expo'],
-    plugins: ['nativewind/babel'], // 添加这一行
+    plugins: ['nativewind/babel'], // 错误：这里会触发 .plugins is not a valid Plugin property
   };
 };
 ```
@@ -96,7 +151,7 @@ module.exports = (async () => {
 })();
 ```
 
-### 4. 创建 CSS 入口文件（可选）
+### 4. 创建 CSS 入口文件（推荐）
 
 创建 `global.css` 文件：
 
@@ -145,9 +200,62 @@ export function TestScreen() {
 **检查清单**：
 
 1. ✅ `tailwind.config.js` 中的 `content` 是否包含框架路径？
-2. ✅ `babel.config.js` 是否添加了 `nativewind/babel`？
-3. ✅ 是否重启了 Metro bundler？（修改配置后需要重启）
-4. ✅ 是否清除了缓存？（`npx react-native start --reset-cache`）
+2. ✅ `babel.config.js` 是否按 NativeWind 4.x 写成 `presets` 配置？
+3. ✅ `tailwind.config.js` 是否添加了框架需要的 `safelist`？
+4. ✅ 是否重启了 Metro bundler？（修改配置后需要重启）
+5. ✅ 是否清除了缓存？（Expo 推荐 `npx expo start -c`，React Native CLI 可用 `npx react-native start --reset-cache`）
+6. ✅ `babel-preset-expo` 是否配置了 `jsxImportSource: 'nativewind'`？
+
+### Q: 为什么 `AppHeader` 也没有样式？
+
+`AppHeader` 不是纯 `StyleSheet` 组件，它依赖框架内部的：
+
+- `AppView row`
+- `items="center"`
+- `px={4}`
+
+这些最终都会走 NativeWind 的 `className` 管线。所以如果：
+
+- Babel 没加 `nativewind/babel`
+- `content` 没扫到框架文件
+- `safelist` 没覆盖动态类
+
+那么 `AppHeader` 会非常像“完全没有样式”。
+
+### Q: 这是框架 bug 吗？
+
+通常不是渲染 bug，而是消费方配置不完整。
+
+但要注意一点：框架当前确实使用了部分**动态 className** 生成方式，因此消费方 app 不能只配最基础的 NativeWind，还必须把 `safelist` 配上。
+
+另一个常见例外是本地链接包没有同步：
+
+- 如果你通过 `yalc`、`file:`、workspace 或本地源码方式接入框架，app 里跑的未必是最新构建产物
+- 框架源码虽然已经修复，但 app 里的 `.yalc` 或本地链接目录如果没更新，最终表现仍然会是“没有样式”
+
+推荐排查顺序：
+
+```bash
+# 在框架仓库
+pnpm --filter @gaozh1024/rn-kit build
+
+# 如果使用 yalc
+yalc publish
+
+# 在 app 仓库
+yalc update @gaozh1024/rn-kit
+npx expo start -c
+```
+
+### Q: `AppHeader` 没样式，但 `tailwind.config.js` 已经配了，为什么？
+
+优先检查 `babel.config.js` 有没有把 `nativewind/babel` 错写到 `plugins`，或者漏掉 `jsxImportSource: 'nativewind'`。
+
+这类错误会让 NativeWind 转换根本没有接通，表现通常是：
+
+- `AppHeader` 没有左右内边距
+- 标题不居中
+- `AppView` 的 `row`、`items="center"`、`px={4}` 像完全失效
 
 ### Q: 如何自定义主题颜色？
 

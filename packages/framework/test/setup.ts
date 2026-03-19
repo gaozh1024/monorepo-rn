@@ -403,8 +403,13 @@ vi.mock('@react-navigation/drawer', () => ({
   createDrawerNavigator: () => createNavigator(),
 }));
 
-vi.mock('@react-navigation/native-stack', () => ({
-  createNativeStackNavigator: () => createNavigator(),
+vi.mock('@react-navigation/stack', () => ({
+  createStackNavigator: () => createNavigator(),
+  TransitionPresets: {
+    SlideFromRightIOS: {
+      gestureDirection: 'horizontal',
+    },
+  },
 }));
 
 beforeEach(() => {

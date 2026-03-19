@@ -4,9 +4,9 @@
  * @description 提供类型安全的 API 客户端创建功能，支持请求/响应数据的 Zod 校验
  */
 
-import type { ApiConfig, ApiEndpointConfig } from './types';
+import type { ApiConfig, ApiEndpointConfig, ApiErrorContext } from './types';
 import { ZodError } from 'zod';
-import { ErrorCode, type AppError } from '../error';
+import { ErrorCode, enhanceError, mapHttpStatus, type AppError } from '../error';
 
 /**
  * 将 Zod 校验错误转换为应用错误对象
@@ -21,6 +21,75 @@ function parseZodError(error: ZodError): AppError {
     message: first?.message || 'Validation failed',
     field: first?.path.join('.'),
   };
+}
+
+function isAppError(error: unknown): error is AppError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as { code?: unknown }).code === 'string' &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  );
+}
+
+function parseNetworkError(error: unknown): AppError {
+  return {
+    code: ErrorCode.NETWORK,
+    message: error instanceof Error ? error.message : 'Network request failed',
+    retryable: true,
+    original: error,
+  };
+}
+
+function parseHttpError(response: Response, data?: unknown): AppError {
+  const fallbackMessage = response.statusText || `Request failed with status ${response.status}`;
+  const message =
+    typeof data === 'object' &&
+    data !== null &&
+    'message' in data &&
+    typeof data.message === 'string'
+      ? data.message
+      : fallbackMessage;
+
+  return {
+    code: mapHttpStatus(response.status),
+    message,
+    statusCode: response.status,
+    retryable: response.status >= 500,
+    original: data,
+  };
+}
+
+function parseUnknownError(error: unknown): AppError {
+  if (error instanceof ZodError) {
+    return parseZodError(error);
+  }
+
+  if (isAppError(error)) {
+    return error;
+  }
+
+  return {
+    code: ErrorCode.UNKNOWN,
+    message: error instanceof Error ? error.message : 'Unknown error',
+    original: error,
+  };
+}
+
+async function notifyError(
+  error: AppError,
+  context: ApiErrorContext,
+  endpoint: ApiEndpointConfig<any, any>,
+  config: ApiConfig<Record<string, ApiEndpointConfig<any, any>>>
+) {
+  const enhanced = enhanceError(error);
+
+  await endpoint.onError?.(enhanced, context);
+  await config.onError?.(enhanced, context);
+
+  return enhanced;
 }
 
 /**
@@ -56,21 +125,68 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
   config: ApiConfig<TEndpoints>
 ): { [K in keyof TEndpoints]: (input?: any) => Promise<any> } {
   const endpoints = {} as any;
+  const fetcher = config.fetcher ?? fetch;
 
   for (const [name, ep] of Object.entries(config.endpoints)) {
     endpoints[name] = async (input?: any) => {
+      const context: ApiErrorContext = {
+        endpointName: name,
+        path: ep.path,
+        method: ep.method,
+        input,
+      };
+
       if (ep.input) {
         const result = ep.input.safeParse(input);
-        if (!result.success) throw parseZodError(result.error);
+        if (!result.success) {
+          throw await notifyError(parseZodError(result.error), context, ep, config as any);
+        }
       }
 
       const url = config.baseURL + ep.path;
-      const response = await fetch(url, { method: ep.method });
-      const data = await response.json();
 
-      if (ep.output) {
-        return ep.output.parse(data);
+      let response: Response;
+      try {
+        response = await fetcher(url, { method: ep.method });
+      } catch (error) {
+        throw await notifyError(parseNetworkError(error), context, ep, config as any);
       }
+
+      context.response = response;
+
+      let data: unknown = undefined;
+      const contentType = response.headers.get('content-type') || '';
+      const canParseJson = contentType.includes('application/json');
+
+      if (canParseJson) {
+        try {
+          data = await response.json();
+        } catch {
+          data = undefined;
+        }
+      }
+
+      context.responseData = data;
+
+      if (!response.ok) {
+        throw await notifyError(parseHttpError(response, data), context, ep, config as any);
+      }
+
+      const businessError =
+        ep.parseBusinessError?.(data, response) ?? config.parseBusinessError?.(data, response);
+
+      if (businessError) {
+        throw await notifyError(businessError, context, ep, config as any);
+      }
+
+      try {
+        if (ep.output) {
+          return ep.output.parse(data);
+        }
+      } catch (error) {
+        throw await notifyError(parseUnknownError(error), context, ep, config as any);
+      }
+
       return data;
     };
   }

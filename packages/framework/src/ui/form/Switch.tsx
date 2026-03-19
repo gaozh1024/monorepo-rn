@@ -1,5 +1,6 @@
-import { Switch as RNSwitch } from 'react-native';
-import { AppView, AppText } from '@/ui/primitives';
+import { useState } from 'react';
+import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
+import { AppView } from '@/ui/primitives';
 import { useTheme } from '@/theme';
 import { cn } from '@/utils';
 
@@ -7,102 +8,112 @@ import { cn } from '@/utils';
  * Switch 组件属性接口
  */
 export interface SwitchProps {
-  /** 是否开启 */
   checked?: boolean;
-  /** 状态变化回调 */
+  defaultChecked?: boolean;
   onChange?: (checked: boolean) => void;
-  /** 是否禁用 */
   disabled?: boolean;
-  /** 开关颜色 */
-  color?: string;
-  /** 开关尺寸：sm(小)、md(中)、lg(大) */
   size?: 'sm' | 'md' | 'lg';
-  /** 开关标签内容 */
-  children?: React.ReactNode;
-  /** 自定义样式 */
   className?: string;
+  testID?: string;
+  style?: ViewStyle;
 }
-
-/** 尺寸映射表 */
-const sizeMap = {
-  sm: { scale: 0.8, height: 28 },
-  md: { scale: 1, height: 32 },
-  lg: { scale: 1.2, height: 36 },
-};
 
 /**
- * Switch - 开关组件
- *
- * 用于表示两种状态的切换，常用于设置项的开启/关闭
- * 支持自定义颜色、尺寸和标签，提供流畅的交互体验
- *
- * @example
- * ```tsx
- * // 基础使用
- * <Switch checked={enabled} onChange={setEnabled} />
- *
- * // 带标签
- * <Switch checked={notifications} onChange={setNotifications}>
- *   接收通知
- * </Switch>
- *
- * // 禁用状态
- * <Switch checked={true} disabled>
- *   不可更改
- * </Switch>
- *
- * // 不同尺寸
- * <Switch checked={value} onChange={setValue} size="sm" />
- * <Switch checked={value} onChange={setValue} size="lg" />
- *
- * // 自定义颜色
- * <Switch checked={darkMode} onChange={setDarkMode} color="purple-500">
- *   深色模式
- * </Switch>
- *
- * // 设置列表中使用
- * <Col className="bg-white rounded-lg">
- *   <Row justify="between" items="center" className="p-4 border-b border-gray-100">
- *     <AppText>消息推送</AppText>
- *     <Switch checked={pushEnabled} onChange={setPushEnabled} />
- *   </Row>
- *   <Row justify="between" items="center" className="p-4 border-b border-gray-100">
- *     <AppText>声音提醒</AppText>
- *     <Switch checked={soundEnabled} onChange={setSoundEnabled} />
- *   </Row>
- *   <Row justify="between" items="center" className="p-4">
- *     <AppText>自动更新</AppText>
- *     <Switch checked={autoUpdate} onChange={setAutoUpdate} />
- *   </Row>
- * </Col>
- * ```
+ * Switch - 开关组件，支持浅色/深色主题
  */
 export function Switch({
-  checked = false,
+  checked,
+  defaultChecked,
   onChange,
   disabled = false,
-  color = 'primary-500',
   size = 'md',
-  children,
   className,
+  testID,
+  style,
 }: SwitchProps) {
-  const { theme } = useTheme();
-  const { scale } = sizeMap[size];
+  const { theme, isDark } = useTheme();
+  const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
 
-  const trackColor = theme.colors[color.split('-')[0]];
-  const trackColorValue = trackColor?.[500] || '#f38b32';
+  const isChecked = checked !== undefined ? checked : internalChecked;
+
+  const toggle = () => {
+    if (disabled) return;
+    const newChecked = !isChecked;
+    if (checked === undefined) {
+      setInternalChecked(newChecked);
+    }
+    onChange?.(newChecked);
+  };
+
+  // 主题颜色
+  const uncheckedTrackColor = isDark ? '#374151' : '#d1d5db';
+  const checkedTrackColor = theme.colors.primary?.[500] || '#f38b32';
+  const thumbColor = '#ffffff';
+  const disabledOpacity = 0.4;
+
+  // 尺寸配置
+  const sizes = {
+    sm: { width: 36, height: 20, thumb: 16, padding: 2 },
+    md: { width: 48, height: 26, thumb: 22, padding: 2 },
+    lg: { width: 60, height: 32, thumb: 28, padding: 2 },
+  };
+
+  const config = sizes[size];
+
+  const thumbPosition = isChecked ? config.width - config.thumb - config.padding : config.padding;
 
   return (
-    <AppView row items="center" gap={3} className={cn(disabled && 'opacity-50', className)}>
-      <RNSwitch
-        value={checked}
-        onValueChange={onChange}
-        disabled={disabled}
-        trackColor={{ false: '#d1d5db', true: trackColorValue }}
-        thumbColor={checked ? trackColorValue : '#f9fafb'}
-        style={{ transform: [{ scale }] }}
-      />
-      {children && <AppText className={checked ? '' : 'text-gray-600'}>{children}</AppText>}
-    </AppView>
+    <TouchableOpacity
+      onPress={toggle}
+      disabled={disabled}
+      className={cn(className)}
+      testID={testID}
+      activeOpacity={disabled ? 1 : 0.8}
+    >
+      <AppView
+        className="rounded-full"
+        style={[
+          styles.track,
+          {
+            width: config.width,
+            height: config.height,
+            backgroundColor: isChecked ? checkedTrackColor : uncheckedTrackColor,
+            opacity: disabled ? disabledOpacity : 1,
+          },
+          style,
+        ]}
+      >
+        <AppView
+          className="rounded-full"
+          style={[
+            styles.thumb,
+            {
+              width: config.thumb,
+              height: config.thumb,
+              backgroundColor: thumbColor,
+              transform: [{ translateX: thumbPosition }],
+              shadowColor: isDark ? '#000000' : '#000000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: isDark ? 0.3 : 0.2,
+              shadowRadius: 1,
+            },
+          ]}
+        />
+      </AppView>
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  track: {
+    justifyContent: 'center',
+    padding: 2,
+  },
+  thumb: {
+    elevation: 2,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+  },
+});

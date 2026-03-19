@@ -3,7 +3,7 @@
  * @module overlay/toast/component
  */
 
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { AppView, AppText } from '@/ui';
 import type { ToastItem } from './types';

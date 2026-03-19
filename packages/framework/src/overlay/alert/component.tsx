@@ -3,7 +3,6 @@
  * @module overlay/alert/component
  */
 
-import React from 'react';
 import { View, Modal, StyleSheet } from 'react-native';
 import { AppView, AppText, AppPressable } from '@/ui';
 import type { AlertOptions } from './types';

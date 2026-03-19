@@ -1,4 +1,3 @@
-import React from 'react';
 import { StatusBar, type ViewStyle, StyleSheet } from 'react-native';
 import { useTheme } from '@/theme';
 import { AppView, AppText, AppPressable, Icon } from '@/ui';
@@ -24,7 +23,7 @@ export interface AppHeaderProps {
   title?: string;
   /** 副标题 */
   subtitle?: string;
-  /** 左侧图标名称（默认为 'arrow-back'） */
+  /** 左侧图标名称（默认为 'chevron-left' iOS风格） */
   leftIcon?: string | null;
   /** 左侧图标点击回调 */
   onLeftPress?: () => void;
@@ -69,7 +68,7 @@ export interface AppHeaderProps {
 export function AppHeader({
   title,
   subtitle,
-  leftIcon = 'arrow-back',
+  leftIcon = 'chevron-left',
   onLeftPress,
   rightIcons = [],
   transparent = false,

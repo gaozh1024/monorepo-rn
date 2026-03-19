@@ -21,7 +21,7 @@ export interface StackScreenOptions {
     | 'slide_from_left'
     | 'slide_from_bottom'
     | 'none';
-  /** 是否支持全屏手势返回 */
+  /** 是否支持全屏手势返回（主要用于 iOS） */
   fullScreenGestureEnabled?: boolean;
   /** 自定义后退按钮标题（iOS） */
   headerBackTitle?: string;

@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Modal, TouchableOpacity } from 'react-native';
+import { Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
+import { useTheme } from '@/theme';
 import { cn, formatDate } from '@/utils';
 
 /**
@@ -27,69 +28,7 @@ export interface DatePickerProps {
 }
 
 /**
- * DatePicker - 日期选择器组件
- *
- * 提供完整的日期选择功能，支持年、月、日三级选择
- * 包含日期范围限制、快捷操作（今天、最早、最晚）等功能
- * 采用底部弹窗形式，提供良好的移动端交互体验
- *
- * @example
- * ```tsx
- * // 基础使用
- * <DatePicker
- *   value={date}
- *   onChange={setDate}
- * />
- *
- * // 带占位文字
- * <DatePicker
- *   value={birthday}
- *   onChange={setBirthday}
- *   placeholder="请选择生日"
- * />
- *
- * // 自定义日期格式
- * <DatePicker
- *   value={date}
- *   onChange={setDate}
- *   format="yyyy年MM月dd日"
- * />
- *
- * // 日期范围限制
- * <DatePicker
- *   value={startDate}
- *   onChange={setStartDate}
- *   minDate={new Date(2020, 0, 1)}
- *   maxDate={new Date()}
- * />
- *
- * // 禁用状态
- * <DatePicker
- *   value={date}
- *   onChange={setDate}
- *   disabled={isSubmitting}
- * />
- *
- * // 表单中使用
- * const [form, setForm] = useState({
- *   name: '',
- *   birthday: null as Date | null,
- * });
- *
- * <Col gap={4}>
- *   <Input
- *     label="姓名"
- *     value={form.name}
- *     onChangeText={(name) => setForm({ ...form, name })}
- *   />
- *   <DatePicker
- *     label="生日"
- *     value={form.birthday || undefined}
- *     onChange={(birthday) => setForm({ ...form, birthday })}
- *     placeholder="请选择生日"
- *   />
- * </Col>
- * ```
+ * DatePicker - 日期选择器组件，支持浅色/深色主题
  */
 export function DatePicker({
   value,
@@ -101,8 +40,19 @@ export function DatePicker({
   maxDate,
   className,
 }: DatePickerProps) {
+  const { theme, isDark } = useTheme();
   const [visible, setVisible] = useState(false);
   const [tempDate, setTempDate] = useState<Date>(value || new Date());
+
+  // 主题颜色
+  const bgColor = isDark ? theme.colors.card?.[800] || '#1f2937' : '#ffffff';
+  const textColor = isDark ? '#ffffff' : '#1f2937';
+  const placeholderColor = isDark ? '#6b7280' : '#9ca3af';
+  const borderColor = isDark ? theme.colors.border?.[600] || '#4b5563' : '#d1d5db';
+  const headerBorderColor = isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb';
+  const columnBorderColor = isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb';
+  const headerBgColor = isDark ? '#111827' : '#f3f4f6';
+  const selectedBgColor = isDark ? theme.colors.primary?.[900] || '#7c2d12' : '#fff7ed';
 
   // 显示文本
   const displayText = useMemo(() => {
@@ -166,10 +116,11 @@ export function DatePicker({
       {/* 触发区域 */}
       <AppPressable
         className={cn(
-          'flex-row items-center justify-between px-4 py-3 border rounded-lg bg-white',
-          disabled ? 'bg-gray-100 opacity-60' : 'border-gray-300',
+          'flex-row items-center justify-between px-4 py-3 rounded-lg',
+          disabled ? 'opacity-60' : '',
           className
         )}
+        style={[styles.trigger, { backgroundColor: bgColor, borderColor }]}
         disabled={disabled}
         onPress={() => {
           setTempDate(value || new Date());
@@ -177,12 +128,13 @@ export function DatePicker({
         }}
       >
         <AppText
-          className={cn('flex-1', value ? 'text-gray-900' : 'text-gray-400')}
+          className="flex-1"
+          style={{ color: value ? textColor : placeholderColor }}
           numberOfLines={1}
         >
           {displayText}
         </AppText>
-        <Icon name="calendar-today" size="md" color="gray-400" />
+        <Icon name="calendar-today" size="md" color={isDark ? '#6b7280' : 'gray-400'} />
       </AppPressable>
 
       {/* 日期选择弹窗 */}
@@ -192,22 +144,35 @@ export function DatePicker({
         animationType="slide"
         onRequestClose={() => setVisible(false)}
       >
-        <AppView className="flex-1 bg-black/50" justify="end">
-          <AppView className="bg-white rounded-t-2xl">
+        <AppView className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} justify="end">
+          <AppView className="rounded-t-2xl" style={{ backgroundColor: bgColor }}>
             {/* 头部 */}
-            <AppView row between items="center" className="px-4 py-3 border-b border-gray-200">
+            <AppView
+              row
+              between
+              items="center"
+              className="px-4 py-3"
+              style={[styles.header, { borderBottomColor: headerBorderColor }]}
+            >
               <TouchableOpacity onPress={() => setVisible(false)}>
-                <AppText className="text-gray-500">取消</AppText>
+                <AppText style={{ color: isDark ? '#9ca3af' : '#6b7280' }}>取消</AppText>
               </TouchableOpacity>
-              <AppText className="text-lg font-semibold text-gray-900">选择日期</AppText>
+              <AppText className="text-lg font-semibold" style={{ color: textColor }}>
+                选择日期
+              </AppText>
               <TouchableOpacity onPress={handleConfirm}>
-                <AppText className="text-primary-600 font-medium">确定</AppText>
+                <AppText
+                  style={{ color: theme.colors.primary?.[500] || '#f38b32' }}
+                  className="font-medium"
+                >
+                  确定
+                </AppText>
               </TouchableOpacity>
             </AppView>
 
             {/* 日期显示 */}
-            <AppView center className="py-4 bg-gray-50">
-              <AppText className="text-2xl font-semibold text-gray-900">
+            <AppView center className="py-4" style={{ backgroundColor: headerBgColor }}>
+              <AppText className="text-2xl font-semibold" style={{ color: textColor }}>
                 {formatDate(tempDate, 'yyyy年MM月dd日')}
               </AppText>
             </AppView>
@@ -215,9 +180,14 @@ export function DatePicker({
             {/* 选择器区域 */}
             <AppView row className="h-48">
               {/* 年份 */}
-              <AppView flex className="border-r border-gray-200">
-                <AppView center className="py-2 bg-gray-100">
-                  <AppText className="text-sm font-medium text-gray-600">年</AppText>
+              <AppView flex style={[styles.column, { borderRightColor: columnBorderColor }]}>
+                <AppView center className="py-2" style={{ backgroundColor: headerBgColor }}>
+                  <AppText
+                    className="text-sm font-medium"
+                    style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                  >
+                    年
+                  </AppText>
                 </AppView>
                 <AppView className="flex-1">
                   {years.map(year => {
@@ -230,18 +200,23 @@ export function DatePicker({
                     return (
                       <TouchableOpacity
                         key={year}
-                        className={cn(
-                          'py-2 items-center',
-                          isSelected && 'bg-primary-50',
-                          disabled && 'opacity-30'
-                        )}
+                        className={cn('py-2 items-center', isSelected && 'bg-primary-50')}
+                        style={isSelected ? { backgroundColor: selectedBgColor } : undefined}
                         disabled={disabled}
                         onPress={() => updateTempDate(year)}
                       >
                         <AppText
                           className={cn(
-                            isSelected ? 'text-primary-600 font-semibold' : 'text-gray-700'
+                            isSelected ? 'font-semibold' : 'text-gray-700',
+                            disabled && 'opacity-30'
                           )}
+                          style={{
+                            color: isSelected
+                              ? theme.colors.primary?.[500] || '#f38b32'
+                              : isDark
+                                ? '#d1d5db'
+                                : '#374151',
+                          }}
                         >
                           {year}
                         </AppText>
@@ -252,9 +227,14 @@ export function DatePicker({
               </AppView>
 
               {/* 月份 */}
-              <AppView flex className="border-r border-gray-200">
-                <AppView center className="py-2 bg-gray-100">
-                  <AppText className="text-sm font-medium text-gray-600">月</AppText>
+              <AppView flex style={[styles.column, { borderRightColor: columnBorderColor }]}>
+                <AppView center className="py-2" style={{ backgroundColor: headerBgColor }}>
+                  <AppText
+                    className="text-sm font-medium"
+                    style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                  >
+                    月
+                  </AppText>
                 </AppView>
                 <AppView className="flex-1">
                   {months.map(month => {
@@ -267,18 +247,23 @@ export function DatePicker({
                     return (
                       <TouchableOpacity
                         key={month}
-                        className={cn(
-                          'py-2 items-center',
-                          isSelected && 'bg-primary-50',
-                          disabled && 'opacity-30'
-                        )}
+                        className={cn('py-2 items-center', isSelected && 'bg-primary-50')}
+                        style={isSelected ? { backgroundColor: selectedBgColor } : undefined}
                         disabled={disabled}
                         onPress={() => updateTempDate(undefined, month)}
                       >
                         <AppText
                           className={cn(
-                            isSelected ? 'text-primary-600 font-semibold' : 'text-gray-700'
+                            isSelected ? 'font-semibold' : 'text-gray-700',
+                            disabled && 'opacity-30'
                           )}
+                          style={{
+                            color: isSelected
+                              ? theme.colors.primary?.[500] || '#f38b32'
+                              : isDark
+                                ? '#d1d5db'
+                                : '#374151',
+                          }}
                         >
                           {month}月
                         </AppText>
@@ -290,8 +275,13 @@ export function DatePicker({
 
               {/* 日期 */}
               <AppView flex>
-                <AppView center className="py-2 bg-gray-100">
-                  <AppText className="text-sm font-medium text-gray-600">日</AppText>
+                <AppView center className="py-2" style={{ backgroundColor: headerBgColor }}>
+                  <AppText
+                    className="text-sm font-medium"
+                    style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                  >
+                    日
+                  </AppText>
                 </AppView>
                 <AppView className="flex-1">
                   {days.map(day => {
@@ -304,18 +294,23 @@ export function DatePicker({
                     return (
                       <TouchableOpacity
                         key={day}
-                        className={cn(
-                          'py-2 items-center',
-                          isSelected && 'bg-primary-50',
-                          disabled && 'opacity-30'
-                        )}
+                        className={cn('py-2 items-center', isSelected && 'bg-primary-50')}
+                        style={isSelected ? { backgroundColor: selectedBgColor } : undefined}
                         disabled={disabled}
                         onPress={() => updateTempDate(undefined, undefined, day)}
                       >
                         <AppText
                           className={cn(
-                            isSelected ? 'text-primary-600 font-semibold' : 'text-gray-700'
+                            isSelected ? 'font-semibold' : 'text-gray-700',
+                            disabled && 'opacity-30'
                           )}
+                          style={{
+                            color: isSelected
+                              ? theme.colors.primary?.[500] || '#f38b32'
+                              : isDark
+                                ? '#d1d5db'
+                                : '#374151',
+                          }}
                         >
                           {day}
                         </AppText>
@@ -327,27 +322,34 @@ export function DatePicker({
             </AppView>
 
             {/* 快捷操作 */}
-            <AppView row className="px-4 py-3 border-t border-gray-200 gap-2">
+            <AppView
+              row
+              className="px-4 py-3 gap-2"
+              style={[styles.footer, { borderTopColor: headerBorderColor }]}
+            >
               <TouchableOpacity
-                className="flex-1 py-2 items-center bg-gray-100 rounded-lg"
+                className="flex-1 py-2 items-center rounded-lg"
+                style={{ backgroundColor: isDark ? '#374151' : '#f3f4f6' }}
                 onPress={() => setTempDate(new Date())}
               >
-                <AppText className="text-gray-700">今天</AppText>
+                <AppText style={{ color: textColor }}>今天</AppText>
               </TouchableOpacity>
               {minDate && (
                 <TouchableOpacity
-                  className="flex-1 py-2 items-center bg-gray-100 rounded-lg"
+                  className="flex-1 py-2 items-center rounded-lg"
+                  style={{ backgroundColor: isDark ? '#374151' : '#f3f4f6' }}
                   onPress={() => setTempDate(minDate)}
                 >
-                  <AppText className="text-gray-700">最早</AppText>
+                  <AppText style={{ color: textColor }}>最早</AppText>
                 </TouchableOpacity>
               )}
               {maxDate && (
                 <TouchableOpacity
-                  className="flex-1 py-2 items-center bg-gray-100 rounded-lg"
+                  className="flex-1 py-2 items-center rounded-lg"
+                  style={{ backgroundColor: isDark ? '#374151' : '#f3f4f6' }}
                   onPress={() => setTempDate(maxDate)}
                 >
-                  <AppText className="text-gray-700">最晚</AppText>
+                  <AppText style={{ color: textColor }}>最晚</AppText>
                 </TouchableOpacity>
               )}
             </AppView>
@@ -357,3 +359,18 @@ export function DatePicker({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  trigger: {
+    borderWidth: 0.5,
+  },
+  header: {
+    borderBottomWidth: 0.5,
+  },
+  column: {
+    borderRightWidth: 0.5,
+  },
+  footer: {
+    borderTopWidth: 0.5,
+  },
+});

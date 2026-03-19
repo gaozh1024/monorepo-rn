@@ -39,6 +39,12 @@ npm install react-native-svg
 
 本框架使用 **Tailwind CSS** 类名实现样式，需要配置 **NativeWind**。详见 [Tailwind 配置指南](./packages/framework/TAILWIND_SETUP.md)。
 
+如果你在 app 中发现 `AppView`、`AppButton`、`AppHeader` 没有样式，通常不是 `ThemeProvider` 问题，而是：
+
+- app 没有配置 `nativewind/babel`
+- `tailwind.config.js` 的 `content` 没有包含框架产物
+- `safelist` 没有覆盖框架内部动态生成的工具类
+
 ## 🚀 快速开始
 
 ```tsx

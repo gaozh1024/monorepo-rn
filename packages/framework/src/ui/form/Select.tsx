@@ -6,9 +6,11 @@ import {
   FlatList,
   TextInput,
   GestureResponderEvent,
+  StyleSheet,
 } from 'react-native';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
+import { useTheme } from '@/theme';
 import { cn } from '@/utils';
 
 export interface SelectOption {
@@ -40,7 +42,7 @@ export interface SelectProps {
 }
 
 /**
- * 底部弹出选择器组件
+ * 底部弹出选择器组件，支持浅色/深色主题
  */
 export function Select({
   value,
@@ -54,8 +56,18 @@ export function Select({
   clearable = true,
   className,
 }: SelectProps) {
+  const { theme, isDark } = useTheme();
   const [visible, setVisible] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+
+  // 主题颜色
+  const bgColor = isDark ? theme.colors.card?.[800] || '#1f2937' : '#ffffff';
+  const textColor = isDark ? '#ffffff' : '#1f2937';
+  const placeholderColor = isDark ? '#6b7280' : '#9ca3af';
+  const borderColor = isDark ? theme.colors.border?.[600] || '#4b5563' : '#d1d5db';
+  const headerBorderColor = isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb';
+  const optionBorderColor = isDark ? theme.colors.border?.[700] || '#374151' : '#f3f4f6';
+  const selectedBgColor = isDark ? theme.colors.primary?.[900] || '#7c2d12' : '#fff7ed';
 
   // 处理值格式
   const selectedValues = useMemo(() => {
@@ -122,19 +134,34 @@ export function Select({
       return (
         <AppPressable
           className={cn(
-            'flex-row items-center justify-between px-4 py-3 border-b border-gray-100',
+            'flex-row items-center justify-between px-4 py-3',
             isSelected && 'bg-primary-50'
           )}
+          style={[
+            styles.optionItem,
+            { borderBottomColor: optionBorderColor },
+            isSelected && { backgroundColor: selectedBgColor },
+          ]}
           onPress={() => handleSelect(item.value)}
         >
-          <AppText className={cn(isSelected ? 'text-primary-600' : 'text-gray-900')}>
+          <AppText
+            className={cn(isSelected ? 'text-primary-600' : 'text-gray-900')}
+            style={{ color: isSelected ? theme.colors.primary?.[500] : textColor }}
+          >
             {item.label}
           </AppText>
-          {isSelected && <Icon name="check" size="sm" color="primary-600" />}
+          {isSelected && <Icon name="check" size="sm" color="primary-500" />}
         </AppPressable>
       );
     },
-    [selectedValues, handleSelect]
+    [
+      selectedValues,
+      handleSelect,
+      textColor,
+      theme.colors.primary,
+      optionBorderColor,
+      selectedBgColor,
+    ]
   );
 
   return (
@@ -142,15 +169,17 @@ export function Select({
       {/* 触发区域 */}
       <AppPressable
         className={cn(
-          'flex-row items-center justify-between px-4 py-3 border rounded-lg bg-white',
-          disabled ? 'bg-gray-100 opacity-60' : 'border-gray-300',
+          'flex-row items-center justify-between px-4 py-3 rounded-lg',
+          disabled ? 'opacity-60' : '',
           className
         )}
+        style={[styles.trigger, { backgroundColor: bgColor, borderColor }]}
         disabled={disabled}
         onPress={() => setVisible(true)}
       >
         <AppText
-          className={cn('flex-1', selectedValues.length === 0 ? 'text-gray-400' : 'text-gray-900')}
+          className="flex-1"
+          style={{ color: selectedValues.length === 0 ? placeholderColor : textColor }}
           numberOfLines={1}
         >
           {displayText}
@@ -158,10 +187,10 @@ export function Select({
         <View className="flex-row items-center">
           {clearable && selectedValues.length > 0 && !disabled && (
             <TouchableOpacity onPress={handleClear} className="mr-2 p-1">
-              <Icon name="close" size="sm" color="gray-400" />
+              <Icon name="close" size="sm" color={isDark ? '#6b7280' : 'gray-400'} />
             </TouchableOpacity>
           )}
-          <Icon name="keyboard-arrow-down" size="md" color="gray-400" />
+          <Icon name="keyboard-arrow-down" size="md" color={isDark ? '#6b7280' : 'gray-400'} />
         </View>
       </AppPressable>
 
@@ -172,35 +201,51 @@ export function Select({
         animationType="slide"
         onRequestClose={() => setVisible(false)}
       >
-        <AppView className="flex-1 bg-black/50" justify="end">
-          <AppView className="bg-white rounded-t-2xl max-h-[70%]">
+        <AppView className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} justify="end">
+          <AppView className="rounded-t-2xl max-h-[70%]" style={{ backgroundColor: bgColor }}>
             {/* 头部 */}
-            <AppView row between items="center" className="px-4 py-3 border-b border-gray-200">
-              <AppText className="text-lg font-semibold text-gray-900">
+            <AppView
+              row
+              between
+              items="center"
+              className="px-4 py-3"
+              style={[styles.header, { borderBottomColor: headerBorderColor }]}
+            >
+              <AppText className="text-lg font-semibold" style={{ color: textColor }}>
                 {multiple ? '选择选项' : '请选择'}
               </AppText>
               <TouchableOpacity onPress={() => setVisible(false)}>
-                <Icon name="close" size="md" color="gray-500" />
+                <Icon name="close" size="md" color={isDark ? '#9ca3af' : 'gray-500'} />
               </TouchableOpacity>
             </AppView>
 
             {/* 搜索框 */}
             {searchable && (
-              <AppView className="px-4 py-3 border-b border-gray-100">
-                <AppView row items="center" className="px-3 py-2 bg-gray-100 rounded-lg">
+              <AppView
+                className="px-4 py-3"
+                style={[styles.searchBox, { borderBottomColor: optionBorderColor }]}
+              >
+                <AppView
+                  row
+                  items="center"
+                  className="px-3 py-2 rounded-lg"
+                  style={{ backgroundColor: isDark ? '#374151' : '#f3f4f6' }}
+                >
                   <View style={{ marginRight: 8 }}>
-                    <Icon name="search" size="sm" color="gray-400" />
+                    <Icon name="search" size="sm" color={isDark ? '#6b7280' : 'gray-400'} />
                   </View>
                   <TextInput
-                    className="flex-1 text-base text-gray-900"
+                    className="flex-1 text-base"
+                    style={{ color: textColor }}
                     placeholder="搜索..."
+                    placeholderTextColor={placeholderColor}
                     value={searchKeyword}
                     onChangeText={handleSearch}
                     autoFocus
                   />
                   {searchKeyword.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchKeyword('')}>
-                      <Icon name="close" size="sm" color="gray-400" />
+                      <Icon name="close" size="sm" color={isDark ? '#6b7280' : 'gray-400'} />
                     </TouchableOpacity>
                   )}
                 </AppView>
@@ -214,20 +259,31 @@ export function Select({
               renderItem={renderOption}
               ListEmptyComponent={
                 <AppView center className="py-8">
-                  <AppText className="text-gray-400">暂无选项</AppText>
+                  <AppText style={{ color: placeholderColor }}>暂无选项</AppText>
                 </AppView>
               }
             />
 
             {/* 多选底部操作栏 */}
             {multiple && (
-              <AppView row between items="center" className="px-4 py-3 border-t border-gray-200">
-                <AppText className="text-gray-500">已选择 {selectedValues.length} 项</AppText>
+              <AppView
+                row
+                between
+                items="center"
+                className="px-4 py-3"
+                style={[styles.footer, { borderTopColor: headerBorderColor }]}
+              >
+                <AppText style={{ color: placeholderColor }}>
+                  已选择 {selectedValues.length} 项
+                </AppText>
                 <TouchableOpacity
-                  className="px-4 py-2 bg-primary-500 rounded-lg"
+                  className="px-4 py-2 rounded-lg"
+                  style={{ backgroundColor: theme.colors.primary?.[500] || '#f38b32' }}
                   onPress={() => setVisible(false)}
                 >
-                  <AppText className="text-white font-medium">确定</AppText>
+                  <AppText className="font-medium" style={{ color: '#ffffff' }}>
+                    确定
+                  </AppText>
                 </TouchableOpacity>
               </AppView>
             )}
@@ -237,3 +293,21 @@ export function Select({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  trigger: {
+    borderWidth: 0.5,
+  },
+  header: {
+    borderBottomWidth: 0.5,
+  },
+  searchBox: {
+    borderBottomWidth: 0.5,
+  },
+  optionItem: {
+    borderBottomWidth: 0.5,
+  },
+  footer: {
+    borderTopWidth: 0.5,
+  },
+});

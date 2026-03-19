@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   StyleProp,
   ViewStyle,
+  StyleSheet,
 } from 'react-native';
 import { useTheme } from '@/theme';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
@@ -92,21 +93,32 @@ function EmptyState({
 }
 
 function ErrorState({ error, onRetry }: { error: Error; onRetry?: () => void }) {
+  const { isDark } = useTheme();
+  const subTextColor = isDark ? '#9ca3af' : '#6b7280';
+  const buttonBgColor = isDark ? '#374151' : '#f3f4f6';
+  const buttonTextColor = isDark ? '#ffffff' : '#374151';
+
   return (
     <Center py={20}>
       <Icon name="error-outline" size={64} color="error-300" />
       <AppText size="lg" weight="medium" color="error-500" className="mt-4">
         加载失败
       </AppText>
-      <AppText size="sm" color="gray-400" className="mt-2 text-center px-8">
+      <AppText size="sm" style={{ color: subTextColor }} className="mt-2 text-center px-8">
         {error.message || '请检查网络后重试'}
       </AppText>
       {onRetry && (
         <AppPressable
           onPress={onRetry}
-          className="mt-6 px-4 py-2 border border-gray-300 rounded-lg"
+          className="mt-6 px-4 py-2 rounded-lg"
+          style={[
+            styles.retryButton,
+            { backgroundColor: buttonBgColor, borderColor: isDark ? '#4b5563' : '#d1d5db' },
+          ]}
         >
-          <AppText className="text-center">重新加载</AppText>
+          <AppText style={{ color: buttonTextColor }} className="text-center">
+            重新加载
+          </AppText>
         </AppPressable>
       )}
     </Center>
@@ -277,3 +289,9 @@ export function AppList<T = any>({
     />
   );
 }
+
+const styles = StyleSheet.create({
+  retryButton: {
+    borderWidth: 0.5,
+  },
+});

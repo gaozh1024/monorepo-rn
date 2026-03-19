@@ -1,98 +1,204 @@
-import { AppView, AppText, AppPressable } from '../primitives';
+import { useCallback } from 'react';
+import { Modal, TouchableOpacity, StyleSheet, GestureResponderEvent } from 'react-native';
+import { AppView, AppText } from '@/ui/primitives';
+import { useTheme } from '@/theme';
+import { cn } from '@/utils';
+
+/**
+ * Alert 按钮配置
+ */
+export interface AlertButton {
+  text: string;
+  onPress?: () => void;
+  style?: 'default' | 'cancel' | 'destructive';
+}
 
 /**
  * Alert 组件属性接口
  */
 export interface AlertProps {
-  /** 弹窗标题 */
-  title: string;
-  /** 弹窗消息内容 */
-  message?: string;
-  /** 确认按钮文字，默认为"确认" */
-  confirmText?: string;
-  /** 取消按钮文字，默认为"取消" */
-  cancelText?: string;
-  /** 确认按钮回调 */
-  onConfirm?: () => void;
-  /** 取消按钮回调 */
-  onCancel?: () => void;
   /** 是否显示 */
-  visible?: boolean;
+  visible: boolean;
+  /** 标题 */
+  title: string;
+  /** 消息内容 */
+  message?: string;
+  /** 按钮配置 */
+  buttons: AlertButton[];
+  /** 关闭回调 */
+  onClose?: () => void;
 }
 
 /**
- * Alert - 警告弹窗组件
- *
- * 用于显示重要的确认信息，需要用户做出选择
- * 支持确认和取消两种操作，可单独使用确认按钮
- *
- * @example
- * ```tsx
- * // 基础确认弹窗
- * <Alert
- *   title="确认删除？"
- *   onConfirm={handleDelete}
- * />
- *
- * // 带消息内容
- * <Alert
- *   title="退出登录"
- *   message="确定要退出当前账号吗？"
- *   onConfirm={handleLogout}
- *   onCancel={() => setShowAlert(false)}
- * />
- *
- * // 自定义按钮文字
- * <Alert
- *   title="保存草稿"
- *   message="是否保存当前编辑内容？"
- *   confirmText="保存"
- *   cancelText="不保存"
- *   onConfirm={handleSave}
- *   onCancel={handleDiscard}
- * />
- *
- * // 控制显示
- * const [visible, setVisible] = useState(false);
- * <Alert
- *   title="提示"
- *   message="操作成功"
- *   visible={visible}
- *   confirmText="知道了"
- *   onConfirm={() => setVisible(false)}
- * />
- * ```
+ * Alert - 对话框组件，支持浅色/深色主题
  */
-export function Alert({
-  title,
-  message,
-  confirmText = '确认',
-  cancelText = '取消',
-  onConfirm,
-  onCancel,
-  visible = true,
-}: AlertProps) {
-  if (!visible) return null;
+export function Alert({ visible, title, message, buttons, onClose }: AlertProps) {
+  const { theme, isDark } = useTheme();
+
+  // 主题颜色
+  const modalBgColor = isDark ? '#1f2937' : '#ffffff';
+  const textColor = isDark ? '#ffffff' : '#1f2937';
+  const messageColor = isDark ? '#9ca3af' : '#6b7280';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const cancelButtonBg = isDark ? '#374151' : '#f3f4f6';
+  const cancelButtonText = isDark ? '#ffffff' : '#374151';
+  const destructiveColor = theme.colors.error?.[500] || '#ef4444';
+
+  const handleButtonPress = useCallback(
+    (button: AlertButton) => (e: GestureResponderEvent) => {
+      e.stopPropagation();
+      button.onPress?.();
+      onClose?.();
+    },
+    [onClose]
+  );
+
+  // 获取按钮样式
+  const getButtonStyle = (button: AlertButton) => {
+    if (button.style === 'destructive') {
+      return {
+        backgroundColor: 'transparent',
+        borderWidth: 0.5,
+        borderColor: destructiveColor,
+      };
+    }
+    if (button.style === 'cancel') {
+      return {
+        backgroundColor: cancelButtonBg,
+        borderWidth: 0.5,
+        borderColor: isDark ? '#4b5563' : '#d1d5db',
+      };
+    }
+    return {
+      backgroundColor: theme.colors.primary?.[500] || '#f38b32',
+      borderWidth: 0,
+    };
+  };
+
+  // 获取按钮文字颜色
+  const getButtonTextColor = (button: AlertButton) => {
+    if (button.style === 'destructive') {
+      return destructiveColor;
+    }
+    if (button.style === 'cancel') {
+      return cancelButtonText;
+    }
+    return '#ffffff';
+  };
+
   return (
-    <AppView center flex className="absolute inset-0 bg-black/50">
-      <AppView className="w-80 p-6 bg-white rounded-xl">
-        <AppText size="lg" weight="bold" className="text-center">
-          {title}
-        </AppText>
-        {message && <AppText className="mt-2 text-center text-gray-600">{message}</AppText>}
-        <AppView row gap={3} className="mt-6">
-          {onCancel && (
-            <AppPressable onPress={onCancel} className="flex-1 py-3 bg-gray-200 rounded-lg">
-              <AppText className="text-center">{cancelText}</AppText>
-            </AppPressable>
-          )}
-          <AppPressable onPress={onConfirm} className="flex-1 py-3 bg-primary-500 rounded-lg">
-            <AppText color="white" className="text-center">
-              {confirmText}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      <AppView className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} center>
+        <AppView
+          className="rounded-xl mx-8 min-w-[280px]"
+          style={{ backgroundColor: modalBgColor }}
+        >
+          {/* 内容区域 */}
+          <AppView className="px-6 py-5">
+            <AppText
+              size="lg"
+              weight="semibold"
+              className="text-center mb-2"
+              style={{ color: textColor }}
+            >
+              {title}
             </AppText>
-          </AppPressable>
+            {message && (
+              <AppText size="sm" style={{ color: messageColor }} className="text-center leading-5">
+                {message}
+              </AppText>
+            )}
+          </AppView>
+
+          {/* 按钮区域 */}
+          <AppView className="border-t" style={{ borderTopColor: borderColor }}>
+            {buttons.length === 1 ? (
+              // 单个按钮
+              <TouchableOpacity
+                onPress={handleButtonPress(buttons[0])}
+                className="py-3 rounded-b-xl"
+                style={[styles.singleButton, getButtonStyle(buttons[0])]}
+              >
+                <AppText
+                  weight="medium"
+                  className="text-center"
+                  style={{ color: getButtonTextColor(buttons[0]) }}
+                >
+                  {buttons[0].text}
+                </AppText>
+              </TouchableOpacity>
+            ) : buttons.length === 2 ? (
+              // 两个按钮横向排列
+              <AppView row style={styles.twoButtonContainer}>
+                {buttons.map((button, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={handleButtonPress(button)}
+                    className={cn(
+                      'py-3 flex-1',
+                      index === 0 && 'rounded-bl-xl',
+                      index === 1 && 'rounded-br-xl'
+                    )}
+                    style={[
+                      styles.twoButton,
+                      index > 0 && { borderLeftColor: borderColor },
+                      getButtonStyle(button),
+                    ]}
+                  >
+                    <AppText
+                      weight="medium"
+                      className="text-center"
+                      style={{ color: getButtonTextColor(button) }}
+                    >
+                      {button.text}
+                    </AppText>
+                  </TouchableOpacity>
+                ))}
+              </AppView>
+            ) : (
+              // 多个按钮纵向排列
+              <AppView className="gap-2 pb-4 px-4">
+                {buttons.map((button, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={handleButtonPress(button)}
+                    className="py-3 rounded-lg"
+                    style={getButtonStyle(button)}
+                  >
+                    <AppText
+                      weight="medium"
+                      className="text-center"
+                      style={{ color: getButtonTextColor(button) }}
+                    >
+                      {button.text}
+                    </AppText>
+                  </TouchableOpacity>
+                ))}
+              </AppView>
+            )}
+          </AppView>
         </AppView>
       </AppView>
-    </AppView>
+    </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  singleButton: {
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  twoButtonContainer: {
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  twoButton: {
+    borderLeftWidth: 0.5,
+  },
+});

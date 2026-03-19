@@ -27,6 +27,8 @@ npm install react-native-svg
 
 本框架使用 **Tailwind CSS** 类名实现样式（如 `bg-primary-500`, `flex-1`, `p-4`），需要在你的项目中配置 **NativeWind** 才能正常显示样式。
 
+如果你发现 `AppHeader`、`AppView`、`AppButton` 没有样式或布局错乱，通常不是框架内部渲染失败，而是消费方 app 没有把 NativeWind 和 Tailwind 扫描范围配置完整。
+
 ```bash
 npm install nativewind
 npm install -D tailwindcss
@@ -41,6 +43,16 @@ module.exports = {
     './src/**/*.{js,jsx,ts,tsx}',
     './node_modules/@gaozh1024/rn-kit/dist/**/*.{js,mjs}', // 必须包含框架路径
   ],
+  safelist: [
+    { pattern: /^(flex)-(1|2|3|4|5|6|7|8|9|10|11|12)$/ },
+    { pattern: /^(items)-(start|center|end|stretch)$/ },
+    { pattern: /^(justify)-(start|center|end|between|around)$/ },
+    { pattern: /^(p|px|py|gap)-(0|1|2|3|4|5|6|8|10|12)$/ },
+    { pattern: /^(rounded)-(none|sm|md|lg|xl|2xl|full)$/ },
+    {
+      pattern: /^(bg|text)-(primary|secondary|success|warning|error|info|gray|white|black)(-.+)?$/,
+    },
+  ],
   theme: { extend: {} },
   plugins: [],
 };
@@ -49,9 +61,11 @@ module.exports = {
 修改 `babel.config.js`：
 
 ```javascript
-module.exports = {
-  presets: ['babel-preset-expo'],
-  plugins: ['nativewind/babel'],
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
+  };
 };
 ```
 

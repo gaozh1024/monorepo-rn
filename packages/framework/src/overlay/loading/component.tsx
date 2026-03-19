@@ -3,7 +3,6 @@
  * @module overlay/loading/component
  */
 
-import React from 'react';
 import { View, Modal, ActivityIndicator, StyleSheet } from 'react-native';
 import { AppText } from '@/ui';
 import type { LoadingState } from './types';

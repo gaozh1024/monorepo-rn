@@ -2,26 +2,26 @@
  * 堆栈导航器组件
  *
  * @module navigation/navigators/StackNavigator
- * @description 基于 @react-navigation/native-stack 的堆栈导航器封装
+ * @description 基于 @react-navigation/stack 的堆栈导航器封装
  */
 
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator, TransitionPresets } from '../vendor/stack';
 import type { StackParamList, StackNavigatorProps, StackRouteConfig } from '../types';
 
-const NativeStack = createNativeStackNavigator<StackParamList>();
+const NativeStack = createStackNavigator<StackParamList>();
 
 /** 默认屏幕选项 */
 const defaultScreenOptions = {
   headerShown: false,
-  animation: 'slide_from_right' as const,
-  fullScreenGestureEnabled: true,
+  ...TransitionPresets.SlideFromRightIOS,
 };
 
 /**
  * 堆栈导航器组件
  *
- * 封装 React Navigation 的 Native Stack Navigator，提供默认配置
+ * 封装 React Navigation 的 JS Stack Navigator，默认使用 iOS 风格的右滑推进转场。
+ * 如需覆盖默认转场，请在 screenOptions 或单个 Screen options 中显式传入。
  *
  * @example
  * ```tsx

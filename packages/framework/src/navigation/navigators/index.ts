@@ -18,6 +18,6 @@ export { DrawerNavigator, createDrawerScreens } from './DrawerNavigator';
 export type { DrawerNavigatorProps } from '../types';
 
 // Re-export Screen 类型
-export type { NativeStackScreenProps } from '@react-navigation/native-stack';
+export type { NativeStackScreenProps } from '../vendor/stack';
 export type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 export type { DrawerScreenProps as NativeDrawerScreenProps } from '@react-navigation/drawer';

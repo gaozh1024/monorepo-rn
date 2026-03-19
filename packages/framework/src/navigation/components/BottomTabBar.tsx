@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -143,7 +142,7 @@ export function BottomTabBar({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopWidth: 0.5,
     borderTopColor: '#e5e7eb',
     elevation: 8,
     shadowColor: '#000',

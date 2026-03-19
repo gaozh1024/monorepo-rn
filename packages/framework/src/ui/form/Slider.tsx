@@ -1,136 +1,250 @@
-import React from 'react';
-import { View, type ViewStyle } from 'react-native';
+import { useState, useCallback, useRef } from 'react';
+import {
+  View,
+  PanResponder,
+  GestureResponderEvent,
+  PanResponderGestureState,
+  StyleSheet,
+  LayoutChangeEvent,
+} from 'react-native';
 import { AppView, AppText } from '@/ui/primitives';
-import { AppPressable } from '@/ui/primitives/AppPressable';
+import { useTheme } from '@/theme';
 import { cn } from '@/utils';
 
 /**
- * 滑块组件 Props
+ * Slider 组件属性接口
  */
 export interface SliderProps {
-  /** 当前值 */
-  value: number;
-  /** 值变化回调 */
-  onChange: (value: number) => void;
-  /** 最小值（默认 0） */
+  value?: number;
+  defaultValue?: number;
   min?: number;
-  /** 最大值（默认 100） */
   max?: number;
-  /** 步长（默认 1） */
   step?: number;
-  /** 是否禁用 */
   disabled?: boolean;
-  /** 是否显示当前值 */
-  showValue?: boolean;
-  /** 值格式化函数 */
-  formatValue?: (value: number) => string;
-  /** 自定义样式 */
-  style?: ViewStyle;
-  /** 轨道高度 */
-  trackHeight?: number;
-  /** 滑块大小 */
-  thumbSize?: number;
-  /** 测试 ID */
-  testID?: string;
+  showTooltip?: boolean;
+  onChange?: (value: number) => void;
+  onChangeEnd?: (value: number) => void;
+  className?: string;
 }
 
 /**
- * 滑块组件
- *
- * 用于在范围内选择数值的交互组件
- *
- * @example
- * ```tsx
- * // 基础使用
- * const [value, setValue] = useState(50);
- * <Slider value={value} onChange={setValue} />
- *
- * // 带数值显示
- * <Slider
- *   value={value}
- *   onChange={setValue}
- *   min={0}
- *   max={100}
- *   step={5}
- *   showValue
- *   formatValue={(v) => `${v}%`}
- * />
- * ```
+ * Slider - 滑块组件，支持浅色/深色主题
  */
 export function Slider({
   value,
-  onChange,
+  defaultValue = 0,
   min = 0,
   max = 100,
   step = 1,
   disabled = false,
-  showValue = false,
-  formatValue = v => String(v),
-  style,
-  trackHeight = 4,
-  thumbSize = 20,
-  testID,
+  showTooltip = false,
+  onChange,
+  onChangeEnd,
+  className,
 }: SliderProps) {
-  // 确保值在范围内
-  const clampedValue = Math.max(min, Math.min(max, value));
+  const { theme, isDark } = useTheme();
+  const [internalValue, setInternalValue] = useState(defaultValue);
+  const [trackWidth, setTrackWidth] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // 计算百分比
-  const percentage = ((clampedValue - min) / (max - min)) * 100;
+  const currentValue = value !== undefined ? value : internalValue;
 
-  const handlePress = () => {
-    if (disabled || !onChange) return;
-    // 简化的点击处理，实际应该根据点击位置计算值
-    // 这里仅作演示，实际应使用 PanResponder 实现拖拽
-    const newValue = Math.min(max, clampedValue + step);
-    onChange(newValue);
-  };
+  // 主题颜色
+  const trackColor = isDark ? '#374151' : '#e5e7eb';
+  const filledColor = theme.colors.primary?.[500] || '#f38b32';
+  const thumbColor = isDark ? '#ffffff' : '#ffffff';
+  const tooltipBgColor = isDark ? '#374151' : '#1f2937';
+  const tooltipTextColor = '#ffffff';
+  const disabledOpacity = 0.4;
+
+  // 计算进度百分比
+  const progress = ((currentValue - min) / (max - min)) * 100;
+
+  // 根据位置计算值
+  const getValueFromPosition = useCallback(
+    (position: number) => {
+      const percentage = Math.max(0, Math.min(1, position / trackWidth));
+      const rawValue = min + percentage * (max - min);
+      // 对齐到 step
+      const steppedValue = Math.round(rawValue / step) * step;
+      return Math.min(max, Math.max(min, steppedValue));
+    },
+    [trackWidth, min, max, step]
+  );
+
+  // 设置值
+  const setValue = useCallback(
+    (newValue: number) => {
+      const clampedValue = Math.min(max, Math.max(min, newValue));
+      if (value === undefined) {
+        setInternalValue(clampedValue);
+      }
+      onChange?.(clampedValue);
+    },
+    [value, min, max, onChange]
+  );
+
+  // PanResponder 处理手势
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => !disabled,
+      onMoveShouldSetPanResponder: () => !disabled,
+      onPanResponderGrant: () => {
+        setIsDragging(true);
+      },
+      onPanResponderMove: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        const position = (progress / 100) * trackWidth + gestureState.dx;
+        const newValue = getValueFromPosition(position);
+        setValue(newValue);
+      },
+      onPanResponderRelease: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        const position = (progress / 100) * trackWidth + gestureState.dx;
+        const newValue = getValueFromPosition(position);
+        setValue(newValue);
+        setIsDragging(false);
+        onChangeEnd?.(newValue);
+      },
+    })
+  ).current;
+
+  // 处理点击轨道
+  const handleTrackPress = useCallback(
+    (event: GestureResponderEvent) => {
+      if (disabled) return;
+      const { locationX } = event.nativeEvent;
+      const newValue = getValueFromPosition(locationX);
+      setValue(newValue);
+      onChangeEnd?.(newValue);
+    },
+    [disabled, getValueFromPosition, setValue, onChangeEnd]
+  );
+
+  // 测量轨道宽度
+  const onLayout = useCallback((event: LayoutChangeEvent) => {
+    setTrackWidth(event.nativeEvent.layout.width);
+  }, []);
 
   return (
-    <AppView style={style} className={cn('w-full', disabled && 'opacity-50')} testID={testID}>
-      {/* 数值显示 */}
-      {showValue && (
-        <AppText className="text-sm text-gray-600 mb-2">{formatValue(clampedValue)}</AppText>
+    <AppView className={cn('py-2', className)}>
+      {/* Tooltip */}
+      {showTooltip && isDragging && (
+        <AppView
+          className="absolute rounded px-2 py-1 -top-8"
+          style={[
+            styles.tooltip,
+            {
+              backgroundColor: tooltipBgColor,
+              left: `${progress}%`,
+              transform: [{ translateX: -16 }],
+            },
+          ]}
+        >
+          <AppText size="xs" style={{ color: tooltipTextColor }}>
+            {Math.round(currentValue)}
+          </AppText>
+          {/* Tooltip arrow */}
+          <AppView
+            style={[
+              styles.tooltipArrow,
+              {
+                borderTopColor: tooltipBgColor,
+              },
+            ]}
+          />
+        </AppView>
       )}
 
-      {/* 滑块轨道 */}
-      <AppPressable
-        className="relative w-full justify-center"
-        style={{ height: Math.max(trackHeight, thumbSize) }}
-        onPress={handlePress}
-        disabled={disabled}
+      {/* Track */}
+      <View
+        onLayout={onLayout}
+        className="rounded-full"
+        style={[
+          styles.track,
+          { backgroundColor: trackColor, opacity: disabled ? disabledOpacity : 1 },
+        ]}
+        onTouchEnd={handleTrackPress}
       >
-        {/* 背景轨道 */}
-        <View
-          className="absolute w-full rounded-full bg-gray-200"
-          style={{ height: trackHeight }}
+        {/* Filled track */}
+        <AppView
+          className="rounded-full"
+          style={[
+            styles.filledTrack,
+            {
+              backgroundColor: filledColor,
+              width: `${progress}%`,
+            },
+          ]}
         />
 
-        {/* 进度轨道 */}
-        <View
-          className="absolute left-0 rounded-full bg-primary-500"
-          style={{
-            height: trackHeight,
-            width: `${percentage}%`,
-          }}
-        />
-
-        {/* 滑块 */}
-        <View
-          className="absolute rounded-full bg-white border-2 border-primary-500 shadow-sm"
-          style={{
-            width: thumbSize,
-            height: thumbSize,
-            left: `${percentage}%`,
-            marginLeft: -thumbSize / 2,
-          }}
-        />
-      </AppPressable>
-
-      {/* 最小/最大值显示 */}
-      <AppView row between className="mt-1">
-        <AppText className="text-xs text-gray-400">{formatValue(min)}</AppText>
-        <AppText className="text-xs text-gray-400">{formatValue(max)}</AppText>
-      </AppView>
+        {/* Thumb */}
+        <AppView
+          className="absolute rounded-full items-center justify-center"
+          style={[
+            styles.thumb,
+            {
+              backgroundColor: thumbColor,
+              left: `${progress}%`,
+              transform: [{ translateX: -12 }],
+              shadowColor: isDark ? '#000000' : '#000000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isDark ? 0.3 : 0.2,
+              shadowRadius: 2,
+            },
+          ]}
+          {...panResponder.panHandlers}
+        >
+          {/* Thumb inner dot */}
+          <AppView
+            className="rounded-full"
+            style={[
+              styles.thumbDot,
+              {
+                backgroundColor: filledColor,
+              },
+            ]}
+          />
+        </AppView>
+      </View>
     </AppView>
   );
 }
+
+const styles = StyleSheet.create({
+  track: {
+    height: 6,
+    width: '100%',
+  },
+  filledTrack: {
+    height: 6,
+  },
+  thumb: {
+    width: 24,
+    height: 24,
+    top: -9,
+    elevation: 3,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  thumbDot: {
+    width: 8,
+    height: 8,
+  },
+  tooltip: {
+    minWidth: 32,
+    alignItems: 'center',
+    elevation: 4,
+  },
+  tooltipArrow: {
+    position: 'absolute',
+    bottom: -4,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
+    borderTopWidth: 4,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+});

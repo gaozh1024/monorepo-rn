@@ -12,15 +12,22 @@ export default defineConfig({
     options.alias = {
       '@': './src',
     };
+    options.jsx = 'automatic';
+    options.jsxImportSource = 'nativewind';
   },
   // 外部依赖
   external: [
     'react',
+    'react/jsx-runtime',
+    'react/jsx-dev-runtime',
     'react-native',
     'react-native-screens',
     'react-native-safe-area-context',
     'react-native-gesture-handler',
     'react-native-reanimated',
     'react-native-vector-icons/MaterialIcons',
+    'nativewind',
+    'nativewind/jsx-runtime',
+    'nativewind/jsx-dev-runtime',
   ],
 });

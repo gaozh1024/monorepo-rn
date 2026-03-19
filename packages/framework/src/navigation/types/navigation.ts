@@ -3,10 +3,7 @@
  * @module navigation/types/navigation
  */
 
-import type {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp, NativeStackScreenProps } from '../vendor/stack';
 import type { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type {
   DrawerNavigationProp,

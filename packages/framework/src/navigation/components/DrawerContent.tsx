@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: 0.5,
     borderBottomColor: '#e5e7eb',
   },
   item: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: 'auto',
     padding: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopWidth: 0.5,
     borderTopColor: '#e5e7eb',
   },
 });

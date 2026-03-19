@@ -1,101 +1,98 @@
-import { AppPressable, AppText } from '@/ui/primitives';
-import { Icon, IconSize } from '@/ui/display';
+import { useState } from 'react';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import { AppView, AppText } from '@/ui/primitives';
+import { useTheme } from '@/theme';
 import { cn } from '@/utils';
 
 /**
  * Radio 组件属性接口
  */
 export interface RadioProps {
-  /** 是否选中 */
   checked?: boolean;
-  /** 点击回调 */
-  onPress?: () => void;
-  /** 是否禁用 */
+  defaultChecked?: boolean;
+  onChange?: (checked: boolean) => void;
   disabled?: boolean;
-  /** 选中状态的颜色 */
-  color?: string;
-  /** 图标尺寸 */
-  size?: IconSize;
-  /** 单选框标签内容 */
   children?: React.ReactNode;
-  /** 测试 ID */
-  testID?: string;
-  /** 自定义样式 */
   className?: string;
+  testID?: string;
 }
 
 /**
- * Radio - 单选框组件
- *
- * 用于单选场景的表单组件，支持自定义颜色和尺寸
- * 通常配合 RadioGroup 使用，实现互斥选择
- *
- * @example
- * ```tsx
- * // 基础使用
- * <Radio checked={selected} onPress={() => setSelected(true)} />
- *
- * // 带标签
- * <Radio checked={gender === 'male'} onPress={() => setGender('male')}>
- *   男
- * </Radio>
- * <Radio checked={gender === 'female'} onPress={() => setGender('female')}>
- *   女
- * </Radio>
- *
- * // 禁用状态
- * <Radio checked={false} disabled>
- *   不可用选项
- * </Radio>
- *
- * // 自定义颜色和尺寸
- * <Radio checked={priority === 'high'} onPress={() => setPriority('high')} color="error-500" size="lg">
- *   高优先级
- * </Radio>
- *
- * // 单选组实现
- * const options = [
- *   { label: '选项 A', value: 'a' },
- *   { label: '选项 B', value: 'b' },
- *   { label: '选项 C', value: 'c' },
- * ];
- *
- * {options.map(option => (
- *   <Radio
- *     key={option.value}
- *     checked={selectedValue === option.value}
- *     onPress={() => setSelectedValue(option.value)}
- *   >
- *     {option.label}
- *   </Radio>
- * ))}
- * ```
+ * Radio - 单选框组件，支持浅色/深色主题
  */
 export function Radio({
-  checked = false,
-  onPress,
+  checked,
+  defaultChecked,
+  onChange,
   disabled = false,
-  color = 'primary-500',
-  size = 'md',
   children,
-  testID,
   className,
+  testID,
 }: RadioProps) {
-  const iconSize = typeof size === 'number' ? size * 1.2 : size;
+  const { theme, isDark } = useTheme();
+  const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
+
+  const isChecked = checked !== undefined ? checked : internalChecked;
+
+  const toggle = () => {
+    if (disabled) return;
+    const newChecked = !isChecked;
+    if (checked === undefined) {
+      setInternalChecked(newChecked);
+    }
+    onChange?.(newChecked);
+  };
+
+  // 主题颜色
+  const uncheckedBorderColor = isDark ? '#4b5563' : '#d1d5db';
+  const uncheckedBgColor = isDark ? '#1f2937' : '#ffffff';
+  const checkedBorderColor = theme.colors.primary?.[500] || '#f38b32';
+  const checkedInnerColor = theme.colors.primary?.[500] || '#f38b32';
+  const textColor = isDark ? '#ffffff' : '#1f2937';
+  const disabledOpacity = 0.4;
 
   return (
-    <AppPressable
+    <TouchableOpacity
+      onPress={toggle}
       disabled={disabled}
-      onPress={onPress}
+      className={cn('flex-row items-center gap-2', className)}
+      style={disabled ? { opacity: disabledOpacity } : undefined}
       testID={testID}
-      className={cn('flex-row items-center gap-2', disabled && 'opacity-50', className)}
+      activeOpacity={0.7}
     >
-      <Icon
-        name={checked ? 'radio-button-checked' : 'radio-button-unchecked'}
-        size={iconSize}
-        color={checked ? color : 'gray-400'}
-      />
-      {children && <AppText className={checked ? '' : 'text-gray-600'}>{children}</AppText>}
-    </AppPressable>
+      <AppView
+        className={cn('w-5 h-5 rounded-full items-center justify-center', isChecked && 'border-2')}
+        style={[
+          styles.radio,
+          {
+            backgroundColor: uncheckedBgColor,
+            borderColor: isChecked ? checkedBorderColor : uncheckedBorderColor,
+            borderWidth: isChecked ? 0.5 : 0.5,
+          },
+        ]}
+      >
+        {isChecked && (
+          <AppView
+            className="rounded-full"
+            style={[styles.inner, { backgroundColor: checkedInnerColor }]}
+          />
+        )}
+      </AppView>
+      {children && (
+        <AppText size="sm" style={{ color: textColor }}>
+          {children}
+        </AppText>
+      )}
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  radio: {
+    borderWidth: 0.5,
+  },
+  inner: {
+    width: 10,
+    height: 10,
+  },
+});

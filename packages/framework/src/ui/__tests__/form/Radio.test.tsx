@@ -19,15 +19,15 @@ describe('Radio', () => {
   });
 
   it('应该触发点击事件', () => {
-    const onPress = vi.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <ThemeProvider light={theme}>
-        <Radio testID="radio" checked={false} onPress={onPress} />
+        <Radio testID="radio" checked={false} onChange={onChange} />
       </ThemeProvider>
     );
 
     fireEvent.press(getByTestId('radio'));
-    expect(onPress).toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalled();
   });
 
   it('应该渲染标签', () => {

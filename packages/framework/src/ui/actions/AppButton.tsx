@@ -81,10 +81,21 @@ export function AppButton({
 
   const sizeClasses = { sm: 'px-3 py-2', md: 'px-4 py-3', lg: 'px-6 py-4' };
   const colorClasses = {
-    primary: variant === 'solid' ? 'bg-primary-500' : 'border-primary-500 text-primary-500',
-    secondary: variant === 'solid' ? 'bg-secondary-500' : 'border-secondary-500 text-secondary-500',
-    danger: variant === 'solid' ? 'bg-red-500' : 'border-red-500 text-red-500',
+    primary: variant === 'solid' ? 'bg-primary-500' : 'text-primary-500',
+    secondary: variant === 'solid' ? 'bg-secondary-500' : 'text-secondary-500',
+    danger: variant === 'solid' ? 'bg-red-500' : 'text-red-500',
   };
+
+  const borderColors = {
+    primary: '#f38b32',
+    secondary: '#3b82f6',
+    danger: '#ef4444',
+  };
+
+  // 根据变体设置 loading 指示器颜色
+  // solid: 白色（因为背景是彩色的）
+  // outline/ghost: 对应主题色（因为背景是透明的）
+  const loadingColor = variant === 'solid' ? 'white' : borderColors[color];
 
   return (
     <AppPressable
@@ -94,14 +105,17 @@ export function AppButton({
         'flex-row items-center justify-center rounded-lg',
         sizeClasses[size],
         variant === 'solid' && colorClasses[color],
-        variant === 'outline' && `border-2 bg-transparent ${colorClasses[color]}`,
+        variant === 'outline' && 'bg-transparent',
         variant === 'ghost' && 'bg-transparent',
         isDisabled && 'opacity-50',
         className
       )}
+      style={
+        variant === 'outline' ? { borderWidth: 0.5, borderColor: borderColors[color] } : undefined
+      }
     >
       {loading ? (
-        <ActivityIndicator size="small" color="white" />
+        <ActivityIndicator size="small" color={loadingColor} />
       ) : (
         <AppText weight="semibold" className={variant === 'solid' ? 'text-white' : ''}>
           {children}

@@ -1,4 +1,5 @@
 import { AppView } from '@/ui/primitives';
+import { useTheme } from '@/theme';
 import { cn } from '@/utils';
 
 /**
@@ -36,8 +37,7 @@ const colorMap = {
 /**
  * Progress - 进度条组件
  *
- * 用于展示操作进度的可视化组件，支持多种尺寸和颜色
- * 自动计算百分比，确保进度值在 0-100% 范围内
+ * 用于展示操作进度的可视化组件，支持浅色/深色主题
  *
  * @example
  * ```tsx
@@ -51,19 +51,6 @@ const colorMap = {
  * // 不同颜色
  * <Progress value={75} color="success" />
  * <Progress value={90} color="warning" />
- * <Progress value={100} color="error" />
- *
- * // 自定义最大值
- * <Progress value={3} max={5} color="primary" />
- *
- * // 自定义样式
- * <Progress
- *   value={progress}
- *   size="md"
- *   color="primary"
- *   className="mt-4"
- *   barClassName="rounded-none"
- * />
  * ```
  */
 export function Progress({
@@ -75,10 +62,16 @@ export function Progress({
   className,
   barClassName,
 }: ProgressProps) {
+  const { theme, isDark } = useTheme();
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+
+  // 深色主题下使用更深的背景色
+  const trackBgColor = isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb';
+
   return (
     <AppView
-      className={cn('w-full rounded-full bg-gray-200', sizeMap[size], className)}
+      className={cn('w-full rounded-full', sizeMap[size], className)}
+      style={{ backgroundColor: trackBgColor }}
       testID={testID}
     >
       <AppView

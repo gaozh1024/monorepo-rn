@@ -7,10 +7,7 @@
 
 import { useEffect } from 'react';
 import { useNavigation as useRNNavigation } from '@react-navigation/native';
-import type {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp, NativeStackScreenProps } from '../vendor/stack';
 import type { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { DrawerNavigationProp, DrawerScreenProps } from '@react-navigation/drawer';
 import type { NavigationProp, RouteProp } from '@react-navigation/native';

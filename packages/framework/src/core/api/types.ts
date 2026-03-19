@@ -5,6 +5,28 @@
  */
 
 import { z } from 'zod';
+import type { AppError } from '../error';
+
+export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+
+export interface ApiErrorContext {
+  /** 当前调用的 endpoint 名称 */
+  endpointName: string;
+  /** 当前 endpoint 的 path */
+  path: string;
+  /** HTTP 方法 */
+  method: ApiMethod;
+  /** 调用入参 */
+  input?: unknown;
+  /** 原始响应对象 */
+  response?: Response;
+  /** 已解析的响应数据 */
+  responseData?: unknown;
+}
+
+export type ApiErrorHandler = (error: AppError, context: ApiErrorContext) => void | Promise<void>;
+
+export type ApiBusinessErrorParser = (data: unknown, response: Response) => AppError | null;
 
 /**
  * API 端点配置接口
@@ -22,13 +44,17 @@ import { z } from 'zod';
  */
 export interface ApiEndpointConfig<TInput, TOutput> {
   /** HTTP 请求方法 */
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  method: ApiMethod;
   /** API 路径（相对于 baseURL） */
   path: string;
   /** 请求数据的 Zod 校验模式（可选） */
   input?: z.ZodSchema<TInput>;
   /** 响应数据的 Zod 校验模式（可选） */
   output?: z.ZodSchema<TOutput>;
+  /** 当前 endpoint 的业务错误解析器（可选） */
+  parseBusinessError?: ApiBusinessErrorParser;
+  /** 当前 endpoint 的错误监听器（可选） */
+  onError?: ApiErrorHandler;
 }
 
 /**
@@ -50,4 +76,10 @@ export interface ApiConfig<TEndpoints extends Record<string, ApiEndpointConfig<a
   baseURL: string;
   /** 端点配置映射 */
   endpoints: TEndpoints;
+  /** 自定义 fetch 实现（可选） */
+  fetcher?: typeof fetch;
+  /** 全局业务错误解析器（可选） */
+  parseBusinessError?: ApiBusinessErrorParser;
+  /** 全局错误监听器（可选） */
+  onError?: ApiErrorHandler;
 }

@@ -29,6 +29,22 @@ export default defineConfig({
         find: 'react-native-safe-area-context',
         replacement: path.resolve(__dirname, './test/safe-area-context-alias.ts'),
       },
+      {
+        find: '@react-navigation/stack',
+        replacement: path.resolve(__dirname, './test/react-navigation-stack-alias.ts'),
+      },
+      {
+        find: '@/navigation/vendor/stack',
+        replacement: path.resolve(__dirname, './test/react-navigation-stack-alias.ts'),
+      },
+      {
+        find: 'nativewind/jsx-runtime',
+        replacement: path.resolve(__dirname, './test/nativewind-jsx-runtime-alias.ts'),
+      },
+      {
+        find: 'nativewind/jsx-dev-runtime',
+        replacement: path.resolve(__dirname, './test/nativewind-jsx-runtime-alias.ts'),
+      },
     ],
   },
 });
