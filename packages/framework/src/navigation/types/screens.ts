@@ -1,3 +1,5 @@
+import type { TextStyle, ViewStyle } from 'react-native';
+
 /**
  * 屏幕选项类型
  * @module navigation/types/screens
@@ -66,11 +68,13 @@ export interface TabBarOptions {
   /** 标签位置 */
   labelPosition?: 'below-icon' | 'beside-icon';
   /** 标签样式 */
-  labelStyle?: object;
+  labelStyle?: TextStyle;
   /** 图标样式 */
-  iconStyle?: object;
+  iconStyle?: ViewStyle;
   /** 标签栏样式 */
-  style?: object;
+  style?: ViewStyle;
+  /** 标签栏高度（不含底部安全区，默认 65） */
+  height?: number;
 }
 
 /**

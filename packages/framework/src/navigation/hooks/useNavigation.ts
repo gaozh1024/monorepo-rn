@@ -10,7 +10,7 @@ import { useNavigation as useRNNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '../vendor/stack';
 import type { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { DrawerNavigationProp, DrawerScreenProps } from '@react-navigation/drawer';
-import type { NavigationProp, RouteProp } from '@react-navigation/native';
+import type { NavigationProp, ParamListBase, RouteProp } from '@react-navigation/native';
 import type {
   StackParamList,
   TabParamList,
@@ -23,6 +23,27 @@ import type {
 // ============================================================================
 // 基础导航 Hooks
 // ============================================================================
+
+/**
+ * 获取 React Navigation 原始导航实例
+ *
+ * 适合业务应用在需要自定义导航参数类型时直接使用。
+ *
+ * @example
+ * ```tsx
+ * type AuthNavigation = NativeStackNavigationProp<AuthStackParamList>;
+ *
+ * function LoginScreen() {
+ *   const navigation = useNavigation<AuthNavigation>();
+ *   return <Button onPress={() => navigation.navigate('Register')} title="注册" />;
+ * }
+ * ```
+ */
+export function useNavigation<
+  T extends NavigationProp<ParamListBase> = NavigationProp<ParamListBase>,
+>() {
+  return useRNNavigation<T>();
+}
 
 /**
  * 获取堆栈导航实例

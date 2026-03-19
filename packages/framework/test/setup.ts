@@ -1,6 +1,10 @@
 import React from 'react';
 import { vi, beforeEach } from 'vitest';
 
+(
+  globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
+
 const createNativeComponent = (displayName: string) => {
   const Component = React.forwardRef<any, any>(({ children, onPress, testID, ...props }, ref) =>
     React.createElement(
@@ -24,6 +28,8 @@ const createNavigator = () => ({
   Screen: ({ children }: { children?: React.ReactNode }) =>
     React.createElement(React.Fragment, null, children),
 });
+
+let lastBottomTabNavigatorProps: any = null;
 
 global.fetch = vi.fn();
 
@@ -69,6 +75,13 @@ vi.mock('@testing-library/react-native', async () => {
       const preferred = candidates.find((item: any) => item.type === 'Text');
       return preferred ?? candidates[candidates.length - 1];
     })();
+
+  const findByPlaceholderText = (root: any, text: string) => {
+    const node = root.find(
+      (item: any) => typeof item?.type === 'string' && item?.props?.placeholder === text
+    );
+    return node;
+  };
 
   const decorateNode = (node: any) => {
     if (node && node.props) {
@@ -151,6 +164,15 @@ vi.mock('@testing-library/react-native', async () => {
           return null;
         }
       };
+      const getByPlaceholderText = (text: string) =>
+        decorateNode(findByPlaceholderText(getRoot(), text));
+      const queryByPlaceholderText = (text: string) => {
+        try {
+          return decorateNode(findByPlaceholderText(getRoot(), text));
+        } catch {
+          return null;
+        }
+      };
 
       const flattenStyle = (style: any): Record<string, any> => {
         if (!style) return {};
@@ -190,6 +212,8 @@ vi.mock('@testing-library/react-native', async () => {
         queryByTestId,
         getByText,
         queryByText,
+        getByPlaceholderText,
+        queryByPlaceholderText,
         unmount: () => renderer.unmount(),
         rerender: (nextUi: React.ReactElement) => {
           act(() => {
@@ -227,7 +251,11 @@ vi.mock('@testing-library/react-native', async () => {
         const onPress = findPressHandler(element);
         if (onPress) {
           act(() => {
-            onPress();
+            onPress({
+              nativeEvent: {},
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            });
           });
         }
       },
@@ -277,10 +305,16 @@ vi.mock('react-native', () => {
   const ScrollView = createNativeComponent('ScrollView');
   const SafeAreaView = createNativeComponent('SafeAreaView');
   const ActivityIndicator = createNativeComponent('ActivityIndicator');
+  const StatusBar = createNativeComponent('StatusBar');
   const TextInput = createNativeComponent('TextInput');
   const Image = createNativeComponent('Image');
   const Modal = createNativeComponent('Modal');
   const RefreshControl = createNativeComponent('RefreshControl');
+  const PanResponder = {
+    create: (_config: any) => ({
+      panHandlers: {},
+    }),
+  };
   const FlatList = ({
     data = [],
     renderItem,
@@ -332,11 +366,13 @@ vi.mock('react-native', () => {
     ScrollView,
     SafeAreaView,
     ActivityIndicator,
+    StatusBar,
     TextInput,
     Image,
     Modal,
     FlatList,
     RefreshControl,
+    PanResponder,
     Animated,
     StyleSheet: {
       create: (styles: any) => styles,
@@ -396,7 +432,18 @@ vi.mock('@react-navigation/native', () => ({
 }));
 
 vi.mock('@react-navigation/bottom-tabs', () => ({
-  createBottomTabNavigator: () => createNavigator(),
+  createBottomTabNavigator: () => ({
+    Navigator: ({ children, ...props }: { children: React.ReactNode }) => {
+      lastBottomTabNavigatorProps = props;
+      return React.createElement(React.Fragment, null, children);
+    },
+    Screen: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
+  }),
+  __getLastBottomTabNavigatorProps: () => lastBottomTabNavigatorProps,
+  __resetLastBottomTabNavigatorProps: () => {
+    lastBottomTabNavigatorProps = null;
+  },
 }));
 
 vi.mock('@react-navigation/drawer', () => ({
@@ -414,4 +461,5 @@ vi.mock('@react-navigation/stack', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  lastBottomTabNavigatorProps = null;
 });

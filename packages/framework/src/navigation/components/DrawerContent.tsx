@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
-import { useTheme } from '@/theme';
+import { useTheme, useThemeColors } from '@/theme';
 import { AppText, AppView, Icon } from '@/ui';
 
 /**
@@ -73,10 +73,15 @@ export function DrawerContent({
   inactiveTintColor,
 }: DrawerContentProps) {
   const { theme, isDark } = useTheme();
+  const colors = useThemeColors();
 
-  const activeBgColor = activeBackgroundColor || theme.colors.primary?.[50] || '#fff7ed';
-  const activeColor = activeTintColor || theme.colors.primary?.[500] || '#f38b32';
+  const activeBgColor =
+    activeBackgroundColor ||
+    (isDark ? colors.primarySurface : theme.colors.primary?.[50] || '#fff7ed');
+  const activeColor = activeTintColor || colors.primary;
   const inactiveColor = inactiveTintColor || (isDark ? '#d1d5db' : '#4b5563');
+  const backgroundColor = colors.card;
+  const dividerColor = colors.divider;
 
   // 使用自定义项目或从路由生成
   const drawerItems: DrawerItem[] =
@@ -93,11 +98,9 @@ export function DrawerContent({
     });
 
   return (
-    <DrawerContentScrollView
-      style={[styles.container, { backgroundColor: isDark ? '#1f2937' : '#fff' }]}
-    >
+    <DrawerContentScrollView style={[styles.container, { backgroundColor }]}>
       {/* 头部 */}
-      {header && <View style={styles.header}>{header}</View>}
+      {header && <View style={[styles.header, { borderBottomColor: dividerColor }]}>{header}</View>}
 
       {/* 菜单列表 */}
       <AppView className="py-2">
@@ -146,7 +149,7 @@ export function DrawerContent({
       </AppView>
 
       {/* 底部 */}
-      {footer && <View style={styles.footer}>{footer}</View>}
+      {footer && <View style={[styles.footer, { borderTopColor: dividerColor }]}>{footer}</View>}
     </DrawerContentScrollView>
   );
 }
@@ -159,7 +162,6 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#e5e7eb',
   },
   item: {
     flexDirection: 'row',
@@ -199,6 +201,5 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     padding: 16,
     borderTopWidth: 0.5,
-    borderTopColor: '#e5e7eb',
   },
 });

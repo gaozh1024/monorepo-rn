@@ -1,7 +1,8 @@
 import { StyleProp, TextStyle } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useTheme } from '@/theme';
+import { useOptionalTheme } from '@/theme';
 import { AppPressable } from '@/ui/primitives';
+import { resolveNamedColor } from '../utils/theme-color';
 
 /** 图标尺寸类型 */
 export type IconSize = number | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -51,17 +52,6 @@ function resolveSize(size: IconSize = 'md'): number {
  * @param theme - 主题对象
  * @returns 解析后的颜色值
  */
-function resolveColor(color: string = 'gray-600', theme: any): string {
-  if (color.includes('-')) {
-    const [colorName, shade] = color.split('-');
-    const colorPalette = theme.colors[colorName];
-    if (colorPalette && shade in colorPalette) {
-      return colorPalette[shade as keyof typeof colorPalette];
-    }
-  }
-  return color;
-}
-
 /**
  * Icon - 图标组件
  *
@@ -90,9 +80,9 @@ function resolveColor(color: string = 'gray-600', theme: any): string {
  * ```
  */
 export function Icon({ name, size = 'md', color = 'gray-600', style, onPress, testID }: IconProps) {
-  const { theme } = useTheme();
+  const { theme, isDark } = useOptionalTheme();
   const resolvedSize = resolveSize(size);
-  const resolvedColor = resolveColor(color, theme);
+  const resolvedColor = resolveNamedColor(color, theme, isDark) ?? color;
 
   if (onPress) {
     return (

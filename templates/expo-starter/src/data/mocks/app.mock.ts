@@ -4,7 +4,7 @@
 
 export const appInfo = {
   name: 'Panther Starter',
-  version: '0.1.0',
+  version: '0.1.1',
   buildNumber: '2024031801',
   environment: 'mock',
 };

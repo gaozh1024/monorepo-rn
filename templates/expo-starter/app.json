@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Expo Starter",
+    "name": "Panther Starter",
     "slug": "expo-starter",
     "version": "0.1.1",
     "orientation": "portrait",
@@ -14,20 +14,20 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.example.expstarter"
+      "bundleIdentifier": "com.example.pantherstarter"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.example.expstarter",
+      "package": "com.example.pantherstarter",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "expstarter"
+    "scheme": "pantherstarter"
   }
 }

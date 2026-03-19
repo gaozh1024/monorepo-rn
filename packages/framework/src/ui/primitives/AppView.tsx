@@ -1,5 +1,7 @@
 import { View, ViewProps } from 'react-native';
+import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 /**
  * AppView 组件属性接口
@@ -27,6 +29,8 @@ export interface AppViewProps extends ViewProps {
   gap?: number;
   /** 背景颜色 */
   bg?: string;
+  /** 语义化背景 */
+  surface?: 'background' | 'card' | 'muted';
   /** 圆角大小 */
   rounded?: string;
   /** 自定义类名 */
@@ -75,11 +79,18 @@ export function AppView({
   py,
   gap,
   bg,
+  surface,
   rounded,
   className,
   children,
+  style,
   ...props
 }: AppViewProps) {
+  const { theme, isDark } = useOptionalTheme();
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
+  const shouldUseClassBg = !!bg && !resolvedBgColor;
+
   return (
     <View
       className={cn(
@@ -94,10 +105,11 @@ export function AppView({
         px !== undefined && `px-${px}`,
         py !== undefined && `py-${py}`,
         gap !== undefined && `gap-${gap}`,
-        bg && `bg-${bg}`,
+        shouldUseClassBg && `bg-${bg}`,
         rounded && `rounded-${rounded}`,
         className
       )}
+      style={[resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined, style]}
       {...props}
     >
       {children}

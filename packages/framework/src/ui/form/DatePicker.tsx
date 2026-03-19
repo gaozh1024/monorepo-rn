@@ -2,8 +2,8 @@ import { useState, useCallback, useMemo } from 'react';
 import { Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
-import { useTheme } from '@/theme';
 import { cn, formatDate } from '@/utils';
+import { useFormThemeColors, type FormThemeColors } from './useFormTheme';
 
 /**
  * DatePicker 组件属性接口
@@ -27,6 +27,69 @@ export interface DatePickerProps {
   className?: string;
 }
 
+interface PickerColumnProps {
+  title: string;
+  values: number[];
+  selectedValue: number;
+  onSelect: (value: number) => void;
+  isDisabled: (value: number) => boolean;
+  formatLabel?: (value: number) => string;
+  showDivider?: boolean;
+  colors: FormThemeColors;
+}
+
+function PickerColumn({
+  title,
+  values,
+  selectedValue,
+  onSelect,
+  isDisabled,
+  formatLabel = value => String(value),
+  showDivider = false,
+  colors,
+}: PickerColumnProps) {
+  return (
+    <AppView
+      flex
+      style={[
+        showDivider && styles.column,
+        showDivider ? { borderRightColor: colors.divider } : undefined,
+      ]}
+    >
+      <AppView center className="py-2" style={{ backgroundColor: colors.headerSurface }}>
+        <AppText className="text-sm font-medium" style={{ color: colors.textMuted }}>
+          {title}
+        </AppText>
+      </AppView>
+      <AppView className="flex-1">
+        {values.map(value => {
+          const selected = selectedValue === value;
+          const disabled = isDisabled(value);
+
+          return (
+            <TouchableOpacity
+              key={value}
+              className={cn('py-2 items-center', selected && 'bg-primary-50')}
+              style={selected ? { backgroundColor: colors.primarySurface } : undefined}
+              disabled={disabled}
+              onPress={() => onSelect(value)}
+            >
+              <AppText
+                className={cn(selected ? 'font-semibold' : undefined, disabled && 'opacity-30')}
+                style={{
+                  color: selected ? colors.primary : colors.textSecondary,
+                }}
+              >
+                {formatLabel(value)}
+              </AppText>
+            </TouchableOpacity>
+          );
+        })}
+      </AppView>
+    </AppView>
+  );
+}
+
 /**
  * DatePicker - 日期选择器组件，支持浅色/深色主题
  */
@@ -40,19 +103,9 @@ export function DatePicker({
   maxDate,
   className,
 }: DatePickerProps) {
-  const { theme, isDark } = useTheme();
+  const colors = useFormThemeColors();
   const [visible, setVisible] = useState(false);
   const [tempDate, setTempDate] = useState<Date>(value || new Date());
-
-  // 主题颜色
-  const bgColor = isDark ? theme.colors.card?.[800] || '#1f2937' : '#ffffff';
-  const textColor = isDark ? '#ffffff' : '#1f2937';
-  const placeholderColor = isDark ? '#6b7280' : '#9ca3af';
-  const borderColor = isDark ? theme.colors.border?.[600] || '#4b5563' : '#d1d5db';
-  const headerBorderColor = isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb';
-  const columnBorderColor = isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb';
-  const headerBgColor = isDark ? '#111827' : '#f3f4f6';
-  const selectedBgColor = isDark ? theme.colors.primary?.[900] || '#7c2d12' : '#fff7ed';
 
   // 显示文本
   const displayText = useMemo(() => {
@@ -120,7 +173,7 @@ export function DatePicker({
           disabled ? 'opacity-60' : '',
           className
         )}
-        style={[styles.trigger, { backgroundColor: bgColor, borderColor }]}
+        style={[styles.trigger, { backgroundColor: colors.surface, borderColor: colors.border }]}
         disabled={disabled}
         onPress={() => {
           setTempDate(value || new Date());
@@ -129,12 +182,12 @@ export function DatePicker({
       >
         <AppText
           className="flex-1"
-          style={{ color: value ? textColor : placeholderColor }}
+          style={{ color: value ? colors.text : colors.textMuted }}
           numberOfLines={1}
         >
           {displayText}
         </AppText>
-        <Icon name="calendar-today" size="md" color={isDark ? '#6b7280' : 'gray-400'} />
+        <Icon name="calendar-today" size="md" color={colors.icon} />
       </AppPressable>
 
       {/* 日期选择弹窗 */}
@@ -144,212 +197,102 @@ export function DatePicker({
         animationType="slide"
         onRequestClose={() => setVisible(false)}
       >
-        <AppView className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} justify="end">
-          <AppView className="rounded-t-2xl" style={{ backgroundColor: bgColor }}>
+        <AppView className="flex-1" style={{ backgroundColor: colors.overlay }} justify="end">
+          <AppView className="rounded-t-2xl" style={{ backgroundColor: colors.surface }}>
             {/* 头部 */}
             <AppView
               row
               between
               items="center"
               className="px-4 py-3"
-              style={[styles.header, { borderBottomColor: headerBorderColor }]}
+              style={[styles.header, { borderBottomColor: colors.divider }]}
             >
               <TouchableOpacity onPress={() => setVisible(false)}>
-                <AppText style={{ color: isDark ? '#9ca3af' : '#6b7280' }}>取消</AppText>
+                <AppText style={{ color: colors.textMuted }}>取消</AppText>
               </TouchableOpacity>
-              <AppText className="text-lg font-semibold" style={{ color: textColor }}>
+              <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
                 选择日期
               </AppText>
               <TouchableOpacity onPress={handleConfirm}>
-                <AppText
-                  style={{ color: theme.colors.primary?.[500] || '#f38b32' }}
-                  className="font-medium"
-                >
+                <AppText style={{ color: colors.primary }} className="font-medium">
                   确定
                 </AppText>
               </TouchableOpacity>
             </AppView>
 
             {/* 日期显示 */}
-            <AppView center className="py-4" style={{ backgroundColor: headerBgColor }}>
-              <AppText className="text-2xl font-semibold" style={{ color: textColor }}>
+            <AppView center className="py-4" style={{ backgroundColor: colors.headerSurface }}>
+              <AppText className="text-2xl font-semibold" style={{ color: colors.text }}>
                 {formatDate(tempDate, 'yyyy年MM月dd日')}
               </AppText>
             </AppView>
 
             {/* 选择器区域 */}
             <AppView row className="h-48">
-              {/* 年份 */}
-              <AppView flex style={[styles.column, { borderRightColor: columnBorderColor }]}>
-                <AppView center className="py-2" style={{ backgroundColor: headerBgColor }}>
-                  <AppText
-                    className="text-sm font-medium"
-                    style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
-                  >
-                    年
-                  </AppText>
-                </AppView>
-                <AppView className="flex-1">
-                  {years.map(year => {
-                    const isSelected = tempDate.getFullYear() === year;
-                    const disabled = isDateDisabled(
-                      year,
-                      tempDate.getMonth() + 1,
-                      tempDate.getDate()
-                    );
-                    return (
-                      <TouchableOpacity
-                        key={year}
-                        className={cn('py-2 items-center', isSelected && 'bg-primary-50')}
-                        style={isSelected ? { backgroundColor: selectedBgColor } : undefined}
-                        disabled={disabled}
-                        onPress={() => updateTempDate(year)}
-                      >
-                        <AppText
-                          className={cn(
-                            isSelected ? 'font-semibold' : 'text-gray-700',
-                            disabled && 'opacity-30'
-                          )}
-                          style={{
-                            color: isSelected
-                              ? theme.colors.primary?.[500] || '#f38b32'
-                              : isDark
-                                ? '#d1d5db'
-                                : '#374151',
-                          }}
-                        >
-                          {year}
-                        </AppText>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </AppView>
-              </AppView>
-
-              {/* 月份 */}
-              <AppView flex style={[styles.column, { borderRightColor: columnBorderColor }]}>
-                <AppView center className="py-2" style={{ backgroundColor: headerBgColor }}>
-                  <AppText
-                    className="text-sm font-medium"
-                    style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
-                  >
-                    月
-                  </AppText>
-                </AppView>
-                <AppView className="flex-1">
-                  {months.map(month => {
-                    const isSelected = tempDate.getMonth() + 1 === month;
-                    const disabled = isDateDisabled(
-                      tempDate.getFullYear(),
-                      month,
-                      tempDate.getDate()
-                    );
-                    return (
-                      <TouchableOpacity
-                        key={month}
-                        className={cn('py-2 items-center', isSelected && 'bg-primary-50')}
-                        style={isSelected ? { backgroundColor: selectedBgColor } : undefined}
-                        disabled={disabled}
-                        onPress={() => updateTempDate(undefined, month)}
-                      >
-                        <AppText
-                          className={cn(
-                            isSelected ? 'font-semibold' : 'text-gray-700',
-                            disabled && 'opacity-30'
-                          )}
-                          style={{
-                            color: isSelected
-                              ? theme.colors.primary?.[500] || '#f38b32'
-                              : isDark
-                                ? '#d1d5db'
-                                : '#374151',
-                          }}
-                        >
-                          {month}月
-                        </AppText>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </AppView>
-              </AppView>
-
-              {/* 日期 */}
-              <AppView flex>
-                <AppView center className="py-2" style={{ backgroundColor: headerBgColor }}>
-                  <AppText
-                    className="text-sm font-medium"
-                    style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
-                  >
-                    日
-                  </AppText>
-                </AppView>
-                <AppView className="flex-1">
-                  {days.map(day => {
-                    const isSelected = tempDate.getDate() === day;
-                    const disabled = isDateDisabled(
-                      tempDate.getFullYear(),
-                      tempDate.getMonth() + 1,
-                      day
-                    );
-                    return (
-                      <TouchableOpacity
-                        key={day}
-                        className={cn('py-2 items-center', isSelected && 'bg-primary-50')}
-                        style={isSelected ? { backgroundColor: selectedBgColor } : undefined}
-                        disabled={disabled}
-                        onPress={() => updateTempDate(undefined, undefined, day)}
-                      >
-                        <AppText
-                          className={cn(
-                            isSelected ? 'font-semibold' : 'text-gray-700',
-                            disabled && 'opacity-30'
-                          )}
-                          style={{
-                            color: isSelected
-                              ? theme.colors.primary?.[500] || '#f38b32'
-                              : isDark
-                                ? '#d1d5db'
-                                : '#374151',
-                          }}
-                        >
-                          {day}
-                        </AppText>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </AppView>
-              </AppView>
+              <PickerColumn
+                title="年"
+                values={years}
+                selectedValue={tempDate.getFullYear()}
+                onSelect={year => updateTempDate(year)}
+                isDisabled={year =>
+                  isDateDisabled(year, tempDate.getMonth() + 1, tempDate.getDate())
+                }
+                colors={colors}
+                showDivider
+              />
+              <PickerColumn
+                title="月"
+                values={months}
+                selectedValue={tempDate.getMonth() + 1}
+                onSelect={month => updateTempDate(undefined, month)}
+                isDisabled={month =>
+                  isDateDisabled(tempDate.getFullYear(), month, tempDate.getDate())
+                }
+                formatLabel={month => `${month}月`}
+                colors={colors}
+                showDivider
+              />
+              <PickerColumn
+                title="日"
+                values={days}
+                selectedValue={tempDate.getDate()}
+                onSelect={day => updateTempDate(undefined, undefined, day)}
+                isDisabled={day =>
+                  isDateDisabled(tempDate.getFullYear(), tempDate.getMonth() + 1, day)
+                }
+                colors={colors}
+              />
             </AppView>
 
             {/* 快捷操作 */}
             <AppView
               row
               className="px-4 py-3 gap-2"
-              style={[styles.footer, { borderTopColor: headerBorderColor }]}
+              style={[styles.footer, { borderTopColor: colors.divider }]}
             >
               <TouchableOpacity
                 className="flex-1 py-2 items-center rounded-lg"
-                style={{ backgroundColor: isDark ? '#374151' : '#f3f4f6' }}
+                style={{ backgroundColor: colors.surfaceMuted }}
                 onPress={() => setTempDate(new Date())}
               >
-                <AppText style={{ color: textColor }}>今天</AppText>
+                <AppText style={{ color: colors.text }}>今天</AppText>
               </TouchableOpacity>
               {minDate && (
                 <TouchableOpacity
                   className="flex-1 py-2 items-center rounded-lg"
-                  style={{ backgroundColor: isDark ? '#374151' : '#f3f4f6' }}
+                  style={{ backgroundColor: colors.surfaceMuted }}
                   onPress={() => setTempDate(minDate)}
                 >
-                  <AppText style={{ color: textColor }}>最早</AppText>
+                  <AppText style={{ color: colors.text }}>最早</AppText>
                 </TouchableOpacity>
               )}
               {maxDate && (
                 <TouchableOpacity
                   className="flex-1 py-2 items-center rounded-lg"
-                  style={{ backgroundColor: isDark ? '#374151' : '#f3f4f6' }}
+                  style={{ backgroundColor: colors.surfaceMuted }}
                   onPress={() => setTempDate(maxDate)}
                 >
-                  <AppText style={{ color: textColor }}>最晚</AppText>
+                  <AppText style={{ color: colors.text }}>最晚</AppText>
                 </TouchableOpacity>
               )}
             </AppView>

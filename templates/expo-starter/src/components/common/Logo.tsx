@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from 'react-native';
 import { AppView, AppText } from '@gaozh1024/rn-kit';
 
 interface LogoProps {
@@ -91,14 +90,13 @@ export function Logo({ size = 'md', showText = true, textColor = '#ffffff' }: Lo
  */
 export function LogoIcon({ size = 40 }: { size?: number }) {
   return (
-    <View
+    <AppView
+      center
       style={{
         width: size,
         height: size,
         borderRadius: size / 4,
         backgroundColor: '#f38b32',
-        justifyContent: 'center',
-        alignItems: 'center',
       }}
     >
       <AppText
@@ -110,6 +108,6 @@ export function LogoIcon({ size = 40 }: { size?: number }) {
       >
         P
       </AppText>
-    </View>
+    </AppView>
   );
 }

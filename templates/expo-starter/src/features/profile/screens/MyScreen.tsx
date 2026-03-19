@@ -1,13 +1,17 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
-import { AppView, AppText, AppPressable, Icon, Card } from '@gaozh1024/rn-kit';
-import { useNavigation } from '@react-navigation/native';
+import {
+  AppScrollView,
+  AppView,
+  AppText,
+  AppPressable,
+  Icon,
+  Card,
+  useNavigation,
+  useThemeColors,
+} from '@gaozh1024/rn-kit';
 import { LogoIcon } from '../../../components/common/Logo';
 import { useSessionStore } from '../../../store/session.store';
-import type { MyStackParamList } from '../../../navigation/types';
-import type { StackNavigationProp } from '@react-navigation/stack';
-
-type MyNavigationProp = StackNavigationProp<MyStackParamList>;
+import type { MyNavigationProp } from '../../../navigation/types';
 
 /**
  * 我的页面
@@ -15,6 +19,7 @@ type MyNavigationProp = StackNavigationProp<MyStackParamList>;
 export function MyScreen() {
   const navigation = useNavigation<MyNavigationProp>();
   const { user } = useSessionStore();
+  const colors = useThemeColors();
 
   const menuItems = [
     {
@@ -38,7 +43,7 @@ export function MyScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <AppScrollView flex surface="background">
       {/* 用户信息卡片 */}
       <Card className="m-4 p-6">
         <AppView row items="center">
@@ -48,11 +53,11 @@ export function MyScreen() {
             <AppText size="lg" weight="bold">
               {user?.name || '未登录'}
             </AppText>
-            <AppText size="sm" color="gray-500" className="mt-1">
+            <AppText size="sm" tone="muted" className="mt-1">
               {user?.role || '普通用户'}
             </AppText>
           </AppView>
-          <Icon name="chevron-right" size={24} color="gray-400" />
+          <Icon name="chevron-right" size={24} color="muted" />
         </AppView>
       </Card>
 
@@ -66,16 +71,16 @@ export function MyScreen() {
               className="p-4"
               style={{
                 borderBottomWidth: index < menuItems.length - 1 ? 0.5 : 0,
-                borderBottomColor: '#e5e7eb',
+                borderBottomColor: colors.divider,
               }}
             >
-              <Icon name={item.icon} size={22} color="gray-600" />
+              <Icon name={item.icon} size={22} color="muted" />
               <AppText className="ml-3 flex-1">{item.label}</AppText>
-              <Icon name="chevron-right" size={20} color="gray-400" />
+              <Icon name="chevron-right" size={20} color="muted" />
             </AppView>
           </AppPressable>
         ))}
       </Card>
-    </ScrollView>
+    </AppScrollView>
   );
 }

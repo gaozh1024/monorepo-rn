@@ -7,6 +7,8 @@ import { AppView, AppText } from '../primitives';
 export interface LoadingProps {
   /** 加载提示文字 */
   text?: string;
+  /** 指示器颜色 */
+  color?: string;
   /** 是否显示遮罩层 */
   overlay?: boolean;
   /** 是否显示 */
@@ -56,12 +58,12 @@ export interface LoadingProps {
  * );
  * ```
  */
-export function Loading({ text, overlay = false, visible = true, testID }: LoadingProps) {
+export function Loading({ text, color, overlay = false, visible = true, testID }: LoadingProps) {
   if (!visible) return null;
   const content = (
     <AppView center gap={3} testID={testID}>
-      <ActivityIndicator size="large" />
-      {text && <AppText>{text}</AppText>}
+      <ActivityIndicator size="large" color={color} />
+      {text && <AppText style={color ? { color } : undefined}>{text}</AppText>}
     </AppView>
   );
   if (overlay) {

@@ -1,16 +1,11 @@
 import { AppView } from '@/ui/primitives';
 import { Radio } from './Radio';
-
-export interface Option {
-  label: string;
-  value: string;
-  disabled?: boolean;
-}
+import { isGroupOptionDisabled, type FormGroupOption } from './group';
 
 export interface RadioGroupProps {
   value?: string;
   onChange?: (value: string) => void;
-  options?: Option[];
+  options?: FormGroupOption[];
   direction?: 'row' | 'column';
   disabled?: boolean;
 }
@@ -22,14 +17,16 @@ export function RadioGroup({
   direction = 'column',
   disabled = false,
 }: RadioGroupProps) {
+  const isRow = direction === 'row';
+
   return (
-    <AppView row={direction === 'row'} flex={direction === 'row'} gap={4}>
+    <AppView row={isRow} flex={isRow} gap={4}>
       {options.map(option => (
         <Radio
           key={option.value}
           checked={value === option.value}
           onChange={() => onChange?.(option.value)}
-          disabled={disabled || option.disabled}
+          disabled={isGroupOptionDisabled(disabled, option.disabled)}
         >
           {option.label}
         </Radio>

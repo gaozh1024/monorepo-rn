@@ -97,6 +97,7 @@ export type { DrawerContentProps, DrawerItem } from './components/DrawerContent'
 
 export {
   // 导航 Hooks
+  useNavigation,
   useStackNavigation,
   useTabNavigation,
   useDrawerNavigation,

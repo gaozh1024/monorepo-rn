@@ -1,11 +1,13 @@
 import { View, ViewProps } from 'react-native';
-import { useTheme } from '@/theme';
+import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
 
 /**
  * Card 组件属性接口
  */
 export interface CardProps extends ViewProps {
+  /** Tailwind / NativeWind 类名 */
+  className?: string;
   /** 是否禁用阴影 */
   noShadow?: boolean;
   /** 是否禁用边框 */
@@ -26,11 +28,7 @@ export function Card({
   noRadius = false,
   ...props
 }: CardProps) {
-  const { isDark } = useTheme();
-
-  // 主题颜色
-  const bgColor = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const colors = useThemeColors();
 
   return (
     <View
@@ -42,8 +40,8 @@ export function Card({
       )}
       style={[
         {
-          backgroundColor: bgColor,
-          ...(noBorder ? {} : { borderWidth: 0.5, borderColor }),
+          backgroundColor: colors.card,
+          ...(noBorder ? {} : { borderWidth: 0.5, borderColor: colors.divider }),
         },
         style,
       ]}

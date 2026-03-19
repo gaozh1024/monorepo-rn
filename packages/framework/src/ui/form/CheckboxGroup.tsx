@@ -1,16 +1,11 @@
 import { AppView } from '@/ui/primitives';
 import { Checkbox } from './Checkbox';
-
-export interface Option {
-  label: string;
-  value: string;
-  disabled?: boolean;
-}
+import { isGroupOptionDisabled, toggleGroupValue, type FormGroupOption } from './group';
 
 export interface CheckboxGroupProps {
   value?: string[];
   onChange?: (value: string[]) => void;
-  options?: Option[];
+  options?: FormGroupOption[];
   direction?: 'row' | 'column';
   disabled?: boolean;
 }
@@ -24,22 +19,19 @@ export function CheckboxGroup({
 }: CheckboxGroupProps) {
   const handleChange = (optionValue: string, checked: boolean) => {
     if (!onChange) return;
-
-    if (checked) {
-      onChange([...value, optionValue]);
-    } else {
-      onChange(value.filter(v => v !== optionValue));
-    }
+    onChange(toggleGroupValue(value, optionValue, checked));
   };
 
+  const isRow = direction === 'row';
+
   return (
-    <AppView row={direction === 'row'} flex={direction === 'row'} gap={4}>
+    <AppView row={isRow} flex={isRow} gap={4}>
       {options.map(option => (
         <Checkbox
           key={option.value}
           checked={value.includes(option.value)}
           onChange={checked => handleChange(option.value, checked)}
-          disabled={disabled || option.disabled}
+          disabled={isGroupOptionDisabled(disabled, option.disabled)}
         >
           {option.label}
         </Checkbox>

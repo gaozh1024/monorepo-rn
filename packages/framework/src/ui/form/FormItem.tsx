@@ -1,4 +1,5 @@
 import { AppView, AppText } from '@/ui/primitives';
+import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
 
 export interface FormItemProps {
@@ -24,11 +25,13 @@ export function FormItem({
   className,
   labelClassName,
 }: FormItemProps) {
+  const colors = useThemeColors();
+
   return (
     <AppView className={cn('mb-4', className)}>
       {label && (
         <AppView row items="center" gap={1} className={cn('mb-2', labelClassName)}>
-          <AppText size="sm" weight="medium" color="gray-700">
+          <AppText size="sm" weight="medium" style={{ color: colors.textSecondary }}>
             {label}
           </AppText>
           {required && <AppText color="error-500">*</AppText>}
@@ -41,7 +44,7 @@ export function FormItem({
         </AppText>
       )}
       {help && !error && (
-        <AppText size="sm" color="gray-400" className="mt-1">
+        <AppText size="sm" className="mt-1" style={{ color: colors.textMuted }}>
           {help}
         </AppText>
       )}

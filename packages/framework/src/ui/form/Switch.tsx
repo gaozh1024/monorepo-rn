@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { AppView } from '@/ui/primitives';
-import { useTheme } from '@/theme';
+import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
 
 /**
@@ -31,7 +31,7 @@ export function Switch({
   testID,
   style,
 }: SwitchProps) {
-  const { theme, isDark } = useTheme();
+  const colors = useThemeColors();
   const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
 
   const isChecked = checked !== undefined ? checked : internalChecked;
@@ -46,9 +46,8 @@ export function Switch({
   };
 
   // 主题颜色
-  const uncheckedTrackColor = isDark ? '#374151' : '#d1d5db';
-  const checkedTrackColor = theme.colors.primary?.[500] || '#f38b32';
-  const thumbColor = '#ffffff';
+  const uncheckedTrackColor = colors.divider;
+  const checkedTrackColor = colors.primary;
   const disabledOpacity = 0.4;
 
   // 尺寸配置
@@ -90,11 +89,11 @@ export function Switch({
             {
               width: config.thumb,
               height: config.thumb,
-              backgroundColor: thumbColor,
+              backgroundColor: colors.textInverse,
               transform: [{ translateX: thumbPosition }],
-              shadowColor: isDark ? '#000000' : '#000000',
+              shadowColor: '#000000',
               shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: isDark ? 0.3 : 0.2,
+              shadowOpacity: 0.25,
               shadowRadius: 1,
             },
           ]}

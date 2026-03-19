@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { AppView, AppText } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
-import { useTheme } from '@/theme';
+import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
 
 /**
@@ -30,7 +30,7 @@ export function Checkbox({
   className,
   testID,
 }: CheckboxProps) {
-  const { theme, isDark } = useTheme();
+  const colors = useThemeColors();
   const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
 
   const isChecked = checked !== undefined ? checked : internalChecked;
@@ -45,10 +45,6 @@ export function Checkbox({
   };
 
   // 主题颜色
-  const uncheckedBorderColor = isDark ? '#4b5563' : '#d1d5db';
-  const uncheckedBgColor = isDark ? '#374151' : '#ffffff';
-  const checkedBgColor = theme.colors.primary?.[500] || '#f38b32';
-  const textColor = isDark ? '#ffffff' : '#1f2937';
   const disabledOpacity = 0.4;
 
   return (
@@ -68,8 +64,8 @@ export function Checkbox({
         style={[
           styles.checkbox,
           {
-            backgroundColor: isChecked ? checkedBgColor : uncheckedBgColor,
-            borderColor: isChecked ? checkedBgColor : uncheckedBorderColor,
+            backgroundColor: isChecked ? colors.primary : colors.cardElevated,
+            borderColor: isChecked ? colors.primary : colors.border,
           },
         ]}
       >
@@ -80,7 +76,7 @@ export function Checkbox({
         )}
       </AppView>
       {children && (
-        <AppText size="sm" style={{ color: textColor }}>
+        <AppText size="sm" style={{ color: colors.text }}>
           {children}
         </AppText>
       )}

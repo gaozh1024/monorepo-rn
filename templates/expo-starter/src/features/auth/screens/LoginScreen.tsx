@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import {
+  AppStatusBar,
   AppView,
   AppText,
   AppInput,
@@ -8,15 +8,13 @@ import {
   AppPressable,
   Center,
   Card,
+  useNavigation,
+  SafeScreen,
 } from '@gaozh1024/rn-kit';
 import { LogoIcon } from '../../../components/common/Logo';
 import { useSessionStore } from '../../../store/session.store';
 import { loginResponse } from '../../../data/mocks/user.mock';
-import { ROUTES } from '../../../navigation/routes';
-import type { AuthStackParamList } from '../../../navigation/types';
-import type { StackNavigationProp } from '@react-navigation/stack';
-
-type AuthNavigationProp = StackNavigationProp<AuthStackParamList>;
+import type { AuthNavigationProp } from '../../../navigation/types';
 
 /**
  * 登录页
@@ -52,55 +50,62 @@ export function LoginScreen() {
   };
 
   return (
-    <Center flex className="bg-gray-100 p-6">
-      <Card className="w-full max-w-sm p-6">
-        {/* Logo */}
-        <AppView center className="mb-6">
-          <LogoIcon size={60} />
-          <AppText size="lg" weight="bold" className="mt-3">
-            欢迎登录
-          </AppText>
-        </AppView>
-
-        <AppView className="gap-4">
-          <AppInput
-            label="手机号"
-            placeholder="请输入手机号"
-            value={mobile}
-            onChangeText={setMobile}
-            keyboardType="phone-pad"
-          />
-
-          <AppInput
-            label="密码"
-            placeholder="请输入密码"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-
-          <AppPressable onPress={goToForgotPassword} className="self-end">
-            <AppText size="sm" color="primary-500">
-              忘记密码?
+    <>
+      <AppStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <AppView flex className="bg-primary-500">
+        <SafeScreen flex top={false} className="justify-end">
+          <Center className="px-6 pb-10">
+            <LogoIcon size={72} />
+            <AppText size="2xl" weight="bold" className="mt-4 text-white">
+              欢迎回来
             </AppText>
-          </AppPressable>
-
-          <AppButton color="primary" loading={loading} onPress={handleLogin} className="mt-2">
-            登录
-          </AppButton>
-
-          <AppView row center className="mt-4 gap-1">
-            <AppText size="sm" color="gray-500">
-              还没有账号?
+            <AppText size="sm" className="mt-2 text-white/80 text-center">
+              使用 rn-kit 构建可维护、可扩展的 Expo 应用
             </AppText>
-            <AppPressable onPress={goToRegister}>
-              <AppText size="sm" color="primary-500" weight="medium">
-                立即注册
-              </AppText>
-            </AppPressable>
-          </AppView>
-        </AppView>
-      </Card>
-    </Center>
+          </Center>
+
+          <Card className="rounded-t-3xl px-6 pt-8 pb-10">
+            <AppView className="gap-4">
+              <AppInput
+                label="手机号"
+                placeholder="请输入手机号"
+                value={mobile}
+                onChangeText={setMobile}
+                keyboardType="phone-pad"
+              />
+
+              <AppInput
+                label="密码"
+                placeholder="请输入密码"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+
+              <AppPressable onPress={goToForgotPassword} className="self-end">
+                <AppText size="sm" color="primary-500">
+                  忘记密码?
+                </AppText>
+              </AppPressable>
+
+              <AppButton color="primary" loading={loading} onPress={handleLogin} className="mt-2">
+                登录
+              </AppButton>
+
+              <AppView row center className="mt-4 gap-1">
+                <AppText size="sm" tone="muted">
+                  还没有账号?
+                </AppText>
+                <AppPressable onPress={goToRegister}>
+                  <AppText size="sm" color="primary-500" weight="medium">
+                    立即注册
+                  </AppText>
+                </AppPressable>
+              </AppView>
+            </AppView>
+          </Card>
+        </SafeScreen>
+      </AppView>
+    </>
   );
 }

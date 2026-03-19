@@ -1,4 +1,5 @@
 import { ActivityIndicator } from 'react-native';
+import { useOptionalTheme } from '@/theme';
 import { AppPressable, AppText } from '@/ui/primitives';
 import { cn } from '@/utils';
 
@@ -77,25 +78,31 @@ export function AppButton({
   children,
   className,
 }: AppButtonProps) {
+  const { theme, isDark } = useOptionalTheme();
   const isDisabled = disabled || loading;
 
   const sizeClasses = { sm: 'px-3 py-2', md: 'px-4 py-3', lg: 'px-6 py-4' };
-  const colorClasses = {
-    primary: variant === 'solid' ? 'bg-primary-500' : 'text-primary-500',
-    secondary: variant === 'solid' ? 'bg-secondary-500' : 'text-secondary-500',
-    danger: variant === 'solid' ? 'bg-red-500' : 'text-red-500',
+  const buttonColors = {
+    primary: theme.colors.primary?.[500] || '#f38b32',
+    secondary: theme.colors.secondary?.[500] || '#3b82f6',
+    danger: theme.colors.error?.[500] || '#ef4444',
   };
-
-  const borderColors = {
-    primary: '#f38b32',
-    secondary: '#3b82f6',
-    danger: '#ef4444',
-  };
+  const ghostTextColor = isDark ? '#ffffff' : theme.colors.text?.[500] || '#1f2937';
+  const ghostBackgroundColor = isDark ? 'rgba(255,255,255,0.04)' : 'transparent';
 
   // 根据变体设置 loading 指示器颜色
   // solid: 白色（因为背景是彩色的）
   // outline/ghost: 对应主题色（因为背景是透明的）
-  const loadingColor = variant === 'solid' ? 'white' : borderColors[color];
+  const loadingColor = variant === 'solid' ? 'white' : buttonColors[color];
+  const textColor =
+    variant === 'solid' ? '#ffffff' : variant === 'ghost' ? ghostTextColor : buttonColors[color];
+
+  const buttonStyle =
+    variant === 'solid'
+      ? { backgroundColor: buttonColors[color] }
+      : variant === 'outline'
+        ? { borderWidth: 0.5, borderColor: buttonColors[color], backgroundColor: 'transparent' }
+        : { backgroundColor: ghostBackgroundColor };
 
   return (
     <AppPressable
@@ -104,20 +111,15 @@ export function AppButton({
       className={cn(
         'flex-row items-center justify-center rounded-lg',
         sizeClasses[size],
-        variant === 'solid' && colorClasses[color],
-        variant === 'outline' && 'bg-transparent',
-        variant === 'ghost' && 'bg-transparent',
         isDisabled && 'opacity-50',
         className
       )}
-      style={
-        variant === 'outline' ? { borderWidth: 0.5, borderColor: borderColors[color] } : undefined
-      }
+      style={buttonStyle}
     >
       {loading ? (
         <ActivityIndicator size="small" color={loadingColor} />
       ) : (
-        <AppText weight="semibold" className={variant === 'solid' ? 'text-white' : ''}>
+        <AppText weight="semibold" style={{ color: textColor }}>
           {children}
         </AppText>
       )}

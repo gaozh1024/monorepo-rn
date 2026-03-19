@@ -78,6 +78,24 @@ describe('AppProvider', () => {
     expect(getByTestId('child')).toBeTruthy();
   });
 
+  it('应该默认注入全局状态栏', () => {
+    const { getByTestId } = render(
+      <AppProvider>
+        <div testID="child">子组件</div>
+      </AppProvider>
+    );
+    expect(getByTestId('status-bar')).toBeTruthy();
+  });
+
+  it('应该支持禁用全局状态栏', () => {
+    const { queryByTestId } = render(
+      <AppProvider enableStatusBar={false}>
+        <div testID="child">子组件</div>
+      </AppProvider>
+    );
+    expect(queryByTestId('status-bar')).toBeNull();
+  });
+
   it('应该支持自定义主题', () => {
     const customLightTheme = {
       colors: {
@@ -96,5 +114,15 @@ describe('AppProvider', () => {
       </AppProvider>
     );
     expect(getByTestId('child')).toBeTruthy();
+  });
+
+  it('应该支持受控暗色模式', () => {
+    const { getByTestId } = render(
+      <AppProvider isDark>
+        <div testID="child">受控暗色模式</div>
+      </AppProvider>
+    );
+    expect(getByTestId('child')).toBeTruthy();
+    expect(getByTestId('status-bar')).toBeTruthy();
   });
 });

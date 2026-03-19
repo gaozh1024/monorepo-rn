@@ -1,21 +1,27 @@
 import React from 'react';
-import { ScrollView, Alert } from 'react-native';
 import {
   AppView,
   AppText,
   Card,
-  AppHeader,
   Icon,
   AppPressable,
   AppButton,
+  useAlert,
+  useNavigation,
+  useThemeColors,
 } from '@gaozh1024/rn-kit';
-import { useNavigation } from '@react-navigation/native';
+import { PageScreen } from '../../../components/common';
 import { useSessionStore } from '../../../store/session.store';
+import { useUIStore } from '../../../store/ui.store';
+import {
+  LANGUAGES,
+  THEME_MODES,
+  type Language,
+  type ThemeMode,
+} from '../../../bootstrap/constants';
+import { appInfo } from '../../../data/mocks/app.mock';
 import { settingsSections } from '../../../data/mocks/settings.mock';
-import type { MyStackParamList } from '../../../navigation/types';
-import type { StackNavigationProp } from '@react-navigation/stack';
-
-type MyNavigationProp = StackNavigationProp<MyStackParamList>;
+import type { MyNavigationProp } from '../../../navigation/types';
 
 /**
  * 设置页
@@ -23,16 +29,43 @@ type MyNavigationProp = StackNavigationProp<MyStackParamList>;
 export function SettingsScreen() {
   const navigation = useNavigation<MyNavigationProp>();
   const { logout } = useSessionStore();
+  const { themeMode, language } = useUIStore();
+  const { confirm } = useAlert();
+  const colors = useThemeColors();
+  const themeLabelMap: Record<ThemeMode, string> = {
+    [THEME_MODES.LIGHT]: '浅色模式',
+    [THEME_MODES.DARK]: '深色模式',
+    [THEME_MODES.SYSTEM]: '跟随系统',
+  };
+  const languageLabelMap: Record<Language, string> = {
+    [LANGUAGES.ZH_CN]: '简体中文',
+    [LANGUAGES.EN]: 'English',
+  };
+
+  const resolvedSections = settingsSections.map(section => ({
+    ...section,
+    items: section.items.map(item => {
+      switch (item.key) {
+        case 'theme':
+          return { ...item, value: themeLabelMap[themeMode] };
+        case 'language':
+          return { ...item, value: languageLabelMap[language] };
+        case 'version':
+          return { ...item, value: appInfo.version };
+        default:
+          return item;
+      }
+    }),
+  }));
 
   const handleLogout = () => {
-    Alert.alert('确认退出', '确定要退出登录吗？', [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '确定',
-        style: 'destructive',
-        onPress: () => logout(),
-      },
-    ]);
+    confirm({
+      title: '确认退出',
+      message: '确定要退出登录吗？',
+      cancelText: '取消',
+      confirmText: '确定',
+      onConfirm: () => void logout(),
+    });
   };
 
   const handleItemPress = (key: string) => {
@@ -53,58 +86,54 @@ export function SettingsScreen() {
   };
 
   return (
-    <AppView flex className="bg-gray-50">
-      <AppHeader title="设置" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
-
-      <ScrollView>
-        {settingsSections.map(section => (
-          <AppView key={section.title} className="mt-4">
-            <AppText size="sm" color="gray-500" className="px-4 mb-2">
-              {section.title}
-            </AppText>
-            <Card className="mx-4 overflow-hidden">
-              {section.items.map((item, index) => (
-                <AppPressable
-                  key={item.key}
-                  onPress={() => item.type === 'link' && handleItemPress(item.key)}
+    <PageScreen title="设置">
+      {resolvedSections.map(section => (
+        <AppView key={section.title} className="mt-4">
+          <AppText size="sm" tone="muted" className="px-4 mb-2">
+            {section.title}
+          </AppText>
+          <Card className="mx-4 overflow-hidden">
+            {section.items.map((item, index) => (
+              <AppPressable
+                key={item.key}
+                onPress={() => item.type === 'link' && handleItemPress(item.key)}
+              >
+                <AppView
+                  row
+                  items="center"
+                  justify="between"
+                  className="p-4"
+                  style={{
+                    borderBottomWidth: index < section.items.length - 1 ? 0.5 : 0,
+                    borderBottomColor: colors.divider,
+                  }}
                 >
-                  <AppView
-                    row
-                    items="center"
-                    justify="between"
-                    className="p-4"
-                    style={{
-                      borderBottomWidth: index < section.items.length - 1 ? 0.5 : 0,
-                      borderBottomColor: '#e5e7eb',
-                    }}
-                  >
-                    <AppText>{item.label}</AppText>
-                    {item.type === 'link' ? (
-                      <AppView row items="center">
-                        <AppText size="sm" color="gray-500">
-                          {item.value}
-                        </AppText>
-                        <Icon name="chevron-right" size={20} color="gray-400" />
-                      </AppView>
-                    ) : (
-                      <AppText size="sm" color="gray-500">
+                  <AppText>{item.label}</AppText>
+                  {item.type === 'link' ? (
+                    <AppView row items="center">
+                      <AppText size="sm" tone="muted">
                         {item.value}
                       </AppText>
-                    )}
-                  </AppView>
-                </AppPressable>
-              ))}
-            </Card>
-          </AppView>
-        ))}
-
-        {/* 退出登录 */}
-        <AppView className="px-4 mt-8 mb-8">
-          <AppButton color="danger" variant="outline" onPress={handleLogout}>
-            退出登录
-          </AppButton>
+                      <Icon name="chevron-right" size={20} color="muted" />
+                    </AppView>
+                  ) : (
+                    <AppText size="sm" tone="muted">
+                      {item.value}
+                    </AppText>
+                  )}
+                </AppView>
+              </AppPressable>
+            ))}
+          </Card>
         </AppView>
-      </ScrollView>
-    </AppView>
+      ))}
+
+      {/* 退出登录 */}
+      <AppView className="px-4 mt-8 mb-8">
+        <AppButton color="danger" variant="outline" onPress={handleLogout}>
+          退出登录
+        </AppButton>
+      </AppView>
+    </PageScreen>
   );
 }

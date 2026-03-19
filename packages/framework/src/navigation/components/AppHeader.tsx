@@ -1,5 +1,5 @@
-import { StatusBar, type ViewStyle, StyleSheet } from 'react-native';
-import { useTheme } from '@/theme';
+import { type ViewStyle, StyleSheet } from 'react-native';
+import { useThemeColors } from '@/theme';
 import { AppView, AppText, AppPressable, Icon } from '@/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -75,16 +75,10 @@ export function AppHeader({
   safeArea = true,
   style,
 }: AppHeaderProps) {
-  const { theme, isDark } = useTheme();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
 
-  const backgroundColor = transparent
-    ? 'transparent'
-    : isDark
-      ? theme.colors.card?.[500] || '#1a1a1a'
-      : theme.colors.card?.[500] || '#ffffff';
-
-  const textColor = isDark ? '#ffffff' : '#000000';
+  const backgroundColor = transparent ? 'transparent' : colors.card;
 
   return (
     <AppView
@@ -96,18 +90,13 @@ export function AppHeader({
         style,
       ]}
     >
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundColor}
-        translucent={transparent}
-      />
       {/* iOS 风格导航栏：标题始终居中 */}
       <AppView row items="center" px={4} style={styles.container}>
         {/* 左侧按钮区域 - 固定宽度 70，左对齐 */}
         <AppView style={[styles.sideContainer, styles.leftContainer]}>
           {leftIcon && (
             <AppPressable onPress={onLeftPress} style={styles.iconButton}>
-              <Icon name={leftIcon} size={24} color={textColor} />
+              <Icon name={leftIcon} size={24} color={colors.text} />
             </AppPressable>
           )}
         </AppView>
@@ -118,7 +107,7 @@ export function AppHeader({
             <AppText
               size="lg"
               weight="semibold"
-              style={[styles.title, { color: textColor }]}
+              style={[styles.title, { color: colors.text }]}
               numberOfLines={1}
             >
               {title}
@@ -127,7 +116,7 @@ export function AppHeader({
           {subtitle && (
             <AppText
               size="xs"
-              style={[styles.subtitle, { color: isDark ? '#9ca3af' : '#6b7280' }]}
+              style={[styles.subtitle, { color: colors.textMuted }]}
               numberOfLines={1}
             >
               {subtitle}
@@ -140,7 +129,7 @@ export function AppHeader({
           {rightIcons.map((icon, index) => (
             <AppPressable key={index} onPress={icon.onPress} style={styles.iconButton}>
               <AppView>
-                <Icon name={icon.icon} size={24} color={textColor} />
+                <Icon name={icon.icon} size={24} color={colors.text} />
                 {icon.badge ? (
                   <AppView style={styles.badge}>
                     <AppText size="xs" color="white" style={styles.badgeText}>

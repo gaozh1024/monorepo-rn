@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { AppView, AppText } from '@/ui/primitives';
-import { useTheme } from '@/theme';
+import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
 
 /**
@@ -29,7 +29,7 @@ export function Radio({
   className,
   testID,
 }: RadioProps) {
-  const { theme, isDark } = useTheme();
+  const colors = useThemeColors();
   const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
 
   const isChecked = checked !== undefined ? checked : internalChecked;
@@ -44,11 +44,6 @@ export function Radio({
   };
 
   // 主题颜色
-  const uncheckedBorderColor = isDark ? '#4b5563' : '#d1d5db';
-  const uncheckedBgColor = isDark ? '#1f2937' : '#ffffff';
-  const checkedBorderColor = theme.colors.primary?.[500] || '#f38b32';
-  const checkedInnerColor = theme.colors.primary?.[500] || '#f38b32';
-  const textColor = isDark ? '#ffffff' : '#1f2937';
   const disabledOpacity = 0.4;
 
   return (
@@ -65,8 +60,8 @@ export function Radio({
         style={[
           styles.radio,
           {
-            backgroundColor: uncheckedBgColor,
-            borderColor: isChecked ? checkedBorderColor : uncheckedBorderColor,
+            backgroundColor: colors.card,
+            borderColor: isChecked ? colors.primary : colors.border,
             borderWidth: isChecked ? 0.5 : 0.5,
           },
         ]}
@@ -74,12 +69,12 @@ export function Radio({
         {isChecked && (
           <AppView
             className="rounded-full"
-            style={[styles.inner, { backgroundColor: checkedInnerColor }]}
+            style={[styles.inner, { backgroundColor: colors.primary }]}
           />
         )}
       </AppView>
       {children && (
-        <AppText size="sm" style={{ color: textColor }}>
+        <AppText size="sm" style={{ color: colors.text }}>
           {children}
         </AppText>
       )}

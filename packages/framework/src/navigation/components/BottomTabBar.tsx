@@ -1,7 +1,7 @@
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { useTheme } from '@/theme';
+import { useThemeColors } from '@/theme';
 import { AppText } from '@/ui';
 
 /**
@@ -17,6 +17,16 @@ export interface CustomBottomTabBarProps extends BottomTabBarProps {
   inactiveTintColor?: string;
   /** TabBar 高度（默认 65） */
   height?: number;
+  /** 激活背景色 */
+  activeBackgroundColor?: string;
+  /** 非激活背景色 */
+  inactiveBackgroundColor?: string;
+  /** 图标容器样式 */
+  iconStyle?: ViewStyle;
+  /** 标签样式 */
+  labelStyle?: TextStyle;
+  /** 标签栏样式 */
+  style?: ViewStyle;
 }
 
 /** 默认 TabBar 高度 */
@@ -45,19 +55,27 @@ export function BottomTabBar({
   activeTintColor,
   inactiveTintColor,
   height = DEFAULT_TAB_BAR_HEIGHT,
+  activeBackgroundColor,
+  inactiveBackgroundColor,
+  iconStyle,
+  labelStyle,
+  style,
 }: CustomBottomTabBarProps) {
-  const { theme, isDark } = useTheme();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
 
-  const activeColor = activeTintColor || theme.colors.primary?.[500] || '#f38b32';
-  const inactiveColor = inactiveTintColor || (isDark ? '#9ca3af' : '#6b7280');
-  const backgroundColor = isDark ? '#1f2937' : '#ffffff';
+  const activeColor = activeTintColor || colors.primary;
+  const inactiveColor = inactiveTintColor || colors.textMuted;
+  const backgroundColor = style?.backgroundColor || colors.card;
+  const borderTopColor = colors.divider;
 
   return (
     <View
       style={[
         styles.container,
+        { borderTopColor },
         { backgroundColor, height: height + insets.bottom, paddingBottom: insets.bottom },
+        style,
       ]}
     >
       {state.routes.map((route, index) => {
@@ -111,9 +129,14 @@ export function BottomTabBar({
             testID={(options as any).tabBarTestID}
             onPress={onPress}
             onLongPress={onLongPress}
-            style={styles.tab}
+            style={[
+              styles.tab,
+              {
+                backgroundColor: isFocused ? activeBackgroundColor : inactiveBackgroundColor,
+              },
+            ]}
           >
-            <View style={styles.iconContainer}>
+            <View style={[styles.iconContainer, iconStyle]}>
               {iconName}
               {badge != null && (
                 <View style={[styles.badge, { backgroundColor: activeColor }]}>
@@ -125,7 +148,11 @@ export function BottomTabBar({
             </View>
             {showLabel && (
               <AppText
-                style={[styles.label, { color: isFocused ? activeColor : inactiveColor }]}
+                style={[
+                  styles.label,
+                  { color: isFocused ? activeColor : inactiveColor },
+                  labelStyle,
+                ]}
                 numberOfLines={1}
               >
                 {label as string}
@@ -143,7 +170,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     borderTopWidth: 0.5,
-    borderTopColor: '#e5e7eb',
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },

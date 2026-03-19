@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import {
   AppView,
   AppText,
   AppInput,
   AppButton,
   AppPressable,
-  Center,
-  Card,
-  AppHeader,
+  useNavigation,
 } from '@gaozh1024/rn-kit';
-import type { AuthStackParamList } from '../../../navigation/types';
-import type { StackNavigationProp } from '@react-navigation/stack';
-
-type AuthNavigationProp = StackNavigationProp<AuthStackParamList>;
+import { AuthCardScreen } from '../../../components/common';
+import type { AuthNavigationProp } from '../../../navigation/types';
 
 /**
  * 注册页
@@ -49,53 +44,47 @@ export function RegisterScreen() {
   };
 
   return (
-    <AppView flex className="bg-gray-100">
-      <AppHeader title="注册账号" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
+    <AuthCardScreen title="注册账号">
+      <AppView className="gap-4">
+        <AppInput
+          label="手机号"
+          placeholder="请输入手机号"
+          value={mobile}
+          onChangeText={setMobile}
+          keyboardType="phone-pad"
+        />
 
-      <Center flex className="p-6">
-        <Card className="w-full max-w-sm p-6">
-          <AppView className="gap-4">
-            <AppInput
-              label="手机号"
-              placeholder="请输入手机号"
-              value={mobile}
-              onChangeText={setMobile}
-              keyboardType="phone-pad"
-            />
+        <AppInput
+          label="密码"
+          placeholder="请输入密码"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-            <AppInput
-              label="密码"
-              placeholder="请输入密码"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+        <AppInput
+          label="确认密码"
+          placeholder="请再次输入密码"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
 
-            <AppInput
-              label="确认密码"
-              placeholder="请再次输入密码"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-            />
+        <AppButton color="primary" loading={loading} onPress={handleRegister} className="mt-2">
+          注册
+        </AppButton>
 
-            <AppButton color="primary" loading={loading} onPress={handleRegister} className="mt-2">
-              注册
-            </AppButton>
-
-            <AppView row center className="mt-4 gap-1">
-              <AppText size="sm" color="gray-500">
-                已有账号?
-              </AppText>
-              <AppPressable onPress={goToLogin}>
-                <AppText size="sm" color="primary-500" weight="medium">
-                  返回登录
-                </AppText>
-              </AppPressable>
-            </AppView>
-          </AppView>
-        </Card>
-      </Center>
-    </AppView>
+        <AppView row center className="mt-4 gap-1">
+          <AppText size="sm" tone="muted">
+            已有账号?
+          </AppText>
+          <AppPressable onPress={goToLogin}>
+            <AppText size="sm" color="primary-500" weight="medium">
+              返回登录
+            </AppText>
+          </AppPressable>
+        </AppView>
+      </AppView>
+    </AuthCardScreen>
   );
 }

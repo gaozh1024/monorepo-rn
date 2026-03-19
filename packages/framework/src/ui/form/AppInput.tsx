@@ -1,7 +1,7 @@
 import { forwardRef, useState } from 'react';
 import { TextInput, TextInputProps, View, StyleSheet } from 'react-native';
 import { AppView, AppText } from '@/ui/primitives';
-import { useTheme } from '@/theme';
+import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
 
 /**
@@ -27,27 +27,22 @@ export interface AppInputProps extends Omit<TextInputProps, 'editable'> {
  */
 export const AppInput = forwardRef<TextInput, AppInputProps>(
   ({ label, error, disabled = false, leftIcon, rightIcon, className, style, ...props }, ref) => {
-    const { isDark } = useTheme();
+    const colors = useThemeColors();
     const [isFocused, setIsFocused] = useState(false);
 
-    // 主题颜色
-    const bgColor = isDark ? '#1f2937' : '#ffffff';
-    const textColor = isDark ? '#ffffff' : '#1f2937';
-    const placeholderColor = isDark ? '#6b7280' : '#9ca3af';
-    const labelColor = isDark ? '#d1d5db' : '#374151';
     const errorColor = '#ef4444';
 
     // 边框颜色
     const getBorderColor = () => {
       if (error) return errorColor;
-      if (isFocused) return '#f38b32'; // primary-500
-      return isDark ? '#4b5563' : '#d1d5db';
+      if (isFocused) return colors.primary;
+      return colors.border;
     };
 
     return (
       <AppView className={cn('flex-col gap-1', className)}>
         {label && (
-          <AppText size="sm" weight="medium" style={{ color: labelColor }}>
+          <AppText size="sm" weight="medium" style={{ color: colors.textSecondary }}>
             {label}
           </AppText>
         )}
@@ -58,7 +53,7 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
           style={[
             styles.inputContainer,
             {
-              backgroundColor: bgColor,
+              backgroundColor: colors.card,
               borderColor: getBorderColor(),
               opacity: disabled ? 0.6 : 1,
             },
@@ -68,8 +63,8 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
           <TextInput
             ref={ref}
             className="flex-1 py-3 text-base"
-            style={[styles.input, { color: textColor }, style]}
-            placeholderTextColor={placeholderColor}
+            style={[styles.input, { color: colors.text }, style]}
+            placeholderTextColor={colors.textMuted}
             editable={!disabled}
             onFocus={e => {
               setIsFocused(true);

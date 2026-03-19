@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { ThemeProvider, useTheme } from '../provider';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -27,12 +27,30 @@ describe('ThemeProvider', () => {
     expect(result.current.isDark).toBe(false);
 
     // 切换主题
-    result.current.toggleTheme();
+    act(() => {
+      result.current.toggleTheme();
+    });
 
     // 等待状态更新后应该是暗色主题
     await waitFor(() => {
       expect(result.current.isDark).toBe(true);
     });
+  });
+
+  it('应该支持受控暗色模式', () => {
+    const controlledWrapper = ({ children }: { children: React.ReactNode }) => (
+      <ThemeProvider
+        light={{ colors: { primary: '#f38b32' } }}
+        dark={{ colors: { primary: '#1a1a1a' } }}
+        isDark
+      >
+        {children}
+      </ThemeProvider>
+    );
+
+    const { result } = renderHook(() => useTheme(), { wrapper: controlledWrapper });
+    expect(result.current.isDark).toBe(true);
+    expect(result.current.theme.colors.primary?.[500]).toBeDefined();
   });
 
   it('应该在ThemeProvider外抛出错误', () => {

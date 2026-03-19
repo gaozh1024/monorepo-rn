@@ -34,9 +34,14 @@ describe('AppButton', () => {
 
   it('outline变体应该有边框样式', () => {
     const { getByText } = render(<AppButton variant="outline">Outline</AppButton>);
-    const button = getByText('Outline').parent;
-    // 现在边框通过 style 属性设置，而不是 className
-    expect(button.props.style).toBeDefined();
-    expect(button.props.className).toContain('bg-transparent');
+    let button: any = getByText('Outline');
+    while (button?.props && !('borderWidth' in (button.props.style || {}))) {
+      button = button.parent;
+    }
+
+    expect(button.props.style).toMatchObject({
+      borderWidth: 0.5,
+      backgroundColor: 'transparent',
+    });
   });
 });

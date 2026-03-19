@@ -1,5 +1,7 @@
 import { Text, TextProps } from 'react-native';
+import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
+import { resolveNamedColor, resolveTextTone } from '../utils/theme-color';
 
 /**
  * AppText 组件属性接口
@@ -11,6 +13,16 @@ export interface AppTextProps extends TextProps {
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
   /** 文字颜色，支持 Tailwind 颜色类名 */
   color?: string;
+  /** 语义化文字色 */
+  tone?:
+    | 'default'
+    | 'muted'
+    | 'inverse'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'warning'
+    | 'error';
   /** 自定义类名 */
   className?: string;
 }
@@ -49,10 +61,13 @@ export function AppText({
   size = 'md',
   weight = 'normal',
   color,
+  tone,
   className,
   children,
+  style,
   ...props
 }: AppTextProps) {
+  const { theme, isDark } = useOptionalTheme();
   const sizeMap: Record<string, string> = {
     xs: 'text-xs',
     sm: 'text-sm',
@@ -68,9 +83,19 @@ export function AppText({
     semibold: 'font-semibold',
     bold: 'font-bold',
   };
+  const resolvedColor =
+    resolveTextTone(tone, theme, isDark) ?? resolveNamedColor(color, theme, isDark);
+  const shouldUseClassColor = !!color && !resolvedColor;
+
   return (
     <Text
-      className={cn(sizeMap[size], weightMap[weight], color && `text-${color}`, className)}
+      className={cn(
+        sizeMap[size],
+        weightMap[weight],
+        shouldUseClassColor && `text-${color}`,
+        className
+      )}
+      style={[resolvedColor ? { color: resolvedColor } : undefined, style]}
       {...props}
     >
       {children}

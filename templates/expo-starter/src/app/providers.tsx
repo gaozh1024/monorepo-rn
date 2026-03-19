@@ -18,12 +18,7 @@ export function Providers({ children }: ProvidersProps) {
   const isDark = themeMode === 'dark' || (themeMode === 'system' && colorScheme === 'dark');
 
   return (
-    <AppProvider
-      key={isDark ? 'dark' : 'light'}
-      lightTheme={lightTheme}
-      darkTheme={darkTheme}
-      defaultDark={isDark}
-    >
+    <AppProvider lightTheme={lightTheme} darkTheme={darkTheme} isDark={isDark}>
       {children}
     </AppProvider>
   );

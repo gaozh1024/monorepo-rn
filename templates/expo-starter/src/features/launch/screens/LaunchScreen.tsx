@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator } from 'react-native';
-import { Center } from '@gaozh1024/rn-kit';
+import { AppStatusBar, Center, Loading, SafeScreen } from '@gaozh1024/rn-kit';
 import { Logo } from '../../../components/common/Logo';
 import { useSessionStore } from '../../../store/session.store';
 
@@ -19,9 +18,14 @@ export function LaunchScreen() {
   }, [restoreSession]);
 
   return (
-    <Center flex className="bg-primary-500">
-      <Logo size="xl" />
-      <ActivityIndicator size="large" color="#ffffff" style={{ marginTop: 24 }} />
-    </Center>
+    <>
+      <AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />
+      <SafeScreen flex className="bg-primary-500">
+        <Center flex>
+          <Logo size="xl" />
+          <Loading text="正在启动..." color="#ffffff" />
+        </Center>
+      </SafeScreen>
+    </>
   );
 }

@@ -100,12 +100,53 @@ pnpm install
 npx expo start
 ```
 
+## 本地测试模板
+
+推荐在模板发布前，先走一遍本地安装链路验证。
+
+### 1. 用本地模板创建项目
+
+```bash
+npx create-expo-app template-app --template file:/absolute/path/to/templates/expo-starter
+```
+
+例如：
+
+```bash
+npx create-expo-app template-app --template file:/Users/gzh/Projects/framework/rn-monorepo/templates/expo-starter
+```
+
+### 2. 注入本地 rn-kit
+
+如果你正在联调本地框架，可以在新项目中执行：
+
+```bash
+yalc add @gaozh1024/rn-kit
+npm install
+```
+
+然后启动：
+
+```bash
+yarn start
+# 或
+npx expo start
+```
+
+这个流程适合验证：
+
+- 模板能否被 `create-expo-app` 正常消费
+- 本地 `rn-kit` 改动能否正确注入模板项目
+- 页面、导航、状态栏、底部 Tab 是否都正常工作
+
 ## 发布前检查
 
 1. 先发布 `@gaozh1024/rn-kit`
 2. 再发布当前模板包
 3. 确认 `app.json` 中的 `icon / splash / adaptiveIcon / favicon` 对应资源都已打包
 4. 确认模板里的 `expo` 版本和你希望支持的 Expo Go SDK 一致
+5. 确认 README 中的模板包名、scope 包名、安装命令与实际发布信息一致
+6. 确认 `app.json` 里的 `name / slug / scheme / ios.bundleIdentifier / android.package` 是否为你希望交付给模板使用者的默认值
 
 ### 运行到设备
 
@@ -119,11 +160,96 @@ npx expo start --android
 
 ## 开发指南
 
+### 页面实现约定
+
+模板页面默认优先使用 `rn-kit` 提供的组件与能力：
+
+- 布局：`AppView` / `Center` / `SafeScreen` / `AppScrollView`
+- 展示：`AppText` / `Card` / `Icon`
+- 交互：`AppButton` / `AppPressable`
+- 反馈：`Loading` / `useAlert`
+- 状态栏：`AppStatusBar`
+- 导航：`StackNavigator` / `TabNavigator` / `useNavigation`
+
+页面层尽量不要直接从 `react-native` 或 `@react-navigation/*` 引入基础 UI / 导航能力，优先使用 `rn-kit` 暴露的统一 API。
+
+例如登录页、启动页这类全屏彩色背景页面，推荐在页面内局部覆盖状态栏：
+
+```tsx
+<>
+  <AppStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+  <AppView flex className="bg-primary-500">
+    <SafeScreen flex top={false}>
+      {/* 页面内容 */}
+    </SafeScreen>
+  </AppView>
+</>
+```
+
+### 主题切换说明
+
+模板已改为通过 `AppProvider isDark` 受控切换主题，切换浅色 / 深色 / 跟随系统时不再依赖重新挂载根组件。
+
+页面实现上优先使用这些主题语义能力：
+
+- 容器背景：`surface="background"` / `surface="card"`
+- 文本颜色：`tone="default"` / `tone="muted"` / `color="primary-500"`
+- 页面容器：`SafeScreen` / `AppView` / `AppScrollView`
+
+如果页面里直接写死 `bg-white`、`text-gray-700` 这类类名，暗色模式下通常就不会自动跟随主题。
+
+### 底部导航栏
+
+模板中的 `MainTabs` 默认使用 `rn-kit` 内置的 `BottomTabBar`，通过 `tabBarOptions` 统一配置高度、颜色和样式：
+
+```tsx
+<TabNavigator
+  tabBarOptions={{
+    activeTintColor: '#f38b32',
+    inactiveTintColor: '#9ca3af',
+    activeBackgroundColor: '#fff7ed',
+    height: 72,
+    style: { borderTopWidth: 0, backgroundColor: '#ffffff' },
+  }}
+>
+  {/* screens */}
+</TabNavigator>
+```
+
+### 导航类型约定
+
+模板导航相关代码集中在：
+
+- `src/navigation/types.ts`：参数列表与导航类型别名
+- `src/navigation/routes.ts`：路由名称常量
+- `src/navigation/*.tsx`：基于 `rn-kit` 的导航器装配
+
+推荐页面内这样写：
+
+```tsx
+import { useNavigation } from '@gaozh1024/rn-kit';
+import type { AuthNavigationProp } from '@/navigation/types';
+
+export function LoginScreen() {
+  const navigation = useNavigation<AuthNavigationProp>();
+
+  return null;
+}
+```
+
+这样页面只依赖：
+
+- `rn-kit` 提供的导航 hook
+- 模板自己的导航类型文件
+
+不会直接耦合 `@react-navigation/native` 或 `@react-navigation/stack`。
+
 ### 添加新页面
 
 1. 在 `src/features/{domain}/screens/` 创建页面组件
 2. 在 `src/navigation/types.ts` 添加路由参数类型
-3. 在对应导航组件中注册页面
+3. 如有需要，在 `src/navigation/types.ts` 增加页面对应的导航类型别名
+4. 在对应导航组件中注册页面
 
 ### 添加新 API
 

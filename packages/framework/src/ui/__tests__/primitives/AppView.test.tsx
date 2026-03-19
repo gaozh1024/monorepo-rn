@@ -39,12 +39,18 @@ describe('AppView', () => {
   it('应该应用背景色样式', () => {
     const { getByTestId } = render(<AppView bg="primary-500" testID="view" />);
     const view = getByTestId('view');
-    expect(view.props.className).toContain('bg-primary-500');
+    expect(view.props.style[0].backgroundColor).toBe('#f38b32');
   });
 
   it('应该应用圆角样式', () => {
     const { getByTestId } = render(<AppView rounded="lg" testID="view" />);
     const view = getByTestId('view');
     expect(view.props.className).toContain('rounded-lg');
+  });
+
+  it('应该支持语义化背景', () => {
+    const { getByTestId } = render(<AppView surface="background" testID="view" />);
+    const view = getByTestId('view');
+    expect(view.props.style[0].backgroundColor).toBe('#ffffff');
   });
 });

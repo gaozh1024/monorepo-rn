@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabBar } from '../components/BottomTabBar';
 import type { TabParamList, TabNavigatorProps, TabRouteConfig } from '../types';
 
 const NativeTab = createBottomTabNavigator<TabParamList>();
@@ -89,11 +90,41 @@ export function TabNavigator({
     return options;
   }, [tabBarOptions, screenOptions]);
 
+  const resolvedTabBar = React.useMemo(() => {
+    if (tabBar) return tabBar;
+
+    return (props: Parameters<typeof BottomTabBar>[0]) => (
+      <BottomTabBar
+        {...props}
+        showLabel={tabBarOptions?.showLabel}
+        activeTintColor={tabBarOptions?.activeTintColor}
+        inactiveTintColor={tabBarOptions?.inactiveTintColor}
+        activeBackgroundColor={tabBarOptions?.activeBackgroundColor}
+        inactiveBackgroundColor={tabBarOptions?.inactiveBackgroundColor}
+        iconStyle={tabBarOptions?.iconStyle}
+        labelStyle={tabBarOptions?.labelStyle}
+        style={tabBarOptions?.style}
+        height={tabBarOptions?.height}
+      />
+    );
+  }, [
+    tabBar,
+    tabBarOptions?.showLabel,
+    tabBarOptions?.activeTintColor,
+    tabBarOptions?.inactiveTintColor,
+    tabBarOptions?.activeBackgroundColor,
+    tabBarOptions?.inactiveBackgroundColor,
+    tabBarOptions?.iconStyle,
+    tabBarOptions?.labelStyle,
+    tabBarOptions?.style,
+    tabBarOptions?.height,
+  ]);
+
   return (
     <NativeTab.Navigator
       initialRouteName={initialRouteName}
       screenOptions={mergedScreenOptions}
-      tabBar={tabBar}
+      tabBar={resolvedTabBar}
     >
       {children}
     </NativeTab.Navigator>

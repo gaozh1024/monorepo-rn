@@ -9,6 +9,7 @@ import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, type ThemeConfig } from '@/theme';
 import { NavigationProvider, type NavigationProviderProps } from '@/navigation';
+import { AppStatusBar, type AppStatusBarProps } from './AppStatusBar';
 import { OverlayProvider } from './provider';
 
 // ============================================================================
@@ -58,6 +59,8 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
   enableOverlay?: boolean;
   /** 是否启用主题（默认 true） */
   enableTheme?: boolean;
+  /** 是否启用全局状态栏管理（默认 true） */
+  enableStatusBar?: boolean;
   /** 是否启用安全区域（默认 true） */
   enableSafeArea?: boolean;
   /** 自定义亮色主题 */
@@ -66,6 +69,10 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
   darkTheme?: ThemeConfig;
   /** 默认使用暗色模式 */
   defaultDark?: boolean;
+  /** 受控暗色模式 */
+  isDark?: boolean;
+  /** 全局状态栏配置 */
+  statusBarProps?: AppStatusBarProps;
 }
 
 // ============================================================================
@@ -174,10 +181,13 @@ export function AppProvider({
   enableNavigation = true,
   enableOverlay = true,
   enableTheme = true,
+  enableStatusBar = true,
   enableSafeArea = true,
   lightTheme = defaultLightTheme,
   darkTheme = defaultDarkTheme,
   defaultDark = false,
+  isDark,
+  statusBarProps,
   ...navigationProps
 }: AppProviderProps) {
   // 从外到内套娃（外层包裹内层）
@@ -201,8 +211,11 @@ export function AppProvider({
   // 3. Theme - 需要被 SafeArea 包裹
   if (enableTheme) {
     content = (
-      <ThemeProvider light={lightTheme} dark={darkTheme} defaultDark={defaultDark}>
-        {content}
+      <ThemeProvider light={lightTheme} dark={darkTheme} defaultDark={defaultDark} isDark={isDark}>
+        <>
+          {enableStatusBar && <AppStatusBar testID="status-bar" {...statusBarProps} />}
+          {content}
+        </>
       </ThemeProvider>
     );
   }

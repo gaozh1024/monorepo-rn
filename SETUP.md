@@ -110,22 +110,86 @@ module.exports = function (api) {
 ### 基础用法
 
 ```tsx
-import { ThemeProvider, createTheme, AppView, AppText, AppButton } from '@gaozh1024/rn-kit';
-
-const theme = createTheme({
-  colors: { primary: '#f38b32' },
-});
+import { AppProvider, AppView, AppText, AppButton } from '@gaozh1024/rn-kit';
 
 function App() {
   return (
-    <ThemeProvider light={theme}>
+    <AppProvider>
       <AppView flex p={4}>
         <AppText size="xl">Hello Panther!</AppText>
         <AppButton>点击我</AppButton>
       </AppView>
-    </ThemeProvider>
+    </AppProvider>
   );
 }
+```
+
+### 状态栏推荐用法
+
+框架现在默认由 `AppProvider` 统一管理状态栏。
+
+```tsx
+import { AppProvider } from '@gaozh1024/rn-kit';
+
+export default function App() {
+  return (
+    <AppProvider>
+      <RootNavigator />
+    </AppProvider>
+  );
+}
+```
+
+如果某个页面需要单独覆盖状态栏：
+
+```tsx
+import { AppStatusBar } from '@gaozh1024/rn-kit';
+
+<AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />;
+```
+
+登录页全屏背景示例：
+
+```tsx
+import { AppStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
+
+export function LoginScreen() {
+  return (
+    <>
+      <AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />
+      <SafeScreen bg="primary-500">
+        <AppView flex className="bg-primary-500">
+          {/* 登录内容 */}
+        </AppView>
+      </SafeScreen>
+    </>
+  );
+}
+```
+
+### TabNavigator 默认底栏
+
+框架的 `TabNavigator` 在未传入 `tabBar` 时，会默认使用内置 `BottomTabBar`，默认高度为 `65`。
+
+```tsx
+<TabNavigator
+  tabBarOptions={{
+    activeTintColor: '#f38b32',
+    inactiveTintColor: '#9ca3af',
+    height: 72,
+    style: { borderTopWidth: 0 },
+  }}
+>
+  {/* screens */}
+</TabNavigator>
+```
+
+如需完全自定义：
+
+```tsx
+<TabNavigator tabBar={props => <BottomTabBar {...props} height={72} />}>
+  {/* screens */}
+</TabNavigator>
 ```
 
 ## 开发命令速查

@@ -8,8 +8,8 @@ import {
   LayoutChangeEvent,
 } from 'react-native';
 import { AppView, AppText } from '@/ui/primitives';
-import { useTheme } from '@/theme';
 import { cn } from '@/utils';
+import { useFormThemeColors } from './useFormTheme';
 
 /**
  * Slider 组件属性接口
@@ -42,7 +42,7 @@ export function Slider({
   onChangeEnd,
   className,
 }: SliderProps) {
-  const { theme, isDark } = useTheme();
+  const colors = useFormThemeColors();
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [trackWidth, setTrackWidth] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -50,11 +50,6 @@ export function Slider({
   const currentValue = value !== undefined ? value : internalValue;
 
   // 主题颜色
-  const trackColor = isDark ? '#374151' : '#e5e7eb';
-  const filledColor = theme.colors.primary?.[500] || '#f38b32';
-  const thumbColor = isDark ? '#ffffff' : '#ffffff';
-  const tooltipBgColor = isDark ? '#374151' : '#1f2937';
-  const tooltipTextColor = '#ffffff';
   const disabledOpacity = 0.4;
 
   // 计算进度百分比
@@ -133,13 +128,13 @@ export function Slider({
           style={[
             styles.tooltip,
             {
-              backgroundColor: tooltipBgColor,
+              backgroundColor: colors.surfaceMuted,
               left: `${progress}%`,
               transform: [{ translateX: -16 }],
             },
           ]}
         >
-          <AppText size="xs" style={{ color: tooltipTextColor }}>
+          <AppText size="xs" style={{ color: colors.text }}>
             {Math.round(currentValue)}
           </AppText>
           {/* Tooltip arrow */}
@@ -147,7 +142,7 @@ export function Slider({
             style={[
               styles.tooltipArrow,
               {
-                borderTopColor: tooltipBgColor,
+                borderTopColor: colors.surfaceMuted,
               },
             ]}
           />
@@ -160,7 +155,7 @@ export function Slider({
         className="rounded-full"
         style={[
           styles.track,
-          { backgroundColor: trackColor, opacity: disabled ? disabledOpacity : 1 },
+          { backgroundColor: colors.divider, opacity: disabled ? disabledOpacity : 1 },
         ]}
         onTouchEnd={handleTrackPress}
       >
@@ -170,7 +165,7 @@ export function Slider({
           style={[
             styles.filledTrack,
             {
-              backgroundColor: filledColor,
+              backgroundColor: colors.primary,
               width: `${progress}%`,
             },
           ]}
@@ -182,12 +177,12 @@ export function Slider({
           style={[
             styles.thumb,
             {
-              backgroundColor: thumbColor,
+              backgroundColor: colors.textInverse,
               left: `${progress}%`,
               transform: [{ translateX: -12 }],
-              shadowColor: isDark ? '#000000' : '#000000',
+              shadowColor: '#000000',
               shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: isDark ? 0.3 : 0.2,
+              shadowOpacity: 0.25,
               shadowRadius: 2,
             },
           ]}
@@ -199,7 +194,7 @@ export function Slider({
             style={[
               styles.thumbDot,
               {
-                backgroundColor: filledColor,
+                backgroundColor: colors.primary,
               },
             ]}
           />

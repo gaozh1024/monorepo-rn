@@ -1,6 +1,13 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
-import { AppView, AppText, Card, Icon, AppPressable } from '@gaozh1024/rn-kit';
+import {
+  AppScrollView,
+  AppView,
+  AppText,
+  Card,
+  Icon,
+  AppPressable,
+  useTheme,
+} from '@gaozh1024/rn-kit';
 import { homeStats, quickActions, homeBanners } from '../../../data/mocks/home.mock';
 import { useSessionStore } from '../../../store/session.store';
 
@@ -9,18 +16,37 @@ import { useSessionStore } from '../../../store/session.store';
  */
 export function HomeScreen() {
   const { user } = useSessionStore();
+  const { theme, isDark } = useTheme();
+  const iconBadgeBg = isDark
+    ? theme.colors.primary?.[900] || '#7c2d12'
+    : theme.colors.primary?.[50] || '#fff7ed';
+  const mutedTextColor = isDark ? '#d1d5db' : theme.colors.text?.[500] || '#171717';
 
-  const getColorClass = (color: string) => {
-    const colorMap: Record<string, string> = {
-      warning: 'bg-orange-100 text-orange-600',
-      success: 'bg-green-100 text-green-600',
-      info: 'bg-blue-100 text-blue-600',
+  const getStatColors = (color: string) => {
+    const colorMap: Record<string, { value: string; badge: string }> = {
+      warning: {
+        value: isDark ? '#fdba74' : '#ea580c',
+        badge: isDark ? '#7c2d12' : '#ffedd5',
+      },
+      success: {
+        value: isDark ? '#86efac' : '#16a34a',
+        badge: isDark ? '#14532d' : '#dcfce7',
+      },
+      info: {
+        value: isDark ? '#93c5fd' : '#2563eb',
+        badge: isDark ? '#1e3a8a' : '#dbeafe',
+      },
     };
-    return colorMap[color] || 'bg-gray-100 text-gray-600';
+    return (
+      colorMap[color] || {
+        value: isDark ? '#d1d5db' : '#4b5563',
+        badge: isDark ? '#374151' : '#f3f4f6',
+      }
+    );
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <AppScrollView flex surface="background">
       {/* 顶部欢迎区 */}
       <AppView className="bg-primary-500 px-6 pt-12 pb-8">
         <AppText size="sm" className="text-white/80">
@@ -34,11 +60,15 @@ export function HomeScreen() {
       {/* 统计卡片 */}
       <AppView row className="px-4 -mt-4">
         {homeStats.map(stat => (
-          <Card key={stat.key} className="flex-1 mx-1 p-4 items-center">
-            <AppText size="2xl" weight="bold" className={getColorClass(stat.color).split(' ')[1]}>
+          <Card
+            key={stat.key}
+            className="flex-1 mx-1 p-4 items-center"
+            style={{ backgroundColor: getStatColors(stat.color).badge }}
+          >
+            <AppText size="2xl" weight="bold" style={{ color: getStatColors(stat.color).value }}>
               {stat.value}
             </AppText>
-            <AppText size="xs" color="gray-500" className="mt-1">
+            <AppText size="xs" tone="muted" className="mt-1">
               {stat.label}
             </AppText>
           </Card>
@@ -66,10 +96,13 @@ export function HomeScreen() {
           {quickActions.map(action => (
             <AppPressable key={action.key} style={{ width: '48%' }}>
               <Card className="p-4 flex-row items-center gap-3">
-                <AppView className="w-10 h-10 rounded-full bg-primary-50 items-center justify-center">
+                <AppView
+                  className="w-10 h-10 rounded-full items-center justify-center"
+                  style={{ backgroundColor: iconBadgeBg }}
+                >
                   <Icon name={action.icon} size={20} color="primary-500" />
                 </AppView>
-                <AppText size="sm" weight="medium">
+                <AppText size="sm" weight="medium" style={{ color: mutedTextColor }}>
                   {action.title}
                 </AppText>
               </Card>
@@ -80,6 +113,6 @@ export function HomeScreen() {
 
       {/* 底部占位 */}
       <AppView className="h-8" />
-    </ScrollView>
+    </AppScrollView>
   );
 }

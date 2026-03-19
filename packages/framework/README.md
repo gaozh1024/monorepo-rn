@@ -4,6 +4,20 @@
 
 一个集成的 React Native 开发框架，包含主题系统、UI 组件、API 工厂和导航组件。
 
+## ✅ 推荐初始化方式
+
+业务 App 推荐优先使用 `AppProvider`，而不是只手动包一层 `ThemeProvider`。
+
+`AppProvider` 默认会整合：
+
+- `SafeAreaProvider`
+- `ThemeProvider`
+- `NavigationProvider`
+- `OverlayProvider`
+- `AppStatusBar`
+
+这样页面切换、主题切换时，状态栏会自动跟随全局主题变化。
+
 ## 📦 安装
 
 ```bash
@@ -74,33 +88,32 @@ module.exports = function (api) {
 ## 🚀 快速开始
 
 ```tsx
-import {
-  ThemeProvider,
-  createTheme,
-  AppView,
-  AppText,
-  AppButton,
-  useToggle,
-} from '@gaozh1024/rn-kit';
+import { AppProvider, AppView, AppText, AppButton, useToggle } from '@gaozh1024/rn-kit';
+
+function App() {
+  const [visible, { toggle }] = useToggle(false);
+
+  return (
+    <AppProvider>
+      <AppView flex p={4}>
+        <AppText size="xl">Hello Panther!</AppText>
+        <AppButton onPress={toggle}>{visible ? '隐藏' : '显示'}</AppButton>
+      </AppView>
+    </AppProvider>
+  );
+}
+```
+
+如果你只需要最小主题能力，也可以单独使用：
+
+```tsx
+import { ThemeProvider, createTheme } from '@gaozh1024/rn-kit';
 
 const theme = createTheme({
   colors: {
     primary: '#f38b32',
   },
 });
-
-function App() {
-  const [visible, { toggle }] = useToggle(false);
-
-  return (
-    <ThemeProvider light={theme}>
-      <AppView flex p={4}>
-        <AppText size="xl">Hello Panther!</AppText>
-        <AppButton onPress={toggle}>{visible ? '隐藏' : '显示'}</AppButton>
-      </AppView>
-    </ThemeProvider>
-  );
-}
 ```
 
 ## 📚 API 概览
@@ -111,11 +124,26 @@ function App() {
 import { ThemeProvider, createTheme, useTheme } from '@gaozh1024/rn-kit';
 ```
 
+### 🧱 应用初始化与状态栏
+
+```tsx
+import { AppProvider, AppStatusBar } from '@gaozh1024/rn-kit';
+```
+
+受控切换主题时，推荐直接给 `AppProvider` / `ThemeProvider` 传 `isDark`，不要再通过重建根组件强制刷新：
+
+```tsx
+<AppProvider lightTheme={lightTheme} darkTheme={darkTheme} isDark={themeMode === 'dark'}>
+  <RootNavigator />
+</AppProvider>
+```
+
 ### 🧩 UI 组件
 
 ```tsx
 import {
   AppView,
+  AppScrollView,
   AppText,
   AppPressable,
   AppInput, // 原子组件
@@ -167,10 +195,34 @@ import {
   NavigationProvider,
   StackNavigator,
   TabNavigator,
+  BottomTabBar,
   DrawerNavigator,
   useNavigation,
   useRoute,
 } from '@gaozh1024/rn-kit';
+```
+
+`TabNavigator` 在未显式传入 `tabBar` 时，会默认使用框架内置的 `BottomTabBar`（默认高度 `65`）。
+
+```tsx
+<TabNavigator
+  tabBarOptions={{
+    activeTintColor: '#f38b32',
+    inactiveTintColor: '#9ca3af',
+    height: 72,
+    style: { borderTopWidth: 0 },
+  }}
+>
+  {/* screens */}
+</TabNavigator>
+```
+
+如果你需要完全自定义底栏，也可以手动覆盖：
+
+```tsx
+<TabNavigator tabBar={props => <BottomTabBar {...props} height={72} />}>
+  {/* screens */}
+</TabNavigator>
 ```
 
 ### 🔌 API 工厂
@@ -192,6 +244,119 @@ const api = createAPI({
 ## 📄 文档
 
 - [框架文档](../../docs/README.md) - 完整文档索引
+
+## 📱 状态栏使用说明
+
+### 1. 全局默认行为
+
+推荐：
+
+```tsx
+import { AppProvider } from '@gaozh1024/rn-kit';
+
+export default function App() {
+  return (
+    <AppProvider>
+      <RootNavigator />
+    </AppProvider>
+  );
+}
+```
+
+此时框架会自动注入全局 `AppStatusBar`：
+
+- 亮色主题：`dark-content`
+- 暗色主题：`light-content`
+- Android 状态栏背景默认跟随当前主题背景色
+
+### 2. 页面级覆盖
+
+如果某个页面需要单独控制状态栏，可以在页面内显式渲染：
+
+```tsx
+import { AppStatusBar } from '@gaozh1024/rn-kit';
+
+<AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />;
+```
+
+适合：
+
+- 登录页
+- 沉浸式详情页
+- 顶部大图/渐变背景页
+
+### 3. 登录页全屏背景示例
+
+如果登录页希望顶部状态栏区域也和页面背景保持一致，不要直接使用默认白底容器。
+
+推荐：
+
+```tsx
+import { AppStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
+
+export function LoginScreen() {
+  return (
+    <>
+      <AppStatusBar barStyle="light-content" backgroundColor="#f38b32" translucent={false} />
+
+      <SafeScreen bg="primary-500">
+        <AppView flex className="bg-primary-500">
+          {/* page content */}
+        </AppView>
+      </SafeScreen>
+    </>
+  );
+}
+```
+
+### 4. 沉浸式状态栏示例
+
+```tsx
+import { AppStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
+
+export function HeroScreen() {
+  return (
+    <>
+      <AppStatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+
+      <SafeScreen top={false} bottom={false}>
+        <AppView flex className="bg-black">
+          {/* hero content */}
+        </AppView>
+      </SafeScreen>
+    </>
+  );
+}
+```
+
+### 5. 常见问题
+
+#### 为什么顶部还是白色？
+
+通常是以下原因之一：
+
+1. 当前页面没有单独覆盖 `AppStatusBar`
+2. 页面容器本身是白底
+3. 使用了 `Page` / `SafeScreen`，但没有设置 `bg`
+4. 顶部安全区没有和页面背景统一
+
+如果你用的是：
+
+```tsx
+<Page>
+```
+
+那它默认不适合登录页这类全屏品牌色场景。请改成：
+
+```tsx
+<Page bg="primary-500">
+```
+
+或者直接用：
+
+```tsx
+<SafeScreen bg="primary-500">
+```
 
 ## 📄 许可证
 

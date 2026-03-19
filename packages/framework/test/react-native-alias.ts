@@ -28,6 +28,11 @@ export const TextInput = createNativeComponent('TextInput');
 export const Image = createNativeComponent('Image');
 export const Modal = createNativeComponent('Modal');
 export const RefreshControl = createNativeComponent('RefreshControl');
+export const PanResponder = {
+  create: (_config: any) => ({
+    panHandlers: {},
+  }),
+};
 
 export const FlatList = ({
   data = [],
@@ -133,6 +138,7 @@ const ReactNative = {
   Modal,
   FlatList,
   RefreshControl,
+  PanResponder,
   StyleSheet,
   Platform,
   Dimensions,

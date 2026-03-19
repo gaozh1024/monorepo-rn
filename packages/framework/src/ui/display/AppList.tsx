@@ -8,7 +8,7 @@ import {
   ViewStyle,
   StyleSheet,
 } from 'react-native';
-import { useTheme } from '@/theme';
+import { useTheme, useThemeColors } from '@/theme';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from './Icon';
 import { Center } from '@/ui/layout';
@@ -52,16 +52,19 @@ export interface AppListProps<T = any> {
 }
 
 function SkeletonItem({ render }: { render?: () => React.ReactElement }) {
+  const colors = useThemeColors();
+
   if (render) {
     return render();
   }
+
   return (
     <AppView p={4} gap={3} testID="skeleton">
       <AppView row gap={3}>
-        <AppView className="w-16 h-16 rounded-lg bg-gray-200" />
+        <AppView className="w-16 h-16 rounded-lg" style={{ backgroundColor: colors.divider }} />
         <AppView flex gap={2}>
-          <AppView className="h-4 w-3/4 rounded bg-gray-200" />
-          <AppView className="h-3 w-1/2 rounded bg-gray-200" />
+          <AppView className="h-4 w-3/4 rounded" style={{ backgroundColor: colors.divider }} />
+          <AppView className="h-3 w-1/2 rounded" style={{ backgroundColor: colors.divider }} />
         </AppView>
       </AppView>
     </AppView>
@@ -77,14 +80,16 @@ function EmptyState({
   description?: string;
   icon?: string;
 }) {
+  const colors = useThemeColors();
+
   return (
     <Center py={20}>
-      <Icon name={icon || 'inbox'} size={64} color="gray-300" />
-      <AppText size="lg" weight="medium" color="gray-500" className="mt-4">
+      <Icon name={icon || 'inbox'} size={64} color={colors.textMuted} />
+      <AppText size="lg" weight="medium" className="mt-4" style={{ color: colors.text }}>
         {title || '暂无数据'}
       </AppText>
       {description && (
-        <AppText size="sm" color="gray-400" className="mt-2">
+        <AppText size="sm" className="mt-2" style={{ color: colors.textMuted }}>
           {description}
         </AppText>
       )}
@@ -93,10 +98,7 @@ function EmptyState({
 }
 
 function ErrorState({ error, onRetry }: { error: Error; onRetry?: () => void }) {
-  const { isDark } = useTheme();
-  const subTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const buttonBgColor = isDark ? '#374151' : '#f3f4f6';
-  const buttonTextColor = isDark ? '#ffffff' : '#374151';
+  const colors = useThemeColors();
 
   return (
     <Center py={20}>
@@ -104,7 +106,7 @@ function ErrorState({ error, onRetry }: { error: Error; onRetry?: () => void }) 
       <AppText size="lg" weight="medium" color="error-500" className="mt-4">
         加载失败
       </AppText>
-      <AppText size="sm" style={{ color: subTextColor }} className="mt-2 text-center px-8">
+      <AppText size="sm" style={{ color: colors.textMuted }} className="mt-2 text-center px-8">
         {error.message || '请检查网络后重试'}
       </AppText>
       {onRetry && (
@@ -113,10 +115,10 @@ function ErrorState({ error, onRetry }: { error: Error; onRetry?: () => void }) 
           className="mt-6 px-4 py-2 rounded-lg"
           style={[
             styles.retryButton,
-            { backgroundColor: buttonBgColor, borderColor: isDark ? '#4b5563' : '#d1d5db' },
+            { backgroundColor: colors.cardElevated, borderColor: colors.border },
           ]}
         >
-          <AppText style={{ color: buttonTextColor }} className="text-center">
+          <AppText style={{ color: colors.textSecondary }} className="text-center">
             重新加载
           </AppText>
         </AppPressable>
@@ -135,7 +137,13 @@ function LoadMoreFooter({ loading }: { loading: boolean }) {
 }
 
 function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
-  return <AppView className="h-px bg-gray-200" style={[{ marginVertical: 0 }, style]} />;
+  const colors = useThemeColors();
+  return (
+    <AppView
+      className="h-px"
+      style={[{ marginVertical: 0 }, { backgroundColor: colors.divider }, style]}
+    />
+  );
 }
 
 export function AppList<T = any>({

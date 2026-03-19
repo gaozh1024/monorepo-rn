@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, ViewProps, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
+import { resolveNamedColor } from '../utils/theme-color';
 
 export interface SafeScreenProps extends ViewProps {
   /** 是否包含顶部安全区域 */
@@ -45,12 +47,16 @@ export function SafeScreen({
   ...props
 }: SafeScreenProps) {
   const insets = useSafeAreaInsets();
+  const { theme, isDark } = useOptionalTheme();
+  const resolvedBgColor = resolveNamedColor(bg, theme, isDark);
+  const shouldUseClassBg = !!bg && !resolvedBgColor;
 
   return (
     <View
-      className={cn(flex && 'flex-1', bg && `bg-${bg}`, className)}
+      className={cn(flex && 'flex-1', shouldUseClassBg && `bg-${bg}`, className)}
       style={[
         flex && styles.flex,
+        resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
         {
           paddingTop: top ? insets.top : 0,
           paddingBottom: bottom ? insets.bottom : 0,
@@ -91,7 +97,7 @@ export function Page({
   ...props
 }: Omit<SafeScreenProps, 'top' | 'bottom' | 'left' | 'right'>) {
   return (
-    <SafeScreen flex bg="white" {...props} className={className}>
+    <SafeScreen flex bg="background" {...props} className={className}>
       {children}
     </SafeScreen>
   );
