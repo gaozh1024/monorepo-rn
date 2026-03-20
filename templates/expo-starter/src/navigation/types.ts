@@ -9,33 +9,23 @@ import type { NativeStackNavigationProp } from '@gaozh1024/rn-kit';
  * - 页面层尽量不直接依赖 `@react-navigation/*`
  */
 
-/** 根栈参数列表 */
+/** 根栈参数列表 - 单层导航 */
 export type RootStackParamList = {
+  // 启动页
   Launch: undefined;
-  Auth: undefined;
-  Main: undefined;
-};
 
-export type MainDrawerParamList = {
-  MainTabs: undefined;
-  GlobalDrawer: undefined;
-};
-
-/** 认证栈参数列表 */
-export type AuthStackParamList = {
+  // 认证页
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
-};
 
-/** 主 Tab 参数列表 */
-export type MainTabParamList = {
-  Home: undefined;
-  My: undefined;
-};
+  // Tab 主页面
+  MainTabs: undefined;
 
-/** “我的”页面栈参数列表 */
-export type MyStackParamList = {
+  // 全局抽屉页
+  GlobalDrawer: undefined;
+
+  // 我的页面组（二级页面，与 MainTabs 同级）
   MyMain: undefined;
   UserInfo: undefined;
   Settings: undefined;
@@ -44,10 +34,14 @@ export type MyStackParamList = {
   About: undefined;
 };
 
+/** 主 Tab 参数列表 */
+export type MainTabParamList = {
+  Home: undefined;
+  My: undefined;
+};
+
 /** 常用导航类型别名 */
 export type RootNavigationProp = NativeStackNavigationProp<RootStackParamList>;
-export type AuthNavigationProp = NativeStackNavigationProp<AuthStackParamList>;
-export type MyNavigationProp = NativeStackNavigationProp<MyStackParamList>;
 
 // 给 React Navigation / rn-kit 的 useNavigation 提供全局 Root 类型
 declare global {

@@ -21,4 +21,10 @@ describe('Row', () => {
     const row = getByTestId('row');
     expect(row.props.className).toContain('items-center');
   });
+
+  it('应该支持换行', () => {
+    const { getByTestId } = render(<Row wrap testID="row" />);
+    const row = getByTestId('row');
+    expect(row.props.className).toContain('flex-wrap');
+  });
 });

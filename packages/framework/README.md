@@ -61,6 +61,7 @@ module.exports = {
   ],
   safelist: [
     { pattern: /^(flex)-(1|2|3|4|5|6|7|8|9|10|11|12)$/ },
+    'flex-wrap',
     { pattern: /^(items)-(start|center|end|stretch)$/ },
     { pattern: /^(justify)-(start|center|end|between|around)$/ },
     { pattern: /^(p|px|py|gap)-(0|1|2|3|4|5|6|8|10|12)$/ },
@@ -171,6 +172,35 @@ import {
 } from '@gaozh1024/rn-kit';
 ```
 
+#### 布局与容器约定
+
+- `AppView` / `Row` 支持 `wrap`，等价于 `flex-wrap`
+- `Card` 支持常用间距快捷属性：`p` / `px` / `py` / `gap`
+- `SafeScreen` / `AppScreen` 同时支持：
+  - `bg="primary-500"` 这类显式颜色
+  - `surface="background" | "card" | "muted"` 这类语义背景
+
+#### Button 颜色语义
+
+`AppButton` 目前支持以下 `color`：
+
+- `primary`
+- `secondary`
+- `success`
+- `warning`
+- `info`
+- `error`
+- `danger`（`error` 的兼容别名）
+- `muted`
+
+```tsx
+<AppButton color="success">保存成功</AppButton>
+<AppButton color="warning" variant="outline">
+  继续操作
+</AppButton>
+<AppButton color="danger">删除</AppButton>
+```
+
 #### 可本地化文案参数（i18n 推荐）
 
 - `AppList`
@@ -189,6 +219,46 @@ import {
   - `pickerDateFormat`：弹窗顶部日期格式
   - `yearLabel` / `monthLabel` / `dayLabel`：列标题文案
   - `todayText` / `minDateText` / `maxDateText`：快捷按钮文案
+
+#### 表单与反馈 Hook 当前 API
+
+```tsx
+import { useForm, useToast, useLoading, useAlert } from '@gaozh1024/rn-kit';
+
+const form = useForm({
+  schema,
+  defaultValues: { name: '' },
+});
+
+form.values;
+form.errors;
+form.setValue('name', 'Panther');
+await form.validate();
+await form.validateField('name');
+await form.handleSubmit(async values => {
+  console.log(values);
+});
+
+const toast = useToast();
+toast.show('已保存', 'success', 2000);
+toast.success('成功');
+
+const loading = useLoading();
+loading.show('加载中...');
+loading.hide();
+
+const alert = useAlert();
+alert.alert({ title: '提示', message: '操作完成' });
+alert.confirm({ title: '确认删除', message: '删除后不可恢复' });
+```
+
+说明：
+
+- `useForm` 使用 `defaultValues`，不是 `initialValues`
+- `useForm` 提供 `setValue` / `handleSubmit`，不是 `setFieldValue` / `submit`
+- `useToast` 当前签名为 `show(message, type?, duration?)`
+- `useLoading` 当前签名为 `show(text?)` / `hide()`
+- `useAlert` 当前提供 `alert()` / `confirm()`，不包含 `prompt()` / `custom()`
 
 ### 🪝 Hooks
 
@@ -317,6 +387,14 @@ import { GradientView, AppText } from '@gaozh1024/rn-kit';
 </GradientView>;
 ```
 
+TypeScript 下如果你把颜色数组先提到变量里，建议写成 tuple：
+
+```tsx
+const heroColors = ['#f38b32', '#fb923c'] as const;
+
+<GradientView colors={heroColors} />;
+```
+
 如果你的应用是手动集成 `@gaozh1024/rn-kit`，请同时安装：
 
 ```bash
@@ -398,16 +476,31 @@ export default function App() {
 
 - 亮色主题：`dark-content`
 - 暗色主题：`light-content`
+- 默认 `translucent={false}`
 - Android 状态栏背景默认跟随当前主题背景色
 
-### 2. 页面级覆盖
+### 2. 使用 `AppHeader` 时的默认行为
+
+如果页面使用了 `AppHeader`，通常不需要再单独处理状态栏：
+
+- `AppHeader` 内部会自动注入 `AppFocusedStatusBar`
+- 配置为 `translucent + backgroundColor="transparent"`
+- 顶部状态栏区域会直接显示 Header 自身背景色
+
+适合：
+
+- 普通详情页
+- 设置页
+- 使用有色 Header 的二级页面
+
+### 3. 页面级覆盖
 
 如果某个页面需要单独控制状态栏，可以在页面内显式渲染：
 
 ```tsx
-import { AppStatusBar } from '@gaozh1024/rn-kit';
+import { AppFocusedStatusBar } from '@gaozh1024/rn-kit';
 
-<AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />;
+<AppFocusedStatusBar barStyle="light-content" backgroundColor="transparent" translucent />;
 ```
 
 适合：
@@ -416,19 +509,21 @@ import { AppStatusBar } from '@gaozh1024/rn-kit';
 - 沉浸式详情页
 - 顶部大图/渐变背景页
 
-### 3. 登录页全屏背景示例
+对于导航页面，优先使用 `AppFocusedStatusBar`，这样只有当前聚焦页面会覆盖状态栏配置。
+
+### 4. 登录页全屏背景示例
 
 如果登录页希望顶部状态栏区域也和页面背景保持一致，不要直接使用默认白底容器。
 
 推荐：
 
 ```tsx
-import { AppStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
+import { AppFocusedStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
 
 export function LoginScreen() {
   return (
     <>
-      <AppStatusBar barStyle="light-content" backgroundColor="#f38b32" translucent={false} />
+      <AppFocusedStatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <SafeScreen bg="primary-500">
         <AppView flex className="bg-primary-500">
@@ -440,15 +535,15 @@ export function LoginScreen() {
 }
 ```
 
-### 4. 沉浸式状态栏示例
+### 5. 沉浸式状态栏示例
 
 ```tsx
-import { AppStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
+import { AppFocusedStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
 
 export function HeroScreen() {
   return (
     <>
-      <AppStatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <AppFocusedStatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <SafeScreen top={false} bottom={false}>
         <AppView flex className="bg-black">
@@ -460,13 +555,13 @@ export function HeroScreen() {
 }
 ```
 
-### 5. 常见问题
+### 6. 常见问题
 
 #### 为什么顶部还是白色？
 
 通常是以下原因之一：
 
-1. 当前页面没有单独覆盖 `AppStatusBar`
+1. 当前页面没有使用 `AppHeader`，也没有单独覆盖 `AppFocusedStatusBar` / `AppStatusBar`
 2. 页面容器本身是白底
 3. 使用了 `AppScreen` / `SafeScreen`，但没有设置 `bg`
 4. 顶部安全区没有和页面背景统一

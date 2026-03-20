@@ -11,6 +11,8 @@ export interface AppViewProps extends ViewProps {
   flex?: boolean | number;
   /** 是否使用水平排列（flex-direction: row） */
   row?: boolean;
+  /** 是否允许换行 */
+  wrap?: boolean;
   /** 是否居中显示（items-center justify-center） */
   center?: boolean;
   /** 是否两端对齐（justify-between） */
@@ -70,6 +72,7 @@ export interface AppViewProps extends ViewProps {
 export function AppView({
   flex,
   row,
+  wrap,
   center,
   between,
   items,
@@ -97,6 +100,7 @@ export function AppView({
         flex === true && 'flex-1',
         typeof flex === 'number' && `flex-${flex}`,
         row ? 'flex-row' : 'flex-col',
+        wrap && 'flex-wrap',
         center && 'items-center justify-center',
         between && 'justify-between',
         items && `items-${items}`,

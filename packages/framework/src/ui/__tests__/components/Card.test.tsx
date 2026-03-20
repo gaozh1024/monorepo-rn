@@ -49,4 +49,18 @@ describe('Card', () => {
     expect(darkCard.props.style[0].backgroundColor).toBe('#111827');
     expect(darkCard.props.style[0].borderColor).not.toBe(lightBorderColor);
   });
+
+  it('应该支持间距快捷属性', () => {
+    const { getByTestId } = render(
+      <Card testID="card" p={4} px={2} py={3} gap={2}>
+        <AppText>内容</AppText>
+      </Card>
+    );
+
+    const card = getByTestId('card');
+    expect(card.props.className).toContain('p-4');
+    expect(card.props.className).toContain('px-2');
+    expect(card.props.className).toContain('py-3');
+    expect(card.props.className).toContain('gap-2');
+  });
 });

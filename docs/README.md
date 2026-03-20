@@ -43,6 +43,7 @@
 
 版本发布记录：
 
+- [rn-kit 0.3.4 Release Notes](./release-notes/0.3.4.md)
 - [rn-kit 0.3.3 Release Notes](./release-notes/0.3.3.md)
 - [rn-kit 0.3.2 Release Notes](./release-notes/0.3.2.md)
 - [rn-kit 0.3.1 Release Notes](./release-notes/0.3.1.md)

@@ -128,6 +128,10 @@ function App() {
 
 框架现在默认由 `AppProvider` 统一管理状态栏。
 
+- 全局 `AppStatusBar` 默认 `translucent={false}`
+- 默认文字颜色会跟随当前主题切换
+- Android 下默认背景色会跟随当前主题背景色
+
 ```tsx
 import { AppProvider } from '@gaozh1024/rn-kit';
 
@@ -140,23 +144,36 @@ export default function App() {
 }
 ```
 
+如果页面使用了 `AppHeader`，通常**不需要**再手动处理状态栏：
+
+- `AppHeader` 内部会自动注入 `AppFocusedStatusBar`
+- 配置为 `translucent + backgroundColor="transparent"`
+- 顶部状态栏区域会直接显示 Header 自身背景色
+
 如果某个页面需要单独覆盖状态栏：
 
 ```tsx
-import { AppStatusBar } from '@gaozh1024/rn-kit';
+import { AppFocusedStatusBar } from '@gaozh1024/rn-kit';
 
-<AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />;
+<AppFocusedStatusBar barStyle="light-content" backgroundColor="transparent" translucent />;
 ```
+
+更适合：
+
+- 登录页
+- 启动页
+- 顶部大图 / 渐变背景页
+- 不使用 `AppHeader` 的沉浸式页面
 
 登录页全屏背景示例：
 
 ```tsx
-import { AppStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
+import { AppFocusedStatusBar, SafeScreen, AppView } from '@gaozh1024/rn-kit';
 
 export function LoginScreen() {
   return (
     <>
-      <AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />
+      <AppFocusedStatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <SafeScreen bg="primary-500">
         <AppView flex className="bg-primary-500">
           {/* 登录内容 */}

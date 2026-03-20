@@ -2,6 +2,7 @@ import { type ViewStyle, StyleSheet } from 'react-native';
 import { useThemeColors } from '@/theme';
 import { AppView, AppText, AppPressable, Icon } from '@/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppFocusedStatusBar } from '@/overlay';
 
 /**
  * 右侧图标配置
@@ -43,6 +44,7 @@ export interface AppHeaderProps {
  * 应用头部组件
  *
  * iOS 风格的顶部导航栏，标题始终居中，不受左右按钮影响
+ * 内部会自动注入聚焦态透明状态栏，让顶部状态栏区域跟随 Header 背景显示
  *
  * @example
  * ```tsx
@@ -81,68 +83,71 @@ export function AppHeader({
   const backgroundColor = transparent ? 'transparent' : colors.card;
 
   return (
-    <AppView
-      style={[
-        {
-          backgroundColor,
-          paddingTop: safeArea ? insets.top : 0,
-        },
-        style,
-      ]}
-    >
-      {/* iOS 风格导航栏：标题始终居中 */}
-      <AppView row items="center" px={4} style={styles.container}>
-        {/* 左侧按钮区域 - 固定宽度 70，左对齐 */}
-        <AppView style={[styles.sideContainer, styles.leftContainer]}>
-          {leftIcon && (
-            <AppPressable onPress={onLeftPress} style={styles.iconButton}>
-              <Icon name={leftIcon} size={24} color={colors.text} />
-            </AppPressable>
-          )}
-        </AppView>
+    <>
+      <AppFocusedStatusBar translucent backgroundColor="transparent" />
+      <AppView
+        style={[
+          {
+            backgroundColor,
+            paddingTop: safeArea ? insets.top : 0,
+          },
+          style,
+        ]}
+      >
+        {/* iOS 风格导航栏：标题始终居中 */}
+        <AppView row items="center" px={4} style={styles.container}>
+          {/* 左侧按钮区域 - 固定宽度 70，左对齐 */}
+          <AppView style={[styles.sideContainer, styles.leftContainer]}>
+            {leftIcon && (
+              <AppPressable onPress={onLeftPress} style={styles.iconButton}>
+                <Icon name={leftIcon} size={24} color={colors.text} />
+              </AppPressable>
+            )}
+          </AppView>
 
-        {/* 中间标题区域 - 绝对居中 */}
-        <AppView style={styles.centerContainer}>
-          {title && (
-            <AppText
-              size="lg"
-              weight="semibold"
-              style={[styles.title, { color: colors.text }]}
-              numberOfLines={1}
-            >
-              {title}
-            </AppText>
-          )}
-          {subtitle && (
-            <AppText
-              size="xs"
-              style={[styles.subtitle, { color: colors.textMuted }]}
-              numberOfLines={1}
-            >
-              {subtitle}
-            </AppText>
-          )}
-        </AppView>
+          {/* 中间标题区域 - 绝对居中 */}
+          <AppView style={styles.centerContainer}>
+            {title && (
+              <AppText
+                size="lg"
+                weight="semibold"
+                style={[styles.title, { color: colors.text }]}
+                numberOfLines={1}
+              >
+                {title}
+              </AppText>
+            )}
+            {subtitle && (
+              <AppText
+                size="xs"
+                style={[styles.subtitle, { color: colors.textMuted }]}
+                numberOfLines={1}
+              >
+                {subtitle}
+              </AppText>
+            )}
+          </AppView>
 
-        {/* 右侧按钮区域 - 固定宽度 70，右对齐 */}
-        <AppView row items="center" style={[styles.sideContainer, styles.rightContainer]}>
-          {rightIcons.map((icon, index) => (
-            <AppPressable key={index} onPress={icon.onPress} style={styles.iconButton}>
-              <AppView>
-                <Icon name={icon.icon} size={24} color={colors.text} />
-                {icon.badge ? (
-                  <AppView style={styles.badge}>
-                    <AppText size="xs" color="white" style={styles.badgeText}>
-                      {icon.badge > 99 ? '99+' : icon.badge}
-                    </AppText>
-                  </AppView>
-                ) : null}
-              </AppView>
-            </AppPressable>
-          ))}
+          {/* 右侧按钮区域 - 固定宽度 70，右对齐 */}
+          <AppView row items="center" style={[styles.sideContainer, styles.rightContainer]}>
+            {rightIcons.map((icon, index) => (
+              <AppPressable key={index} onPress={icon.onPress} style={styles.iconButton}>
+                <AppView>
+                  <Icon name={icon.icon} size={24} color={colors.text} />
+                  {icon.badge ? (
+                    <AppView style={styles.badge}>
+                      <AppText size="xs" color="white" style={styles.badgeText}>
+                        {icon.badge > 99 ? '99+' : icon.badge}
+                      </AppText>
+                    </AppView>
+                  ) : null}
+                </AppView>
+              </AppPressable>
+            ))}
+          </AppView>
         </AppView>
       </AppView>
-    </AppView>
+    </>
   );
 }
 

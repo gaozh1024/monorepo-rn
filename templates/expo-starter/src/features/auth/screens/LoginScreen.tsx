@@ -3,112 +3,262 @@ import {
   AppView,
   AppText,
   AppInput,
-  AppButton,
   AppPressable,
   Center,
-  Card,
-  GradientView,
   AppFocusedStatusBar,
   useNavigation,
-  SafeScreen,
+  useTheme,
+  Icon,
+  Row,
 } from '@gaozh1024/rn-kit';
-import { LogoIcon } from '../../../components/common/Logo';
 import { useSessionStore } from '../../../store/session.store';
 import { loginResponse } from '../../../data/mocks/user.mock';
-import type { AuthNavigationProp } from '../../../navigation/types';
+import type { RootNavigationProp } from '../../../navigation/types';
+import { appColors } from '../../../bootstrap/theme';
 
 /**
- * 登录页
+ * 登录页 - 现代简约设计 v2
+ * 更大的卡片、精致阴影、分层感
  */
 export function LoginScreen() {
-  const navigation = useNavigation<AuthNavigationProp>();
+  const navigation = useNavigation<RootNavigationProp>();
   const { login } = useSessionStore();
+  const { isDark } = useTheme();
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!mobile || !password) {
-      return;
-    }
-
+    if (!mobile || !password) return;
     setLoading(true);
-
-    // 模拟登录请求
     setTimeout(() => {
       setLoading(false);
-      // 使用 mock 数据登录
       login(loginResponse.token, loginResponse.user);
     }, 1000);
   };
 
-  const goToRegister = () => {
-    navigation.navigate('Register');
-  };
-
-  const goToForgotPassword = () => {
-    navigation.navigate('ForgotPassword');
-  };
+  const goToRegister = () => navigation.navigate('Register');
+  const goToForgotPassword = () => navigation.navigate('ForgotPassword');
 
   return (
     <>
-      <AppFocusedStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-      <GradientView colors={['#f38b32', '#fb923c']} style={{ flex: 1 }}>
-        <AppView flex>
-          <SafeScreen flex top={false} className="justify-end">
-            <Center className="px-6 pb-10">
-              <LogoIcon size={72} />
-              <AppText size="2xl" weight="bold" className="mt-4 text-white">
-                欢迎回来
-              </AppText>
-              <AppText size="sm" className="mt-2 text-white/80 text-center">
-                使用 rn-kit 构建可维护、可扩展的 Expo 应用
-              </AppText>
-            </Center>
+      <AppFocusedStatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        translucent
+        backgroundColor="transparent"
+      />
+      <AppView
+        flex
+        style={{
+          backgroundColor: isDark ? appColors.slate[950] : '#f8fafc',
+        }}
+      >
+        {/* 背景装饰 */}
+        <AppView
+          style={{
+            position: 'absolute',
+            top: -100,
+            right: -100,
+            width: 300,
+            height: 300,
+            borderRadius: 150,
+            backgroundColor: isDark ? `${appColors.primary[500]}08` : `${appColors.primary[500]}12`,
+          }}
+        />
+        <AppView
+          style={{
+            position: 'absolute',
+            bottom: -80,
+            left: -80,
+            width: 250,
+            height: 250,
+            borderRadius: 125,
+            backgroundColor: isDark ? `${appColors.primary[400]}05` : `${appColors.primary[400]}08`,
+          }}
+        />
 
-            <Card className="rounded-t-3xl px-6 pt-8 pb-10">
-              <AppView className="gap-4">
+        {/* 内容区域 */}
+        <Center flex className="px-6">
+          {/* Logo 区域 */}
+          <Center style={{ marginBottom: 32 }}>
+            <AppView
+              style={{
+                width: 88,
+                height: 88,
+                borderRadius: 28,
+                backgroundColor: appColors.primary[500],
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: appColors.primary[500],
+                shadowOffset: { width: 0, height: 12 },
+                shadowOpacity: 0.25,
+                shadowRadius: 24,
+                elevation: 12,
+                marginBottom: 24,
+              }}
+            >
+              <AppView
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 12,
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                }}
+              />
+            </AppView>
+            <AppText
+              size="3xl"
+              weight="bold"
+              style={{
+                color: isDark ? appColors.slate[50] : appColors.slate[900],
+                marginBottom: 8,
+              }}
+            >
+              欢迎回来
+            </AppText>
+            <AppText
+              size="sm"
+              style={{
+                color: isDark ? appColors.slate[400] : appColors.slate[500],
+              }}
+            >
+              登录您的账号以继续
+            </AppText>
+          </Center>
+
+          {/* 登录表单卡片 */}
+          <AppView
+            style={{
+              width: '100%',
+              maxWidth: 380,
+              backgroundColor: isDark ? appColors.slate[900] : '#ffffff',
+              borderRadius: 28,
+              padding: 32,
+              shadowColor: isDark ? '#000000' : appColors.slate[900],
+              shadowOffset: { width: 0, height: 20 },
+              shadowOpacity: isDark ? 0.3 : 0.08,
+              shadowRadius: 40,
+              elevation: 20,
+            }}
+          >
+            <AppView style={{ gap: 20 }}>
+              {/* 手机号输入 */}
+              <AppView>
+                <AppText
+                  size="sm"
+                  weight="medium"
+                  style={{
+                    marginBottom: 10,
+                    marginLeft: 4,
+                    color: isDark ? appColors.slate[300] : appColors.slate[600],
+                  }}
+                >
+                  手机号
+                </AppText>
                 <AppInput
-                  label="手机号"
                   placeholder="请输入手机号"
                   value={mobile}
                   onChangeText={setMobile}
                   keyboardType="phone-pad"
+                  leftIcon={
+                    <Icon
+                      name="phone"
+                      size={20}
+                      color={isDark ? appColors.slate[400] : appColors.slate[400]}
+                    />
+                  }
                 />
+              </AppView>
 
+              {/* 密码输入 */}
+              <AppView>
+                <AppText
+                  size="sm"
+                  weight="medium"
+                  style={{
+                    marginBottom: 10,
+                    marginLeft: 4,
+                    color: isDark ? appColors.slate[300] : appColors.slate[600],
+                  }}
+                >
+                  密码
+                </AppText>
                 <AppInput
-                  label="密码"
                   placeholder="请输入密码"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
+                  leftIcon={
+                    <Icon
+                      name="lock"
+                      size={20}
+                      color={isDark ? appColors.slate[400] : appColors.slate[400]}
+                    />
+                  }
                 />
+              </AppView>
 
-                <AppPressable onPress={goToForgotPassword} className="self-end">
-                  <AppText size="sm" color="primary-500">
-                    忘记密码?
+              {/* 忘记密码 */}
+              <AppPressable onPress={goToForgotPassword} style={{ alignSelf: 'flex-end' }}>
+                <AppText size="sm" weight="medium" style={{ color: appColors.primary[500] }}>
+                  忘记密码?
+                </AppText>
+              </AppPressable>
+
+              {/* 登录按钮 */}
+              <AppPressable
+                onPress={handleLogin}
+                disabled={loading}
+                style={{
+                  height: 56,
+                  borderRadius: 16,
+                  backgroundColor: appColors.primary[500],
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowColor: appColors.primary[500],
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 16,
+                  elevation: 8,
+                  opacity: loading ? 0.7 : 1,
+                }}
+              >
+                <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
+                  {loading ? '登录中...' : '登录'}
+                </AppText>
+              </AppPressable>
+
+              {/* 注册链接 */}
+              <Row center style={{ marginTop: 8, gap: 6 }}>
+                <AppText
+                  size="sm"
+                  style={{
+                    color: isDark ? appColors.slate[500] : appColors.slate[500],
+                  }}
+                >
+                  还没有账号?
+                </AppText>
+                <AppPressable onPress={goToRegister}>
+                  <AppText size="sm" weight="semibold" style={{ color: appColors.primary[500] }}>
+                    立即注册
                   </AppText>
                 </AppPressable>
+              </Row>
+            </AppView>
+          </AppView>
 
-                <AppButton color="primary" loading={loading} onPress={handleLogin} className="mt-2">
-                  登录
-                </AppButton>
-
-                <AppView row center className="mt-4 gap-1">
-                  <AppText size="sm" tone="muted">
-                    还没有账号?
-                  </AppText>
-                  <AppPressable onPress={goToRegister}>
-                    <AppText size="sm" color="primary-500" weight="medium">
-                      立即注册
-                    </AppText>
-                  </AppPressable>
-                </AppView>
-              </AppView>
-            </Card>
-          </SafeScreen>
-        </AppView>
-      </GradientView>
+          {/* 底部文字 */}
+          <AppText
+            size="xs"
+            style={{
+              marginTop: 32,
+              color: isDark ? appColors.slate[600] : appColors.slate[400],
+            }}
+          >
+            基于 @gaozh1024/rn-kit 构建
+          </AppText>
+        </Center>
+      </AppView>
     </>
   );
 }

@@ -1,6 +1,6 @@
 {
   "name": "@gaozh1024/rn-kit",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Panther Expo Framework - All-in-one React Native framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

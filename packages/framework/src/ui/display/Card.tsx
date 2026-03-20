@@ -6,6 +6,14 @@ import { cn } from '@/utils';
  * Card 组件属性接口
  */
 export interface CardProps extends ViewProps {
+  /** 内边距 */
+  p?: number;
+  /** 水平内边距 */
+  px?: number;
+  /** 垂直内边距 */
+  py?: number;
+  /** 子元素间距 */
+  gap?: number;
   /** Tailwind / NativeWind 类名 */
   className?: string;
   /** 是否禁用阴影 */
@@ -21,6 +29,10 @@ export interface CardProps extends ViewProps {
  */
 export function Card({
   children,
+  p,
+  px,
+  py,
+  gap,
   className,
   style,
   noShadow = false,
@@ -36,6 +48,10 @@ export function Card({
         !noRadius && 'rounded-lg',
         !noShadow && 'shadow-sm',
         'overflow-hidden',
+        p !== undefined && `p-${p}`,
+        px !== undefined && `px-${px}`,
+        py !== undefined && `py-${py}`,
+        gap !== undefined && `gap-${gap}`,
         className
       )}
       style={[

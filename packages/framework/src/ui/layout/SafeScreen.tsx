@@ -3,7 +3,7 @@ import { View, ViewProps, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
-import { resolveNamedColor } from '../utils/theme-color';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 export interface SafeScreenProps extends ViewProps {
   /** 是否包含顶部安全区域 */
@@ -16,6 +16,8 @@ export interface SafeScreenProps extends ViewProps {
   right?: boolean;
   /** 背景颜色 */
   bg?: string;
+  /** 语义化背景 */
+  surface?: 'background' | 'card' | 'muted';
   /** 是否使用 flex: 1 */
   flex?: boolean;
   /** 自定义样式类 */
@@ -40,6 +42,7 @@ export function SafeScreen({
   left = false,
   right = false,
   bg,
+  surface,
   flex = true,
   className,
   children,
@@ -48,7 +51,8 @@ export function SafeScreen({
 }: SafeScreenProps) {
   const insets = useSafeAreaInsets();
   const { theme, isDark } = useOptionalTheme();
-  const resolvedBgColor = resolveNamedColor(bg, theme, isDark);
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const shouldUseClassBg = !!bg && !resolvedBgColor;
 
   return (
@@ -97,7 +101,7 @@ export function AppScreen({
   ...props
 }: Omit<SafeScreenProps, 'top' | 'bottom' | 'left' | 'right'>) {
   return (
-    <SafeScreen flex bg="background" {...props} className={className}>
+    <SafeScreen flex surface="background" {...props} className={className}>
       {children}
     </SafeScreen>
   );

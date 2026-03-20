@@ -171,16 +171,21 @@ npx expo start --android
 - 展示：`AppText` / `Card` / `Icon`
 - 交互：`AppButton` / `AppPressable`
 - 反馈：`Loading` / `useAlert`
-- 状态栏：`AppStatusBar`
+- 状态栏：`AppStatusBar` / `AppFocusedStatusBar`
 - 导航：`StackNavigator` / `TabNavigator` / `useNavigation`
 
 页面层尽量不要直接从 `react-native` 或 `@react-navigation/*` 引入基础 UI / 导航能力，优先使用 `rn-kit` 暴露的统一 API。
+
+带 `AppHeader` 的页面通常不需要单独处理状态栏：
+
+- `AppHeader` 会自动注入聚焦态透明状态栏
+- 顶部状态栏区域会直接显示 Header 的背景色
 
 例如登录页、启动页这类全屏彩色背景页面，推荐在页面内局部覆盖状态栏：
 
 ```tsx
 <>
-  <AppStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+  <AppFocusedStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
   <GradientView colors={['#f38b32', '#fb923c']} style={{ flex: 1 }}>
     <SafeScreen flex top={false}>
       {/* 页面内容 */}

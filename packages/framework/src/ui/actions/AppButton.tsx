@@ -6,13 +6,23 @@ import { cn } from '@/utils';
 /**
  * AppButton 组件属性接口
  */
+export type AppButtonColor =
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'warning'
+  | 'info'
+  | 'error'
+  | 'danger'
+  | 'muted';
+
 export interface AppButtonProps {
   /** 按钮样式变体：solid(实心)、outline(描边)、ghost(透明) */
   variant?: 'solid' | 'outline' | 'ghost';
   /** 按钮尺寸：sm(小)、md(中)、lg(大) */
   size?: 'sm' | 'md' | 'lg';
   /** 按钮颜色主题 */
-  color?: 'primary' | 'secondary' | 'danger';
+  color?: AppButtonColor;
   /** 是否显示加载状态 */
   loading?: boolean;
   /** 是否禁用 */
@@ -49,6 +59,9 @@ export interface AppButtonProps {
  * // 不同颜色
  * <AppButton color="primary">主题色</AppButton>
  * <AppButton color="secondary">次要色</AppButton>
+ * <AppButton color="success">成功操作</AppButton>
+ * <AppButton color="warning">警告操作</AppButton>
+ * <AppButton color="info">提示操作</AppButton>
  * <AppButton color="danger">危险操作</AppButton>
  *
  * // 加载状态
@@ -82,10 +95,15 @@ export function AppButton({
   const isDisabled = disabled || loading;
 
   const sizeClasses = { sm: 'px-3 py-2', md: 'px-4 py-3', lg: 'px-6 py-4' };
-  const buttonColors = {
+  const buttonColors: Record<AppButtonColor, string> = {
     primary: theme.colors.primary?.[500] || '#f38b32',
     secondary: theme.colors.secondary?.[500] || '#3b82f6',
+    success: theme.colors.success?.[500] || '#22c55e',
+    warning: theme.colors.warning?.[500] || '#f59e0b',
+    info: theme.colors.info?.[500] || theme.colors.secondary?.[500] || '#3b82f6',
+    error: theme.colors.error?.[500] || '#ef4444',
     danger: theme.colors.error?.[500] || '#ef4444',
+    muted: isDark ? '#6b7280' : '#9ca3af',
   };
   const ghostTextColor = isDark ? '#ffffff' : theme.colors.text?.[500] || '#1f2937';
   const ghostBackgroundColor = isDark ? 'rgba(255,255,255,0.04)' : 'transparent';

@@ -44,4 +44,21 @@ describe('AppButton', () => {
       backgroundColor: 'transparent',
     });
   });
+
+  it('应该支持 success 语义色', () => {
+    const { getByText } = render(
+      <AppButton color="success" variant="outline">
+        Success
+      </AppButton>
+    );
+    let button: any = getByText('Success');
+    while (button?.props && !('borderWidth' in (button.props.style || {}))) {
+      button = button.parent;
+    }
+
+    expect(button.props.style).toMatchObject({
+      borderWidth: 0.5,
+      borderColor: '#22c55e',
+    });
+  });
 });

@@ -21,6 +21,12 @@ describe('AppView', () => {
     expect(view.props.className).toContain('flex-row');
   });
 
+  it('应该支持换行样式', () => {
+    const { getByTestId } = render(<AppView wrap testID="view" />);
+    const view = getByTestId('view');
+    expect(view.props.className).toContain('flex-wrap');
+  });
+
   it('应该应用center样式', () => {
     const { getByTestId } = render(<AppView center testID="view" />);
     const view = getByTestId('view');

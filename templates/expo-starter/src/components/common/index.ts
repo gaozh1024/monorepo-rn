@@ -3,7 +3,6 @@
  */
 
 export { Logo, LogoIcon } from './Logo';
-export { AuthCardScreen, type AuthCardScreenProps } from './AuthCardScreen';
 export { PageScreen, type PageScreenProps } from './PageScreen';
 export { ListItem, type ListItemProps } from './ListItem';
 export { ListSection, type ListSectionProps } from './ListSection';
