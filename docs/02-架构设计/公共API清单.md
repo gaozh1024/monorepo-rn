@@ -198,23 +198,27 @@ UI 组件库，所有组件均为**稳定公共 API**。
 
 ### 4.5 Display 展示组件
 
-| 导出项            | 类型      | 稳定性  | 备注         |
-| ----------------- | --------- | ------- | ------------ |
-| `Progress`        | component | ✅ 稳定 | 进度条       |
-| `ProgressProps`   | type      | ✅ 稳定 | Props 类型   |
-| `Card`            | component | ✅ 稳定 | 卡片         |
-| `CardProps`       | type      | ✅ 稳定 | Props 类型   |
-| `Icon`            | component | ✅ 稳定 | 图标组件     |
-| `IconProps`       | type      | ✅ 稳定 | Props 类型   |
-| `IconSize`        | type      | ✅ 稳定 | 图标尺寸     |
-| `NavigationIcons` | object    | ✅ 稳定 | 导航图标集合 |
-| `ActionIcons`     | object    | ✅ 稳定 | 操作图标集合 |
-| `StatusIcons`     | object    | ✅ 稳定 | 状态图标集合 |
-| `FileIcons`       | object    | ✅ 稳定 | 文件图标集合 |
-| `AppImage`        | component | ✅ 稳定 | 图片组件     |
-| `AppImageProps`   | type      | ✅ 稳定 | Props 类型   |
-| `AppList`         | component | ✅ 稳定 | 列表组件     |
-| `AppListProps`    | type      | ✅ 稳定 | Props 类型   |
+| 导出项              | 类型      | 稳定性  | 备注         |
+| ------------------- | --------- | ------- | ------------ |
+| `Progress`          | component | ✅ 稳定 | 进度条       |
+| `ProgressProps`     | type      | ✅ 稳定 | Props 类型   |
+| `Card`              | component | ✅ 稳定 | 卡片         |
+| `CardProps`         | type      | ✅ 稳定 | Props 类型   |
+| `Icon`              | component | ✅ 稳定 | 图标组件     |
+| `IconProps`         | type      | ✅ 稳定 | Props 类型   |
+| `IconSize`          | type      | ✅ 稳定 | 图标尺寸     |
+| `NavigationIcons`   | object    | ✅ 稳定 | 导航图标集合 |
+| `ActionIcons`       | object    | ✅ 稳定 | 操作图标集合 |
+| `StatusIcons`       | object    | ✅ 稳定 | 状态图标集合 |
+| `FileIcons`         | object    | ✅ 稳定 | 文件图标集合 |
+| `AppImage`          | component | ✅ 稳定 | 图片组件     |
+| `AppImageProps`     | type      | ✅ 稳定 | Props 类型   |
+| `AppList`           | component | ✅ 稳定 | 列表组件     |
+| `AppListProps`      | type      | ✅ 稳定 | Props 类型   |
+| `GradientView`      | component | ✅ 稳定 | 渐变背景容器 |
+| `GradientViewProps` | type      | ✅ 稳定 | Props 类型   |
+| `PageDrawer`        | component | ✅ 稳定 | 页面级抽屉   |
+| `PageDrawerProps`   | type      | ✅ 稳定 | Props 类型   |
 
 ### 4.6 Form 表单组件
 
@@ -245,19 +249,21 @@ UI 组件库，所有组件均为**稳定公共 API**。
 
 ### 4.7 Hooks UI 相关 Hooks
 
-| 导出项                 | 类型 | 稳定性  | 备注         |
-| ---------------------- | ---- | ------- | ------------ |
-| `useToggle`            | hook | ✅ 稳定 | 布尔状态切换 |
-| `UseToggleActions`     | type | ✅ 稳定 | 切换操作类型 |
-| `useDebounce`          | hook | ✅ 稳定 | 防抖         |
-| `useThrottle`          | hook | ✅ 稳定 | 节流         |
-| `useKeyboard`          | hook | ✅ 稳定 | 键盘状态     |
-| `UseKeyboardReturn`    | type | ✅ 稳定 | 键盘返回类型 |
-| `useDimensions`        | hook | ✅ 稳定 | 屏幕尺寸     |
-| `UseDimensionsReturn`  | type | ✅ 稳定 | 尺寸返回类型 |
-| `useOrientation`       | hook | ✅ 稳定 | 屏幕方向     |
-| `UseOrientationReturn` | type | ✅ 稳定 | 方向返回类型 |
-| `Orientation`          | type | ✅ 稳定 | 方向类型     |
+| 导出项                 | 类型 | 稳定性  | 备注               |
+| ---------------------- | ---- | ------- | ------------------ |
+| `useToggle`            | hook | ✅ 稳定 | 布尔状态切换       |
+| `UseToggleActions`     | type | ✅ 稳定 | 切换操作类型       |
+| `usePageDrawer`        | hook | ✅ 稳定 | 页面级抽屉状态管理 |
+| `UsePageDrawerReturn`  | type | ✅ 稳定 | 页面级抽屉返回类型 |
+| `useDebounce`          | hook | ✅ 稳定 | 防抖               |
+| `useThrottle`          | hook | ✅ 稳定 | 节流               |
+| `useKeyboard`          | hook | ✅ 稳定 | 键盘状态           |
+| `UseKeyboardReturn`    | type | ✅ 稳定 | 键盘返回类型       |
+| `useDimensions`        | hook | ✅ 稳定 | 屏幕尺寸           |
+| `UseDimensionsReturn`  | type | ✅ 稳定 | 尺寸返回类型       |
+| `useOrientation`       | hook | ✅ 稳定 | 屏幕方向           |
+| `UseOrientationReturn` | type | ✅ 稳定 | 方向返回类型       |
+| `Orientation`          | type | ✅ 稳定 | 方向类型           |
 
 ---
 

@@ -34,6 +34,8 @@ yarn add @gaozh1024/rn-kit
 npm install react react-native
 npm install react-native-screens react-native-safe-area-context
 npm install react-native-gesture-handler react-native-reanimated
+npx expo install @expo/vector-icons
+npx expo install expo-linear-gradient
 npm install react-native-svg
 ```
 
@@ -158,7 +160,9 @@ import {
   Card,
   Icon,
   AppImage,
-  AppList, // 数据展示
+  AppList,
+  GradientView,
+  PageDrawer, // 数据展示 / 页面级抽屉
   Checkbox,
   Radio,
   Switch,
@@ -173,6 +177,7 @@ import {
 import {
   // UI Hooks
   useToggle,
+  usePageDrawer,
   useDebounce,
   useThrottle,
   useKeyboard,
@@ -223,6 +228,113 @@ import {
 <TabNavigator tabBar={props => <BottomTabBar {...props} height={72} />}>
   {/* screens */}
 </TabNavigator>
+```
+
+### 🧲 抽屉
+
+框架同时提供两类抽屉能力：
+
+- **导航级抽屉**：`DrawerNavigator` / `DrawerContent`
+- **页面级抽屉**：`PageDrawer`
+
+#### 1. 页面级抽屉
+
+适合当前页面内的筛选面板、操作栏、详情侧栏。
+
+```tsx
+import React from 'react';
+import { AppButton, AppText, AppView, PageDrawer } from '@gaozh1024/rn-kit';
+
+function FilterPanel() {
+  const [visible, setVisible] = React.useState(false);
+
+  return (
+    <>
+      <AppButton onPress={() => setVisible(true)}>打开筛选</AppButton>
+
+      <PageDrawer
+        visible={visible}
+        onClose={() => setVisible(false)}
+        title="筛选条件"
+        placement="right"
+        width={320}
+      >
+        <AppView gap={3}>
+          <AppText>这里放筛选项</AppText>
+        </AppView>
+      </PageDrawer>
+    </>
+  );
+}
+```
+
+`PageDrawer` 支持：
+
+- 左 / 右侧抽屉
+- 点击遮罩关闭
+- 自定义 `header` / `footer`
+- 手势滑动关闭
+- Android 返回键优先关闭抽屉
+
+常用参数：
+
+- `placement`: `'left' | 'right'`
+- `width`: 抽屉宽度，默认 `320`
+- `swipeEnabled`: 是否启用手势关闭，默认 `true`
+- `swipeThreshold`: 触发关闭阈值，默认 `80`
+- `closeOnBackdropPress`: 点击遮罩关闭，默认 `true`
+
+### 🌈 渐变背景
+
+框架提供 `GradientView` 作为渐变背景容器，底层封装 `expo-linear-gradient`。
+
+```tsx
+import { GradientView, AppText } from '@gaozh1024/rn-kit';
+
+<GradientView colors={['#f38b32', '#fb923c']} style={{ padding: 24, borderRadius: 16 }}>
+  <AppText color="white" weight="bold">
+    渐变卡片
+  </AppText>
+</GradientView>;
+```
+
+如果你的应用是手动集成 `@gaozh1024/rn-kit`，请同时安装：
+
+```bash
+npx expo install expo-linear-gradient
+```
+
+如果你不想在页面里重复写 `useState(false)`，也可以直接使用：
+
+```tsx
+import { AppButton, PageDrawer, usePageDrawer } from '@gaozh1024/rn-kit';
+
+const drawer = usePageDrawer();
+
+<AppButton onPress={drawer.open}>打开</AppButton>;
+<PageDrawer visible={drawer.visible} onClose={drawer.close} />;
+```
+
+#### 2. 导航级抽屉
+
+适合整个导航结构都交给抽屉接管的场景：
+
+```tsx
+import { DrawerContent, DrawerNavigator } from '@gaozh1024/rn-kit';
+
+<DrawerNavigator
+  drawerContent={props => (
+    <DrawerContent
+      {...props}
+      items={[
+        { name: 'Home', label: '首页', icon: 'home' },
+        { name: 'Settings', label: '设置', icon: 'settings' },
+      ]}
+    />
+  )}
+>
+  {/* screens */}
+</DrawerNavigator>;
 ```
 
 ### 🔌 API 工厂

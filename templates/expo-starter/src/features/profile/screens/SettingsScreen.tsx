@@ -1,16 +1,6 @@
 import React from 'react';
-import {
-  AppView,
-  AppText,
-  Card,
-  Icon,
-  AppPressable,
-  AppButton,
-  useAlert,
-  useNavigation,
-  useThemeColors,
-} from '@gaozh1024/rn-kit';
-import { PageScreen } from '../../../components/common';
+import { AppText, Icon, AppButton, useAlert, useNavigation, AppView } from '@gaozh1024/rn-kit';
+import { ListItem, ListSection, PageScreen } from '../../../components/common';
 import { useSessionStore } from '../../../store/session.store';
 import { useUIStore } from '../../../store/ui.store';
 import {
@@ -31,7 +21,6 @@ export function SettingsScreen() {
   const { logout } = useSessionStore();
   const { themeMode, language } = useUIStore();
   const { confirm } = useAlert();
-  const colors = useThemeColors();
   const themeLabelMap: Record<ThemeMode, string> = {
     [THEME_MODES.LIGHT]: '浅色模式',
     [THEME_MODES.DARK]: '深色模式',
@@ -88,44 +77,31 @@ export function SettingsScreen() {
   return (
     <PageScreen title="设置">
       {resolvedSections.map(section => (
-        <AppView key={section.title} className="mt-4">
-          <AppText size="sm" tone="muted" className="px-4 mb-2">
-            {section.title}
-          </AppText>
-          <Card className="mx-4 overflow-hidden">
-            {section.items.map((item, index) => (
-              <AppPressable
-                key={item.key}
-                onPress={() => item.type === 'link' && handleItemPress(item.key)}
-              >
-                <AppView
-                  row
-                  items="center"
-                  justify="between"
-                  className="p-4"
-                  style={{
-                    borderBottomWidth: index < section.items.length - 1 ? 0.5 : 0,
-                    borderBottomColor: colors.divider,
-                  }}
-                >
-                  <AppText>{item.label}</AppText>
-                  {item.type === 'link' ? (
-                    <AppView row items="center">
-                      <AppText size="sm" tone="muted">
-                        {item.value}
-                      </AppText>
-                      <Icon name="chevron-right" size={20} color="muted" />
-                    </AppView>
-                  ) : (
+        <ListSection key={section.title} title={section.title}>
+          {section.items.map((item, index) => (
+            <ListItem
+              key={item.key}
+              onPress={() => item.type === 'link' && handleItemPress(item.key)}
+              showDivider={index < section.items.length - 1}
+              right={
+                item.type === 'link' ? (
+                  <>
                     <AppText size="sm" tone="muted">
                       {item.value}
                     </AppText>
-                  )}
-                </AppView>
-              </AppPressable>
-            ))}
-          </Card>
-        </AppView>
+                    <Icon name="chevron-right" size={20} color="muted" />
+                  </>
+                ) : (
+                  <AppText size="sm" tone="muted">
+                    {item.value}
+                  </AppText>
+                )
+              }
+            >
+              <AppText>{item.label}</AppText>
+            </ListItem>
+          ))}
+        </ListSection>
       ))}
 
       {/* 退出登录 */}

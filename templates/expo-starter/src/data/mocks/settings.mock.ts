@@ -20,7 +20,7 @@ export const settingsSections = [
   {
     title: '关于',
     items: [
-      { key: 'version', label: '当前版本', type: 'text', value: '0.1.1' },
+      { key: 'version', label: '当前版本', type: 'text', value: '0.2.1' },
       { key: 'about', label: '关于我们', type: 'link' },
       { key: 'privacy', label: '隐私政策', type: 'link' },
     ],

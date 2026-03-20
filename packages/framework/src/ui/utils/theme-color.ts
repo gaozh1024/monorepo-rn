@@ -132,3 +132,31 @@ export function resolveTextTone(
       return undefined;
   }
 }
+
+const textUtilityTokens = new Set([
+  'text-left',
+  'text-center',
+  'text-right',
+  'text-justify',
+  'text-auto',
+  'text-wrap',
+  'text-nowrap',
+  'text-balance',
+  'text-pretty',
+  'text-ellipsis',
+  'text-clip',
+]);
+
+const textSizePattern = /^text-(xs|sm|base|lg|xl|[2-9]xl)$/;
+
+export function hasExplicitTextColorClass(className: string | undefined) {
+  if (!className) return false;
+
+  return className.split(/\s+/).some(token => {
+    if (!token.startsWith('text-')) return false;
+    if (textUtilityTokens.has(token)) return false;
+    if (textSizePattern.test(token)) return false;
+
+    return true;
+  });
+}

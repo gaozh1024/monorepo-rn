@@ -22,12 +22,16 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './test/react-native-alias.ts'),
       },
       {
-        find: 'react-native-vector-icons/MaterialIcons',
-        replacement: path.resolve(__dirname, './test/material-icons-alias.ts'),
+        find: '@expo/vector-icons',
+        replacement: path.resolve(__dirname, './test/expo-vector-icons-alias.ts'),
       },
       {
         find: 'react-native-safe-area-context',
         replacement: path.resolve(__dirname, './test/safe-area-context-alias.ts'),
+      },
+      {
+        find: 'expo-linear-gradient',
+        replacement: path.resolve(__dirname, './test/expo-linear-gradient-alias.ts'),
       },
       {
         find: '@react-navigation/stack',

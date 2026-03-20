@@ -25,7 +25,7 @@ export default defineConfig({
     'react-native-safe-area-context',
     'react-native-gesture-handler',
     'react-native-reanimated',
-    'react-native-vector-icons/MaterialIcons',
+    '@expo/vector-icons',
     'nativewind',
     'nativewind/jsx-runtime',
     'nativewind/jsx-dev-runtime',

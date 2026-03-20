@@ -32,6 +32,8 @@ yarn add @gaozh1024/rn-kit
 npm install react react-native
 npm install react-native-screens react-native-safe-area-context
 npm install react-native-gesture-handler react-native-reanimated
+npx expo install @expo/vector-icons
+npx expo install expo-linear-gradient
 npm install react-native-svg
 ```
 
@@ -115,7 +117,9 @@ import {
   Card,
   Icon,
   AppImage,
-  AppList, // 数据展示
+  AppList,
+  GradientView,
+  PageDrawer, // 数据展示 / 页面级抽屉
   Checkbox,
   Radio,
   Switch,
@@ -130,6 +134,7 @@ import {
 import {
   // UI Hooks
   useToggle,
+  usePageDrawer,
   useDebounce,
   useThrottle,
   useKeyboard,
@@ -157,6 +162,17 @@ import {
   useRoute,
 } from '@gaozh1024/rn-kit';
 ```
+
+### 🧲 抽屉
+
+- 导航级抽屉：`DrawerNavigator`
+- 页面级抽屉：`PageDrawer`
+
+页面级抽屉适合当前页面内的筛选面板、详情侧栏、操作区抽屉，支持滑动关闭和返回优先关闭。
+
+### 🌈 渐变背景
+
+- 基础渐变容器：`GradientView`
 
 ### 🔌 API 工厂
 

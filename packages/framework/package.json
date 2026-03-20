@@ -1,6 +1,6 @@
 {
   "name": "@gaozh1024/rn-kit",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "Panther Expo Framework - All-in-one React Native framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,6 +13,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "react-native": "./dist/index.js",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     }
@@ -34,11 +35,13 @@
     "clsx": "^2.1.0",
     "nativewind": "^4.0.0",
     "react-native-svg": "^14.0.0",
-    "react-native-vector-icons": "^10.2.0",
     "tailwind-merge": "^2.2.0",
     "zod": "^3.22.0"
   },
   "peerDependencies": {
+    "@expo/vector-icons": "*",
+    "expo": "*",
+    "expo-linear-gradient": "*",
     "react": "*",
     "react-native": "*",
     "react-native-gesture-handler": "*",
@@ -50,7 +53,10 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/react-native": "^13.3.3",
     "@types/react": "^19.2.14",
-    "@types/react-native": "^0.73.0"
+    "@types/react-native": "^0.73.0",
+    "@expo/vector-icons": "~15.1.1",
+    "expo": "~54.0.33",
+    "expo-linear-gradient": "~15.0.8"
   },
   "keywords": [
     "react-native",

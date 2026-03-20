@@ -1,7 +1,11 @@
-import { Text, TextProps } from 'react-native';
+import { StyleSheet, Text, TextProps } from 'react-native';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
-import { resolveNamedColor, resolveTextTone } from '../utils/theme-color';
+import {
+  hasExplicitTextColorClass,
+  resolveNamedColor,
+  resolveTextTone,
+} from '../utils/theme-color';
 
 /**
  * AppText 组件属性接口
@@ -68,6 +72,9 @@ export function AppText({
   ...props
 }: AppTextProps) {
   const { theme, isDark } = useOptionalTheme();
+  const flattenedStyle = StyleSheet.flatten(style);
+  const hasExplicitStyleColor = flattenedStyle?.color !== undefined;
+  const hasExplicitClassColor = hasExplicitTextColorClass(className);
   const sizeMap: Record<string, string> = {
     xs: 'text-xs',
     sm: 'text-sm',
@@ -83,8 +90,11 @@ export function AppText({
     semibold: 'font-semibold',
     bold: 'font-bold',
   };
+  const fallbackTone =
+    tone ??
+    (color || hasExplicitStyleColor || hasExplicitClassColor ? undefined : ('default' as const));
   const resolvedColor =
-    resolveTextTone(tone, theme, isDark) ?? resolveNamedColor(color, theme, isDark);
+    resolveTextTone(fallbackTone, theme, isDark) ?? resolveNamedColor(color, theme, isDark);
   const shouldUseClassColor = !!color && !resolvedColor;
 
   return (

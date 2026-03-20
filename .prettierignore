@@ -4,5 +4,11 @@ build
 coverage
 *.lock
 pnpm-lock.yaml
+tmp
+temp
+*.tmp
 .expo
+.expo-shared
 .next
+.vitest
+.hvigor

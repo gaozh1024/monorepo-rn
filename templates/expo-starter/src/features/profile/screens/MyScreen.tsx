@@ -1,15 +1,6 @@
 import React from 'react';
-import {
-  AppScrollView,
-  AppView,
-  AppText,
-  AppPressable,
-  Icon,
-  Card,
-  useNavigation,
-  useThemeColors,
-} from '@gaozh1024/rn-kit';
-import { LogoIcon } from '../../../components/common/Logo';
+import { AppScrollView, AppView, AppText, Icon, Card, useNavigation } from '@gaozh1024/rn-kit';
+import { ListItem, LogoIcon } from '../../../components/common';
 import { useSessionStore } from '../../../store/session.store';
 import type { MyNavigationProp } from '../../../navigation/types';
 
@@ -19,7 +10,6 @@ import type { MyNavigationProp } from '../../../navigation/types';
 export function MyScreen() {
   const navigation = useNavigation<MyNavigationProp>();
   const { user } = useSessionStore();
-  const colors = useThemeColors();
 
   const menuItems = [
     {
@@ -64,21 +54,15 @@ export function MyScreen() {
       {/* 菜单列表 */}
       <Card className="mx-4 overflow-hidden">
         {menuItems.map((item, index) => (
-          <AppPressable key={item.key} onPress={item.onPress}>
-            <AppView
-              row
-              items="center"
-              className="p-4"
-              style={{
-                borderBottomWidth: index < menuItems.length - 1 ? 0.5 : 0,
-                borderBottomColor: colors.divider,
-              }}
-            >
-              <Icon name={item.icon} size={22} color="muted" />
-              <AppText className="ml-3 flex-1">{item.label}</AppText>
-              <Icon name="chevron-right" size={20} color="muted" />
-            </AppView>
-          </AppPressable>
+          <ListItem
+            key={item.key}
+            onPress={item.onPress}
+            showDivider={index < menuItems.length - 1}
+            left={<Icon name={item.icon} size={22} color="muted" />}
+            right={<Icon name="chevron-right" size={20} color="muted" />}
+          >
+            <AppText>{item.label}</AppText>
+          </ListItem>
         ))}
       </Card>
     </AppScrollView>

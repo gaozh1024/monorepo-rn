@@ -1,8 +1,8 @@
 {
   "name": "@gaozh1024/expo-starter",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Expo starter template based on @gaozh1024/rn-kit",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "expo/AppEntry",
   "files": [
     ".env.example",
     ".gitignore",
@@ -38,32 +38,33 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@gaozh1024/rn-kit": "^0.2.0",
-    "@react-native-masked-view/masked-view": "^0.3.2",
-    "@react-navigation/bottom-tabs": "^7.4.0",
-    "@react-navigation/native": "^7.1.8",
+    "@gaozh1024/rn-kit": "^0.3.1",
+    "@expo/vector-icons": "~15.1.1",
+    "@react-native-masked-view/masked-view": "~0.3.2",
+    "@react-navigation/bottom-tabs": "^7.15.5",
+    "@react-navigation/native": "^7.1.33",
     "@react-navigation/stack": "^7.8.5",
     "expo": "~54.0.33",
+    "expo-linear-gradient": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "nativewind": "^4.2.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
-    "react-native-reanimated": "~4.1.1",
+    "react-native-reanimated": "~4.1.6",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
-    "react-native-svg": "^15.12.1",
-    "react-native-vector-icons": "^10.2.0",
+    "react-native-svg": "~15.12.1",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.5.1",
     "tailwindcss": "^3.4.19",
-    "zod": "^3.22.0",
-    "zustand": "^4.5.0"
+    "zod": "^3.25.76",
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@types/react": "~19.1.0",
-    "typescript": "~5.9.2"
+    "@types/react": "~19.1.17",
+    "typescript": "~5.9.3"
   }
 }

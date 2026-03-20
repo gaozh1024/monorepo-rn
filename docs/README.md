@@ -39,6 +39,14 @@
 
 - [测试基础设施说明](./04-开发规范/测试基础设施说明.md) - 测试架构和编写规范
 
+### 05-发布说明
+
+版本发布记录：
+
+- [rn-kit 0.3.1 Release Notes](./release-notes/0.3.1.md)
+- [rn-kit 0.3.0 Release Notes](./release-notes/0.3.0.md)
+- [rn-kit 0.2.0 Release Notes](./release-notes/0.2.0.md)
+
 ---
 
 ## 🚀 其他指南
@@ -56,13 +64,13 @@
 - [x] 原子组件: AppView, AppText, AppPressable, AppInput
 - [x] 布局组件: Row, Col, Center
 - [x] 反馈组件: Toast, Alert, Loading, Progress
-- [x] 数据展示: Card, Icon, AppImage, AppList
+- [x] 数据展示: Card, Icon, AppImage, AppList, GradientView, PageDrawer
 - [x] 表单组件: Checkbox, Radio, Switch, Select, DatePicker
 - [x] 组合组件: AppButton
 
 ### ✅ Hooks
 
-- [x] UI Hooks: useToggle, useDebounce, useThrottle, useKeyboard, useDimensions, useOrientation
+- [x] UI Hooks: useToggle, usePageDrawer, useDebounce, useThrottle, useKeyboard, useDimensions, useOrientation
 - [x] Core Hooks: useAsyncState, useRequest, usePagination, useRefresh, useInfinite, useStorage, usePrevious, useSetState, useMemoizedFn, useUpdateEffect
 
 ### ✅ 导航
@@ -71,7 +79,7 @@
 - [x] StackNavigator
 - [x] TabNavigator
 - [x] DrawerNavigator
-- [x] AppHeader, BottomTabBar, DrawerContent
+- [x] AppHeader, BottomTabBar, DrawerContent, PageDrawer
 
 ### ✅ 其他
 

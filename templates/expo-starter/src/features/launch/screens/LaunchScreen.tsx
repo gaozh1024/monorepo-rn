@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AppStatusBar, Center, Loading, SafeScreen } from '@gaozh1024/rn-kit';
+import { AppStatusBar, Center, GradientView, Loading, SafeScreen } from '@gaozh1024/rn-kit';
 import { Logo } from '../../../components/common/Logo';
 import { useSessionStore } from '../../../store/session.store';
 
@@ -20,11 +20,13 @@ export function LaunchScreen() {
   return (
     <>
       <AppStatusBar barStyle="light-content" backgroundColor="#f38b32" />
-      <SafeScreen flex className="bg-primary-500">
-        <Center flex>
-          <Logo size="xl" />
-          <Loading text="正在启动..." color="#ffffff" />
-        </Center>
+      <SafeScreen flex>
+        <GradientView colors={['#f38b32', '#fb923c']} style={{ flex: 1 }}>
+          <Center flex>
+            <Logo size="xl" textColor="white" />
+            <Loading text="正在启动..." color="#ffffff" />
+          </Center>
+        </GradientView>
       </SafeScreen>
     </>
   );

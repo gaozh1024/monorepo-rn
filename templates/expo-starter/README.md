@@ -20,7 +20,9 @@ npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 - ✅ 结构不过度设计，后续可自然扩展
 - ✅ 内置 11 个基础页面
 - ✅ Mock 数据支持，无需后端即可开发
-- ✅ 内置 Logo 组件，无需外部图片资源
+- ✅ 内置 Logo 图片资源与应用图标配置
+- ✅ 已内置 `expo-linear-gradient`，可直接使用 `GradientView`
+- ✅ 已内置 `@expo/vector-icons`，可稳定使用框架 `Icon`
 
 ## 页面列表
 
@@ -138,6 +140,7 @@ npx expo start
 - 模板能否被 `create-expo-app` 正常消费
 - 本地 `rn-kit` 改动能否正确注入模板项目
 - 页面、导航、状态栏、底部 Tab 是否都正常工作
+- 渐变背景页面是否正常显示
 
 ## 发布前检查
 
@@ -178,13 +181,15 @@ npx expo start --android
 ```tsx
 <>
   <AppStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-  <AppView flex className="bg-primary-500">
+  <GradientView colors={['#f38b32', '#fb923c']} style={{ flex: 1 }}>
     <SafeScreen flex top={false}>
       {/* 页面内容 */}
     </SafeScreen>
-  </AppView>
+  </GradientView>
 </>
 ```
+
+模板已经预装 `expo-linear-gradient`，因此可以直接使用框架导出的 `GradientView`。
 
 ### 主题切换说明
 

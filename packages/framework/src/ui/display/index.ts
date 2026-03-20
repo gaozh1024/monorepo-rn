@@ -11,3 +11,5 @@ export {
 } from './Icon';
 export { AppImage, type AppImageProps } from './AppImage';
 export { AppList, type AppListProps } from './AppList';
+export { PageDrawer, type PageDrawerProps } from './PageDrawer';
+export { GradientView, type GradientViewProps } from './GradientView';

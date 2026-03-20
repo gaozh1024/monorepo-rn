@@ -1,4 +1,5 @@
 import React from 'react';
+import { Image } from 'react-native';
 import { AppView, AppText } from '@gaozh1024/rn-kit';
 
 interface LogoProps {
@@ -8,54 +9,31 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: { container: 40, inner: 24, font: 14 },
-  md: { container: 60, inner: 36, font: 20 },
-  lg: { container: 80, inner: 48, font: 28 },
-  xl: { container: 120, inner: 72, font: 40 },
+  sm: { container: 40, font: 14 },
+  md: { container: 60, font: 20 },
+  lg: { container: 80, font: 28 },
+  xl: { container: 120, font: 40 },
 };
+
+const logoSource = require('../../../assets/logo.png');
 
 /**
  * Panther Logo 组件
- * 使用纯代码绘制的Logo，无需外部图片资源
+ * 使用模板内置 logo 资源
  */
-export function Logo({ size = 'md', showText = true, textColor = '#ffffff' }: LogoProps) {
+export function Logo({ size = 'md', showText = true, textColor }: LogoProps) {
   const dimensions = sizeMap[size];
 
   return (
     <AppView center>
-      {/* Logo 图形 */}
-      <AppView
-        center
+      <Image
+        source={logoSource}
         style={{
           width: dimensions.container,
           height: dimensions.container,
-          borderRadius: dimensions.container / 4,
-          backgroundColor: '#f38b32',
         }}
-      >
-        {/* 内部装饰 */}
-        <AppView
-          style={{
-            width: dimensions.inner,
-            height: dimensions.inner,
-            borderRadius: dimensions.inner / 4,
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {/* P 字母 */}
-          <AppText
-            style={{
-              fontSize: dimensions.inner * 0.6,
-              fontWeight: 'bold',
-              color: '#ffffff',
-            }}
-          >
-            P
-          </AppText>
-        </AppView>
-      </AppView>
+        resizeMode="contain"
+      />
 
       {/* Logo 文字 */}
       {showText && (
@@ -64,7 +42,7 @@ export function Logo({ size = 'md', showText = true, textColor = '#ffffff' }: Lo
             weight="bold"
             style={{
               fontSize: dimensions.font,
-              color: textColor,
+              ...(textColor ? { color: textColor } : {}),
             }}
           >
             Panther
@@ -72,7 +50,7 @@ export function Logo({ size = 'md', showText = true, textColor = '#ffffff' }: Lo
           <AppText
             size="xs"
             style={{
-              color: textColor,
+              ...(textColor ? { color: textColor } : {}),
               opacity: 0.8,
               marginTop: 2,
             }}
@@ -90,24 +68,13 @@ export function Logo({ size = 'md', showText = true, textColor = '#ffffff' }: Lo
  */
 export function LogoIcon({ size = 40 }: { size?: number }) {
   return (
-    <AppView
-      center
+    <Image
+      source={logoSource}
       style={{
         width: size,
         height: size,
-        borderRadius: size / 4,
-        backgroundColor: '#f38b32',
       }}
-    >
-      <AppText
-        style={{
-          fontSize: size * 0.4,
-          fontWeight: 'bold',
-          color: '#ffffff',
-        }}
-      >
-        P
-      </AppText>
-    </AppView>
+      resizeMode="contain"
+    />
   );
 }

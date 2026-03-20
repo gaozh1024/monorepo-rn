@@ -1,6 +1,6 @@
 import React from 'react';
-import { AppView, AppText, Card, useThemeColors } from '@gaozh1024/rn-kit';
-import { LogoIcon, PageScreen } from '../../../components/common';
+import { AppText, Card } from '@gaozh1024/rn-kit';
+import { ListItem, ListSection, LogoIcon, PageScreen } from '../../../components/common';
 import { useSessionStore } from '../../../store/session.store';
 
 /**
@@ -8,7 +8,6 @@ import { useSessionStore } from '../../../store/session.store';
  */
 export function UserInfoScreen() {
   const { user } = useSessionStore();
-  const colors = useThemeColors();
 
   const infoItems = [
     { label: '姓名', value: user?.name },
@@ -29,24 +28,17 @@ export function UserInfoScreen() {
       </Card>
 
       {/* 信息列表 */}
-      <Card className="mx-4 overflow-hidden">
+      <ListSection className="mt-0">
         {infoItems.map((item, index) => (
-          <AppView
+          <ListItem
             key={item.label}
-            row
-            items="center"
-            justify="between"
-            className="p-4"
-            style={{
-              borderBottomWidth: index < infoItems.length - 1 ? 0.5 : 0,
-              borderBottomColor: colors.divider,
-            }}
+            showDivider={index < infoItems.length - 1}
+            right={<AppText>{item.value || '-'}</AppText>}
           >
             <AppText tone="muted">{item.label}</AppText>
-            <AppText>{item.value || '-'}</AppText>
-          </AppView>
+          </ListItem>
         ))}
-      </Card>
+      </ListSection>
     </PageScreen>
   );
 }

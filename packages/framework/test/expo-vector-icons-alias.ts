@@ -15,4 +15,4 @@ const MaterialIcons = React.forwardRef<any, any>(({ children, onPress, testID, .
 
 MaterialIcons.displayName = 'MaterialIcons';
 
-export default MaterialIcons;
+export { MaterialIcons };

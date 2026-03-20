@@ -311,9 +311,14 @@ vi.mock('react-native', () => {
   const Modal = createNativeComponent('Modal');
   const RefreshControl = createNativeComponent('RefreshControl');
   const PanResponder = {
-    create: (_config: any) => ({
-      panHandlers: {},
+    create: (config: any) => ({
+      panHandlers: config,
     }),
+  };
+  const BackHandler = {
+    addEventListener: vi.fn((_eventName: string, handler: () => boolean) => ({
+      remove: vi.fn(() => handler),
+    })),
   };
   const FlatList = ({
     data = [],
@@ -373,6 +378,7 @@ vi.mock('react-native', () => {
     FlatList,
     RefreshControl,
     PanResponder,
+    BackHandler,
     Animated,
     StyleSheet: {
       create: (styles: any) => styles,
@@ -409,8 +415,12 @@ vi.mock('react-native', () => {
   };
 });
 
-vi.mock('react-native-vector-icons/MaterialIcons', () => ({
-  default: createNativeComponent('MaterialIcon'),
+vi.mock('@expo/vector-icons', () => ({
+  MaterialIcons: createNativeComponent('MaterialIcon'),
+}));
+
+vi.mock('expo-linear-gradient', () => ({
+  LinearGradient: createNativeComponent('LinearGradient'),
 }));
 
 vi.mock('expo-secure-store', () => ({

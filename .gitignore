@@ -127,6 +127,7 @@ temp/
 
 # Expo/React Native
 .expo/
+.expo-shared/
 expo-env.d.ts
 *.jks
 *.p8
@@ -138,3 +139,9 @@ web-build/
 
 # Metro
 .metro-health-check*
+
+# Vitest
+.vitest/
+
+# HarmonyOS / Hvigor
+.hvigor/

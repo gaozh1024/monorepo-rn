@@ -29,8 +29,13 @@ export const Image = createNativeComponent('Image');
 export const Modal = createNativeComponent('Modal');
 export const RefreshControl = createNativeComponent('RefreshControl');
 export const PanResponder = {
-  create: (_config: any) => ({
-    panHandlers: {},
+  create: (config: any) => ({
+    panHandlers: config,
+  }),
+};
+export const BackHandler = {
+  addEventListener: (_eventName: string, handler: () => boolean) => ({
+    remove: () => handler,
   }),
 };
 
@@ -139,6 +144,7 @@ const ReactNative = {
   FlatList,
   RefreshControl,
   PanResponder,
+  BackHandler,
   StyleSheet,
   Platform,
   Dimensions,

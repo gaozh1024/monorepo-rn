@@ -1,5 +1,6 @@
-import { StyleProp, TextStyle } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import React from 'react';
+import { StyleProp, Text, TextStyle } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useOptionalTheme } from '@/theme';
 import { AppPressable } from '@/ui/primitives';
 import { resolveNamedColor } from '../utils/theme-color';
@@ -35,6 +36,22 @@ const sizeMap: Record<string, number> = {
   lg: 32,
   xl: 48,
 };
+
+type MaterialIconComponent = React.ComponentType<{
+  name: string;
+  size?: number;
+  color?: string;
+  style?: StyleProp<TextStyle>;
+  testID?: string;
+}>;
+
+function isComponentLike(value: unknown): value is MaterialIconComponent {
+  if (typeof value === 'function') return true;
+  if (typeof value !== 'object' || value === null) return false;
+  return '$$typeof' in (value as Record<string, unknown>);
+}
+
+const MaterialIconComponent = isComponentLike(MaterialIcons) ? MaterialIcons : undefined;
 
 /**
  * 解析图标尺寸
@@ -83,17 +100,41 @@ export function Icon({ name, size = 'md', color = 'gray-600', style, onPress, te
   const { theme, isDark } = useOptionalTheme();
   const resolvedSize = resolveSize(size);
   const resolvedColor = resolveNamedColor(color, theme, isDark) ?? color;
+  const fallback = (
+    <Text
+      style={[
+        {
+          color: resolvedColor,
+          fontSize: resolvedSize,
+          lineHeight: resolvedSize,
+        },
+        style,
+      ]}
+      testID={testID}
+    >
+      □
+    </Text>
+  );
+
+  if (!MaterialIconComponent) {
+    return onPress ? <AppPressable onPress={onPress}>{fallback}</AppPressable> : fallback;
+  }
 
   if (onPress) {
     return (
       <AppPressable onPress={onPress} testID={testID}>
-        <MaterialIcons name={name as any} size={resolvedSize} color={resolvedColor} style={style} />
+        <MaterialIconComponent
+          name={name as any}
+          size={resolvedSize}
+          color={resolvedColor}
+          style={style}
+        />
       </AppPressable>
     );
   }
 
   return (
-    <MaterialIcons
+    <MaterialIconComponent
       name={name as any}
       size={resolvedSize}
       color={resolvedColor}
