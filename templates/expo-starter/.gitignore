@@ -1,7 +1,10 @@
 node_modules/
 .expo/
+.expo-shared/
 dist/
+build/
 npm-debug.*
+*.log
 *.jks
 *.p8
 *.p12
@@ -9,6 +12,10 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+.vitest/
+.hvigor/
+package-lock.json
+npm-shrinkwrap.json
 
 # macOS
 .DS_Store

@@ -37,8 +37,24 @@ export interface SelectProps {
   disabled?: boolean;
   /** 是否可清空 */
   clearable?: boolean;
+  /** 单选弹窗标题 */
+  singleSelectTitle?: string;
+  /** 多选弹窗标题 */
+  multipleSelectTitle?: string;
+  /** 搜索占位文字 */
+  searchPlaceholder?: string;
+  /** 空状态文案 */
+  emptyText?: string;
+  /** 多选已选数量文案模板，使用 {{count}} 作为占位符 */
+  selectedCountText?: string;
+  /** 多选确认按钮文案 */
+  confirmText?: string;
   /** 自定义样式 */
   className?: string;
+}
+
+function formatSelectedCountText(template: string, count: number) {
+  return template.replace('{{count}}', String(count));
 }
 
 /**
@@ -54,6 +70,12 @@ export function Select({
   onSearch,
   disabled = false,
   clearable = true,
+  singleSelectTitle = '请选择',
+  multipleSelectTitle = '选择选项',
+  searchPlaceholder = '搜索...',
+  emptyText = '暂无选项',
+  selectedCountText = '已选择 {{count}} 项',
+  confirmText = '确定',
   className,
 }: SelectProps) {
   const colors = useFormThemeColors();
@@ -196,7 +218,7 @@ export function Select({
               style={[styles.header, { borderBottomColor: colors.divider }]}
             >
               <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
-                {multiple ? '选择选项' : '请选择'}
+                {multiple ? multipleSelectTitle : singleSelectTitle}
               </AppText>
               <TouchableOpacity onPress={() => setVisible(false)}>
                 <Icon name="close" size="md" color={colors.icon} />
@@ -221,7 +243,7 @@ export function Select({
                   <TextInput
                     className="flex-1 text-base"
                     style={{ color: colors.text }}
-                    placeholder="搜索..."
+                    placeholder={searchPlaceholder}
                     placeholderTextColor={colors.textMuted}
                     value={searchKeyword}
                     onChangeText={handleSearch}
@@ -243,7 +265,7 @@ export function Select({
               renderItem={renderOption}
               ListEmptyComponent={
                 <AppView center className="py-8">
-                  <AppText style={{ color: colors.textMuted }}>暂无选项</AppText>
+                  <AppText style={{ color: colors.textMuted }}>{emptyText}</AppText>
                 </AppView>
               }
             />
@@ -258,7 +280,7 @@ export function Select({
                 style={[styles.footer, { borderTopColor: colors.divider }]}
               >
                 <AppText style={{ color: colors.textMuted }}>
-                  已选择 {selectedValues.length} 项
+                  {formatSelectedCountText(selectedCountText, selectedValues.length)}
                 </AppText>
                 <TouchableOpacity
                   className="px-4 py-2 rounded-lg"
@@ -266,7 +288,7 @@ export function Select({
                   onPress={() => setVisible(false)}
                 >
                   <AppText className="font-medium" style={{ color: colors.textInverse }}>
-                    确定
+                    {confirmText}
                   </AppText>
                 </TouchableOpacity>
               </AppView>

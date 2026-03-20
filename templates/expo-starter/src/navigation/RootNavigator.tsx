@@ -3,7 +3,7 @@ import { StackNavigator } from '@gaozh1024/rn-kit';
 import { LaunchScreen } from '../features/launch/screens/LaunchScreen';
 import { useSessionStore } from '../store/session.store';
 import { AuthStack } from './AuthStack';
-import { MainTabs } from './MainTabs';
+import { MainDrawer } from './MainDrawer';
 import { ROUTES } from './routes';
 
 /**
@@ -17,7 +17,7 @@ export function RootNavigator() {
       {isLoading ? (
         <StackNavigator.Screen name={ROUTES.LAUNCH} component={LaunchScreen} />
       ) : isLoggedIn ? (
-        <StackNavigator.Screen name={ROUTES.MAIN} component={MainTabs} />
+        <StackNavigator.Screen name={ROUTES.MAIN} component={MainDrawer} />
       ) : (
         <StackNavigator.Screen name={ROUTES.AUTH} component={AuthStack} />
       )}

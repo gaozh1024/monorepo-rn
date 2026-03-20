@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import { AppList } from '../../display/AppList';
 import { AppText } from '../../primitives';
 import { ThemeProvider, createTheme } from '@/theme';
@@ -51,5 +51,27 @@ describe('AppList', () => {
 
     // 骨架屏项
     expect(getAllByTestId('skeleton').length).toBe(3);
+  });
+
+  it('应该支持自定义错误文案', () => {
+    const onRetry = vi.fn();
+    const { getByText } = render(
+      <ThemeProvider light={theme}>
+        <AppList
+          data={[]}
+          renderItem={() => null}
+          error={new Error('')}
+          onRetry={onRetry}
+          errorTitle="加载异常"
+          errorDescription="请稍后重试"
+          retryText="再试一次"
+        />
+      </ThemeProvider>
+    );
+
+    expect(getByText('加载异常')).toBeTruthy();
+    expect(getByText('请稍后重试')).toBeTruthy();
+    fireEvent.press(getByText('再试一次'));
+    expect(onRetry).toHaveBeenCalled();
   });
 });

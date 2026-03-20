@@ -1,12 +1,13 @@
 import React from 'react';
 import {
-  AppStatusBar,
   AppScrollView,
   AppView,
   AppText,
   Card,
   Icon,
   AppPressable,
+  useNavigation,
+  AppFocusedStatusBar,
   useThemeColors,
   useTheme,
 } from '@gaozh1024/rn-kit';
@@ -18,6 +19,7 @@ import { useSessionStore } from '../../../store/session.store';
  */
 export function HomeScreen() {
   const { user } = useSessionStore();
+  const navigation = useNavigation();
   const { theme, isDark } = useTheme();
   const colors = useThemeColors();
   const iconBadgeBg = isDark
@@ -47,15 +49,31 @@ export function HomeScreen() {
     );
   };
 
+  const handleOpenDrawer = () => {
+    const parent = navigation.getParent();
+    const drawerParent = parent?.getParent?.() ?? parent;
+    if (drawerParent && 'openDrawer' in drawerParent) {
+      (drawerParent as { openDrawer: () => void }).openDrawer();
+    }
+  };
+
   return (
     <>
-      <AppStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <AppFocusedStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <AppScrollView flex surface="background" contentInsetAdjustmentBehavior="never">
         {/* 顶部欢迎区 */}
         <AppView className="bg-primary-500 px-6 pt-12 pb-8">
-          <AppText size="sm" className="text-white/80">
-            欢迎回来
-          </AppText>
+          <AppView row className="items-center justify-between">
+            <AppText size="sm" className="text-white/80">
+              欢迎回来
+            </AppText>
+            <AppPressable
+              onPress={handleOpenDrawer}
+              className="w-9 h-9 rounded-full items-center justify-center"
+            >
+              <Icon name="menu" size={20} color="#ffffff" />
+            </AppPressable>
+          </AppView>
           <AppText size="xl" weight="bold" className="text-white mt-1">
             {user?.name || '用户'}
           </AppText>

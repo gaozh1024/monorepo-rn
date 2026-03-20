@@ -83,15 +83,15 @@ const styles = StyleSheet.create({
  *
  * @example
  * ```tsx
- * <Page>
+ * <AppScreen>
  *   <AppHeader title="首页" />
  *   <AppView flex p={4}>
  *     <AppText>页面内容</AppText>
  *   </AppView>
- * </Page>
+ * </AppScreen>
  * ```
  */
-export function Page({
+export function AppScreen({
   children,
   className,
   ...props

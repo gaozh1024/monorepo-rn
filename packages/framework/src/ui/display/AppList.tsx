@@ -28,6 +28,9 @@ export interface AppListProps<T = any> {
 
   error?: Error | null;
   onRetry?: () => void;
+  errorTitle?: string;
+  errorDescription?: string;
+  retryText?: string;
 
   emptyTitle?: string;
   emptyDescription?: string;
@@ -97,17 +100,29 @@ function EmptyState({
   );
 }
 
-function ErrorState({ error, onRetry }: { error: Error; onRetry?: () => void }) {
+function ErrorState({
+  error,
+  onRetry,
+  errorTitle,
+  errorDescription,
+  retryText,
+}: {
+  error: Error;
+  onRetry?: () => void;
+  errorTitle?: string;
+  errorDescription?: string;
+  retryText?: string;
+}) {
   const colors = useThemeColors();
 
   return (
     <Center py={20}>
       <Icon name="error-outline" size={64} color="error-300" />
       <AppText size="lg" weight="medium" color="error-500" className="mt-4">
-        加载失败
+        {errorTitle || '加载失败'}
       </AppText>
       <AppText size="sm" style={{ color: colors.textMuted }} className="mt-2 text-center px-8">
-        {error.message || '请检查网络后重试'}
+        {error.message || errorDescription || '请检查网络后重试'}
       </AppText>
       {onRetry && (
         <AppPressable
@@ -119,7 +134,7 @@ function ErrorState({ error, onRetry }: { error: Error; onRetry?: () => void }) 
           ]}
         >
           <AppText style={{ color: colors.textSecondary }} className="text-center">
-            重新加载
+            {retryText || '重新加载'}
           </AppText>
         </AppPressable>
       )}
@@ -161,6 +176,9 @@ export function AppList<T = any>({
 
   error,
   onRetry,
+  errorTitle,
+  errorDescription,
+  retryText,
 
   emptyTitle,
   emptyDescription,
@@ -244,7 +262,13 @@ export function AppList<T = any>({
   if (error && data.length === 0) {
     return (
       <Center style={style}>
-        <ErrorState error={error} onRetry={onRetry} />
+        <ErrorState
+          error={error}
+          onRetry={onRetry}
+          errorTitle={errorTitle}
+          errorDescription={errorDescription}
+          retryText={retryText}
+        />
       </Center>
     );
   }

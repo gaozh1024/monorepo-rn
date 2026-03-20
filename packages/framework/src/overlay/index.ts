@@ -7,7 +7,7 @@
 
 // App Provider - 统一所有 Provider
 export { AppProvider, type AppProviderProps } from './AppProvider';
-export { AppStatusBar, type AppStatusBarProps } from './AppStatusBar';
+export { AppStatusBar, AppFocusedStatusBar, type AppStatusBarProps } from './AppStatusBar';
 
 // Overlay Provider - 整合 Loading、Toast、Alert
 export { OverlayProvider, type OverlayProviderProps } from './provider';

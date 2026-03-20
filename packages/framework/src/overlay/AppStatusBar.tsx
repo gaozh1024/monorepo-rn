@@ -1,4 +1,5 @@
 import { StatusBar, type StatusBarProps, type StatusBarStyle } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { useTheme } from '@/theme';
 
 export interface AppStatusBarProps extends Omit<
@@ -43,4 +44,12 @@ export function AppStatusBar({
       {...props}
     />
   );
+}
+
+export function AppFocusedStatusBar(props: AppStatusBarProps) {
+  const isFocused = useIsFocused();
+
+  if (!isFocused) return null;
+
+  return <AppStatusBar {...props} />;
 }

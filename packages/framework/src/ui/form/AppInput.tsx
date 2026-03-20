@@ -89,6 +89,8 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
 );
 
 AppInput.displayName = 'AppInput';
+export const AppTextInput = AppInput;
+AppTextInput.displayName = 'AppTextInput';
 
 const styles = StyleSheet.create({
   inputContainer: {

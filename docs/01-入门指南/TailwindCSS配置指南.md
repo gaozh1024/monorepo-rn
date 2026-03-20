@@ -204,13 +204,13 @@ export function TestScreen() {
 如果这个页面正常，但 `AppHeader` 仍没有样式，再额外验证：
 
 ```tsx
-import { AppHeader, Page } from '@gaozh1024/rn-kit';
+import { AppHeader, AppScreen } from '@gaozh1024/rn-kit';
 
 export function HeaderTestScreen() {
   return (
-    <Page>
+    <AppScreen>
       <AppHeader title="样式检查" rightIcons={[{ icon: 'search', onPress: () => {} }]} />
-    </Page>
+    </AppScreen>
   );
 }
 ```

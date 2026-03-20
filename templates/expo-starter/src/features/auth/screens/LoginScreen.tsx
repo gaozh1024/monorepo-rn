@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  AppStatusBar,
   AppView,
   AppText,
   AppInput,
@@ -9,6 +8,7 @@ import {
   Center,
   Card,
   GradientView,
+  AppFocusedStatusBar,
   useNavigation,
   SafeScreen,
 } from '@gaozh1024/rn-kit';
@@ -52,7 +52,7 @@ export function LoginScreen() {
 
   return (
     <>
-      <AppStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <AppFocusedStatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <GradientView colors={['#f38b32', '#fb923c']} style={{ flex: 1 }}>
         <AppView flex>
           <SafeScreen flex top={false} className="justify-end">

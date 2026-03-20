@@ -8,6 +8,10 @@ export const ROUTES = {
   AUTH: 'Auth',
   MAIN: 'Main',
 
+  // Drawer
+  MAIN_TABS: 'MainTabs',
+  GLOBAL_DRAWER: 'GlobalDrawer',
+
   // Auth
   LOGIN: 'Login',
   REGISTER: 'Register',

@@ -165,18 +165,18 @@ UI 组件库，所有组件均为**稳定公共 API**。
 
 ### 4.2 Layout 布局组件
 
-| 导出项            | 类型      | 稳定性  | 备注            |
-| ----------------- | --------- | ------- | --------------- |
-| `Row`             | component | ✅ 稳定 | 水平布局        |
-| `RowProps`        | type      | ✅ 稳定 | Props 类型      |
-| `Col`             | component | ✅ 稳定 | 垂直布局        |
-| `ColProps`        | type      | ✅ 稳定 | Props 类型      |
-| `Center`          | component | ✅ 稳定 | 居中布局        |
-| `CenterProps`     | type      | ✅ 稳定 | Props 类型      |
-| `SafeScreen`      | component | ✅ 稳定 | 安全区域屏幕    |
-| `Page`            | component | ✅ 稳定 | SafeScreen 别名 |
-| `SafeBottom`      | component | ✅ 稳定 | 底部安全区域    |
-| `SafeScreenProps` | type      | ✅ 稳定 | Props 类型      |
+| 导出项            | 类型      | 稳定性  | 备注             |
+| ----------------- | --------- | ------- | ---------------- |
+| `Row`             | component | ✅ 稳定 | 水平布局         |
+| `RowProps`        | type      | ✅ 稳定 | Props 类型       |
+| `Col`             | component | ✅ 稳定 | 垂直布局         |
+| `ColProps`        | type      | ✅ 稳定 | Props 类型       |
+| `Center`          | component | ✅ 稳定 | 居中布局         |
+| `CenterProps`     | type      | ✅ 稳定 | Props 类型       |
+| `SafeScreen`      | component | ✅ 稳定 | 安全区域基础容器 |
+| `AppScreen`       | component | ✅ 稳定 | 页面容器（推荐） |
+| `SafeBottom`      | component | ✅ 稳定 | 底部安全区域     |
+| `SafeScreenProps` | type      | ✅ 稳定 | Props 类型       |
 
 ### 4.3 Actions 操作组件
 
@@ -220,6 +220,16 @@ UI 组件库，所有组件均为**稳定公共 API**。
 | `PageDrawer`        | component | ✅ 稳定 | 页面级抽屉   |
 | `PageDrawerProps`   | type      | ✅ 稳定 | Props 类型   |
 
+#### AppList 可本地化文案参数（可选）
+
+| 字段               | 类型     | 默认值             | 说明                 |
+| ------------------ | -------- | ------------------ | -------------------- |
+| `emptyTitle`       | `string` | `暂无数据`         | 空状态标题           |
+| `emptyDescription` | `string` | -                  | 空状态描述           |
+| `errorTitle`       | `string` | `加载失败`         | 错误状态标题         |
+| `errorDescription` | `string` | `请检查网络后重试` | 错误状态描述兜底文案 |
+| `retryText`        | `string` | `重新加载`         | 错误状态重试按钮文案 |
+
 ### 4.6 Form 表单组件
 
 | 导出项               | 类型      | 稳定性  | 备注       |
@@ -246,6 +256,33 @@ UI 组件库，所有组件均为**稳定公共 API**。
 | `FormItem`           | component | ✅ 稳定 | 表单项     |
 | `FormItemProps`      | type      | ✅ 稳定 | Props 类型 |
 | `useForm`            | hook      | ✅ 稳定 | 表单管理   |
+
+#### Select 可本地化文案参数（可选）
+
+| 字段                  | 类型     | 默认值                | 说明                               |
+| --------------------- | -------- | --------------------- | ---------------------------------- |
+| `singleSelectTitle`   | `string` | `请选择`              | 单选弹窗标题                       |
+| `multipleSelectTitle` | `string` | `选择选项`            | 多选弹窗标题                       |
+| `searchPlaceholder`   | `string` | `搜索...`             | 搜索框占位文案                     |
+| `emptyText`           | `string` | `暂无选项`            | 选项为空时的提示文案               |
+| `selectedCountText`   | `string` | `已选择 {{count}} 项` | 多选数量文案模板，支持 `{{count}}` |
+| `confirmText`         | `string` | `确定`                | 多选确认按钮文案                   |
+
+#### DatePicker 可本地化文案参数（可选）
+
+| 字段               | 类型     | 默认值           | 说明             |
+| ------------------ | -------- | ---------------- | ---------------- |
+| `placeholder`      | `string` | `请选择日期`     | 输入框占位文案   |
+| `cancelText`       | `string` | `取消`           | 弹窗取消按钮文案 |
+| `confirmText`      | `string` | `确定`           | 弹窗确认按钮文案 |
+| `pickerTitle`      | `string` | `选择日期`       | 弹窗标题         |
+| `pickerDateFormat` | `string` | `yyyy年MM月dd日` | 弹窗顶部日期格式 |
+| `yearLabel`        | `string` | `年`             | 年列标题         |
+| `monthLabel`       | `string` | `月`             | 月列标题         |
+| `dayLabel`         | `string` | `日`             | 日列标题         |
+| `todayText`        | `string` | `今天`           | 快捷按钮文案     |
+| `minDateText`      | `string` | `最早`           | 最小日期快捷文案 |
+| `maxDateText`      | `string` | `最晚`           | 最大日期快捷文案 |
 
 ### 4.7 Hooks UI 相关 Hooks
 

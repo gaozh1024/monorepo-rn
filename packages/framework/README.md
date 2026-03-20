@@ -171,6 +171,25 @@ import {
 } from '@gaozh1024/rn-kit';
 ```
 
+#### 可本地化文案参数（i18n 推荐）
+
+- `AppList`
+  - `errorTitle`：错误标题（默认 `加载失败`）
+  - `errorDescription`：错误描述兜底（默认 `请检查网络后重试`）
+  - `retryText`：重试按钮文案（默认 `重新加载`）
+- `Select`
+  - `singleSelectTitle` / `multipleSelectTitle`：弹窗标题
+  - `searchPlaceholder`：搜索占位文案
+  - `emptyText`：空状态文案
+  - `selectedCountText`：多选计数模板，支持 `{{count}}`
+  - `confirmText`：多选确认按钮文案
+- `DatePicker`
+  - `cancelText` / `confirmText`：弹窗操作按钮文案
+  - `pickerTitle`：弹窗标题文案
+  - `pickerDateFormat`：弹窗顶部日期格式
+  - `yearLabel` / `monthLabel` / `dayLabel`：列标题文案
+  - `todayText` / `minDateText` / `maxDateText`：快捷按钮文案
+
 ### 🪝 Hooks
 
 ```tsx
@@ -449,19 +468,19 @@ export function HeroScreen() {
 
 1. 当前页面没有单独覆盖 `AppStatusBar`
 2. 页面容器本身是白底
-3. 使用了 `Page` / `SafeScreen`，但没有设置 `bg`
+3. 使用了 `AppScreen` / `SafeScreen`，但没有设置 `bg`
 4. 顶部安全区没有和页面背景统一
 
 如果你用的是：
 
 ```tsx
-<Page>
+<AppScreen>
 ```
 
 那它默认不适合登录页这类全屏品牌色场景。请改成：
 
 ```tsx
-<Page bg="primary-500">
+<AppScreen bg="primary-500">
 ```
 
 或者直接用：

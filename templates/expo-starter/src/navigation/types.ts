@@ -16,6 +16,11 @@ export type RootStackParamList = {
   Main: undefined;
 };
 
+export type MainDrawerParamList = {
+  MainTabs: undefined;
+  GlobalDrawer: undefined;
+};
+
 /** 认证栈参数列表 */
 export type AuthStackParamList = {
   Login: undefined;

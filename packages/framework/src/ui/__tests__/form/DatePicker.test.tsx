@@ -32,4 +32,28 @@ describe('DatePicker', () => {
 
     expect(getByText('请选择日期').props.disabled).toBe(true);
   });
+
+  it('应该支持自定义弹窗文案', () => {
+    const { getByText } = renderWithTheme(
+      <DatePicker
+        placeholder="打开日期"
+        pickerTitle="选择生日"
+        cancelText="返回"
+        confirmText="完成"
+        yearLabel="年份"
+        monthLabel="月份"
+        dayLabel="日期"
+        todayText="今日"
+      />
+    );
+
+    fireEvent.press(getByText('打开日期'));
+    expect(getByText('选择生日')).toBeTruthy();
+    expect(getByText('返回')).toBeTruthy();
+    expect(getByText('完成')).toBeTruthy();
+    expect(getByText('年份')).toBeTruthy();
+    expect(getByText('月份')).toBeTruthy();
+    expect(getByText('日期')).toBeTruthy();
+    expect(getByText('今日')).toBeTruthy();
+  });
 });

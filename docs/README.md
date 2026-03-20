@@ -30,7 +30,7 @@
 
 项目模板相关文档：
 
-- [项目模版蓝图](./03-项目模板/项目模板蓝图.md) - 基于框架启动真实业务 App 的项目结构
+- [项目模板蓝图](./03-项目模板/项目模板蓝图.md) - 基于框架启动真实业务 App 的项目结构
 - [API 错误处理指南](./03-项目模板/API错误处理指南.md) - 全局错误监听和业务域 API 的推荐写法
 
 ### 04-开发规范
@@ -43,6 +43,8 @@
 
 版本发布记录：
 
+- [rn-kit 0.3.3 Release Notes](./release-notes/0.3.3.md)
+- [rn-kit 0.3.2 Release Notes](./release-notes/0.3.2.md)
 - [rn-kit 0.3.1 Release Notes](./release-notes/0.3.1.md)
 - [rn-kit 0.3.0 Release Notes](./release-notes/0.3.0.md)
 - [rn-kit 0.2.0 Release Notes](./release-notes/0.2.0.md)
@@ -57,33 +59,8 @@
 
 ---
 
-## 📊 功能清单
+## 🧭 维护建议
 
-### ✅ UI 组件
-
-- [x] 原子组件: AppView, AppText, AppPressable, AppInput
-- [x] 布局组件: Row, Col, Center
-- [x] 反馈组件: Toast, Alert, Loading, Progress
-- [x] 数据展示: Card, Icon, AppImage, AppList, GradientView, PageDrawer
-- [x] 表单组件: Checkbox, Radio, Switch, Select, DatePicker
-- [x] 组合组件: AppButton
-
-### ✅ Hooks
-
-- [x] UI Hooks: useToggle, usePageDrawer, useDebounce, useThrottle, useKeyboard, useDimensions, useOrientation
-- [x] Core Hooks: useAsyncState, useRequest, usePagination, useRefresh, useInfinite, useStorage, usePrevious, useSetState, useMemoizedFn, useUpdateEffect
-
-### ✅ 导航
-
-- [x] NavigationProvider
-- [x] StackNavigator
-- [x] TabNavigator
-- [x] DrawerNavigator
-- [x] AppHeader, BottomTabBar, DrawerContent, PageDrawer
-
-### ✅ 其他
-
-- [x] 主题系统: createTheme, ThemeProvider, useTheme
-- [x] API 工厂: createAPI
-- [x] 错误处理: ErrorCode, AppError, useAsyncState
-- [x] 存储: storage, MemoryStorage
+- API 以 [公共 API 清单](./02-架构设计/公共API清单.md) 为唯一准入文档
+- 组件使用说明以 [@gaozh1024/rn-kit README](../packages/framework/README.md) 为主
+- 发布内容以 [release-notes](./release-notes/) 为准

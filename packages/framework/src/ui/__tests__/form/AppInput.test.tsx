@@ -1,10 +1,16 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
-import { AppInput } from '../../form/AppInput';
+import { AppInput, AppTextInput } from '../../form/AppInput';
 import { renderWithTheme } from './test-utils';
 
 describe('AppInput', () => {
+  it('应该兼容导出 AppTextInput', () => {
+    const { getByTestId } = renderWithTheme(<AppTextInput testID="text-input" value="" />);
+
+    expect(getByTestId('text-input')).toBeTruthy();
+  });
+
   it('应该渲染标签、错误信息和禁用态', () => {
     const { getByText, getByTestId } = renderWithTheme(
       <AppInput testID="input" label="用户名" error="请输入用户名" disabled />

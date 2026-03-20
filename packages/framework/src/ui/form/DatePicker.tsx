@@ -25,6 +25,26 @@ export interface DatePickerProps {
   maxDate?: Date;
   /** 自定义样式 */
   className?: string;
+  /** 弹窗取消按钮文案 */
+  cancelText?: string;
+  /** 弹窗确认按钮文案 */
+  confirmText?: string;
+  /** 弹窗标题文案 */
+  pickerTitle?: string;
+  /** 弹窗日期展示格式 */
+  pickerDateFormat?: string;
+  /** 年列标题 */
+  yearLabel?: string;
+  /** 月列标题 */
+  monthLabel?: string;
+  /** 日列标题 */
+  dayLabel?: string;
+  /** 快捷按钮“今天”文案 */
+  todayText?: string;
+  /** 快捷按钮“最早”文案 */
+  minDateText?: string;
+  /** 快捷按钮“最晚”文案 */
+  maxDateText?: string;
 }
 
 interface PickerColumnProps {
@@ -102,6 +122,16 @@ export function DatePicker({
   minDate,
   maxDate,
   className,
+  cancelText = '取消',
+  confirmText = '确定',
+  pickerTitle = '选择日期',
+  pickerDateFormat = 'yyyy年MM月dd日',
+  yearLabel = '年',
+  monthLabel = '月',
+  dayLabel = '日',
+  todayText = '今天',
+  minDateText = '最早',
+  maxDateText = '最晚',
 }: DatePickerProps) {
   const colors = useFormThemeColors();
   const [visible, setVisible] = useState(false);
@@ -208,14 +238,14 @@ export function DatePicker({
               style={[styles.header, { borderBottomColor: colors.divider }]}
             >
               <TouchableOpacity onPress={() => setVisible(false)}>
-                <AppText style={{ color: colors.textMuted }}>取消</AppText>
+                <AppText style={{ color: colors.textMuted }}>{cancelText}</AppText>
               </TouchableOpacity>
               <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
-                选择日期
+                {pickerTitle}
               </AppText>
               <TouchableOpacity onPress={handleConfirm}>
                 <AppText style={{ color: colors.primary }} className="font-medium">
-                  确定
+                  {confirmText}
                 </AppText>
               </TouchableOpacity>
             </AppView>
@@ -223,14 +253,14 @@ export function DatePicker({
             {/* 日期显示 */}
             <AppView center className="py-4" style={{ backgroundColor: colors.headerSurface }}>
               <AppText className="text-2xl font-semibold" style={{ color: colors.text }}>
-                {formatDate(tempDate, 'yyyy年MM月dd日')}
+                {formatDate(tempDate, pickerDateFormat)}
               </AppText>
             </AppView>
 
             {/* 选择器区域 */}
             <AppView row className="h-48">
               <PickerColumn
-                title="年"
+                title={yearLabel}
                 values={years}
                 selectedValue={tempDate.getFullYear()}
                 onSelect={year => updateTempDate(year)}
@@ -241,7 +271,7 @@ export function DatePicker({
                 showDivider
               />
               <PickerColumn
-                title="月"
+                title={monthLabel}
                 values={months}
                 selectedValue={tempDate.getMonth() + 1}
                 onSelect={month => updateTempDate(undefined, month)}
@@ -253,7 +283,7 @@ export function DatePicker({
                 showDivider
               />
               <PickerColumn
-                title="日"
+                title={dayLabel}
                 values={days}
                 selectedValue={tempDate.getDate()}
                 onSelect={day => updateTempDate(undefined, undefined, day)}
@@ -275,7 +305,7 @@ export function DatePicker({
                 style={{ backgroundColor: colors.surfaceMuted }}
                 onPress={() => setTempDate(new Date())}
               >
-                <AppText style={{ color: colors.text }}>今天</AppText>
+                <AppText style={{ color: colors.text }}>{todayText}</AppText>
               </TouchableOpacity>
               {minDate && (
                 <TouchableOpacity
@@ -283,7 +313,7 @@ export function DatePicker({
                   style={{ backgroundColor: colors.surfaceMuted }}
                   onPress={() => setTempDate(minDate)}
                 >
-                  <AppText style={{ color: colors.text }}>最早</AppText>
+                  <AppText style={{ color: colors.text }}>{minDateText}</AppText>
                 </TouchableOpacity>
               )}
               {maxDate && (
@@ -292,7 +322,7 @@ export function DatePicker({
                   style={{ backgroundColor: colors.surfaceMuted }}
                   onPress={() => setTempDate(maxDate)}
                 >
-                  <AppText style={{ color: colors.text }}>最晚</AppText>
+                  <AppText style={{ color: colors.text }}>{maxDateText}</AppText>
                 </TouchableOpacity>
               )}
             </AppView>
