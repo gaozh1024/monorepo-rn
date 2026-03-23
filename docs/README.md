@@ -38,11 +38,17 @@
 开发规范和维护说明：
 
 - [测试基础设施说明](./04-开发规范/测试基础设施说明.md) - 测试架构和编写规范
+- [开发态可观测性说明](./04-开发规范/开发态可观测性说明.md) - Logger、错误边界、API 自动打点与日志面板使用说明
 
 ### 05-发布说明
 
 版本发布记录：
 
+- [expo-starter 0.2.7 Release Notes](./release-notes/expo-starter-0.2.7.md)
+- [expo-starter 0.2.6 Release Notes](./release-notes/expo-starter-0.2.6.md)
+- [rn-kit 0.4.2 Release Notes](./release-notes/0.4.2.md)
+- [rn-kit 0.4.1 Release Notes](./release-notes/0.4.1.md)
+- [rn-kit 0.4.0 Release Notes](./release-notes/0.4.0.md)
 - [rn-kit 0.3.4 Release Notes](./release-notes/0.3.4.md)
 - [rn-kit 0.3.3 Release Notes](./release-notes/0.3.3.md)
 - [rn-kit 0.3.2 Release Notes](./release-notes/0.3.2.md)

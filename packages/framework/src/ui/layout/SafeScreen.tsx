@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ViewProps, StyleSheet } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, View, ViewProps, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
@@ -20,6 +20,8 @@ export interface SafeScreenProps extends ViewProps {
   surface?: 'background' | 'card' | 'muted';
   /** 是否使用 flex: 1 */
   flex?: boolean;
+  /** 点击非输入区域时是否收起键盘 */
+  dismissKeyboardOnPressOutside?: boolean;
   /** 自定义样式类 */
   className?: string;
   /** 子元素 */
@@ -44,6 +46,7 @@ export function SafeScreen({
   bg,
   surface,
   flex = true,
+  dismissKeyboardOnPressOutside = false,
   className,
   children,
   style,
@@ -55,7 +58,7 @@ export function SafeScreen({
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const shouldUseClassBg = !!bg && !resolvedBgColor;
 
-  return (
+  const content = (
     <View
       className={cn(flex && 'flex-1', shouldUseClassBg && `bg-${bg}`, className)}
       style={[
@@ -73,6 +76,16 @@ export function SafeScreen({
     >
       {children}
     </View>
+  );
+
+  if (!dismissKeyboardOnPressOutside) {
+    return content;
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      {content}
+    </TouchableWithoutFeedback>
   );
 }
 

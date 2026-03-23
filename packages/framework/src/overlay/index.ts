@@ -23,3 +23,16 @@ export type { ToastContextType, ToastItem, ToastType } from './toast/types';
 // Alert 子系统
 export { useAlert } from './alert/hooks';
 export type { AlertContextType, AlertOptions } from './alert/types';
+
+// Logger 子系统
+export { LoggerProvider, useLogger, LogOverlay } from './logger';
+export type {
+  LoggerProviderProps,
+  LoggerContextType,
+  ScopedLoggerContextType,
+  LoggerExportPayload,
+} from './logger';
+
+// Error Boundary
+export { AppErrorBoundary } from './error-boundary';
+export type { AppErrorBoundaryProps, ErrorBoundaryFallbackRenderProps } from './error-boundary';

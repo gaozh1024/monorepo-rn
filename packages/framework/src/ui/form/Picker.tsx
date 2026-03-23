@@ -1,0 +1,479 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
+import { Icon } from '@/ui/display';
+import { AppPressable, AppText, AppView } from '@/ui/primitives';
+import { cn } from '@/utils';
+import { BottomSheetModal } from './BottomSheetModal';
+import { type FormThemeColors, useFormThemeColors } from './useFormTheme';
+
+export type PickerValue = string | number;
+
+export interface PickerOption {
+  label: string;
+  value: PickerValue;
+  disabled?: boolean;
+}
+
+export interface PickerColumn {
+  key: string;
+  title?: string;
+  options: PickerOption[];
+}
+
+export interface PickerRenderFooterContext {
+  close: () => void;
+  setTempValues: (values: PickerValue[]) => void;
+  tempValues: PickerValue[];
+}
+
+export interface PickerProps {
+  value?: PickerValue[];
+  onChange?: (values: PickerValue[]) => void;
+  columns: PickerColumn[];
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+  pickerTitle?: string;
+  cancelText?: string;
+  confirmText?: string;
+  triggerIconName?: string;
+  renderDisplayText?: (selectedOptions: Array<PickerOption | undefined>) => string;
+  renderFooter?: (context: PickerRenderFooterContext) => React.ReactNode;
+  tempValue?: PickerValue[];
+  defaultTempValue?: PickerValue[];
+  onTempChange?: (values: PickerValue[]) => void;
+  onOpen?: () => void;
+  rowHeight?: number;
+  visibleRows?: number;
+}
+
+function findFirstEnabledValue(column: PickerColumn) {
+  return column.options.find(option => !option.disabled)?.value;
+}
+
+function normalizeValues(columns: PickerColumn[], values?: PickerValue[]) {
+  return columns.map((column, index) => {
+    const candidate = values?.[index];
+    const matched = column.options.find(option => option.value === candidate && !option.disabled);
+    return matched?.value ?? findFirstEnabledValue(column) ?? column.options[0]?.value ?? '';
+  });
+}
+
+interface WheelPickerColumnProps {
+  colors: FormThemeColors;
+  column: PickerColumn;
+  onChange: (value: PickerValue) => void;
+  rowHeight: number;
+  selectedValue?: PickerValue;
+  showDivider?: boolean;
+  visibleRows: number;
+}
+
+function WheelPickerColumn({
+  colors,
+  column,
+  onChange,
+  rowHeight,
+  selectedValue,
+  showDivider = false,
+  visibleRows,
+}: WheelPickerColumnProps) {
+  const scrollRef = useRef<ScrollView | null>(null);
+  const paddingRows = Math.floor(visibleRows / 2);
+  const selectedIndex = Math.max(
+    0,
+    column.options.findIndex(option => option.value === selectedValue)
+  );
+
+  const scrollToIndex = useCallback(
+    (index: number, animated: boolean) => {
+      scrollRef.current?.scrollTo?.({ y: index * rowHeight, animated });
+    },
+    [rowHeight]
+  );
+
+  const selectNearestEnabled = useCallback(
+    (targetIndex: number) => {
+      if (column.options.length === 0) return;
+
+      const maxIndex = column.options.length - 1;
+      const clampedIndex = Math.max(0, Math.min(maxIndex, targetIndex));
+      const exactOption = column.options[clampedIndex];
+
+      if (exactOption && !exactOption.disabled) {
+        onChange(exactOption.value);
+        scrollToIndex(clampedIndex, true);
+        return;
+      }
+
+      for (let distance = 1; distance <= maxIndex; distance += 1) {
+        const prevIndex = clampedIndex - distance;
+        if (prevIndex >= 0) {
+          const prevOption = column.options[prevIndex];
+          if (prevOption && !prevOption.disabled) {
+            onChange(prevOption.value);
+            scrollToIndex(prevIndex, true);
+            return;
+          }
+        }
+
+        const nextIndex = clampedIndex + distance;
+        if (nextIndex <= maxIndex) {
+          const nextOption = column.options[nextIndex];
+          if (nextOption && !nextOption.disabled) {
+            onChange(nextOption.value);
+            scrollToIndex(nextIndex, true);
+            return;
+          }
+        }
+      }
+    },
+    [column.options, onChange, scrollToIndex]
+  );
+
+  const handleScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetY = event.nativeEvent.contentOffset?.y ?? 0;
+      selectNearestEnabled(Math.round(offsetY / rowHeight));
+    },
+    [rowHeight, selectNearestEnabled]
+  );
+
+  useEffect(() => {
+    scrollToIndex(selectedIndex, false);
+  }, [scrollToIndex, selectedIndex]);
+
+  return (
+    <AppView
+      flex
+      style={[
+        showDivider ? styles.columnDivider : undefined,
+        showDivider ? { borderRightColor: colors.divider } : undefined,
+      ]}
+    >
+      {column.title && (
+        <AppView center className="py-2" style={{ backgroundColor: colors.headerSurface }}>
+          <AppText className="text-sm font-medium" style={{ color: colors.textMuted }}>
+            {column.title}
+          </AppText>
+        </AppView>
+      )}
+
+      <AppView
+        style={[
+          styles.wheelViewport,
+          {
+            height: rowHeight * visibleRows,
+            backgroundColor: colors.surface,
+          },
+        ]}
+      >
+        <ScrollView
+          ref={scrollRef}
+          showsVerticalScrollIndicator={false}
+          snapToInterval={rowHeight}
+          decelerationRate="fast"
+          onMomentumScrollEnd={handleScrollEnd}
+          onScrollEndDrag={handleScrollEnd}
+          contentContainerStyle={{ paddingVertical: rowHeight * paddingRows }}
+        >
+          {column.options.map((option, index) => {
+            const selected = option.value === selectedValue;
+
+            return (
+              <TouchableOpacity
+                key={`${column.key}-${String(option.value)}-${index}`}
+                disabled={option.disabled}
+                onPress={() => {
+                  if (option.disabled) return;
+                  onChange(option.value);
+                  scrollToIndex(index, true);
+                }}
+                style={[
+                  styles.optionButton,
+                  {
+                    height: rowHeight,
+                    opacity: option.disabled ? 0.35 : selected ? 1 : 0.72,
+                  },
+                ]}
+              >
+                <AppText
+                  className={cn(selected ? 'font-semibold' : undefined)}
+                  style={{ color: selected ? colors.primary : colors.text }}
+                >
+                  {option.label}
+                </AppText>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        <AppView
+          pointerEvents="none"
+          style={[
+            styles.fadeMask,
+            {
+              top: 0,
+              height: rowHeight * paddingRows,
+            },
+          ]}
+        >
+          {[0.92, 0.72, 0.48, 0.24].map(opacity => (
+            <AppView
+              key={`top-${opacity}`}
+              flex
+              style={{ backgroundColor: colors.surface, opacity }}
+            />
+          ))}
+        </AppView>
+
+        <AppView
+          pointerEvents="none"
+          style={[
+            styles.fadeMask,
+            {
+              bottom: 0,
+              height: rowHeight * paddingRows,
+            },
+          ]}
+        >
+          {[0.24, 0.48, 0.72, 0.92].map(opacity => (
+            <AppView
+              key={`bottom-${opacity}`}
+              flex
+              style={{ backgroundColor: colors.surface, opacity }}
+            />
+          ))}
+        </AppView>
+
+        <AppView
+          pointerEvents="none"
+          style={[
+            styles.selectionOverlay,
+            {
+              top: rowHeight * paddingRows,
+              height: rowHeight,
+              borderColor: colors.divider,
+              backgroundColor: colors.primarySurface,
+            },
+          ]}
+        />
+      </AppView>
+    </AppView>
+  );
+}
+
+/**
+ * Picker - 通用多列滚轮选择器，适用于日期、省市区等多列选择场景
+ */
+export function Picker({
+  value,
+  onChange,
+  columns,
+  placeholder = '请选择',
+  disabled = false,
+  className,
+  pickerTitle = '请选择',
+  cancelText = '取消',
+  confirmText = '确定',
+  triggerIconName = 'keyboard-arrow-down',
+  renderDisplayText,
+  renderFooter,
+  tempValue,
+  defaultTempValue,
+  onTempChange,
+  onOpen,
+  rowHeight = 40,
+  visibleRows = 5,
+}: PickerProps) {
+  const colors = useFormThemeColors();
+  const [visible, setVisible] = useState(false);
+  const [internalTempValues, setInternalTempValues] = useState<PickerValue[]>(
+    normalizeValues(columns, defaultTempValue ?? value)
+  );
+
+  const isControlledTemp = tempValue !== undefined;
+  const tempValues = useMemo(
+    () => (isControlledTemp ? normalizeValues(columns, tempValue) : internalTempValues),
+    [columns, internalTempValues, isControlledTemp, tempValue]
+  );
+
+  useEffect(() => {
+    if (!isControlledTemp) {
+      setInternalTempValues(previous => normalizeValues(columns, previous));
+    }
+  }, [columns, isControlledTemp]);
+
+  const selectedOptions = useMemo(
+    () =>
+      columns.map((column, index) =>
+        column.options.find(option => option.value === value?.[index] && !option.disabled)
+      ),
+    [columns, value]
+  );
+
+  const displayText = useMemo(() => {
+    if (!value || value.length === 0) return placeholder;
+    if (renderDisplayText) return renderDisplayText(selectedOptions);
+
+    const labels = selectedOptions.map(option => option?.label).filter(Boolean);
+    return labels.length > 0 ? labels.join(' / ') : placeholder;
+  }, [placeholder, renderDisplayText, selectedOptions, value]);
+
+  const setTempValues = useCallback(
+    (nextValues: PickerValue[]) => {
+      const normalized = normalizeValues(columns, nextValues);
+      if (isControlledTemp) {
+        onTempChange?.(normalized);
+        return;
+      }
+      setInternalTempValues(normalized);
+      onTempChange?.(normalized);
+    },
+    [columns, isControlledTemp, onTempChange]
+  );
+
+  const updateColumnValue = useCallback(
+    (columnIndex: number, nextValue: PickerValue) => {
+      const nextValues = [...tempValues];
+      nextValues[columnIndex] = nextValue;
+      setTempValues(nextValues);
+    },
+    [setTempValues, tempValues]
+  );
+
+  const openModal = useCallback(() => {
+    const normalized = normalizeValues(columns, tempValue ?? value ?? defaultTempValue);
+
+    if (!isControlledTemp) {
+      setInternalTempValues(normalized);
+    }
+    onTempChange?.(normalized);
+    onOpen?.();
+    setVisible(true);
+  }, [columns, defaultTempValue, isControlledTemp, onOpen, onTempChange, tempValue, value]);
+
+  const handleConfirm = useCallback(() => {
+    onChange?.(tempValues);
+    setVisible(false);
+  }, [onChange, tempValues]);
+
+  return (
+    <>
+      <AppPressable
+        className={cn(
+          'flex-row items-center justify-between px-4 py-3 rounded-lg',
+          disabled ? 'opacity-60' : '',
+          className
+        )}
+        style={[styles.trigger, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        disabled={disabled}
+        onPress={openModal}
+      >
+        <AppText
+          className="flex-1"
+          style={{ color: value && value.length > 0 ? colors.text : colors.textMuted }}
+          numberOfLines={1}
+        >
+          {displayText}
+        </AppText>
+        <Icon name={triggerIconName} size="md" color={colors.icon} />
+      </AppPressable>
+
+      <BottomSheetModal
+        visible={visible}
+        onRequestClose={() => setVisible(false)}
+        overlayColor={colors.overlay}
+        surfaceColor={colors.surface}
+        closeOnBackdropPress
+      >
+        <>
+          <AppView
+            row
+            between
+            items="center"
+            className="px-4 py-3"
+            style={[styles.header, { borderBottomColor: colors.divider }]}
+          >
+            <TouchableOpacity onPress={() => setVisible(false)}>
+              <AppText style={{ color: colors.textMuted }}>{cancelText}</AppText>
+            </TouchableOpacity>
+            <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
+              {pickerTitle}
+            </AppText>
+            <TouchableOpacity onPress={handleConfirm}>
+              <AppText className="font-medium" style={{ color: colors.primary }}>
+                {confirmText}
+              </AppText>
+            </TouchableOpacity>
+          </AppView>
+
+          <AppView row>
+            {columns.map((column, index) => (
+              <WheelPickerColumn
+                key={column.key}
+                colors={colors}
+                column={column}
+                onChange={nextValue => updateColumnValue(index, nextValue)}
+                rowHeight={rowHeight}
+                selectedValue={tempValues[index]}
+                showDivider={index < columns.length - 1}
+                visibleRows={visibleRows}
+              />
+            ))}
+          </AppView>
+
+          {renderFooter && (
+            <AppView
+              className="px-4 py-3"
+              style={[styles.footer, { borderTopColor: colors.divider }]}
+            >
+              {renderFooter({ close: () => setVisible(false), setTempValues, tempValues })}
+            </AppView>
+          )}
+        </>
+      </BottomSheetModal>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  trigger: {
+    borderWidth: 0.5,
+  },
+  header: {
+    borderBottomWidth: 0.5,
+  },
+  footer: {
+    borderTopWidth: 0.5,
+  },
+  columnDivider: {
+    borderRightWidth: 0.5,
+  },
+  wheelViewport: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  fadeMask: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+  selectionOverlay: {
+    position: 'absolute',
+    left: 8,
+    right: 8,
+    borderRadius: 12,
+    borderWidth: 0.5,
+  },
+  optionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

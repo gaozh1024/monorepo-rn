@@ -33,7 +33,7 @@ export function PageScreen({
         {...headerProps}
       />
 
-      <AppScrollView surface="background" {...scrollProps}>
+      <AppScrollView surface="background" dismissKeyboardOnPressOutside {...scrollProps}>
         {children}
       </AppScrollView>
     </AppView>

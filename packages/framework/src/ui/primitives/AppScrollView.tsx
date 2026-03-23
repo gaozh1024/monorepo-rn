@@ -1,4 +1,4 @@
-import { ScrollView, type ScrollViewProps } from 'react-native';
+import { Keyboard, ScrollView, TouchableWithoutFeedback, type ScrollViewProps } from 'react-native';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
@@ -22,6 +22,8 @@ export interface AppScrollViewProps extends ScrollViewProps {
   rounded?: string;
   /** 自定义类名 */
   className?: string;
+  /** 点击非输入区域时是否收起键盘 */
+  dismissKeyboardOnPressOutside?: boolean;
 }
 
 /**
@@ -37,6 +39,7 @@ export function AppScrollView({
   surface,
   rounded,
   className,
+  dismissKeyboardOnPressOutside = false,
   children,
   style,
   ...props
@@ -46,7 +49,7 @@ export function AppScrollView({
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const shouldUseClassBg = !!bg && !resolvedBgColor;
 
-  return (
+  const content = (
     <ScrollView
       className={cn(
         flex && 'flex-1',
@@ -58,10 +61,25 @@ export function AppScrollView({
         rounded && `rounded-${rounded}`,
         className
       )}
-      style={[resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined, style]}
       {...props}
+      style={[resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined, style]}
+      keyboardShouldPersistTaps={
+        dismissKeyboardOnPressOutside
+          ? (props.keyboardShouldPersistTaps ?? 'handled')
+          : props.keyboardShouldPersistTaps
+      }
     >
       {children}
     </ScrollView>
+  );
+
+  if (!dismissKeyboardOnPressOutside) {
+    return content;
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      {content}
+    </TouchableWithoutFeedback>
   );
 }

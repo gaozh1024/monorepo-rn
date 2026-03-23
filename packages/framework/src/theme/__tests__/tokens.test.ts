@@ -17,6 +17,11 @@ describe('getThemeColors', () => {
     const colors = getThemeColors(theme, false);
 
     expect(colors.primary).toBe(theme.colors.primary?.[500]);
+    expect(colors.success).toBe('#22c55e');
+    expect(colors.warning).toBe('#f59e0b');
+    expect(colors.error).toBe('#ef4444');
+    expect(colors.info).toBe('#3b82f6');
+    expect(colors.muted).toBe('#6b7280');
     expect(colors.background).toBe(theme.colors.background?.[500]);
     expect(colors.card).toBe(theme.colors.card?.[500]);
     expect(colors.text).toBe(theme.colors.text?.[500]);
@@ -38,6 +43,11 @@ describe('getThemeColors', () => {
 
     expect(colors.text).toBe(theme.colors.text?.[500]);
     expect(colors.card).toBe(theme.colors.card?.[500]);
+    expect(colors.success).toBe('#22c55e');
+    expect(colors.warning).toBe('#f59e0b');
+    expect(colors.error).toBe('#ef4444');
+    expect(colors.info).toBe('#3b82f6');
+    expect(colors.muted).toBe('#9ca3af');
     expect(colors.primarySurface).toBe(theme.colors.primary?.[900]);
     expect(colors.divider).toBe(theme.colors.border?.[700] || theme.colors.border?.[500]);
   });

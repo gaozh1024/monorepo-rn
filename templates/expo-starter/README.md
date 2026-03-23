@@ -23,6 +23,10 @@ npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 - ✅ 内置 Logo 图片资源与应用图标配置
 - ✅ 已内置 `expo-linear-gradient`，可直接使用 `GradientView`
 - ✅ 已内置 `@expo/vector-icons`，可稳定使用框架 `Icon`
+- ✅ 基于 Expo SDK 54 / React Native 0.81 依赖基线维护
+- ✅ 表单页已接入键盘收起交互，输入体验更一致
+- ✅ 开发环境已预配置日志浮层、错误边界与 API 自动打点
+- ✅ API 示例默认带敏感字段脱敏，便于发布前直接联调
 
 ## 页面列表
 
@@ -102,6 +106,26 @@ pnpm install
 npx expo start
 ```
 
+## 依赖兼容性说明
+
+当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护。
+
+如果你准备把 `@gaozh1024/rn-kit` 接入到其他 Expo 项目，建议：
+
+1. 先确认你的 Expo SDK 版本
+2. 使用 `npx expo install ...` 安装原生依赖
+3. 再安装 `@gaozh1024/rn-kit`
+
+尤其是：
+
+- `react-native-reanimated`
+- `react-native-worklets`
+- `react-native-gesture-handler`
+- `react-native-safe-area-context`
+- `react-native-screens`
+
+不要直接让 npm 在 Expo 项目里自由解析这些依赖的最新版本。
+
 ## 本地测试模板
 
 推荐在模板发布前，先走一遍本地安装链路验证。
@@ -170,9 +194,11 @@ npx expo start --android
 - 布局：`AppView` / `Center` / `SafeScreen` / `AppScrollView`
 - 展示：`AppText` / `Card` / `Icon`
 - 交互：`AppButton` / `AppPressable`
-- 反馈：`Loading` / `useAlert`
+- 表单：`AppInput` / `Select` / `Picker` / `DatePicker`
+- 反馈：`Toast` / `Loading` / `useAlert`
 - 状态栏：`AppStatusBar` / `AppFocusedStatusBar`
 - 导航：`StackNavigator` / `TabNavigator` / `useNavigation`
+- 可观测性：`useLogger` / `createAPI(...observability)`
 
 页面层尽量不要直接从 `react-native` 或 `@react-navigation/*` 引入基础 UI / 导航能力，优先使用 `rn-kit` 暴露的统一 API。
 
@@ -195,6 +221,98 @@ npx expo start --android
 ```
 
 模板已经预装 `expo-linear-gradient`，因此可以直接使用框架导出的 `GradientView`。
+
+### 开发态可观测性
+
+模板默认通过 `AppProvider` 承接框架的开发态可观测性能力。
+
+开发环境下建议直接使用：
+
+- `useLogger(namespace)` 记录页面和交互日志
+- `createAPI({ observability })` 自动记录请求、响应和错误
+- `enableErrorBoundary` 捕获 React 渲染错误
+
+示例：
+
+```tsx
+import { AppButton, useLogger } from '@gaozh1024/rn-kit';
+
+export function LoginAction() {
+  const logger = useLogger('auth');
+
+  return (
+    <AppButton
+      onPress={() => {
+        logger.info('点击登录按钮');
+      }}
+    >
+      登录
+    </AppButton>
+  );
+}
+```
+
+如果你想显式控制，可以在 `src/app/providers.tsx` 中给 `AppProvider` 传：
+
+```tsx
+<AppProvider
+  enableLogger
+  enableErrorBoundary
+  loggerProps={{
+    level: 'info',
+    overlayEnabled: true,
+    exportEnabled: true,
+  }}
+>
+  <RootApp />
+</AppProvider>
+```
+
+框架会在开发环境下提供：
+
+- CLI 彩色日志输出
+- App 内 `LogOverlay`
+- level / namespace / 搜索 / 导出
+- API `request / response / error` 自动打点
+
+详细说明见：
+
+- `packages/framework/README.md`
+- `docs/04-开发规范/开发态可观测性说明.md`
+
+### 键盘交互约定
+
+模板中的表单页推荐统一遵循以下约定：
+
+- 页面容器优先使用 `SafeScreen dismissKeyboardOnPressOutside`
+- 滚动容器优先使用 `AppScrollView dismissKeyboardOnPressOutside`
+- 提交按钮默认保留 `AppButton` 的 `dismissKeyboardOnPress={true}`
+
+这样用户点击空白区域或提交按钮时，键盘会自动收起，减少焦点残留与遮挡问题。
+
+局部表单块如果不是整页滚动容器，也可以用：
+
+```tsx
+import { KeyboardDismissView } from '@gaozh1024/rn-kit';
+
+<KeyboardDismissView>{/* 局部输入区域 */}</KeyboardDismissView>;
+```
+
+### 选择器与弹层约定
+
+当前模板里与选择器相关的 UI 约定已经和框架保持一致：
+
+- `Select`：适合单选 / 多选项列表
+- `Picker`：适合通用多列选择
+- `DatePicker`：当前本质上是基于多列滚轮的日期选择器
+
+这三者的底部弹层样式与动画已统一：
+
+- 遮罩层淡入淡出
+- 面板从底部进入 / 退出
+- 支持点击遮罩关闭
+
+如果业务后续需要省市区、级联项等滚轮选择，优先基于 `Picker` 扩展。
 
 ### 主题切换说明
 

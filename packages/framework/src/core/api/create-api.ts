@@ -7,6 +7,7 @@
 import type { ApiConfig, ApiEndpointConfig, ApiErrorContext } from './types';
 import { ZodError } from 'zod';
 import { ErrorCode, enhanceError, mapHttpStatus, type AppError } from '../error';
+import { resolveApiObservability } from './observability';
 
 /**
  * 将 Zod 校验错误转换为应用错误对象
@@ -126,6 +127,7 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
 ): { [K in keyof TEndpoints]: (input?: any) => Promise<any> } {
   const endpoints = {} as any;
   const fetcher = config.fetcher ?? fetch;
+  const observability = resolveApiObservability(config.observability);
 
   for (const [name, ep] of Object.entries(config.endpoints)) {
     endpoints[name] = async (input?: any) => {
@@ -144,12 +146,47 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
       }
 
       const url = config.baseURL + ep.path;
+      const startAt = Date.now();
+
+      if (observability.enabled) {
+        await Promise.all(
+          observability.transports.map(transport =>
+            transport({
+              stage: 'request',
+              endpointName: name,
+              path: ep.path,
+              method: ep.method,
+              url,
+              input,
+            })
+          )
+        );
+      }
 
       let response: Response;
       try {
         response = await fetcher(url, { method: ep.method });
       } catch (error) {
-        throw await notifyError(parseNetworkError(error), context, ep, config as any);
+        const enhanced = await notifyError(parseNetworkError(error), context, ep, config as any);
+
+        if (observability.enabled) {
+          await Promise.all(
+            observability.transports.map(transport =>
+              transport({
+                stage: 'error',
+                endpointName: name,
+                path: ep.path,
+                method: ep.method,
+                url,
+                input,
+                durationMs: Date.now() - startAt,
+                error: enhanced,
+              })
+            )
+          );
+        }
+
+        throw enhanced;
       }
 
       context.response = response;
@@ -169,22 +206,133 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
       context.responseData = data;
 
       if (!response.ok) {
-        throw await notifyError(parseHttpError(response, data), context, ep, config as any);
+        const enhanced = await notifyError(
+          parseHttpError(response, data),
+          context,
+          ep,
+          config as any
+        );
+
+        if (observability.enabled) {
+          await Promise.all(
+            observability.transports.map(transport =>
+              transport({
+                stage: 'error',
+                endpointName: name,
+                path: ep.path,
+                method: ep.method,
+                url,
+                input,
+                response,
+                responseData: data,
+                statusCode: response.status,
+                durationMs: Date.now() - startAt,
+                error: enhanced,
+              })
+            )
+          );
+        }
+
+        throw enhanced;
       }
 
       const businessError =
         ep.parseBusinessError?.(data, response) ?? config.parseBusinessError?.(data, response);
 
       if (businessError) {
-        throw await notifyError(businessError, context, ep, config as any);
+        const enhanced = await notifyError(businessError, context, ep, config as any);
+
+        if (observability.enabled) {
+          await Promise.all(
+            observability.transports.map(transport =>
+              transport({
+                stage: 'error',
+                endpointName: name,
+                path: ep.path,
+                method: ep.method,
+                url,
+                input,
+                response,
+                responseData: data,
+                statusCode: response.status,
+                durationMs: Date.now() - startAt,
+                error: enhanced,
+              })
+            )
+          );
+        }
+
+        throw enhanced;
       }
 
       try {
         if (ep.output) {
-          return ep.output.parse(data);
+          const parsed = ep.output.parse(data);
+
+          if (observability.enabled) {
+            await Promise.all(
+              observability.transports.map(transport =>
+                transport({
+                  stage: 'response',
+                  endpointName: name,
+                  path: ep.path,
+                  method: ep.method,
+                  url,
+                  input,
+                  response,
+                  responseData: parsed,
+                  statusCode: response.status,
+                  durationMs: Date.now() - startAt,
+                })
+              )
+            );
+          }
+
+          return parsed;
         }
       } catch (error) {
-        throw await notifyError(parseUnknownError(error), context, ep, config as any);
+        const enhanced = await notifyError(parseUnknownError(error), context, ep, config as any);
+
+        if (observability.enabled) {
+          await Promise.all(
+            observability.transports.map(transport =>
+              transport({
+                stage: 'error',
+                endpointName: name,
+                path: ep.path,
+                method: ep.method,
+                url,
+                input,
+                response,
+                responseData: data,
+                statusCode: response.status,
+                durationMs: Date.now() - startAt,
+                error: enhanced,
+              })
+            )
+          );
+        }
+
+        throw enhanced;
+      }
+
+      if (observability.enabled) {
+        await Promise.all(
+          observability.transports.map(transport =>
+            transport({
+              stage: 'response',
+              endpointName: name,
+              path: ep.path,
+              method: ep.method,
+              url,
+              input,
+              response,
+              responseData: data,
+              statusCode: response.status,
+              durationMs: Date.now() - startAt,
+            })
+          )
+        );
       }
 
       return data;

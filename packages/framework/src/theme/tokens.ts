@@ -4,6 +4,11 @@ import type { Theme } from './types';
 
 export interface ThemeColorTokens {
   primary: string;
+  success: string;
+  warning: string;
+  error: string;
+  info: string;
+  muted: string;
   primarySurface: string;
   background: string;
   card: string;
@@ -20,6 +25,11 @@ export interface ThemeColorTokens {
 export function getThemeColors(theme: Theme, isDark: boolean): ThemeColorTokens {
   return {
     primary: theme.colors.primary?.[500] || '#f38b32',
+    success: theme.colors.success?.[500] || '#22c55e',
+    warning: theme.colors.warning?.[500] || '#f59e0b',
+    error: theme.colors.error?.[500] || '#ef4444',
+    info: theme.colors.info?.[500] || theme.colors.secondary?.[500] || '#3b82f6',
+    muted: isDark ? '#9ca3af' : '#6b7280',
     primarySurface: isDark
       ? theme.colors.primary?.[900] || '#7c2d12'
       : theme.colors.primary?.[50] || '#fff7ed',

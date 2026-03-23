@@ -16,6 +16,13 @@
 - `OverlayProvider`
 - `AppStatusBar`
 
+另外在**开发环境**下，`AppProvider` 默认会启用一套轻量的开发日志基础设施：
+
+- `LoggerProvider`
+- CLI 彩色日志输出
+- App 内 `LogOverlay` 浮层
+- `AppErrorBoundary` React 渲染错误兜底
+
 这样页面切换、主题切换时，状态栏会自动跟随全局主题变化。
 
 ## 📦 安装
@@ -30,14 +37,56 @@ yarn add @gaozh1024/rn-kit
 
 ### 前置依赖
 
+#### Expo 项目（推荐）
+
+如果你使用的是 Expo，请优先使用 `expo install`，让 Expo 按当前 SDK 自动选择兼容版本：
+
+```bash
+npx expo install react-native-screens react-native-safe-area-context
+npx expo install react-native-gesture-handler react-native-reanimated
+npx expo install @expo/vector-icons expo-linear-gradient
+npm install react-native-svg
+```
+
+如果你的项目是 **Expo SDK 54 / React Native 0.81**，还需要：
+
+```bash
+npx expo install react-native-worklets
+```
+
+> 注意：**Expo SDK 54 对应的是 React Native 0.81，不是 0.79。**
+> 如果你的项目是 React Native 0.79，通常对应 Expo SDK 53 一档，请不要直接按 SDK 54 的版本理解依赖关系。
+
+#### 非 Expo / 手动安装
+
 ```bash
 npm install react react-native
 npm install react-native-screens react-native-safe-area-context
 npm install react-native-gesture-handler react-native-reanimated
-npx expo install @expo/vector-icons
-npx expo install expo-linear-gradient
+npm install @expo/vector-icons expo-linear-gradient
 npm install react-native-svg
 ```
+
+#### 当前兼容性范围
+
+`0.4.2` 当前将 peerDependencies 收紧到以下范围，避免 npm 解析到和当前 RN 不兼容的过高版本：
+
+- `expo`: `>=53 <55`
+- `react-native`: `>=0.79 <0.82`
+- `react-native-reanimated`: `>=3.17.0 <4.2.0`
+- `react-native-worklets`: `>=0.5.0 <0.6.0`（可选）
+
+如果你在 Expo 项目中安装依赖，建议顺序是：
+
+```bash
+npx expo install react-native-screens react-native-safe-area-context
+npx expo install react-native-gesture-handler react-native-reanimated
+npx expo install @expo/vector-icons expo-linear-gradient
+npx expo install react-native-worklets
+npm install @gaozh1024/rn-kit
+```
+
+如果你是 Expo SDK 53 / RN 0.79 项目，通常不需要单独安装 `react-native-worklets`，以 `expo install` 给出的结果为准。
 
 ### ⚠️ 样式配置（必看）
 
@@ -149,6 +198,7 @@ import {
   AppScrollView,
   AppText,
   AppPressable,
+  KeyboardDismissView,
   AppInput, // 原子组件
   Row,
   Col,
@@ -168,6 +218,7 @@ import {
   Radio,
   Switch,
   Select,
+  Picker,
   DatePicker, // 表单
 } from '@gaozh1024/rn-kit';
 ```
@@ -179,6 +230,11 @@ import {
 - `SafeScreen` / `AppScreen` 同时支持：
   - `bg="primary-500"` 这类显式颜色
   - `surface="background" | "card" | "muted"` 这类语义背景
+  - `dismissKeyboardOnPressOutside`：点击非输入区域时收起键盘
+- `AppScrollView` 支持 `dismissKeyboardOnPressOutside`
+  - 开启后会自动启用点击空白收起键盘
+  - 并默认补上 `keyboardShouldPersistTaps="handled"`
+- `KeyboardDismissView` 适合非页面容器、自定义布局场景下单独包裹使用
 
 #### Button 颜色语义
 
@@ -201,6 +257,46 @@ import {
 <AppButton color="danger">删除</AppButton>
 ```
 
+#### 键盘收起交互
+
+`AppButton` 新增：
+
+- `dismissKeyboardOnPress?: boolean`
+- 默认值：`true`
+
+也就是说，大多数提交/保存/登录按钮在点击前会先自动收起键盘：
+
+```tsx
+<AppButton onPress={handleSubmit}>提交</AppButton>
+
+<AppButton dismissKeyboardOnPress={false} onPress={handleToolbarAction}>
+  保持键盘
+</AppButton>
+```
+
+容器侧推荐这样使用：
+
+```tsx
+<AppScreen dismissKeyboardOnPressOutside>
+  <AppScrollView dismissKeyboardOnPressOutside>
+    <AppInput placeholder="请输入手机号" />
+    <AppInput placeholder="请输入密码" secureTextEntry />
+    <AppButton onPress={handleLogin}>登录</AppButton>
+  </AppScrollView>
+</AppScreen>
+```
+
+如果不是整页容器，而是局部自定义布局，也可以单独使用：
+
+```tsx
+<KeyboardDismissView>
+  <AppView p={4} gap={3}>
+    <AppInput placeholder="搜索内容" />
+    <AppButton onPress={handleSearch}>搜索</AppButton>
+  </AppView>
+</KeyboardDismissView>
+```
+
 #### 可本地化文案参数（i18n 推荐）
 
 - `AppList`
@@ -213,17 +309,20 @@ import {
   - `emptyText`：空状态文案
   - `selectedCountText`：多选计数模板，支持 `{{count}}`
   - `confirmText`：多选确认按钮文案
+- `Picker`
+  - `pickerTitle` / `cancelText` / `confirmText`：弹窗文案
+  - `renderDisplayText`：自定义触发区展示文本
+  - `renderFooter`：自定义底部区域，适合扩展省市区、级联选择等场景
 - `DatePicker`
   - `cancelText` / `confirmText`：弹窗操作按钮文案
   - `pickerTitle`：弹窗标题文案
-  - `pickerDateFormat`：弹窗顶部日期格式
   - `yearLabel` / `monthLabel` / `dayLabel`：列标题文案
   - `todayText` / `minDateText` / `maxDateText`：快捷按钮文案
 
 #### 表单与反馈 Hook 当前 API
 
 ```tsx
-import { useForm, useToast, useLoading, useAlert } from '@gaozh1024/rn-kit';
+import { useForm, useToast, useLoading, useAlert, useLogger } from '@gaozh1024/rn-kit';
 
 const form = useForm({
   schema,
@@ -250,6 +349,10 @@ loading.hide();
 const alert = useAlert();
 alert.alert({ title: '提示', message: '操作完成' });
 alert.confirm({ title: '确认删除', message: '删除后不可恢复' });
+
+const logger = useLogger('auth');
+logger.info('开始登录', { page: 'Login' });
+logger.error('登录失败', { code: 401 });
 ```
 
 说明：
@@ -259,6 +362,135 @@ alert.confirm({ title: '确认删除', message: '删除后不可恢复' });
 - `useToast` 当前签名为 `show(message, type?, duration?)`
 - `useLoading` 当前签名为 `show(text?)` / `hide()`
 - `useAlert` 当前提供 `alert()` / `confirm()`，不包含 `prompt()` / `custom()`
+- `useLogger(namespace?)` 提供 `debug / info / warn / error / clear / entries`
+
+#### 开发日志 / 可观测性基础设施
+
+框架现在内置了一套**开发态可观测性基础设施**，目标是帮助排查问题，而不是直接做线上监控平台。
+
+默认能力：
+
+- `useLogger(namespace?)`：组件内打点
+- 内存日志缓冲：保留最近若干条日志
+- Console Transport：CLI 中按 level 彩色输出
+- `LogOverlay`：App 内浮动日志面板
+- 浮层增强：level 筛选 / namespace 筛选 / 导出当前日志 / 按钮可拖动吸边并按当前 storage 实现恢复位置
+
+##### 1. 最简单用法：直接跟随 `AppProvider`
+
+```tsx
+import { AppProvider, useLogger, AppButton } from '@gaozh1024/rn-kit';
+
+function LoginButton() {
+  const logger = useLogger('login');
+
+  return (
+    <AppButton
+      onPress={() => {
+        logger.info('点击登录按钮');
+      }}
+    >
+      登录
+    </AppButton>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <LoginButton />
+    </AppProvider>
+  );
+}
+```
+
+说明：
+
+- `AppProvider` 在开发环境下默认 `enableLogger = true`
+- 生产环境默认关闭
+- 开启后会同时启用 console 输出和 App 内日志浮层
+
+##### 2. 显式控制是否启用
+
+```tsx
+<AppProvider
+  enableLogger
+  enableErrorBoundary
+  loggerProps={{
+    level: 'info',
+    maxEntries: 300,
+    consoleEnabled: true,
+    defaultExpanded: false,
+  }}
+>
+  <App />
+</AppProvider>
+```
+
+常用 `loggerProps`：
+
+- `enabled`
+- `level`: `'debug' | 'info' | 'warn' | 'error'`
+- `maxEntries`
+- `consoleEnabled`
+- `overlayEnabled`
+- `defaultExpanded`
+- `exportEnabled`
+- `onExport`
+
+`onExport` 会收到：
+
+```tsx
+{
+  entries: LogEntry[];
+  serialized: string;
+}
+```
+
+错误边界相关：
+
+- `enableErrorBoundary`：是否启用 React 错误边界
+- `errorBoundaryProps.title`：兜底标题
+- `errorBoundaryProps.description`：兜底说明
+- `errorBoundaryProps.showDetails`：是否显示错误详情
+- `errorBoundaryProps.resetText`：重试按钮文案
+
+当错误边界与 logger 同时开启时，组件渲染异常会自动写入 `react` 命名空间日志，便于在控制台和 `LogOverlay` 中回看。
+
+##### 3. 单独使用 `OverlayProvider` / `LoggerProvider`
+
+如果你不是通过 `AppProvider` 接入，而是自己手动包 Provider，需要注意：
+
+- `LoggerProvider` 默认 `enabled = false`
+- `OverlayProvider` 里传入的 logger 也默认不主动开启
+
+所以需要显式打开：
+
+```tsx
+import { OverlayProvider } from '@gaozh1024/rn-kit';
+
+<OverlayProvider
+  loggerProps={{
+    enabled: true,
+    overlayEnabled: true,
+    consoleEnabled: true,
+  }}
+>
+  <App />
+</OverlayProvider>;
+```
+
+或者：
+
+```tsx
+import { AppErrorBoundary, LoggerProvider } from '@gaozh1024/rn-kit';
+
+<LoggerProvider enabled overlayEnabled consoleEnabled>
+  <AppErrorBoundary enabled showDetails>
+    <App />
+  </AppErrorBoundary>
+</LoggerProvider>;
+```
 
 ### 🪝 Hooks
 
@@ -437,7 +669,7 @@ import { DrawerContent, DrawerNavigator } from '@gaozh1024/rn-kit';
 ### 🔌 API 工厂
 
 ```tsx
-import { createAPI, z, storage, ErrorCode } from '@gaozh1024/rn-kit';
+import { createAPI, createApiLoggerTransport, z, storage, ErrorCode } from '@gaozh1024/rn-kit';
 
 const api = createAPI({
   baseURL: 'https://api.example.com',
@@ -445,6 +677,85 @@ const api = createAPI({
     getUser: {
       method: 'GET',
       path: '/users/:id',
+    },
+  },
+});
+```
+
+#### API 自动打点（request / response / error）
+
+`createAPI` 已支持开发态自动打点。
+
+默认行为：
+
+- 开发环境下 `observability.enabled` 默认开启
+- 如果当前 App 已通过 `AppProvider` / `LoggerProvider` 启用了 logger
+- 那么 API 请求会自动写入 `api` 命名空间日志
+
+记录阶段：
+
+- request
+- response
+- error
+
+```tsx
+const api = createAPI({
+  baseURL: 'https://api.example.com',
+  observability: {
+    enabled: true,
+    includeInput: true,
+    includeResponseData: false,
+  },
+  endpoints: {
+    getProfile: {
+      method: 'GET',
+      path: '/profile',
+    },
+  },
+});
+```
+
+也可以添加自定义 transport：
+
+```tsx
+const api = createAPI({
+  baseURL: 'https://api.example.com',
+  observability: {
+    enabled: true,
+    transports: [
+      event => {
+        console.log('api event', event.stage, event.endpointName);
+      },
+    ],
+  },
+  endpoints: {
+    getProfile: {
+      method: 'GET',
+      path: '/profile',
+    },
+  },
+});
+```
+
+如果你想手动指定写到某个 logger，也可以：
+
+```tsx
+const transport = createApiLoggerTransport({
+  namespace: 'network',
+  includeInput: true,
+  includeResponseData: true,
+});
+
+const api = createAPI({
+  baseURL: 'https://api.example.com',
+  observability: {
+    enabled: true,
+    transports: [transport],
+  },
+  endpoints: {
+    getProfile: {
+      method: 'GET',
+      path: '/profile',
     },
   },
 });

@@ -74,4 +74,48 @@ describe('AppList', () => {
     fireEvent.press(getByText('再试一次'));
     expect(onRetry).toHaveBeenCalled();
   });
+
+  it('应该支持将组件类型作为 ListFooterComponent 传入', () => {
+    const Footer = () => <AppText>底部组件</AppText>;
+
+    const { getByText } = render(
+      <ThemeProvider light={theme}>
+        <AppList
+          data={mockData}
+          renderItem={({ item }) => <AppText>{item.title}</AppText>}
+          keyExtractor={item => item.id}
+          ListFooterComponent={Footer}
+        />
+      </ThemeProvider>
+    );
+
+    expect(getByText('底部组件')).toBeTruthy();
+  });
+
+  it('numColumns 动态切换时应该可以正常重渲染', () => {
+    const { rerender, getByText } = render(
+      <ThemeProvider light={theme}>
+        <AppList
+          data={mockData}
+          renderItem={({ item }) => <AppText>{item.title}</AppText>}
+          keyExtractor={item => item.id}
+          numColumns={1}
+        />
+      </ThemeProvider>
+    );
+
+    rerender(
+      <ThemeProvider light={theme}>
+        <AppList
+          data={mockData}
+          renderItem={({ item }) => <AppText>{item.title}</AppText>}
+          keyExtractor={item => item.id}
+          numColumns={2}
+        />
+      </ThemeProvider>
+    );
+
+    expect(getByText('Item 1')).toBeTruthy();
+    expect(getByText('Item 2')).toBeTruthy();
+  });
 });

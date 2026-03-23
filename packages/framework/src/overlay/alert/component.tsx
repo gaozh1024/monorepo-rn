@@ -3,7 +3,8 @@
  * @module overlay/alert/component
  */
 
-import { View, Modal, StyleSheet } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { View, Modal, StyleSheet, Animated } from 'react-native';
 import { AppView, AppText, AppPressable } from '@/ui';
 import type { AlertOptions } from './types';
 
@@ -12,6 +13,19 @@ type AlertModalProps = AlertOptions & {
   onConfirm: () => void;
   onCancel: () => void;
 };
+
+function createAnimatedValue(value: number) {
+  const AnimatedValue = Animated.Value as unknown as {
+    new (initialValue: number): Animated.Value;
+    (initialValue: number): Animated.Value;
+  };
+
+  try {
+    return new AnimatedValue(value);
+  } catch {
+    return AnimatedValue(value);
+  }
+}
 
 /**
  * Alert 弹窗组件
@@ -26,12 +40,50 @@ export function AlertModal({
   onConfirm,
   onCancel,
 }: AlertModalProps) {
+  const progress = useRef(createAnimatedValue(0)).current;
+
+  useEffect(() => {
+    if (!visible) {
+      progress.setValue(0);
+      return;
+    }
+
+    progress.setValue(0);
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 220,
+      useNativeDriver: true,
+    }).start();
+  }, [progress, visible]);
+
   if (!visible) return null;
 
   return (
-    <Modal transparent visible animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.alertBox}>
+    <Modal transparent visible animationType="none">
+      <View style={styles.container}>
+        <Animated.View style={[styles.overlay, { opacity: progress }]} />
+        <Animated.View
+          style={[
+            styles.alertBox,
+            {
+              opacity: progress,
+              transform: [
+                {
+                  translateY: progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [16, 0],
+                  }),
+                },
+                {
+                  scale: progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.96, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
           {title && <AppText className="text-lg font-semibold text-center mb-2">{title}</AppText>}
           {message && <AppText className="text-gray-600 text-center mb-4">{message}</AppText>}
           <AppView row gap={3} className="mt-2">
@@ -44,18 +96,21 @@ export function AlertModal({
               <AppText className="text-center text-white">{confirmText || '确定'}</AppText>
             </AppPressable>
           </AppView>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   alertBox: {
     backgroundColor: 'white',

@@ -11,6 +11,11 @@ import { ThemeProvider, type ThemeConfig } from '@/theme';
 import { NavigationProvider, type NavigationProviderProps } from '@/navigation';
 import { AppStatusBar, type AppStatusBarProps } from './AppStatusBar';
 import { OverlayProvider } from './provider';
+import type { LoggerProviderProps } from './logger/types';
+import { LoggerProvider } from './logger/provider';
+import { AppErrorBoundary } from './error-boundary/component';
+import type { AppErrorBoundaryProps } from './error-boundary/types';
+import { isDevelopment } from '@/utils';
 
 // ============================================================================
 // 默认主题配置
@@ -59,6 +64,10 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
   enableOverlay?: boolean;
   /** 是否启用主题（默认 true） */
   enableTheme?: boolean;
+  /** 是否启用开发日志基础设施（默认开发环境开启） */
+  enableLogger?: boolean;
+  /** 是否启用 React 错误边界（默认开发环境开启） */
+  enableErrorBoundary?: boolean;
   /** 是否启用全局状态栏管理（默认 true） */
   enableStatusBar?: boolean;
   /** 是否启用安全区域（默认 true） */
@@ -73,6 +82,10 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
   isDark?: boolean;
   /** 全局状态栏配置 */
   statusBarProps?: AppStatusBarProps;
+  /** Logger Provider 配置 */
+  loggerProps?: Omit<LoggerProviderProps, 'children'>;
+  /** Error Boundary 配置 */
+  errorBoundaryProps?: Omit<AppErrorBoundaryProps, 'children'>;
 }
 
 // ============================================================================
@@ -181,6 +194,8 @@ export function AppProvider({
   enableNavigation = true,
   enableOverlay = true,
   enableTheme = true,
+  enableLogger = isDevelopment(),
+  enableErrorBoundary = isDevelopment(),
   enableStatusBar = true,
   enableSafeArea = true,
   lightTheme = defaultLightTheme,
@@ -188,6 +203,8 @@ export function AppProvider({
   defaultDark = false,
   isDark,
   statusBarProps,
+  loggerProps,
+  errorBoundaryProps,
   ...navigationProps
 }: AppProviderProps) {
   // 从外到内套娃（外层包裹内层）
@@ -197,10 +214,41 @@ export function AppProvider({
 
   let content = children;
 
-  // 1. Overlay (Loading/Toast/Alert) - 最内层
+  // 1. Overlay (Loading/Toast/Alert/Logger) - 最内层
   // 需要访问 Navigation 和 Theme 上下文
   if (enableOverlay) {
-    content = <OverlayProvider>{content}</OverlayProvider>;
+    content = (
+      <OverlayProvider
+        loggerProps={
+          enableLogger
+            ? { enabled: true, overlayEnabled: true, ...loggerProps }
+            : { enabled: false, overlayEnabled: false, ...loggerProps }
+        }
+        errorBoundaryProps={
+          enableErrorBoundary
+            ? { enabled: true, ...errorBoundaryProps }
+            : { enabled: false, ...errorBoundaryProps }
+        }
+      >
+        {content}
+      </OverlayProvider>
+    );
+  } else {
+    if (enableErrorBoundary) {
+      content = (
+        <AppErrorBoundary enabled {...errorBoundaryProps}>
+          {content}
+        </AppErrorBoundary>
+      );
+    }
+
+    if (enableLogger) {
+      content = (
+        <LoggerProvider enabled overlayEnabled {...loggerProps}>
+          {content}
+        </LoggerProvider>
+      );
+    }
   }
 
   // 2. Navigation - 需要 Theme 上下文来创建导航主题

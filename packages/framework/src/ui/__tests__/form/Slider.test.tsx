@@ -63,4 +63,41 @@ describe('Slider', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(onChangeEnd).not.toHaveBeenCalled();
   });
+
+  it('应该在拖动时计算出正确值而不是 NaN', () => {
+    const onChange = vi.fn();
+    const onChangeEnd = vi.fn();
+
+    let renderer: ReturnType<typeof create>;
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Slider onChange={onChange} onChangeEnd={onChangeEnd} min={0} max={100} step={10} />
+        </ThemeProvider>
+      );
+    });
+
+    const track = renderer!.root.find(
+      node => typeof node.type === 'string' && typeof node.props.onTouchEnd === 'function'
+    );
+
+    act(() => {
+      track.props.onLayout({ nativeEvent: { layout: { width: 100 } } });
+    });
+
+    const thumb = renderer!.root.find(
+      node => typeof node.type === 'string' && typeof node.props.onPanResponderMove === 'function'
+    );
+
+    act(() => {
+      thumb.props.onPanResponderGrant();
+      thumb.props.onPanResponderMove({}, { dx: 46 });
+      thumb.props.onPanResponderRelease({}, { dx: 46 });
+    });
+
+    expect(onChange).toHaveBeenCalledWith(50);
+    expect(onChangeEnd).toHaveBeenCalledWith(50);
+    expect(onChange).not.toHaveBeenCalledWith(Number.NaN);
+    expect(onChangeEnd).not.toHaveBeenCalledWith(Number.NaN);
+  });
 });

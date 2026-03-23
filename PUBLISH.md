@@ -1,96 +1,158 @@
-# Beta 版本发布指南
+# 发布指南
 
-## 快速发布
+适用于以下两个包：
+
+- `@gaozh1024/rn-kit`
+- `@gaozh1024/expo-starter`
+
+## 1. 发布前检查
+
+### 必跑验证
 
 ```bash
-# 1. 登录 npm
+pnpm --dir packages/framework typecheck
+pnpm --dir packages/framework test
+pnpm --dir packages/framework build
+pnpm --dir templates/expo-starter lint
+```
+
+### 建议补充检查
+
+```bash
+# 检查打包内容
+cd packages/framework
+npm pack --dry-run
+
+cd ../../templates/expo-starter
+npm pack --dry-run
+```
+
+如果本机 `~/.npm` 缓存权限异常，可临时这样执行：
+
+```bash
+cd packages/framework
+npm_config_cache=/tmp/npm-cache npm pack --dry-run
+
+cd ../../templates/expo-starter
+npm_config_cache=/tmp/npm-cache npm pack --dry-run
+```
+
+## 2. 版本同步原则
+
+发布前请同步检查：
+
+1. `packages/framework/package.json` 版本号
+2. `templates/expo-starter/package.json` 版本号
+3. 模板依赖的 `@gaozh1024/rn-kit` 版本范围
+4. `docs/release-notes/` 是否新增对应 release notes
+5. `docs/README.md` 是否新增文档入口
+
+推荐顺序：
+
+- 先确定 `rn-kit` 版本
+- 再同步模板依赖版本
+- 再补文档与 release notes
+
+## 3. 正式版发布
+
+### 3.1 登录 npm
+
+```bash
 npm login
-
-# 2. 构建并发布
-pnpm -r build
-cd packages/framework
-npm publish --tag beta --access public
 ```
 
-## 手动发布
-
-### 1. 构建
-
-```bash
-# 构建框架包
-pnpm --filter @gaozh1024/rn-kit build
-```
-
-### 2. 发布
+### 3.2 发布框架包
 
 ```bash
 cd packages/framework
-npm version 0.2.0-beta.0 --no-git-tag-version
-npm publish --tag beta --access public
-```
-
-## 验证发布
-
-```bash
-# 查看已发布的版本
-npm view @gaozh1024/rn-kit versions --json | grep beta
-
-# 安装测试
-pnpm add @gaozh1024/rn-kit@beta
-```
-
-## 发布后升级正式版
-
-```bash
-# 删除 beta 标签
-npm dist-tag rm @gaozh1024/rn-kit beta
-
-# 或者发布正式版
-npm version 0.2.0
 npm publish --access public
 ```
 
-## Yalc 本地发布
+### 3.3 发布模板包
+
+模板依赖框架包，所以一定要在框架包成功发布后再发模板：
 
 ```bash
-# 发布到本地 yalc
-pnpm yalc:publish
-
-# 推送到已链接的项目
-pnpm yalc:push
-```
-
-## Expo 模板发布
-
-如果要让用户通过 `create-expo-app` 直接创建项目，推荐发布模板包而不是让用户手动复制目录。
-
-### 发布顺序
-
-```bash
-# 1. 先发布框架包（模板依赖它）
-cd packages/framework
-npm publish --tag beta --access public
-
-# 2. 再发布模板包
 cd ../../templates/expo-starter
 npm publish --access public
 ```
 
-### 推荐使用方式
+### 3.4 推荐安装方式
+
+框架包：
+
+```bash
+pnpm add @gaozh1024/rn-kit
+```
+
+模板包：
 
 ```bash
 npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 ```
 
-### 注意事项
+## 4. Beta / 预发布
 
-1. 不要使用过于通用的无 scope 包名（例如 `expo-starter`），否则 `--template` 可能命中别人的包
-2. 模板包必须是可发布状态，不能保留 `private: true`
-3. 模板依赖的 `@gaozh1024/rn-kit` 必须已经发布，否则创建出的项目无法安装依赖
-4. 每次升级 Expo SDK 后，都要同步更新模板里的 `expo` 版本并重新发布
+如果本次改动较大，建议先发 beta：
 
-## 常见问题
+```bash
+cd packages/framework
+npm publish --tag beta --access public
+```
 
-1. **401 Unauthorized**: 需要登录 npm
-2. **403 Forbidden**: 包名可能已被占用，或没有发布权限
-3. **EPUBLISHCONFLICT**: 版本号已存在，需要更新版本号
+如果模板也需要预发布，可以显式发 beta 版本号后再发布；否则建议模板仍等正式版统一发布。
+
+查看 beta：
+
+```bash
+npm view @gaozh1024/rn-kit versions --json | grep beta
+```
+
+安装 beta：
+
+```bash
+pnpm add @gaozh1024/rn-kit@beta
+```
+
+## 5. Yalc 本地联调
+
+```bash
+# 发布到本地 yalc
+pnpm yalc:publish
+
+# 推送到已链接项目
+pnpm yalc:push
+```
+
+适用场景：
+
+- 模板联调
+- 真机验证
+- 发布前 smoke test
+
+## 6. 模板发布注意事项
+
+1. 不要使用过于通用的无 scope 包名
+2. 模板包必须保持可发布状态，不能设置 `private: true`
+3. 模板依赖的 `@gaozh1024/rn-kit` 必须已发布
+4. 每次升级 Expo SDK 后，要同步更新模板依赖
+5. `README` 中的模板包名、scope、命令示例必须和实际发布信息一致
+
+## 7. 推荐发布清单
+
+每次发版建议至少确认：
+
+- [ ] 版本号已更新
+- [ ] release notes 已补充
+- [ ] 框架 README 已同步
+- [ ] 模板 README 已同步
+- [ ] `typecheck / test / build / lint` 已通过
+- [ ] `npm pack --dry-run` 已检查
+- [ ] 模板对 `rn-kit` 的依赖版本已同步
+
+## 8. 常见问题
+
+1. **401 Unauthorized**：需要重新 `npm login`
+2. **403 Forbidden**：没有包权限，或包名 / scope 配置异常
+3. **EPUBLISHCONFLICT**：版本号已存在，需要升级版本
+4. **create-expo-app 无法正确拉取模板**：通常是模板包名不唯一，或模板依赖版本未先发布

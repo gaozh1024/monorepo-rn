@@ -1,8 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
+import { renderWithTheme, theme } from './test-utils';
 import { Select } from '../../form/Select';
-import { renderWithTheme } from './test-utils';
+import { ThemeProvider } from '@/theme';
+import { act, create } from 'react-test-renderer';
+import { BottomSheetModal } from '../../form/BottomSheetModal';
 
 const options = [
   { label: '北京', value: 'beijing' },
@@ -51,6 +54,22 @@ describe('Select', () => {
     expect(onChange).toHaveBeenCalledWith(['beijing', 'shanghai']);
   });
 
+  it('重复 value 的选项也应该能正常渲染', () => {
+    const duplicateOptions = [
+      { label: 'check-circle', value: 'check-circle' },
+      { label: 'success', value: 'check-circle' },
+    ];
+
+    const { getByText } = renderWithTheme(
+      <Select placeholder="选择图标" options={duplicateOptions} />
+    );
+
+    fireEvent.press(getByText('选择图标'));
+
+    expect(getByText('check-circle')).toBeTruthy();
+    expect(getByText('success')).toBeTruthy();
+  });
+
   it('应该支持自定义弹窗文案', () => {
     const { getByText, getByPlaceholderText } = renderWithTheme(
       <Select
@@ -72,5 +91,38 @@ describe('Select', () => {
     expect(getByPlaceholderText('搜索城市')).toBeTruthy();
     expect(getByText('共 0 项')).toBeTruthy();
     expect(getByText('完成')).toBeTruthy();
+  });
+
+  it('弹窗打开时不应使用整体 slide 动画', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Select placeholder="打开选择器" options={options} />
+        </ThemeProvider>
+      );
+    });
+
+    const modal = renderer!.root.find(
+      node => typeof node.type === 'string' && node.type === 'Modal'
+    );
+
+    expect(modal.props.animationType).toBe('none');
+  });
+
+  it('应该为底部弹窗启用点击遮罩关闭', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Select placeholder="打开城市选择" options={options} />
+        </ThemeProvider>
+      );
+    });
+
+    const bottomSheet = renderer!.root.findByType(BottomSheetModal);
+    expect(bottomSheet.props.closeOnBackdropPress).toBe(true);
   });
 });

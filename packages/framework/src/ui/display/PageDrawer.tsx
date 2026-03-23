@@ -57,8 +57,6 @@ export function PageDrawer({
   const colors = useThemeColors();
   const [translateX, setTranslateX] = React.useState(0);
 
-  if (!visible) return null;
-
   const handleClose = React.useCallback(() => {
     setTranslateX(0);
     onClose?.();
@@ -120,6 +118,8 @@ export function PageDrawer({
       }),
     [handleClose, placement, swipeEnabled, swipeThreshold, width]
   );
+
+  if (!visible) return null;
 
   const drawerContent = (
     <AppView

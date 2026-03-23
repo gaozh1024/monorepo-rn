@@ -6,6 +6,7 @@
 
 import { z } from 'zod';
 import type { AppError } from '../error';
+import type { LoggerLike } from '../logger';
 
 export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -27,6 +28,37 @@ export interface ApiErrorContext {
 export type ApiErrorHandler = (error: AppError, context: ApiErrorContext) => void | Promise<void>;
 
 export type ApiBusinessErrorParser = (data: unknown, response: Response) => AppError | null;
+
+export type ApiLogStage = 'request' | 'response' | 'error';
+
+export interface ApiLogEvent {
+  stage: ApiLogStage;
+  endpointName: string;
+  path: string;
+  method: ApiMethod;
+  url: string;
+  input?: unknown;
+  response?: Response;
+  responseData?: unknown;
+  statusCode?: number;
+  durationMs?: number;
+  error?: AppError;
+}
+
+export type ApiLogTransport = (event: ApiLogEvent) => void | Promise<void>;
+
+export interface ApiObservabilityConfig {
+  enabled?: boolean;
+  transports?: ApiLogTransport[];
+  logger?: LoggerLike | null;
+  namespace?: string;
+  includeInput?: boolean;
+  includeResponseData?: boolean;
+  sanitize?: (
+    value: unknown,
+    meta: { stage: ApiLogStage; field: 'input' | 'responseData' | 'error' }
+  ) => unknown;
+}
 
 /**
  * API 端点配置接口
@@ -82,4 +114,6 @@ export interface ApiConfig<TEndpoints extends Record<string, ApiEndpointConfig<a
   parseBusinessError?: ApiBusinessErrorParser;
   /** 全局错误监听器（可选） */
   onError?: ApiErrorHandler;
+  /** 开发可观测性配置（可选） */
+  observability?: ApiObservabilityConfig;
 }

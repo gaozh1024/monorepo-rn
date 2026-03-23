@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
 import {
-  Modal,
   View,
   TouchableOpacity,
   FlatList,
@@ -11,6 +10,7 @@ import {
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
 import { cn } from '@/utils';
+import { BottomSheetModal } from './BottomSheetModal';
 import { useFormThemeColors } from './useFormTheme';
 
 export interface SelectOption {
@@ -119,7 +119,7 @@ export function Select({
         setVisible(false);
       }
     },
-    [multiple, value, onChange]
+    [multiple, onChange, value]
   );
 
   // 清空
@@ -198,104 +198,101 @@ export function Select({
       </AppPressable>
 
       {/* 选择弹窗 */}
-      <Modal
+      <BottomSheetModal
         visible={visible}
-        transparent
-        animationType="slide"
         onRequestClose={() => setVisible(false)}
+        overlayColor={colors.overlay}
+        surfaceColor={colors.surface}
+        closeOnBackdropPress
+        contentClassName="max-h-[70%]"
       >
-        <AppView className="flex-1" style={{ backgroundColor: colors.overlay }} justify="end">
+        <>
+          {/* 头部 */}
           <AppView
-            className="rounded-t-2xl max-h-[70%]"
-            style={{ backgroundColor: colors.surface }}
+            row
+            between
+            items="center"
+            className="px-4 py-3"
+            style={[styles.header, { borderBottomColor: colors.divider }]}
           >
-            {/* 头部 */}
+            <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
+              {multiple ? multipleSelectTitle : singleSelectTitle}
+            </AppText>
+            <TouchableOpacity onPress={() => setVisible(false)}>
+              <Icon name="close" size="md" color={colors.icon} />
+            </TouchableOpacity>
+          </AppView>
+
+          {/* 搜索框 */}
+          {searchable && (
+            <AppView
+              className="px-4 py-3"
+              style={[styles.searchBox, { borderBottomColor: colors.divider }]}
+            >
+              <AppView
+                row
+                items="center"
+                className="px-3 py-2 rounded-lg"
+                style={{ backgroundColor: colors.surfaceMuted }}
+              >
+                <View style={{ marginRight: 8 }}>
+                  <Icon name="search" size="sm" color={colors.icon} />
+                </View>
+                <TextInput
+                  className="flex-1 text-base"
+                  style={{ color: colors.text }}
+                  placeholder={searchPlaceholder}
+                  placeholderTextColor={colors.textMuted}
+                  value={searchKeyword}
+                  onChangeText={handleSearch}
+                  autoFocus
+                />
+                {searchKeyword.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearchKeyword('')}>
+                    <Icon name="close" size="sm" color={colors.icon} />
+                  </TouchableOpacity>
+                )}
+              </AppView>
+            </AppView>
+          )}
+
+          {/* 选项列表 */}
+          <FlatList
+            data={filteredOptions}
+            keyExtractor={(item, index) => `${item.value}-${index}`}
+            renderItem={renderOption}
+            ListEmptyComponent={
+              <AppView center className="py-8">
+                <AppText style={{ color: colors.textMuted }}>{emptyText}</AppText>
+              </AppView>
+            }
+          />
+
+          {/* 多选底部操作栏 */}
+          {multiple && (
             <AppView
               row
               between
               items="center"
               className="px-4 py-3"
-              style={[styles.header, { borderBottomColor: colors.divider }]}
+              style={[styles.footer, { borderTopColor: colors.divider }]}
             >
-              <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
-                {multiple ? multipleSelectTitle : singleSelectTitle}
+              <AppText style={{ color: colors.textMuted }}>
+                {formatSelectedCountText(selectedCountText, selectedValues.length)}
               </AppText>
-              <TouchableOpacity onPress={() => setVisible(false)}>
-                <Icon name="close" size="md" color={colors.icon} />
+              <TouchableOpacity
+                className="px-4 py-2 rounded-lg"
+                style={{ backgroundColor: colors.primary }}
+                onPress={() => setVisible(false)}
+              >
+                <AppText className="font-medium" style={{ color: colors.textInverse }}>
+                  {confirmText}
+                </AppText>
               </TouchableOpacity>
             </AppView>
-
-            {/* 搜索框 */}
-            {searchable && (
-              <AppView
-                className="px-4 py-3"
-                style={[styles.searchBox, { borderBottomColor: colors.divider }]}
-              >
-                <AppView
-                  row
-                  items="center"
-                  className="px-3 py-2 rounded-lg"
-                  style={{ backgroundColor: colors.surfaceMuted }}
-                >
-                  <View style={{ marginRight: 8 }}>
-                    <Icon name="search" size="sm" color={colors.icon} />
-                  </View>
-                  <TextInput
-                    className="flex-1 text-base"
-                    style={{ color: colors.text }}
-                    placeholder={searchPlaceholder}
-                    placeholderTextColor={colors.textMuted}
-                    value={searchKeyword}
-                    onChangeText={handleSearch}
-                    autoFocus
-                  />
-                  {searchKeyword.length > 0 && (
-                    <TouchableOpacity onPress={() => setSearchKeyword('')}>
-                      <Icon name="close" size="sm" color={colors.icon} />
-                    </TouchableOpacity>
-                  )}
-                </AppView>
-              </AppView>
-            )}
-
-            {/* 选项列表 */}
-            <FlatList
-              data={filteredOptions}
-              keyExtractor={item => item.value}
-              renderItem={renderOption}
-              ListEmptyComponent={
-                <AppView center className="py-8">
-                  <AppText style={{ color: colors.textMuted }}>{emptyText}</AppText>
-                </AppView>
-              }
-            />
-
-            {/* 多选底部操作栏 */}
-            {multiple && (
-              <AppView
-                row
-                between
-                items="center"
-                className="px-4 py-3"
-                style={[styles.footer, { borderTopColor: colors.divider }]}
-              >
-                <AppText style={{ color: colors.textMuted }}>
-                  {formatSelectedCountText(selectedCountText, selectedValues.length)}
-                </AppText>
-                <TouchableOpacity
-                  className="px-4 py-2 rounded-lg"
-                  style={{ backgroundColor: colors.primary }}
-                  onPress={() => setVisible(false)}
-                >
-                  <AppText className="font-medium" style={{ color: colors.textInverse }}>
-                    {confirmText}
-                  </AppText>
-                </TouchableOpacity>
-              </AppView>
-            )}
-          </AppView>
-        </AppView>
-      </Modal>
+          )}
+        </>
+      </BottomSheetModal>
     </>
   );
 }

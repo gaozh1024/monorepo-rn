@@ -18,7 +18,24 @@ export function Providers({ children }: ProvidersProps) {
   const isDark = themeMode === 'dark' || (themeMode === 'system' && colorScheme === 'dark');
 
   return (
-    <AppProvider lightTheme={lightTheme} darkTheme={darkTheme} isDark={isDark}>
+    <AppProvider
+      lightTheme={lightTheme}
+      darkTheme={darkTheme}
+      isDark={isDark}
+      enableLogger
+      enableErrorBoundary
+      loggerProps={{
+        level: 'debug',
+        maxEntries: 200,
+        exportEnabled: true,
+      }}
+      errorBoundaryProps={{
+        title: '应用渲染异常',
+        description: '开发环境已启用错误边界，可结合日志浮层快速排查问题。',
+        showDetails: true,
+        resetText: '重新加载',
+      }}
+    >
       {children}
     </AppProvider>
   );

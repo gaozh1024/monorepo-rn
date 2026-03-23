@@ -10,6 +10,7 @@ import {
   Icon,
   Row,
   AppScrollView,
+  AppHeader,
 } from '@gaozh1024/rn-kit';
 import type { RootNavigationProp } from '../../../navigation/types';
 import { appColors } from '../../../bootstrap/theme';
@@ -45,8 +46,10 @@ export function ForgotPasswordScreen() {
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
     >
+      <AppHeader title="找回密码" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
       <AppScrollView
         flex
+        dismissKeyboardOnPressOutside
         contentContainerStyle={{
           flexGrow: 1,
           padding: 24,

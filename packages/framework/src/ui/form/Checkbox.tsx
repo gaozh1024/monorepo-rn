@@ -70,8 +70,8 @@ export function Checkbox({
         ]}
       >
         {isChecked && (
-          <AppView testID={`${testID}-icon`}>
-            <Icon name="check" size="sm" color="white" />
+          <AppView pointerEvents="none" style={styles.iconContainer} testID={`${testID}-icon`}>
+            <Icon name="check" size={14} color="white" style={styles.icon} />
           </AppView>
         )}
       </AppView>
@@ -87,5 +87,15 @@ export function Checkbox({
 const styles = StyleSheet.create({
   checkbox: {
     borderWidth: 0.5,
+  },
+  iconContainer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    lineHeight: 14,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
 });

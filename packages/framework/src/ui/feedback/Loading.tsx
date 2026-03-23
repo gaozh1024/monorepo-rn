@@ -1,5 +1,7 @@
 import { ActivityIndicator } from 'react-native';
-import { AppView, AppText } from '../primitives';
+import { useEffect, useState } from 'react';
+import { AppView, AppText, AppPressable } from '../primitives';
+import { Icon } from '../display';
 
 /**
  * Loading 组件属性接口
@@ -15,7 +17,11 @@ export interface LoadingProps {
   visible?: boolean;
   /** 测试 ID */
   testID?: string;
+  /** 超时后关闭回调 */
+  onClose?: () => void;
 }
+
+const LOADING_CLOSE_DELAY = 30_000;
 
 /**
  * Loading - 加载指示器组件
@@ -58,12 +64,45 @@ export interface LoadingProps {
  * );
  * ```
  */
-export function Loading({ text, color, overlay = false, visible = true, testID }: LoadingProps) {
+export function Loading({
+  text,
+  color,
+  overlay = false,
+  visible = true,
+  testID,
+  onClose,
+}: LoadingProps) {
+  const [showCloseButton, setShowCloseButton] = useState(false);
+
+  useEffect(() => {
+    if (!visible) {
+      setShowCloseButton(false);
+      return;
+    }
+
+    setShowCloseButton(false);
+    const timer = setTimeout(() => {
+      setShowCloseButton(true);
+    }, LOADING_CLOSE_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [visible]);
+
   if (!visible) return null;
+
   const content = (
     <AppView center gap={3} testID={testID}>
       <ActivityIndicator size="large" color={color} />
       {text && <AppText style={color ? { color } : undefined}>{text}</AppText>}
+      {showCloseButton && onClose && (
+        <AppPressable
+          testID={testID ? `${testID}-close` : 'loading-close'}
+          className="mt-1 p-1"
+          onPress={onClose}
+        >
+          <Icon name="close" size="md" color={color || 'white'} />
+        </AppPressable>
+      )}
     </AppView>
   );
   if (overlay) {

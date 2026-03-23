@@ -3,6 +3,7 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import { Alert } from '../../feedback/Alert';
 import { ThemeProvider, createTheme } from '@/theme';
+import { act, create } from 'react-test-renderer';
 
 const theme = createTheme({
   colors: { primary: '#f38b32' },
@@ -48,5 +49,22 @@ describe('Alert', () => {
     );
     expect(getByText('取消')).toBeTruthy();
     expect(getByText('确定')).toBeTruthy();
+  });
+
+  it('弹窗出现时应该使用内部动画而不是 Modal 默认动画', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Alert title="Animated" visible buttons={[{ text: '确定' }]} />
+        </ThemeProvider>
+      );
+    });
+
+    const modal = renderer!.root.find(
+      node => typeof node.type === 'string' && node.type === 'Modal'
+    );
+    expect(modal.props.animationType).toBe('none');
   });
 });

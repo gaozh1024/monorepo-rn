@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { Modal, TouchableOpacity, StyleSheet, GestureResponderEvent } from 'react-native';
+import { useCallback, useEffect, useRef } from 'react';
+import { Modal, TouchableOpacity, StyleSheet, GestureResponderEvent, Animated } from 'react-native';
 import { AppView, AppText } from '@/ui/primitives';
 import { useTheme } from '@/theme';
 import { cn } from '@/utils';
@@ -29,11 +29,25 @@ export interface AlertProps {
   onClose?: () => void;
 }
 
+function createAnimatedValue(value: number) {
+  const AnimatedValue = Animated.Value as unknown as {
+    new (initialValue: number): Animated.Value;
+    (initialValue: number): Animated.Value;
+  };
+
+  try {
+    return new AnimatedValue(value);
+  } catch {
+    return AnimatedValue(value);
+  }
+}
+
 /**
  * Alert - 对话框组件，支持浅色/深色主题
  */
 export function Alert({ visible, title, message, buttons, onClose }: AlertProps) {
   const { theme, isDark } = useTheme();
+  const progress = useRef(createAnimatedValue(0)).current;
 
   // 主题颜色
   const modalBgColor = isDark ? '#1f2937' : '#ffffff';
@@ -43,6 +57,20 @@ export function Alert({ visible, title, message, buttons, onClose }: AlertProps)
   const cancelButtonBg = isDark ? '#374151' : '#f3f4f6';
   const cancelButtonText = isDark ? '#ffffff' : '#374151';
   const destructiveColor = theme.colors.error?.[500] || '#ef4444';
+
+  useEffect(() => {
+    if (!visible) {
+      progress.setValue(0);
+      return;
+    }
+
+    progress.setValue(0);
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 220,
+      useNativeDriver: true,
+    }).start();
+  }, [progress, visible]);
 
   const handleButtonPress = useCallback(
     (button: AlertButton) => (e: GestureResponderEvent) => {
@@ -90,14 +118,42 @@ export function Alert({ visible, title, message, buttons, onClose }: AlertProps)
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType="none"
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <AppView className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} center>
-        <AppView
+      <AppView className="flex-1" center>
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFillObject,
+            {
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              opacity: progress,
+            },
+          ]}
+        />
+        <Animated.View
           className="rounded-xl mx-8 min-w-[280px]"
-          style={{ backgroundColor: modalBgColor }}
+          style={[
+            {
+              backgroundColor: modalBgColor,
+              opacity: progress,
+              transform: [
+                {
+                  translateY: progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [16, 0],
+                  }),
+                },
+                {
+                  scale: progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.96, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
         >
           {/* 内容区域 */}
           <AppView className="px-6 py-5">
@@ -183,7 +239,7 @@ export function Alert({ visible, title, message, buttons, onClose }: AlertProps)
               </AppView>
             )}
           </AppView>
-        </AppView>
+        </Animated.View>
       </AppView>
     </Modal>
   );

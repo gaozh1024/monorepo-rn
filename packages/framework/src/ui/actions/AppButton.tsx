@@ -1,4 +1,5 @@
-import { ActivityIndicator } from 'react-native';
+import { useCallback } from 'react';
+import { ActivityIndicator, Keyboard } from 'react-native';
 import { useOptionalTheme } from '@/theme';
 import { AppPressable, AppText } from '@/ui/primitives';
 import { cn } from '@/utils';
@@ -29,6 +30,8 @@ export interface AppButtonProps {
   disabled?: boolean;
   /** 点击回调 */
   onPress?: () => void;
+  /** 点击前是否先收起键盘 */
+  dismissKeyboardOnPress?: boolean;
   /** 按钮内容 */
   children: React.ReactNode;
   /** 自定义类名 */
@@ -88,6 +91,7 @@ export function AppButton({
   loading,
   disabled,
   onPress,
+  dismissKeyboardOnPress = true,
   children,
   className,
 }: AppButtonProps) {
@@ -115,6 +119,14 @@ export function AppButton({
   const textColor =
     variant === 'solid' ? '#ffffff' : variant === 'ghost' ? ghostTextColor : buttonColors[color];
 
+  const handlePress = useCallback(() => {
+    if (dismissKeyboardOnPress) {
+      Keyboard.dismiss();
+    }
+
+    onPress?.();
+  }, [dismissKeyboardOnPress, onPress]);
+
   const buttonStyle =
     variant === 'solid'
       ? { backgroundColor: buttonColors[color] }
@@ -124,7 +136,7 @@ export function AppButton({
 
   return (
     <AppPressable
-      onPress={onPress}
+      onPress={onPress ? handlePress : undefined}
       disabled={isDisabled}
       className={cn(
         'flex-row items-center justify-center rounded-lg',

@@ -8,12 +8,18 @@ import React from 'react';
 import { LoadingProvider } from './loading/provider';
 import { ToastProvider } from './toast/provider';
 import { AlertProvider } from './alert/provider';
+import { LoggerProvider } from './logger/provider';
+import type { LoggerProviderProps } from './logger/types';
+import { AppErrorBoundary } from './error-boundary/component';
+import type { AppErrorBoundaryProps } from './error-boundary/types';
 
 /**
  * Overlay Provider Props
  */
 export interface OverlayProviderProps {
   children: React.ReactNode;
+  loggerProps?: Omit<LoggerProviderProps, 'children'>;
+  errorBoundaryProps?: Omit<AppErrorBoundaryProps, 'children'>;
 }
 
 /**
@@ -22,12 +28,20 @@ export interface OverlayProviderProps {
  * 整合：LoadingProvider + ToastProvider + AlertProvider
  * 提供全局 Loading、Toast、Alert 功能
  */
-export function OverlayProvider({ children }: OverlayProviderProps) {
+export function OverlayProvider({
+  children,
+  loggerProps,
+  errorBoundaryProps,
+}: OverlayProviderProps) {
   return (
-    <LoadingProvider>
-      <ToastProvider>
-        <AlertProvider>{children}</AlertProvider>
-      </ToastProvider>
-    </LoadingProvider>
+    <LoggerProvider {...loggerProps}>
+      <AppErrorBoundary {...errorBoundaryProps}>
+        <LoadingProvider>
+          <ToastProvider>
+            <AlertProvider>{children}</AlertProvider>
+          </ToastProvider>
+        </LoadingProvider>
+      </AppErrorBoundary>
+    </LoggerProvider>
   );
 }

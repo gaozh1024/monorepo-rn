@@ -10,6 +10,7 @@ import {
   Icon,
   Row,
   AppScrollView,
+  AppHeader,
 } from '@gaozh1024/rn-kit';
 import type { RootNavigationProp } from '../../../navigation/types';
 import { appColors } from '../../../bootstrap/theme';
@@ -55,8 +56,10 @@ export function RegisterScreen() {
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
     >
+      <AppHeader title="注册账号" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
       <AppScrollView
         flex
+        dismissKeyboardOnPressOutside
         contentContainerStyle={{
           flexGrow: 1,
           padding: 24,

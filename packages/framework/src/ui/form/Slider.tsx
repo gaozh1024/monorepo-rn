@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   PanResponder,
@@ -44,63 +44,100 @@ export function Slider({
 }: SliderProps) {
   const colors = useFormThemeColors();
   const [internalValue, setInternalValue] = useState(defaultValue);
-  const [trackWidth, setTrackWidth] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const trackWidthRef = useRef(0);
+  const currentValueRef = useRef(value ?? defaultValue);
+  const dragStartValueRef = useRef(value ?? defaultValue);
 
   const currentValue = value !== undefined ? value : internalValue;
+  const range = max - min;
 
   // 主题颜色
   const disabledOpacity = 0.4;
 
   // 计算进度百分比
-  const progress = ((currentValue - min) / (max - min)) * 100;
+  const progress = range <= 0 ? 0 : ((currentValue - min) / range) * 100;
+
+  useEffect(() => {
+    currentValueRef.current = currentValue;
+  }, [currentValue]);
+
+  const clampValue = useCallback(
+    (nextValue: number) => {
+      if (!Number.isFinite(nextValue)) return currentValueRef.current;
+      return Math.min(max, Math.max(min, nextValue));
+    },
+    [max, min]
+  );
+
+  const valueToPosition = useCallback(
+    (nextValue: number) => {
+      if (trackWidthRef.current <= 0 || range <= 0) return 0;
+      return ((clampValue(nextValue) - min) / range) * trackWidthRef.current;
+    },
+    [clampValue, min, range]
+  );
 
   // 根据位置计算值
   const getValueFromPosition = useCallback(
     (position: number) => {
-      const percentage = Math.max(0, Math.min(1, position / trackWidth));
-      const rawValue = min + percentage * (max - min);
+      if (trackWidthRef.current <= 0 || range <= 0 || !Number.isFinite(position)) {
+        return clampValue(currentValueRef.current);
+      }
+
+      const percentage = Math.max(0, Math.min(1, position / trackWidthRef.current));
+      const rawValue = min + percentage * range;
       // 对齐到 step
-      const steppedValue = Math.round(rawValue / step) * step;
-      return Math.min(max, Math.max(min, steppedValue));
+      const steppedValue = step > 0 ? Math.round((rawValue - min) / step) * step + min : rawValue;
+      return clampValue(steppedValue);
     },
-    [trackWidth, min, max, step]
+    [clampValue, min, range, step]
   );
 
   // 设置值
   const setValue = useCallback(
     (newValue: number) => {
-      const clampedValue = Math.min(max, Math.max(min, newValue));
+      const clampedValue = clampValue(newValue);
       if (value === undefined) {
         setInternalValue(clampedValue);
       }
+      currentValueRef.current = clampedValue;
       onChange?.(clampedValue);
     },
-    [value, min, max, onChange]
+    [clampValue, onChange, value]
   );
 
   // PanResponder 处理手势
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => !disabled,
-      onMoveShouldSetPanResponder: () => !disabled,
-      onPanResponderGrant: () => {
-        setIsDragging(true);
-      },
-      onPanResponderMove: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        const position = (progress / 100) * trackWidth + gestureState.dx;
-        const newValue = getValueFromPosition(position);
-        setValue(newValue);
-      },
-      onPanResponderRelease: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        const position = (progress / 100) * trackWidth + gestureState.dx;
-        const newValue = getValueFromPosition(position);
-        setValue(newValue);
-        setIsDragging(false);
-        onChangeEnd?.(newValue);
-      },
-    })
-  ).current;
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => !disabled,
+        onMoveShouldSetPanResponder: () => !disabled,
+        onPanResponderGrant: () => {
+          dragStartValueRef.current = currentValueRef.current;
+          setIsDragging(true);
+        },
+        onPanResponderMove: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+          const position = valueToPosition(dragStartValueRef.current) + gestureState.dx;
+          const newValue = getValueFromPosition(position);
+          setValue(newValue);
+        },
+        onPanResponderRelease: (
+          _: GestureResponderEvent,
+          gestureState: PanResponderGestureState
+        ) => {
+          const position = valueToPosition(dragStartValueRef.current) + gestureState.dx;
+          const newValue = getValueFromPosition(position);
+          setValue(newValue);
+          setIsDragging(false);
+          onChangeEnd?.(newValue);
+        },
+        onPanResponderTerminate: () => {
+          setIsDragging(false);
+        },
+      }),
+    [disabled, getValueFromPosition, onChangeEnd, setValue, valueToPosition]
+  );
 
   // 处理点击轨道
   const handleTrackPress = useCallback(
@@ -116,7 +153,8 @@ export function Slider({
 
   // 测量轨道宽度
   const onLayout = useCallback((event: LayoutChangeEvent) => {
-    setTrackWidth(event.nativeEvent.layout.width);
+    const width = event.nativeEvent.layout.width;
+    trackWidthRef.current = width;
   }, []);
 
   return (

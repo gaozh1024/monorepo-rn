@@ -9,6 +9,8 @@ import {
   Row,
   Col,
   useTheme,
+  useNavigation,
+  AppHeader,
 } from '@gaozh1024/rn-kit';
 import { useSessionStore } from '../../../store/session.store';
 import { useUIStore } from '../../../store/ui.store';
@@ -21,7 +23,6 @@ import {
 import { appInfo } from '../../../data/mocks/app.mock';
 import type { RootNavigationProp } from '../../../navigation/types';
 import { appColors } from '../../../bootstrap/theme';
-import { useNavigation } from '@gaozh1024/rn-kit';
 
 /**
  * 设置项组件
@@ -243,6 +244,7 @@ export function SettingsScreen() {
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
     >
+      <AppHeader title="设置" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
       <AppScrollView
         flex
         showsVerticalScrollIndicator={false}

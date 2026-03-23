@@ -10,20 +10,27 @@ import { AppProvider } from '../AppProvider';
 import { useLoading } from '../loading/hooks';
 import { useToast } from '../toast/hooks';
 import { useAlert } from '../alert/hooks';
+import { useLogger } from '../logger/hooks';
 
 // 测试组件：使用 Overlay 功能
 function TestOverlayComponent() {
   const loading = useLoading();
   const toast = useToast();
   const alert = useAlert();
+  const logger = useLogger();
 
   return (
     <div testID="test-component">
       {typeof loading.show === 'function' && <span testID="loading-ok" />}
       {typeof toast.success === 'function' && <span testID="toast-ok" />}
       {typeof alert.alert === 'function' && <span testID="alert-ok" />}
+      {typeof logger.info === 'function' && <span testID="logger-ok" />}
     </div>
   );
+}
+
+function CrashComponent() {
+  throw new Error('app provider crash');
 }
 
 describe('AppProvider', () => {
@@ -46,6 +53,7 @@ describe('AppProvider', () => {
     expect(getByTestId('loading-ok')).toBeTruthy();
     expect(getByTestId('toast-ok')).toBeTruthy();
     expect(getByTestId('alert-ok')).toBeTruthy();
+    expect(getByTestId('logger-ok')).toBeTruthy();
   });
 
   it('应该支持禁用导航', () => {
@@ -124,5 +132,19 @@ describe('AppProvider', () => {
     );
     expect(getByTestId('child')).toBeTruthy();
     expect(getByTestId('status-bar')).toBeTruthy();
+  });
+
+  it('启用错误边界后应该显示回退界面', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { getByTestId } = render(
+      <AppProvider enableErrorBoundary enableLogger={false}>
+        <CrashComponent />
+      </AppProvider>
+    );
+
+    expect(getByTestId('app-error-boundary')).toBeTruthy();
+
+    consoleError.mockRestore();
   });
 });

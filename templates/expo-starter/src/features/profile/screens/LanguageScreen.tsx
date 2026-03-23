@@ -8,6 +8,8 @@ import {
   Row,
   Col,
   useTheme,
+  useNavigation,
+  AppHeader,
 } from '@gaozh1024/rn-kit';
 import { useUIStore } from '../../../store/ui.store';
 import { LANGUAGES, type Language } from '../../../bootstrap/constants';
@@ -137,6 +139,7 @@ function LanguageOption({
 export function LanguageScreen() {
   const { language, setLanguage } = useUIStore();
   const { isDark } = useTheme();
+  const navigation = useNavigation();
 
   const options: {
     value: Language;
@@ -155,6 +158,7 @@ export function LanguageScreen() {
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
     >
+      <AppHeader title="语言设置" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
       <AppScrollView
         flex
         showsVerticalScrollIndicator={false}

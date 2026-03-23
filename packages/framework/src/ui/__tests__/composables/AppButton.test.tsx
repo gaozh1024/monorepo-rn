@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
+import { Keyboard } from 'react-native';
 import { AppButton } from '../../actions/AppButton';
 
 describe('AppButton', () => {
@@ -60,5 +61,32 @@ describe('AppButton', () => {
       borderWidth: 0.5,
       borderColor: '#22c55e',
     });
+  });
+
+  it('默认点击前应该先收起键盘', () => {
+    const callOrder: string[] = [];
+    (Keyboard.dismiss as any).mockImplementation(() => callOrder.push('dismiss'));
+    const onPress = vi.fn(() => callOrder.push('press'));
+
+    const { getByText } = render(<AppButton onPress={onPress}>Submit</AppButton>);
+    fireEvent.press(getByText('Submit'));
+
+    expect(Keyboard.dismiss).toHaveBeenCalled();
+    expect(onPress).toHaveBeenCalled();
+    expect(callOrder).toEqual(['dismiss', 'press']);
+  });
+
+  it('可以关闭点击前自动收起键盘', () => {
+    const onPress = vi.fn();
+
+    const { getByText } = render(
+      <AppButton onPress={onPress} dismissKeyboardOnPress={false}>
+        Submit
+      </AppButton>
+    );
+    fireEvent.press(getByText('Submit'));
+
+    expect(Keyboard.dismiss).not.toHaveBeenCalled();
+    expect(onPress).toHaveBeenCalled();
   });
 });

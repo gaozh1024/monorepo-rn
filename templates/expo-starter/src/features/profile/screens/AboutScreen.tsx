@@ -180,7 +180,7 @@ export function AboutScreen() {
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
     >
-      <AppHeader title="关于我们" onLeftPress={() => nav.goBack()} />
+      <AppHeader title="关于我们" leftIcon="arrow-back" onLeftPress={() => nav.goBack()} />
       <AppScrollView
         flex
         showsVerticalScrollIndicator={false}

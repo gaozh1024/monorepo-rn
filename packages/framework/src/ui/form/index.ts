@@ -7,6 +7,13 @@ export type { FormGroupOption } from './group';
 export { Switch, type SwitchProps } from './Switch';
 export { Slider, type SliderProps } from './Slider';
 export { Select, type SelectProps, type SelectOption } from './Select';
+export {
+  Picker,
+  type PickerProps,
+  type PickerColumn,
+  type PickerOption,
+  type PickerValue,
+} from './Picker';
 export { DatePicker, type DatePickerProps } from './DatePicker';
 export { FormItem, type FormItemProps } from './FormItem';
 export { useForm, type FormErrors, type UseFormOptions } from './useForm';

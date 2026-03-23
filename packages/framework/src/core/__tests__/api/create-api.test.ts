@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
 import { createAPI } from '../../api/create-api';
 import { ErrorCode } from '../../error/types';
+import { setGlobalLogger } from '../../logger';
 
 describe('createAPI', () => {
   it('应该创建API实例', () => {
@@ -174,5 +175,147 @@ describe('createAPI', () => {
 
     await expect(api.getProfile()).rejects.toBeDefined();
     expect(calls).toEqual(['endpoint', 'global']);
+  });
+
+  it('应该输出 request/response/error observability 事件', async () => {
+    const transport = vi.fn();
+    const successApi = createAPI({
+      baseURL: 'https://api.example.com',
+      fetcher: vi.fn(
+        async () =>
+          new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+      ) as typeof fetch,
+      observability: {
+        enabled: true,
+        transports: [transport],
+      },
+      endpoints: {
+        getProfile: {
+          method: 'GET',
+          path: '/profile',
+        },
+      },
+    });
+
+    await successApi.getProfile({ include: 'stats' });
+
+    expect(transport).toHaveBeenCalledTimes(2);
+    expect(transport).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        stage: 'request',
+        endpointName: 'getProfile',
+        method: 'GET',
+        path: '/profile',
+      })
+    );
+    expect(transport).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        stage: 'response',
+        endpointName: 'getProfile',
+        method: 'GET',
+        path: '/profile',
+        statusCode: 200,
+      })
+    );
+
+    transport.mockClear();
+
+    const errorApi = createAPI({
+      baseURL: 'https://api.example.com',
+      fetcher: vi.fn(async () => {
+        throw new Error('Network down');
+      }) as typeof fetch,
+      observability: {
+        enabled: true,
+        transports: [transport],
+      },
+      endpoints: {
+        getProfile: {
+          method: 'GET',
+          path: '/profile',
+        },
+      },
+    });
+
+    await expect(errorApi.getProfile()).rejects.toMatchObject({
+      code: ErrorCode.NETWORK,
+    });
+
+    expect(transport).toHaveBeenCalledTimes(2);
+    expect(transport).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        stage: 'request',
+        endpointName: 'getProfile',
+      })
+    );
+    expect(transport).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        stage: 'error',
+        endpointName: 'getProfile',
+        error: expect.objectContaining({ code: ErrorCode.NETWORK }),
+      })
+    );
+  });
+
+  it('应该通过全局 logger 自动记录网络请求日志', async () => {
+    const logger = {
+      log: vi.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    };
+
+    setGlobalLogger(logger);
+
+    const api = createAPI({
+      baseURL: 'https://api.example.com',
+      fetcher: vi.fn(
+        async () =>
+          new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+      ) as typeof fetch,
+      observability: {
+        enabled: true,
+      },
+      endpoints: {
+        getProfile: {
+          method: 'GET',
+          path: '/profile',
+        },
+      },
+    });
+
+    await api.getProfile({ id: 1 });
+
+    expect(logger.debug).toHaveBeenCalledWith(
+      'API Request GET /profile',
+      expect.objectContaining({
+        endpointName: 'getProfile',
+        method: 'GET',
+        path: '/profile',
+        url: 'https://api.example.com/profile',
+      }),
+      'api'
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'API Response GET /profile 200',
+      expect.objectContaining({
+        endpointName: 'getProfile',
+        statusCode: 200,
+      }),
+      'api'
+    );
+
+    setGlobalLogger(null);
   });
 });

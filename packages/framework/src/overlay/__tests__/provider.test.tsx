@@ -11,16 +11,17 @@ import { OverlayProvider } from '../provider';
 import { useLoading } from '../loading/hooks';
 import { useToast } from '../toast/hooks';
 import { useAlert } from '../alert/hooks';
+import { useLogger } from '../logger/hooks';
 
 // 测试组件：Loading
 function LoadingTestComponent() {
   const { show, hide } = useLoading();
   return (
     <>
-      <button testID="loading-show" onClick={() => show('加载中...')}>
+      <button className="probe" testID="loading-show" onPress={() => show('加载中...')}>
         显示 Loading
       </button>
-      <button testID="loading-hide" onClick={hide}>
+      <button className="probe" testID="loading-hide" onPress={hide}>
         隐藏 Loading
       </button>
     </>
@@ -32,10 +33,10 @@ function ToastTestComponent() {
   const { success, error } = useToast();
   return (
     <>
-      <button testID="toast-success" onClick={() => success('成功')}>
+      <button className="probe" testID="toast-success" onPress={() => success('成功')}>
         成功
       </button>
-      <button testID="toast-error" onClick={() => error('错误')}>
+      <button className="probe" testID="toast-error" onPress={() => error('错误')}>
         错误
       </button>
     </>
@@ -47,12 +48,17 @@ function AlertTestComponent() {
   const { alert, confirm } = useAlert();
   return (
     <>
-      <button testID="alert-simple" onClick={() => alert({ title: '提示', message: '简单提示' })}>
+      <button
+        className="probe"
+        testID="alert-simple"
+        onPress={() => alert({ title: '提示', message: '简单提示' })}
+      >
         简单提示
       </button>
       <button
+        className="probe"
         testID="alert-confirm"
-        onClick={() =>
+        onPress={() =>
           confirm({
             title: '确认',
             message: '确定删除吗？',
@@ -62,6 +68,25 @@ function AlertTestComponent() {
       >
         确认对话框
       </button>
+    </>
+  );
+}
+
+// 测试组件：Logger
+function LoggerTestComponent() {
+  const logger = useLogger('ui');
+  return (
+    <>
+      <button
+        className="probe"
+        testID="logger-info"
+        onPress={() => logger.info('点击按钮', { test: true })}
+      >
+        记录日志
+      </button>
+      <div className="probe" testID="logger-count">
+        {String(logger.entries.length)}
+      </div>
     </>
   );
 }
@@ -110,6 +135,22 @@ describe('OverlayProvider', () => {
     act(() => {
       fireEvent.press(getByTestId('toast-error'));
     });
+  });
+
+  it('useLogger 在 Provider 内应该正常工作', () => {
+    const { getByTestId } = render(
+      <OverlayProvider
+        loggerProps={{ enabled: true, overlayEnabled: false, consoleEnabled: false }}
+      >
+        <LoggerTestComponent />
+      </OverlayProvider>
+    );
+
+    act(() => {
+      fireEvent.press(getByTestId('logger-info'));
+    });
+
+    expect(String(getByTestId('logger-count').props.children)).toBe('1');
   });
 
   it('useAlert 在 Provider 内应该正常工作', () => {

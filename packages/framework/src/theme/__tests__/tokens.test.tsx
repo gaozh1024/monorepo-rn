@@ -28,7 +28,11 @@ const darkTheme = {
 function ThemeColorProbe() {
   const colors = useThemeColors();
 
-  return <Text>{`${colors.background}|${colors.card}|${colors.text}`}</Text>;
+  return (
+    <Text>
+      {`${colors.background}|${colors.card}|${colors.text}|${colors.error}|${colors.success}|${colors.warning}|${colors.info}|${colors.muted}`}
+    </Text>
+  );
 }
 
 describe('useThemeColors', () => {
@@ -39,7 +43,9 @@ describe('useThemeColors', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('#ffffff|#ffffff|#171717')).toBeTruthy();
+    expect(
+      getByText('#ffffff|#ffffff|#171717|#ef4444|#22c55e|#f59e0b|#3b82f6|#6b7280')
+    ).toBeTruthy();
 
     rerender(
       <ThemeProvider light={lightTheme} dark={darkTheme} isDark>
@@ -47,6 +53,8 @@ describe('useThemeColors', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('#0a0a0a|#111827|#f5f5f5')).toBeTruthy();
+    expect(
+      getByText('#0a0a0a|#111827|#f5f5f5|#ef4444|#22c55e|#f59e0b|#3b82f6|#9ca3af')
+    ).toBeTruthy();
   });
 });

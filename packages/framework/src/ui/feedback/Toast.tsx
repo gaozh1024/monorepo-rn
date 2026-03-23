@@ -1,5 +1,5 @@
 import { AppView, AppText } from '../primitives';
-import { cn } from '@/utils';
+import { useOptionalTheme } from '@/theme';
 
 /**
  * Toast 组件属性接口
@@ -11,15 +11,9 @@ export interface ToastProps {
   type?: 'success' | 'error' | 'warning' | 'info';
   /** 是否显示 */
   visible?: boolean;
+  /** 测试 ID */
+  testID?: string;
 }
-
-/** 类型样式映射表 */
-const typeStyles = {
-  success: 'bg-green-500',
-  error: 'bg-red-500',
-  warning: 'bg-yellow-500',
-  info: 'bg-blue-500',
-};
 
 /**
  * Toast - 轻提示组件
@@ -50,11 +44,39 @@ const typeStyles = {
  * showToast({ message: '操作成功', type: 'success' });
  * ```
  */
-export function Toast({ message, type = 'info', visible = true }: ToastProps) {
+export function Toast({ message, type = 'info', visible = true, testID }: ToastProps) {
+  const { theme } = useOptionalTheme();
+
   if (!visible) return null;
+
+  const palette = {
+    success: {
+      backgroundColor: theme.colors.success?.[500] || '#22c55e',
+      textColor: '#ffffff',
+    },
+    error: {
+      backgroundColor: theme.colors.error?.[500] || '#ef4444',
+      textColor: '#ffffff',
+    },
+    warning: {
+      backgroundColor: theme.colors.warning?.[500] || '#f59e0b',
+      textColor: '#111827',
+    },
+    info: {
+      backgroundColor: theme.colors.info?.[500] || theme.colors.primary?.[500] || '#3b82f6',
+      textColor: '#ffffff',
+    },
+  } as const;
+
+  const currentPalette = palette[type];
+
   return (
-    <AppView className={cn('px-4 py-3 rounded-lg', typeStyles[type])}>
-      <AppText color="white">{message}</AppText>
+    <AppView
+      testID={testID}
+      className="px-4 py-3 rounded-lg"
+      style={{ backgroundColor: currentPalette.backgroundColor }}
+    >
+      <AppText style={{ color: currentPalette.textColor }}>{message}</AppText>
     </AppView>
   );
 }

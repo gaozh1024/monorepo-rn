@@ -54,6 +54,18 @@ export interface AppListProps<T = any> {
   showsHorizontalScrollIndicator?: boolean;
 }
 
+function renderListSlot(
+  slot?: React.ComponentType | React.ReactElement | null
+): React.ReactElement | null {
+  if (!slot) return null;
+  if (React.isValidElement(slot)) return slot;
+  if (typeof slot === 'function') {
+    const SlotComponent = slot as React.ComponentType;
+    return <SlotComponent />;
+  }
+  return null;
+}
+
 function SkeletonItem({ render }: { render?: () => React.ReactElement }) {
   const colors = useThemeColors();
 
@@ -245,9 +257,15 @@ export function AppList<T = any>({
     [skeletonRender]
   );
 
+  const flatListKey = useMemo(() => {
+    if (horizontal) return 'app-list-horizontal';
+    return `app-list-columns-${numColumns ?? 1}`;
+  }, [horizontal, numColumns]);
+
   if (loading && data.length === 0) {
     return (
       <FlatList
+        key={`${flatListKey}-skeleton`}
         data={skeletonData}
         renderItem={skeletonRenderItem}
         keyExtractor={(_, index) => `skeleton-${index}`}
@@ -274,7 +292,7 @@ export function AppList<T = any>({
   }
 
   const ListEmptyComponent = useMemo(() => {
-    if (EmptyComponent) return <EmptyComponent />;
+    if (EmptyComponent) return renderListSlot(EmptyComponent);
     return <EmptyState title={emptyTitle} description={emptyDescription} icon={emptyIcon} />;
   }, [EmptyComponent, emptyTitle, emptyDescription, emptyIcon]);
 
@@ -282,13 +300,16 @@ export function AppList<T = any>({
     return (
       <>
         <LoadMoreFooter loading={isLoadingMore} />
-        {ListFooterComponent}
+        {renderListSlot(ListFooterComponent)}
       </>
     );
   }, [isLoadingMore, ListFooterComponent]);
 
+  const HeaderComponent = useMemo(() => renderListSlot(ListHeaderComponent), [ListHeaderComponent]);
+
   return (
     <FlatList
+      key={flatListKey}
       data={data}
       renderItem={wrappedRenderItem}
       keyExtractor={defaultKeyExtractor}
@@ -305,7 +326,7 @@ export function AppList<T = any>({
       onEndReached={onEndReached ? handleEndReached : undefined}
       onEndReachedThreshold={onEndReachedThreshold}
       ListEmptyComponent={ListEmptyComponent}
-      ListHeaderComponent={ListHeaderComponent}
+      ListHeaderComponent={HeaderComponent}
       ListFooterComponent={FooterComponent}
       contentContainerStyle={contentContainerStyle}
       style={style}

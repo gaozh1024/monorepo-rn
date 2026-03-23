@@ -25,6 +25,26 @@ describe('PageDrawer', () => {
     expect(queryByTestId('page-drawer-content')).toBeNull();
   });
 
+  it('visible 在 false 和 true 间切换时不应触发 Hooks 顺序错误', () => {
+    const { queryByTestId, rerender } = renderWithTheme(
+      <PageDrawer visible={false}>
+        <AppText>内容</AppText>
+      </PageDrawer>
+    );
+
+    expect(queryByTestId('page-drawer-content')).toBeNull();
+
+    rerender(
+      <ThemeProvider light={theme}>
+        <PageDrawer visible>
+          <AppText>内容</AppText>
+        </PageDrawer>
+      </ThemeProvider>
+    );
+
+    expect(queryByTestId('page-drawer-content')).toBeTruthy();
+  });
+
   it('应该渲染标题和内容', () => {
     const { getByText } = renderWithTheme(
       <PageDrawer visible title="筛选条件">

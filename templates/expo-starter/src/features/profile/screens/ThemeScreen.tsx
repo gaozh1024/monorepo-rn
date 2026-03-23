@@ -8,6 +8,8 @@ import {
   Row,
   Col,
   useTheme,
+  useNavigation,
+  AppHeader,
 } from '@gaozh1024/rn-kit';
 import { useUIStore } from '../../../store/ui.store';
 import { THEME_MODES, type ThemeMode } from '../../../bootstrap/constants';
@@ -157,6 +159,7 @@ function ThemeOption({
 export function ThemeScreen() {
   const { themeMode, setThemeMode } = useUIStore();
   const { isDark } = useTheme();
+  const navigation = useNavigation();
 
   const options: {
     value: ThemeMode;
@@ -207,6 +210,7 @@ export function ThemeScreen() {
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
     >
+      <AppHeader title="主题模式" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
       <AppScrollView
         flex
         showsVerticalScrollIndicator={false}

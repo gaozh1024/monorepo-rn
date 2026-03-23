@@ -302,6 +302,7 @@ vi.mock('react-native', () => {
   const Text = createNativeComponent('Text');
   const Pressable = createNativeComponent('Pressable');
   const TouchableOpacity = createNativeComponent('TouchableOpacity');
+  const TouchableWithoutFeedback = createNativeComponent('TouchableWithoutFeedback');
   const ScrollView = createNativeComponent('ScrollView');
   const SafeAreaView = createNativeComponent('SafeAreaView');
   const ActivityIndicator = createNativeComponent('ActivityIndicator');
@@ -310,6 +311,7 @@ vi.mock('react-native', () => {
   const Image = createNativeComponent('Image');
   const Modal = createNativeComponent('Modal');
   const RefreshControl = createNativeComponent('RefreshControl');
+  const Keyboard = { dismiss: vi.fn() };
   const PanResponder = {
     create: (config: any) => ({
       panHandlers: config,
@@ -368,6 +370,7 @@ vi.mock('react-native', () => {
     Text,
     Pressable,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     ScrollView,
     SafeAreaView,
     ActivityIndicator,
@@ -377,6 +380,7 @@ vi.mock('react-native', () => {
     Modal,
     FlatList,
     RefreshControl,
+    Keyboard,
     PanResponder,
     BackHandler,
     Animated,

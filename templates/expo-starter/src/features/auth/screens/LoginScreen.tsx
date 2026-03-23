@@ -10,6 +10,8 @@ import {
   useTheme,
   Icon,
   Row,
+  SafeScreen,
+  useLogger,
 } from '@gaozh1024/rn-kit';
 import { useSessionStore } from '../../../store/session.store';
 import { loginResponse } from '../../../data/mocks/user.mock';
@@ -22,6 +24,7 @@ import { appColors } from '../../../bootstrap/theme';
  */
 export function LoginScreen() {
   const navigation = useNavigation<RootNavigationProp>();
+  const logger = useLogger('auth');
   const { login } = useSessionStore();
   const { isDark } = useTheme();
   const [mobile, setMobile] = useState('');
@@ -29,10 +32,16 @@ export function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!mobile || !password) return;
+    if (!mobile || !password) {
+      logger.warn('登录失败：手机号或密码为空');
+      return;
+    }
+
+    logger.info('提交登录表单');
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
+      logger.info('登录成功，准备进入首页');
       login(loginResponse.token, loginResponse.user);
     }, 1000);
   };
@@ -47,8 +56,9 @@ export function LoginScreen() {
         translucent
         backgroundColor="transparent"
       />
-      <AppView
+      <SafeScreen
         flex
+        dismissKeyboardOnPressOutside
         style={{
           backgroundColor: isDark ? appColors.slate[950] : '#f8fafc',
         }}
@@ -258,7 +268,7 @@ export function LoginScreen() {
             基于 @gaozh1024/rn-kit 构建
           </AppText>
         </Center>
-      </AppView>
+      </SafeScreen>
     </>
   );
 }

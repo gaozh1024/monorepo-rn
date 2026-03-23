@@ -3,29 +3,71 @@
  * @module overlay/loading/provider
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { LoadingContext } from './context';
 import { LoadingModal } from './component';
 import type { LoadingState } from './types';
+
+const MIN_VISIBLE_DURATION = 500;
 
 /**
  * Loading Provider
  */
 export function LoadingProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<LoadingState>({ visible: false });
+  const shownAtRef = useRef(0);
+  const pendingCountRef = useRef(0);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const show = useCallback((text?: string) => {
-    setState({ visible: true, text });
+  const clearHideTimer = useCallback(() => {
+    if (!hideTimerRef.current) return;
+    clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = null;
   }, []);
+
+  const show = useCallback(
+    (text?: string) => {
+      pendingCountRef.current += 1;
+      clearHideTimer();
+
+      setState(previous => {
+        if (!previous.visible) {
+          shownAtRef.current = Date.now();
+        }
+
+        return { visible: true, text };
+      });
+    },
+    [clearHideTimer]
+  );
 
   const hide = useCallback(() => {
-    setState({ visible: false });
-  }, []);
+    pendingCountRef.current = Math.max(0, pendingCountRef.current - 1);
+
+    if (pendingCountRef.current > 0) return;
+
+    const elapsed = Date.now() - shownAtRef.current;
+    const remaining = Math.max(0, MIN_VISIBLE_DURATION - elapsed);
+
+    clearHideTimer();
+
+    if (remaining === 0) {
+      setState({ visible: false });
+      return;
+    }
+
+    hideTimerRef.current = setTimeout(() => {
+      hideTimerRef.current = null;
+      setState({ visible: false });
+    }, remaining);
+  }, [clearHideTimer]);
+
+  useEffect(() => () => clearHideTimer(), [clearHideTimer]);
 
   return (
     <LoadingContext.Provider value={{ show, hide }}>
       {children}
-      <LoadingModal {...state} />
+      <LoadingModal {...state} onRequestClose={hide} />
     </LoadingContext.Provider>
   );
 }
