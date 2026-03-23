@@ -34,6 +34,8 @@ export interface SafeScreenProps extends ViewProps, CommonLayoutProps {
   children: React.ReactNode;
 }
 
+export interface AppScreenProps extends SafeScreenProps {}
+
 /**
  * 安全屏幕组件 - 自动适配刘海屏/全面屏的安全区域
  *
@@ -151,7 +153,10 @@ export function SafeScreen({
 }
 
 /**
- * 页面容器组件 - 包含安全区域和基础布局
+ * 页面容器组件 - 面向常规业务页面的语义容器
+ *
+ * 默认假设顶部安全区由 `AppHeader` 之类的页面头部组件负责，
+ * 因此默认 `top=false`、`bottom=true`
  *
  * @example
  * ```tsx
@@ -166,10 +171,25 @@ export function SafeScreen({
 export function AppScreen({
   children,
   className,
+  top = false,
+  bottom = true,
+  left = false,
+  right = false,
+  surface = 'background',
+  flex = true,
   ...props
-}: Omit<SafeScreenProps, 'top' | 'bottom' | 'left' | 'right'>) {
+}: AppScreenProps) {
   return (
-    <SafeScreen flex surface="background" {...props} className={className}>
+    <SafeScreen
+      top={top}
+      bottom={bottom}
+      left={left}
+      right={right}
+      flex={flex}
+      surface={surface}
+      {...props}
+      className={className}
+    >
       {children}
     </SafeScreen>
   );

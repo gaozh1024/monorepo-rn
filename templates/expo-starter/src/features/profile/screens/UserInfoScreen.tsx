@@ -3,6 +3,7 @@ import {
   AppText,
   Icon,
   AppPressable,
+  AppScreen,
   AppView,
   AppScrollView,
   Row,
@@ -116,8 +117,7 @@ export function UserInfoScreen() {
   ];
 
   return (
-    <AppView
-      flex
+    <AppScreen
       style={{
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
@@ -275,6 +275,6 @@ export function UserInfoScreen() {
         {/* 底部占位 */}
         <AppView style={{ height: 32 }} />
       </AppScrollView>
-    </AppView>
+    </AppScreen>
   );
 }

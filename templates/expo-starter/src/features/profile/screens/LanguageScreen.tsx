@@ -3,6 +3,7 @@ import {
   AppText,
   Icon,
   AppPressable,
+  AppScreen,
   AppView,
   AppScrollView,
   Row,
@@ -152,8 +153,7 @@ export function LanguageScreen() {
   ];
 
   return (
-    <AppView
-      flex
+    <AppScreen
       style={{
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
@@ -282,6 +282,6 @@ export function LanguageScreen() {
           </Row>
         </AppView>
       </AppScrollView>
-    </AppView>
+    </AppScreen>
   );
 }

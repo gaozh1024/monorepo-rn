@@ -44,10 +44,14 @@
 
 版本发布记录：
 
+- [expo-starter 0.2.11 Release Notes](./release-notes/expo-starter-0.2.11.md)
+- [expo-starter 0.2.10 Release Notes](./release-notes/expo-starter-0.2.10.md)
 - [expo-starter 0.2.9 Release Notes](./release-notes/expo-starter-0.2.9.md)
 - [expo-starter 0.2.8 Release Notes](./release-notes/expo-starter-0.2.8.md)
 - [expo-starter 0.2.7 Release Notes](./release-notes/expo-starter-0.2.7.md)
 - [expo-starter 0.2.6 Release Notes](./release-notes/expo-starter-0.2.6.md)
+- [rn-kit 0.4.6 Release Notes](./release-notes/0.4.6.md)
+- [rn-kit 0.4.5 Release Notes](./release-notes/0.4.5.md)
 - [rn-kit 0.4.4 Release Notes](./release-notes/0.4.4.md)
 - [rn-kit 0.4.3 Release Notes](./release-notes/0.4.3.md)
 - [rn-kit 0.4.2 Release Notes](./release-notes/0.4.2.md)

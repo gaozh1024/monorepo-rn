@@ -1,6 +1,6 @@
 {
   "name": "@gaozh1024/expo-starter",
-  "version": "0.2.9",
+  "version": "0.2.11",
   "description": "Expo starter template based on @gaozh1024/rn-kit",
   "main": "expo/AppEntry",
   "files": [
@@ -38,12 +38,13 @@
   "license": "MIT",
   "dependencies": {
     "@expo/vector-icons": "~15.1.1",
-    "@gaozh1024/rn-kit": "^0.4.4",
+    "@gaozh1024/rn-kit": "^0.4.6",
     "@react-native-masked-view/masked-view": "~0.3.2",
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/native": "^7.1.33",
     "@react-navigation/stack": "^7.8.5",
     "expo": "~54.0.33",
+    "expo-image": "~3.0.11",
     "expo-linear-gradient": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "nativewind": "^4.2.3",

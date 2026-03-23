@@ -196,6 +196,7 @@ import { AppProvider, AppStatusBar } from '@gaozh1024/rn-kit';
 import {
   AppView,
   AppScrollView,
+  AppFlatList,
   AppText,
   AppPressable,
   KeyboardDismissView,
@@ -207,6 +208,9 @@ import {
   Toast,
   Alert,
   Loading,
+  Skeleton,
+  SkeletonText,
+  SkeletonAvatar,
   Progress, // 反馈
   Card,
   Icon,
@@ -234,22 +238,40 @@ import {
   - `bg="primary-500"` 这类显式颜色
   - `surface="background" | "card" | "muted"` 这类语义背景
   - `dismissKeyboardOnPressOutside`：点击非输入区域时收起键盘
+- 语义建议：
+  - `SafeScreen`：底层安全区容器，默认 `top=true` / `bottom=true`
+  - `AppScreen`：业务页面容器，默认 `top=false` / `bottom=true`，更适合和 `AppHeader` 搭配
 - `AppScrollView` 支持 `dismissKeyboardOnPressOutside`
   - 开启后会自动启用点击空白收起键盘
   - 并默认补上 `keyboardShouldPersistTaps="handled"`
+- `AppFlatList` 支持与 `AppScrollView` 一致的容器快捷参数
+  - 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`
+  - 内容区支持：布局 / 内边距 / `gap`
+  - 开启 `dismissKeyboardOnPressOutside` 时默认补上 `keyboardShouldPersistTaps="handled"`
 - `KeyboardDismissView` 适合非页面容器、自定义布局场景下单独包裹使用
+- `AppImage` 已基于 `expo-image` 封装
+  - 支持缓存策略 `cachePolicy`
+  - 支持占位图 `placeholder`
+  - 默认支持淡入过渡 `transition`
+- 骨架屏已提供统一组件：
+  - `Skeleton`
+  - `SkeletonBlock`
+  - `SkeletonText`
+  - `SkeletonAvatar`
 
 #### 容器快捷参数支持矩阵
 
-| 组件                       | 默认行为                         | 支持快捷参数                                                                                       | 补充说明                                                   |
-| -------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `AppView`                  | 基础容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 通用容器基座                                               |
-| `Row`                      | `row`，默认 `items="center"`     | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                     |
-| `Col`                      | 纵向布局，默认 `items="stretch"` | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                     |
-| `Center`                   | 强制居中，默认不撑满             | 继承 `AppView` 大部分快捷参数                                                                      | 内部固定 `center`，需要铺满时请显式传 `flex`               |
-| `AppScrollView`            | 滚动容器                         | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | `row` / `items` / `justify` 作用于 `contentContainerStyle` |
-| `Card`                     | 卡片容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 另有 `noShadow` / `noBorder` / `noRadius`                  |
-| `SafeScreen` / `AppScreen` | 安全区页面容器                   | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 安全区 inset 会自动并入 padding                            |
+| 组件            | 默认行为                         | 支持快捷参数                                                                                       | 补充说明                                                         |
+| --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `AppView`       | 基础容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 通用容器基座                                                     |
+| `Row`           | `row`，默认 `items="center"`     | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                           |
+| `Col`           | 纵向布局，默认 `items="stretch"` | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                           |
+| `Center`        | 强制居中，默认不撑满             | 继承 `AppView` 大部分快捷参数                                                                      | 内部固定 `center`，需要铺满时请显式传 `flex`                     |
+| `AppScrollView` | 滚动容器                         | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | `row` / `items` / `justify` 作用于 `contentContainerStyle`       |
+| `AppFlatList`   | 虚拟列表容器                     | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | 保持原生 `FlatListProps<T>`，适合常规高性能列表场景              |
+| `Card`          | 卡片容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 另有 `noShadow` / `noBorder` / `noRadius`                        |
+| `SafeScreen`    | 底层安全区容器                   | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=true` / `bottom=true`，安全区 inset 会自动并入 padding |
+| `AppScreen`     | 页面语义容器                     | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=false` / `bottom=true`，更适合带 `AppHeader` 的页面    |
 
 > 说明：`className` 依然走 NativeWind；上表中的快捷参数本身已经由框架直接转换为内联 `style`。
 
@@ -314,9 +336,48 @@ import {
 </KeyboardDismissView>
 ```
 
+列表场景则推荐：
+
+```tsx
+<AppFlatList
+  data={users}
+  renderItem={renderUser}
+  keyExtractor={item => item.id}
+  flex
+  px={4}
+  py={3}
+  gap={3}
+  dismissKeyboardOnPressOutside
+/>
+```
+
+#### `AppScreen` 与 `SafeScreen` 的使用建议
+
+推荐按语义区分：
+
+```tsx
+// 1) 常规业务页面：顶部由 AppHeader 负责安全区
+<AppScreen>
+  <AppHeader title="设置" />
+  <AppView flex>{/* page content */}</AppView>
+</AppScreen>
+
+// 2) 无 Header 的全屏页面：直接使用 SafeScreen
+<SafeScreen>
+  <AppView flex>{/* full screen content */}</AppView>
+</SafeScreen>
+
+// 3) 即使使用 AppScreen，也仍然可以显式覆盖
+<AppScreen top bottom={false}>
+  <AppView flex>{/* custom layout */}</AppView>
+</AppScreen>
+```
+
 #### 可本地化文案参数（i18n 推荐）
 
 - `AppList`
+  - 面向带空态 / 错误态 / 下拉刷新 / 上拉加载等“增强列表”场景
+  - 如果只需要原生 `FlatList` + 统一布局/主题能力，优先使用 `AppFlatList`
   - `errorTitle`：错误标题（默认 `加载失败`）
   - `errorDescription`：错误描述兜底（默认 `请检查网络后重试`）
   - `retryText`：重试按钮文案（默认 `重新加载`）
@@ -335,6 +396,33 @@ import {
   - `pickerTitle`：弹窗标题文案
   - `yearLabel` / `monthLabel` / `dayLabel`：列标题文案
   - `todayText` / `minDateText` / `maxDateText`：快捷按钮文案
+
+#### 图片与骨架屏
+
+`AppImage` 当前基于 `expo-image` 封装，适合统一处理远程图片缓存、占位和错误态：
+
+```tsx
+<AppImage
+  source={{ uri: user.avatar }}
+  width={80}
+  height={80}
+  borderRadius="full"
+  placeholder={require('./avatar-placeholder.png')}
+  cachePolicy="memory-disk"
+/>
+```
+
+通用内容骨架推荐直接使用：
+
+```tsx
+<AppView p={4} gap={3}>
+  <SkeletonAvatar size={48} />
+  <SkeletonText lines={3} lineWidths={['100%', '92%', '60%']} />
+  <Skeleton h={120} rounded="lg" />
+</AppView>
+```
+
+`AppList` 和 `AppImage` 内部也已复用统一骨架能力。
 
 #### 表单与反馈 Hook 当前 API
 

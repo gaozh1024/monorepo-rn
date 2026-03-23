@@ -1,26 +1,33 @@
-import React, { useState, useCallback } from 'react';
-import {
-  Image,
-  ActivityIndicator,
-  ImageSourcePropType,
-  StyleProp,
-  ImageStyle,
-  View,
-} from 'react-native';
-import { useTheme } from '@/theme';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, type ImageStyle, type StyleProp, View } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
+import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
 import { AppPressable, AppView } from '@/ui/primitives';
+import { SkeletonBlock } from '@/ui/feedback';
 import { Icon } from './Icon';
+
+type ExpoImageComponentProps = React.ComponentProps<typeof ExpoImage>;
 
 /** 图片缩放模式 */
 export type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center';
+
+const resizeModeToContentFit: Record<
+  ImageResizeMode,
+  NonNullable<ExpoImageComponentProps['contentFit']>
+> = {
+  cover: 'cover',
+  contain: 'contain',
+  stretch: 'fill',
+  center: 'none',
+};
 
 /**
  * AppImage 组件属性接口
  */
 export interface AppImageProps {
   /** 图片资源，可以是本地资源或远程 URL */
-  source: ImageSourcePropType | { uri: string };
+  source: ExpoImageComponentProps['source'];
   /** 宽度，数字表示像素，字符串表示百分比 */
   width?: number | string;
   /** 高度，数字表示像素，'auto' 表示自适应，或使用 'aspect-16/9' 等比例格式 */
@@ -28,15 +35,21 @@ export interface AppImageProps {
   /** 圆角大小，支持预设值或数字 */
   borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | number;
   /** 加载时的占位图 */
-  placeholder?: ImageSourcePropType;
+  placeholder?: ExpoImageComponentProps['placeholder'];
   /** 加载失败时的占位图 */
-  errorPlaceholder?: ImageSourcePropType;
+  errorPlaceholder?: ExpoImageComponentProps['source'];
   /** 是否显示加载指示器，设为 true 显示默认指示器，或传入自定义节点 */
   loadingIndicator?: boolean | React.ReactNode;
   /** 是否在加载失败时显示错误图标 */
   showError?: boolean;
   /** 图片缩放模式 */
   resizeMode?: ImageResizeMode;
+  /** Expo Image 缓存策略 */
+  cachePolicy?: ExpoImageComponentProps['cachePolicy'];
+  /** 图片过渡动画时长 */
+  transition?: ExpoImageComponentProps['transition'];
+  /** 图片加载优先级 */
+  priority?: ExpoImageComponentProps['priority'];
   /** 图片加载成功回调 */
   onLoad?: () => void;
   /** 图片加载失败回调 */
@@ -66,8 +79,6 @@ const radiusMap: Record<string, number> = {
 
 /**
  * 解析圆角值
- * @param radius - 圆角值
- * @returns 解析后的数字
  */
 function resolveRadius(radius: AppImageProps['borderRadius']): number {
   if (typeof radius === 'number') return radius;
@@ -75,53 +86,7 @@ function resolveRadius(radius: AppImageProps['borderRadius']): number {
 }
 
 /**
- * 骨架屏加载效果
- */
-function SkeletonItem() {
-  return <AppView flex className="bg-gray-200 animate-pulse" />;
-}
-
-/**
- * AppImage - 图片组件
- *
- * 功能丰富的图片组件，支持加载状态、错误处理、圆角、点击交互等
- * 自动处理图片加载过程中的各种状态，提供良好的用户体验
- *
- * @example
- * ```tsx
- * // 基础使用
- * <AppImage source={{ uri: 'https://example.com/image.jpg' }} />
- *
- * // 指定尺寸和圆角
- * <AppImage
- *   source={require('./photo.png')}
- *   width={200}
- *   height={150}
- *   borderRadius="lg"
- * />
- *
- * // 显示加载指示器
- * <AppImage
- *   source={{ uri: 'https://example.com/large-image.jpg' }}
- *   loadingIndicator={true}
- *   showError={true}
- * />
- *
- * // 可点击图片
- * <AppImage
- *   source={{ uri: 'https://example.com/photo.jpg' }}
- *   onPress={() => navigation.navigate('Detail')}
- *   onLongPress={() => showContextMenu()}
- * />
- *
- * // 使用占位图
- * <AppImage
- *   source={{ uri: user.avatar }}
- *   placeholder={require('./default-avatar.png')}
- *   errorPlaceholder={require('./error-avatar.png')}
- *   borderRadius="full"
- * />
- * ```
+ * AppImage - 基于 expo-image 的图片组件
  */
 export function AppImage({
   source,
@@ -133,6 +98,9 @@ export function AppImage({
   loadingIndicator = false,
   showError = false,
   resizeMode = 'cover',
+  cachePolicy = 'memory-disk',
+  transition = 150,
+  priority = 'normal',
   onLoad,
   onError,
   onPress,
@@ -142,12 +110,14 @@ export function AppImage({
 }: AppImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const { theme } = useTheme();
+  const { theme } = useOptionalTheme();
 
   const resolvedRadius = resolveRadius(borderRadius);
+  const contentFit = resizeModeToContentFit[resizeMode];
 
   const handleLoad = useCallback(() => {
     setIsLoading(false);
+    setHasError(false);
     onLoad?.();
   }, [onLoad]);
 
@@ -160,31 +130,21 @@ export function AppImage({
     [onError]
   );
 
-  const imageStyle: any = [
-    {
-      width: '100%',
-      height: '100%',
-      borderRadius: resolvedRadius,
-    },
-    style,
-  ];
+  const imageStyle = useMemo<StyleProp<ImageStyle>>(
+    () => [
+      {
+        width: '100%',
+        height: '100%',
+        borderRadius: resolvedRadius,
+      },
+      style,
+    ],
+    [resolvedRadius, style]
+  );
 
   const renderLoading = () => {
-    if (!isLoading) return null;
-    if (placeholder) {
-      return (
-        <Image
-          source={placeholder}
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            borderRadius: resolvedRadius,
-          }}
-          resizeMode={resizeMode}
-        />
-      );
-    }
+    if (!isLoading || placeholder) return null;
+
     if (loadingIndicator) {
       if (typeof loadingIndicator === 'boolean') {
         return (
@@ -197,20 +157,23 @@ export function AppImage({
           </AppView>
         );
       }
+
       return (
         <AppView center className="absolute inset-0" style={{ borderRadius: resolvedRadius }}>
           {loadingIndicator}
         </AppView>
       );
     }
-    return <SkeletonItem />;
+
+    return <SkeletonBlock className="absolute inset-0" rounded={borderRadius} />;
   };
 
   const renderError = () => {
     if (!hasError) return null;
+
     if (errorPlaceholder) {
       return (
-        <Image
+        <ExpoImage
           source={errorPlaceholder}
           style={{
             position: 'absolute',
@@ -218,10 +181,11 @@ export function AppImage({
             height: '100%',
             borderRadius: resolvedRadius,
           }}
-          resizeMode={resizeMode}
+          contentFit={contentFit}
         />
       );
     }
+
     if (showError) {
       return (
         <AppView
@@ -233,6 +197,7 @@ export function AppImage({
         </AppView>
       );
     }
+
     return null;
   };
 
@@ -253,14 +218,19 @@ export function AppImage({
         borderRadius: resolvedRadius,
       }}
     >
-      {renderLoading()}
-      <Image
-        source={source as any}
+      <ExpoImage
+        source={source}
+        placeholder={placeholder}
+        placeholderContentFit={contentFit}
         style={imageStyle}
-        resizeMode={resizeMode}
+        contentFit={contentFit}
+        cachePolicy={cachePolicy}
+        transition={transition}
+        priority={priority}
         onLoad={handleLoad}
         onError={handleError}
       />
+      {renderLoading()}
       {renderError()}
     </View>
   );

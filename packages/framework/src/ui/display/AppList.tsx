@@ -12,6 +12,7 @@ import { useTheme, useThemeColors } from '@/theme';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from './Icon';
 import { Center } from '@/ui/layout';
+import { SkeletonAvatar, SkeletonText } from '@/ui/feedback';
 
 export interface AppListProps<T = any> {
   data: T[];
@@ -67,8 +68,6 @@ function renderListSlot(
 }
 
 function SkeletonItem({ render }: { render?: () => React.ReactElement }) {
-  const colors = useThemeColors();
-
   if (render) {
     return render();
   }
@@ -76,10 +75,9 @@ function SkeletonItem({ render }: { render?: () => React.ReactElement }) {
   return (
     <AppView p={4} gap={3} testID="skeleton">
       <AppView row gap={3}>
-        <AppView className="w-16 h-16 rounded-lg" style={{ backgroundColor: colors.divider }} />
+        <SkeletonAvatar size={64} rounded="lg" />
         <AppView flex gap={2}>
-          <AppView className="h-4 w-3/4 rounded" style={{ backgroundColor: colors.divider }} />
-          <AppView className="h-3 w-1/2 rounded" style={{ backgroundColor: colors.divider }} />
+          <SkeletonText lines={2} lineHeight={14} spacing={8} lineWidths={['75%', '50%']} />
         </AppView>
       </AppView>
     </AppView>

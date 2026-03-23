@@ -1,0 +1,53 @@
+import React from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { act, create } from 'react-test-renderer';
+import { AppImage } from '@/ui';
+
+describe('AppImage', () => {
+  it('应该基于 expo-image 渲染并映射 resizeMode', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <AppImage
+          source={{ uri: 'https://example.com/avatar.png' }}
+          resizeMode="stretch"
+          placeholder={{ uri: 'https://example.com/placeholder.png' }}
+        />
+      );
+    });
+
+    const image = renderer!.root.findByType('ExpoImage');
+
+    expect(image.props.contentFit).toBe('fill');
+    expect(image.props.placeholderContentFit).toBe('fill');
+    expect(image.props.cachePolicy).toBe('memory-disk');
+    expect(image.props.transition).toBe(150);
+  });
+
+  it('应该响应加载成功和失败事件', () => {
+    const onLoad = vi.fn();
+    const onError = vi.fn();
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <AppImage
+          source={{ uri: 'https://example.com/avatar.png' }}
+          onLoad={onLoad}
+          onError={onError}
+        />
+      );
+    });
+
+    const image = renderer!.root.findByType('ExpoImage');
+
+    act(() => {
+      image.props.onLoad?.();
+      image.props.onError?.({ nativeEvent: { error: 'failed' } });
+    });
+
+    expect(onLoad).toHaveBeenCalled();
+    expect(onError).toHaveBeenCalled();
+  });
+});

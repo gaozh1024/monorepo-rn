@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  AppScreen,
   AppView,
   AppText,
   AppInput,
@@ -40,8 +41,7 @@ export function ForgotPasswordScreen() {
   };
 
   return (
-    <AppView
-      flex
+    <AppScreen
       style={{
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
@@ -228,6 +228,6 @@ export function ForgotPasswordScreen() {
           )}
         </AppView>
       </AppScrollView>
-    </AppView>
+    </AppScreen>
   );
 }

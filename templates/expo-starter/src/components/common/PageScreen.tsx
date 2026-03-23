@@ -1,10 +1,10 @@
 import React from 'react';
 import {
+  AppScreen,
   AppHeader,
   type AppHeaderProps,
   AppScrollView,
   type AppScrollViewProps,
-  AppView,
   useNavigation,
 } from '@gaozh1024/rn-kit';
 
@@ -25,7 +25,7 @@ export function PageScreen({
   const navigation = useNavigation();
 
   return (
-    <AppView flex surface="background">
+    <AppScreen>
       <AppHeader
         title={title}
         leftIcon="arrow-back"
@@ -36,6 +36,6 @@ export function PageScreen({
       <AppScrollView surface="background" dismissKeyboardOnPressOutside {...scrollProps}>
         {children}
       </AppScrollView>
-    </AppView>
+    </AppScreen>
   );
 }

@@ -34,6 +34,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './test/expo-linear-gradient-alias.ts'),
       },
       {
+        find: 'expo-image',
+        replacement: path.resolve(__dirname, './test/expo-image-alias.ts'),
+      },
+      {
         find: '@react-navigation/stack',
         replacement: path.resolve(__dirname, './test/react-navigation-stack-alias.ts'),
       },

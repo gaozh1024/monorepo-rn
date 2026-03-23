@@ -4,6 +4,7 @@ import {
   Icon,
   AppPressable,
   useAlert,
+  AppScreen,
   AppView,
   AppScrollView,
   Row,
@@ -238,8 +239,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <AppView
-      flex
+    <AppScreen
       style={{
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
@@ -407,6 +407,6 @@ export function SettingsScreen() {
           </AppView>
         </AppView>
       </AppScrollView>
-    </AppView>
+    </AppScreen>
   );
 }

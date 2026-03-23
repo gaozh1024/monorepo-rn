@@ -3,6 +3,7 @@ import {
   AppText,
   Center,
   AppPressable,
+  AppScreen,
   AppView,
   AppScrollView,
   Row,
@@ -174,8 +175,7 @@ export function AboutScreen() {
   ];
 
   return (
-    <AppView
-      flex
+    <AppScreen
       style={{
         backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
       }}
@@ -401,6 +401,6 @@ export function AboutScreen() {
           </AppText>
         </Center>
       </AppScrollView>
-    </AppView>
+    </AppScreen>
   );
 }

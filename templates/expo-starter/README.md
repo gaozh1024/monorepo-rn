@@ -21,12 +21,14 @@ npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 - ✅ 内置 11 个基础页面
 - ✅ Mock 数据支持，无需后端即可开发
 - ✅ 内置 Logo 图片资源与应用图标配置
+- ✅ 已内置 `expo-image`，可直接使用框架 `AppImage`
 - ✅ 已内置 `expo-linear-gradient`，可直接使用 `GradientView`
 - ✅ 已内置 `@expo/vector-icons`，可稳定使用框架 `Icon`
 - ✅ 基于 Expo SDK 54 / React Native 0.81 依赖基线维护
 - ✅ 表单页已接入键盘收起交互，输入体验更一致
 - ✅ 开发环境已预配置日志浮层、错误边界与 API 自动打点
 - ✅ API 示例默认带敏感字段脱敏，便于发布前直接联调
+- ✅ 已预置统一骨架屏能力，可直接使用 `Skeleton` / `SkeletonText` / `SkeletonAvatar`
 
 ## 页面列表
 
@@ -118,6 +120,7 @@ npx expo start
 
 尤其是：
 
+- `expo-image`
 - `react-native-reanimated`
 - `react-native-worklets`
 - `react-native-gesture-handler`
@@ -191,21 +194,36 @@ npx expo start --android
 
 模板页面默认优先使用 `rn-kit` 提供的组件与能力：
 
-- 布局：`AppView` / `Center` / `SafeScreen` / `AppScrollView`
-- 展示：`AppText` / `Card` / `Icon`
+- 布局：`AppScreen` / `SafeScreen` / `AppView` / `Center` / `AppScrollView`
+- 展示：`AppText` / `Card` / `Icon` / `AppImage`
 - 交互：`AppButton` / `AppPressable`
 - 表单：`AppInput` / `Select` / `Picker` / `DatePicker`
-- 反馈：`Toast` / `Loading` / `useAlert`
+- 反馈：`Toast` / `Loading` / `Skeleton` / `SkeletonText` / `SkeletonAvatar` / `useAlert`
 - 状态栏：`AppStatusBar` / `AppFocusedStatusBar`
 - 导航：`StackNavigator` / `TabNavigator` / `useNavigation`
 - 可观测性：`useLogger` / `createAPI(...observability)`
 
 页面层尽量不要直接从 `react-native` 或 `@react-navigation/*` 引入基础 UI / 导航能力，优先使用 `rn-kit` 暴露的统一 API。
 
-带 `AppHeader` 的页面通常不需要单独处理状态栏：
+页面容器推荐这样区分：
+
+- 常规业务页（尤其是带 `AppHeader` 的页面）：优先使用 `AppScreen`
+- 无 Header 的全屏页、沉浸式背景页：使用 `SafeScreen`
+
+带 `AppHeader` 的页面通常不需要单独处理状态栏，推荐直接：
+
+```tsx
+<AppScreen>
+  <AppHeader title="设置" />
+  <AppScrollView>{/* 页面内容 */}</AppScrollView>
+</AppScreen>
+```
+
+此时：
 
 - `AppHeader` 会自动注入聚焦态透明状态栏
-- 顶部状态栏区域会直接显示 Header 的背景色
+- `AppScreen` 默认 `top={false}`，避免 Header 页面首屏出现顶部安全区跳动
+- 底部安全区仍由 `AppScreen` 承接
 
 例如登录页、启动页这类全屏彩色背景页面，推荐在页面内局部覆盖状态栏：
 
@@ -221,6 +239,31 @@ npx expo start --android
 ```
 
 模板已经预装 `expo-linear-gradient`，因此可以直接使用框架导出的 `GradientView`。
+
+### 图片与骨架屏约定
+
+模板已经预装 `expo-image`，因此可以直接使用框架导出的 `AppImage`：
+
+```tsx
+<AppImage
+  source={{ uri: user.avatar }}
+  width={72}
+  height={72}
+  borderRadius="full"
+  cachePolicy="memory-disk"
+/>
+```
+
+加载中的卡片、资料区、列表占位，推荐直接使用统一骨架组件：
+
+```tsx
+<AppView p={4} gap={3}>
+  <SkeletonAvatar size={48} />
+  <SkeletonText lines={3} lineWidths={['100%', '88%', '60%']} />
+</AppView>
+```
+
+如果只是通用列表加载，优先使用框架的 `AppList loading`，内部已经接入统一骨架样式。
 
 ### 开发态可观测性
 
@@ -284,7 +327,8 @@ export function LoginAction() {
 
 模板中的表单页推荐统一遵循以下约定：
 
-- 页面容器优先使用 `SafeScreen dismissKeyboardOnPressOutside`
+- 常规页面容器优先使用 `AppScreen dismissKeyboardOnPressOutside`
+- 全屏无 Header 页面优先使用 `SafeScreen dismissKeyboardOnPressOutside`
 - 滚动容器优先使用 `AppScrollView dismissKeyboardOnPressOutside`
 - 提交按钮默认保留 `AppButton` 的 `dismissKeyboardOnPress={true}`
 
@@ -322,7 +366,7 @@ import { KeyboardDismissView } from '@gaozh1024/rn-kit';
 
 - 容器背景：`surface="background"` / `surface="card"`
 - 文本颜色：`tone="default"` / `tone="muted"` / `color="primary-500"`
-- 页面容器：`SafeScreen` / `AppView` / `AppScrollView`
+- 页面容器：`AppScreen` / `SafeScreen` / `AppView` / `AppScrollView`
 
 如果页面里直接写死 `bg-white`、`text-gray-700` 这类类名，暗色模式下通常就不会自动跟随主题。
 
