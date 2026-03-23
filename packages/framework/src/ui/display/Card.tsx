@@ -1,19 +1,25 @@
 import { View, ViewProps } from 'react-native';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
+import { useOptionalTheme } from '@/theme';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 /**
  * Card 组件属性接口
  */
-export interface CardProps extends ViewProps {
-  /** 内边距 */
-  p?: number;
-  /** 水平内边距 */
-  px?: number;
-  /** 垂直内边距 */
-  py?: number;
-  /** 子元素间距 */
-  gap?: number;
+export interface CardProps extends ViewProps, CommonLayoutProps {
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
   /** Tailwind / NativeWind 类名 */
   className?: string;
   /** 是否禁用阴影 */
@@ -29,10 +35,37 @@ export interface CardProps extends ViewProps {
  */
 export function Card({
   children,
+  flex,
+  row,
+  wrap,
+  center,
+  between,
+  items,
+  justify,
   p,
   px,
   py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
   gap,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  bg,
+  surface,
   className,
   style,
   noShadow = false,
@@ -41,24 +74,53 @@ export function Card({
   ...props
 }: CardProps) {
   const colors = useThemeColors();
+  const { theme, isDark } = useOptionalTheme();
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
 
   return (
     <View
-      className={cn(
-        !noRadius && 'rounded-lg',
-        !noShadow && 'shadow-sm',
-        'overflow-hidden',
-        p !== undefined && `p-${p}`,
-        px !== undefined && `px-${px}`,
-        py !== undefined && `py-${py}`,
-        gap !== undefined && `gap-${gap}`,
-        className
-      )}
+      className={cn(!noShadow && 'shadow-sm', 'overflow-hidden', className)}
       style={[
         {
-          backgroundColor: colors.card,
+          backgroundColor: resolvedBgColor ?? colors.card,
           ...(noBorder ? {} : { borderWidth: 0.5, borderColor: colors.divider }),
         },
+        resolveLayoutStyle({
+          flex,
+          row,
+          wrap,
+          center,
+          between,
+          items,
+          justify,
+          gap,
+        }),
+        resolveSpacingStyle({
+          p,
+          px,
+          py,
+          pt,
+          pb,
+          pl,
+          pr,
+          m,
+          mx,
+          my,
+          mt,
+          mb,
+          ml,
+          mr,
+        }),
+        resolveSizingStyle({
+          w,
+          h,
+          minW,
+          minH,
+          maxW,
+          maxH,
+        }),
+        noRadius ? undefined : resolveRoundedStyle(rounded ?? 'lg'),
         style,
       ]}
       {...props}

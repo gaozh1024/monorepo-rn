@@ -4,7 +4,7 @@ import { AppView, type AppViewProps } from '@/ui/primitives';
  * Center 组件属性接口
  */
 export interface CenterProps extends Omit<AppViewProps, 'center'> {
-  /** 是否使用 flex 布局，默认为 true */
+  /** 是否使用 flex 布局，默认为 false */
   flex?: boolean | number;
 }
 
@@ -12,7 +12,7 @@ export interface CenterProps extends Omit<AppViewProps, 'center'> {
  * Center - 居中布局组件
  *
  * 基于 AppView 封装的居中布局组件，内容在水平和垂直方向都居中
- * 常用于空状态、加载状态等需要居中对齐的场景
+ * 默认不会自动撑满剩余空间；如需铺满可显式传入 `flex`
  *
  * @example
  * ```tsx
@@ -41,6 +41,6 @@ export interface CenterProps extends Omit<AppViewProps, 'center'> {
  * </Center>
  * ```
  */
-export function Center({ flex = true, ...props }: CenterProps) {
+export function Center({ flex = false, ...props }: CenterProps) {
   return <AppView center flex={flex} {...props} />;
 }

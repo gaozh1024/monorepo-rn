@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ThemeProvider, type ThemeConfig } from '@/theme';
 import { NavigationProvider, type NavigationProviderProps } from '@/navigation';
 import { AppStatusBar, type AppStatusBarProps } from './AppStatusBar';
@@ -270,7 +270,7 @@ export function AppProvider({
 
   // 4. SafeArea - 最外层
   if (enableSafeArea) {
-    content = <SafeAreaProvider>{content}</SafeAreaProvider>;
+    content = <SafeAreaProvider initialMetrics={initialWindowMetrics}>{content}</SafeAreaProvider>;
   }
 
   return <>{content}</>;

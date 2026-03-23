@@ -5,6 +5,13 @@ import { ThemeProvider } from '@/theme';
 import { Card } from '../../display/Card';
 import { AppText } from '../../primitives';
 
+function flattenStyle(style: any) {
+  if (!style) return {};
+  if (Array.isArray(style))
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  return style;
+}
+
 const lightTheme = {
   colors: {
     primary: '#f38b32',
@@ -52,15 +59,19 @@ describe('Card', () => {
 
   it('应该支持间距快捷属性', () => {
     const { getByTestId } = render(
-      <Card testID="card" p={4} px={2} py={3} gap={2}>
+      <Card testID="card" p={4} px={2} py={3} pt={5} gap={2} rounded="xl" flex>
         <AppText>内容</AppText>
       </Card>
     );
 
     const card = getByTestId('card');
-    expect(card.props.className).toContain('p-4');
-    expect(card.props.className).toContain('px-2');
-    expect(card.props.className).toContain('py-3');
-    expect(card.props.className).toContain('gap-2');
+    const style = flattenStyle(card.props.style);
+    expect(style.paddingTop).toBe(5);
+    expect(style.paddingBottom).toBe(3);
+    expect(style.paddingLeft).toBe(2);
+    expect(style.paddingRight).toBe(2);
+    expect(style.gap).toBe(2);
+    expect(style.borderRadius).toBe(16);
+    expect(style.flex).toBe(1);
   });
 });

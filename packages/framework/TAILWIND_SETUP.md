@@ -4,11 +4,14 @@
 
 ## 为什么需要这个配置？
 
-框架的 UI 组件（如 `AppView`, `AppText`, `AppButton` 等）使用 Tailwind CSS 类名（如 `bg-primary-500`, `flex-1`, `p-4`）来定义样式。
+框架的 UI 组件同时支持两套能力：
 
-这些类名需要 **NativeWind** 在构建时解析并转换为 React Native 的 StyleSheet。
+- `className`：走 Tailwind / NativeWind
+- 容器快捷参数（如 `flex`、`row`、`px`、`rounded`）：大部分已由框架直接转换为 React Native `style`
 
-`AppHeader` 也是同样的机制。它的布局依赖 `AppView` 生成的 `flex-row`、`items-center`、`px-4` 等类名，所以如果 app 没把 NativeWind 和 Tailwind 配完整，`AppHeader` 会直接表现成“没有样式”。
+其中 `className` 仍然需要 **NativeWind** 在构建时解析并转换为 React Native 的 StyleSheet。
+
+像 `AppButton`、`AppText`、自定义 `className="bg-primary-500 px-4"`、以及部分无法从主题直接解析的颜色类名，仍然依赖 NativeWind。
 
 ## 安装依赖
 
@@ -40,11 +43,6 @@ module.exports = {
   ],
   safelist: [
     { pattern: /^(flex)-(1|2|3|4|5|6|7|8|9|10|11|12)$/ },
-    'flex-wrap',
-    { pattern: /^(items)-(start|center|end|stretch)$/ },
-    { pattern: /^(justify)-(start|center|end|between|around)$/ },
-    { pattern: /^(p|px|py|gap)-(0|1|2|3|4|5|6|8|10|12)$/ },
-    { pattern: /^(rounded)-(none|sm|md|lg|xl|2xl|full)$/ },
     {
       pattern: /^(bg|text)-(primary|secondary|success|warning|error|info|gray|white|black)(-.+)?$/,
     },
@@ -77,25 +75,38 @@ module.exports = {
 
 ### 为什么还需要 `safelist`？
 
-因为框架部分组件会通过 props 动态生成类名，例如：
+因为你自己传入的 `className` 里如果包含**运行时拼接**的类名，以及框架里少量仍保留的动态颜色类名，依然可能在运行时生成，例如：
 
 ```tsx
-<AppView px={4} items="center" bg="primary-500" rounded="lg" />
+<AppView
+  className={active ? 'px-4 items-center rounded-lg' : 'px-2 items-start rounded-md'}
+  bg="brand-500"
+/>
 ```
 
-这类写法在运行时才会变成：
+这里真正依赖 Tailwind 的是：
 
 - `px-4`
+- `px-2`
 - `items-center`
-- `bg-primary-500`
+- `items-start`
 - `rounded-lg`
+- `rounded-md`
+- `bg-brand-500`
 
-如果不通过 `safelist` 提前告诉 Tailwind，这些类名可能不会被生成，最终表现为：
+而下面这些“快捷参数”已经不再依赖 safelist：
 
-- 间距不生效
+```tsx
+<AppView px={4} items="center" rounded="lg" />
+```
+
+因为它们会直接转成 RN `style`。
+
+如果不通过 `safelist` 提前告诉 Tailwind，那些真正运行时生成的类名仍可能不会被生成，最终表现为：
+
 - 背景色不生效
-- 圆角不生效
-- `AppHeader` 没有布局
+- 通过 `className` 写的间距/圆角/对齐不生效
+- 自定义颜色类不生效
 
 ### 2. 配置 Babel
 
@@ -209,25 +220,19 @@ export function TestScreen() {
 
 ### Q: 为什么 `AppHeader` 也没有样式？
 
-`AppHeader` 不是纯 `StyleSheet` 组件，它依赖框架内部的：
-
-- `AppView row`
-- `items="center"`
-- `px={4}`
-
-这些最终都会走 NativeWind 的 `className` 管线。所以如果：
+虽然 `AppHeader` 的基础布局快捷参数现在主要走内联 `style`，但它所在项目如果 NativeWind 没配好，框架里其它依赖 `className` 的组件仍然会异常。所以如果：
 
 - Babel 没加 `nativewind/babel`
 - `content` 没扫到框架文件
 - `safelist` 没覆盖动态类
 
-那么 `AppHeader` 会非常像“完全没有样式”。
+那你看到的现象仍可能是“整个框架样式都不对”，其中也包括 `AppHeader`。
 
 ### Q: 这是框架 bug 吗？
 
 通常不是渲染 bug，而是消费方配置不完整。
 
-但要注意一点：框架当前确实使用了部分**动态 className** 生成方式，因此消费方 app 不能只配最基础的 NativeWind，还必须把 `safelist` 配上。
+但要注意一点：框架当前仍然使用了部分**动态 className** 生成方式，尤其是颜色类和用户自定义 `className` 场景，因此消费方 app 不能只配最基础的 NativeWind，还需要保留合理的 `safelist`。
 
 另一个常见例外是本地链接包没有同步：
 
@@ -254,9 +259,9 @@ npx expo start -c
 
 这类错误会让 NativeWind 转换根本没有接通，表现通常是：
 
-- `AppHeader` 没有左右内边距
-- 标题不居中
-- `AppView` 的 `row`、`items="center"`、`px={4}` 像完全失效
+- `className` 写的颜色、间距、圆角全部不生效
+- `AppButton` / `AppText` 样式异常
+- 自定义 `bg-*` / `text-*` 类名失效
 
 ### Q: 如何自定义主题颜色？
 

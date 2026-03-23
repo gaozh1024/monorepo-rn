@@ -5,6 +5,13 @@ import { act, create } from 'react-test-renderer';
 import { TouchableWithoutFeedback } from 'react-native';
 import { AppScrollView } from '@/ui';
 
+function flattenStyle(style: any) {
+  if (!style) return {};
+  if (Array.isArray(style))
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  return style;
+}
+
 describe('AppScrollView', () => {
   it('应该正确渲染滚动内容', () => {
     const { getByTestId } = render(
@@ -19,15 +26,23 @@ describe('AppScrollView', () => {
 
   it('应该应用布局类名', () => {
     const { getByTestId } = render(
-      <AppScrollView testID="scroll" flex p={4} bg="gray-50">
+      <AppScrollView testID="scroll" flex p={4} pt={6} row items="center" gap={3} bg="gray-50">
         <div>content</div>
       </AppScrollView>
     );
 
     const node = getByTestId('scroll');
-    expect(node.className).toContain('flex-1');
-    expect(node.className).toContain('p-4');
-    expect(node.props.style[0].backgroundColor).toBe('#f9fafb');
+    const style = flattenStyle(node.props.style);
+    const contentStyle = flattenStyle(node.props.contentContainerStyle);
+    expect(style.flex).toBe(1);
+    expect(style.backgroundColor).toBe('#f9fafb');
+    expect(contentStyle.paddingTop).toBe(6);
+    expect(contentStyle.paddingLeft).toBe(4);
+    expect(contentStyle.paddingRight).toBe(4);
+    expect(contentStyle.paddingBottom).toBe(4);
+    expect(contentStyle.flexDirection).toBe('row');
+    expect(contentStyle.alignItems).toBe('center');
+    expect(contentStyle.gap).toBe(3);
   });
 
   it('开启点击空白收起键盘时应设置 keyboardShouldPersistTaps 并包裹 dismiss 逻辑', () => {

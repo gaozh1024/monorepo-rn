@@ -1,5 +1,4 @@
 import { AppView, type AppViewProps } from '@/ui/primitives';
-import { cn } from '@/utils';
 
 /**
  * Col 组件属性接口
@@ -10,23 +9,6 @@ export interface ColProps extends AppViewProps {
   /** 交叉轴对齐方式（align-items） */
   items?: 'start' | 'center' | 'end' | 'stretch';
 }
-
-/** 主轴对齐映射表 */
-const justifyMap: Record<string, string> = {
-  start: 'justify-start',
-  center: 'justify-center',
-  end: 'justify-end',
-  between: 'justify-between',
-  around: 'justify-around',
-};
-
-/** 交叉轴对齐映射表 */
-const itemsMap: Record<string, string> = {
-  start: 'items-start',
-  center: 'items-center',
-  end: 'items-end',
-  stretch: 'items-stretch',
-};
 
 /**
  * Col - 垂直布局组件
@@ -76,6 +58,6 @@ const itemsMap: Record<string, string> = {
  * </Col>
  * ```
  */
-export function Col({ justify = 'start', items = 'stretch', className, ...props }: ColProps) {
-  return <AppView className={cn(justifyMap[justify], itemsMap[items], className)} {...props} />;
+export function Col({ justify = 'start', items = 'stretch', ...props }: ColProps) {
+  return <AppView justify={justify} items={items} {...props} />;
 }

@@ -22,11 +22,18 @@ type NamespaceFilter = 'all' | string;
 const FILTERS: OverlayFilter[] = ['all', 'error', 'warn', 'info', 'debug'];
 
 const ALL_NAMESPACE = 'all';
-const PANEL_MAX_HEIGHT = 420;
-const TOGGLE_BUTTON_WIDTH = 76;
-const TOGGLE_BUTTON_HEIGHT = 40;
-const TOGGLE_BUTTON_RIGHT_GAP = 12;
-const TOGGLE_BUTTON_BOTTOM_GAP = 24;
+const PANEL_HORIZONTAL_MARGIN = 10;
+const PANEL_BOTTOM_OFFSET = 70;
+const PANEL_MAX_WIDTH = 560;
+const PANEL_MAX_HEIGHT = 580;
+const PANEL_MIN_HEIGHT = 360;
+const FILTER_BAR_HEIGHT = 44;
+const NAMESPACE_BAR_HEIGHT = 44;
+const LOG_LIST_MIN_HEIGHT = 260;
+const TOGGLE_BUTTON_WIDTH = 68;
+const TOGGLE_BUTTON_HEIGHT = 32;
+const TOGGLE_BUTTON_RIGHT_GAP = 10;
+const TOGGLE_BUTTON_BOTTOM_GAP = 20;
 const DRAG_THRESHOLD = 6;
 
 function withAlpha(color: string, alpha = '20') {
@@ -103,6 +110,8 @@ export function LogOverlay({
 }: LogOverlayProps) {
   const colors = useThemeColors();
   const { width, height } = Dimensions.get('window');
+  const panelWidth = Math.min(width - PANEL_HORIZONTAL_MARGIN * 2, PANEL_MAX_WIDTH);
+  const panelMaxHeight = Math.min(PANEL_MAX_HEIGHT, Math.max(PANEL_MIN_HEIGHT, height * 0.68));
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [filter, setFilter] = useState<OverlayFilter>('all');
   const [namespaceFilter, setNamespaceFilter] = useState<NamespaceFilter>(ALL_NAMESPACE);
@@ -236,11 +245,11 @@ export function LogOverlay({
           testID="logger-overlay-panel"
           style={{
             position: 'absolute',
-            right: 12,
-            bottom: 76,
-            left: 12,
-            maxHeight: PANEL_MAX_HEIGHT,
-            borderRadius: 16,
+            right: PANEL_HORIZONTAL_MARGIN,
+            bottom: PANEL_BOTTOM_OFFSET,
+            width: panelWidth,
+            maxHeight: panelMaxHeight,
+            borderRadius: 18,
             backgroundColor: colors.card,
             borderWidth: 0.5,
             borderColor: colors.border,
@@ -294,11 +303,13 @@ export function LogOverlay({
           </AppView>
 
           <AppScrollView
+            testID="logger-overlay-levels"
             horizontal
+            row
             showsHorizontalScrollIndicator={false}
             className="px-3 py-2"
             contentContainerStyle={{ gap: 8, paddingRight: 12 }}
-            style={{ flexGrow: 0, flexShrink: 0 }}
+            style={{ height: FILTER_BAR_HEIGHT, flexGrow: 0, flexShrink: 0 }}
           >
             {FILTERS.map(item => {
               const active = filter === item;
@@ -321,11 +332,13 @@ export function LogOverlay({
           </AppScrollView>
 
           <AppScrollView
+            testID="logger-overlay-namespaces"
             horizontal
+            row
             showsHorizontalScrollIndicator={false}
             className="px-3 pb-2"
             contentContainerStyle={{ gap: 8, paddingRight: 12 }}
-            style={{ flexGrow: 0, flexShrink: 0 }}
+            style={{ height: NAMESPACE_BAR_HEIGHT, flexGrow: 0, flexShrink: 0 }}
           >
             {namespaces.map(item => {
               const active = namespaceFilter === item;
@@ -350,9 +363,11 @@ export function LogOverlay({
           </AppScrollView>
 
           <AppScrollView
+            testID="logger-overlay-logs"
             className="px-3 pb-3"
-            showsVerticalScrollIndicator={false}
-            style={{ flex: 1, minHeight: 120 }}
+            showsVerticalScrollIndicator
+            nestedScrollEnabled
+            style={{ flex: 1, minHeight: LOG_LIST_MIN_HEIGHT }}
           >
             <AppView gap={2}>
               {filteredEntries.length === 0 ? (
@@ -432,11 +447,13 @@ export function LogOverlay({
         <AppPressable
           testID="logger-overlay-toggle"
           onPress={() => setExpanded(value => !value)}
-          className="px-3 py-2 rounded-full"
+          className="rounded-full"
           style={{
-            minWidth: TOGGLE_BUTTON_WIDTH,
-            minHeight: TOGGLE_BUTTON_HEIGHT,
+            width: TOGGLE_BUTTON_WIDTH,
+            height: TOGGLE_BUTTON_HEIGHT,
             backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
             shadowColor: '#000000',
             shadowOpacity: 0.18,
             shadowRadius: 12,
@@ -444,13 +461,20 @@ export function LogOverlay({
             elevation: 8,
           }}
         >
-          <AppView row items="center" justify="center" gap={2}>
+          <AppView row items="center" justify="center" gap={1}>
             <AppText size="xs" weight="semibold" style={{ color: colors.textInverse }}>
               Log
             </AppText>
             <AppView
-              className="px-1.5 py-0.5 rounded-full"
-              style={{ backgroundColor: withAlpha(colors.textInverse, '30') }}
+              className="rounded-full"
+              style={{
+                minWidth: 22,
+                height: 18,
+                paddingHorizontal: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: withAlpha(colors.textInverse, '30'),
+              }}
             >
               <AppText size="xs" weight="semibold" style={{ color: colors.textInverse }}>
                 {entries.length > 99 ? '99+' : String(entries.length)}

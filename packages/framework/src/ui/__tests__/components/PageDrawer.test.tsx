@@ -14,6 +14,13 @@ const theme = createTheme({
 const renderWithTheme = (ui: React.ReactElement) =>
   render(<ThemeProvider light={theme}>{ui}</ThemeProvider>);
 
+function flattenStyle(style: any) {
+  if (!style) return {};
+  if (Array.isArray(style))
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  return style;
+}
+
 describe('PageDrawer', () => {
   it('visible=false 时不渲染', () => {
     const { queryByTestId } = renderWithTheme(
@@ -89,7 +96,7 @@ describe('PageDrawer', () => {
       </PageDrawer>
     );
 
-    const drawerStyle = getByTestId('page-drawer-content').props.style[1][1];
+    const drawerStyle = flattenStyle(getByTestId('page-drawer-content').props.style);
 
     expect(drawerStyle).toMatchObject({ width: 280, borderRightWidth: 0.5 });
   });

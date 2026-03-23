@@ -1,11 +1,19 @@
 import React from 'react';
-import { Keyboard, TouchableWithoutFeedback, View, ViewProps, StyleSheet } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, View, ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
 
-export interface SafeScreenProps extends ViewProps {
+export interface SafeScreenProps extends ViewProps, CommonLayoutProps {
   /** 是否包含顶部安全区域 */
   top?: boolean;
   /** 是否包含底部安全区域 */
@@ -17,9 +25,7 @@ export interface SafeScreenProps extends ViewProps {
   /** 背景颜色 */
   bg?: string;
   /** 语义化背景 */
-  surface?: 'background' | 'card' | 'muted';
-  /** 是否使用 flex: 1 */
-  flex?: boolean;
+  surface?: LayoutSurface;
   /** 点击非输入区域时是否收起键盘 */
   dismissKeyboardOnPressOutside?: boolean;
   /** 自定义样式类 */
@@ -46,6 +52,34 @@ export function SafeScreen({
   bg,
   surface,
   flex = true,
+  row,
+  wrap,
+  center,
+  between,
+  items,
+  justify,
+  p,
+  px,
+  py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  gap,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
   dismissKeyboardOnPressOutside = false,
   className,
   children,
@@ -60,15 +94,42 @@ export function SafeScreen({
 
   const content = (
     <View
-      className={cn(flex && 'flex-1', shouldUseClassBg && `bg-${bg}`, className)}
+      className={cn(shouldUseClassBg && `bg-${bg}`, className)}
       style={[
-        flex && styles.flex,
         resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+        resolveLayoutStyle({
+          flex,
+          row,
+          wrap,
+          center,
+          between,
+          items,
+          justify,
+          gap,
+        }),
+        resolveSpacingStyle({
+          m,
+          mx,
+          my,
+          mt,
+          mb,
+          ml,
+          mr,
+        }),
+        resolveSizingStyle({
+          w,
+          h,
+          minW,
+          minH,
+          maxW,
+          maxH,
+        }),
+        resolveRoundedStyle(rounded),
         {
-          paddingTop: top ? insets.top : 0,
-          paddingBottom: bottom ? insets.bottom : 0,
-          paddingLeft: left ? insets.left : 0,
-          paddingRight: right ? insets.right : 0,
+          paddingTop: (pt ?? py ?? p ?? 0) + (top ? insets.top : 0),
+          paddingBottom: (pb ?? py ?? p ?? 0) + (bottom ? insets.bottom : 0),
+          paddingLeft: (pl ?? px ?? p ?? 0) + (left ? insets.left : 0),
+          paddingRight: (pr ?? px ?? p ?? 0) + (right ? insets.right : 0),
         },
         style,
       ]}
@@ -88,12 +149,6 @@ export function SafeScreen({
     </TouchableWithoutFeedback>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-});
 
 /**
  * 页面容器组件 - 包含安全区域和基础布局

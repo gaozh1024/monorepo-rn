@@ -69,7 +69,7 @@ npm install react-native-svg
 
 #### 当前兼容性范围
 
-`0.4.2` 当前将 peerDependencies 收紧到以下范围，避免 npm 解析到和当前 RN 不兼容的过高版本：
+`0.4.3` 当前将 peerDependencies 收紧到以下范围，避免 npm 解析到和当前 RN 不兼容的过高版本：
 
 - `expo`: `>=53 <55`
 - `react-native`: `>=0.79 <0.82`
@@ -225,8 +225,11 @@ import {
 
 #### 布局与容器约定
 
-- `AppView` / `Row` 支持 `wrap`，等价于 `flex-wrap`
-- `Card` 支持常用间距快捷属性：`p` / `px` / `py` / `gap`
+- 这批容器组件已统一支持一套快捷参数，优先走 React Native `style`，不再依赖这些参数对应的 Tailwind safelist：
+  - 布局：`flex` / `row` / `wrap` / `center` / `between` / `items` / `justify`
+  - 间距：`p` / `px` / `py` / `pt` / `pb` / `pl` / `pr` / `m` / `mx` / `my` / `mt` / `mb` / `ml` / `mr` / `gap`
+  - 尺寸：`w` / `h` / `minW` / `minH` / `maxW` / `maxH`
+  - 外观：`rounded`
 - `SafeScreen` / `AppScreen` 同时支持：
   - `bg="primary-500"` 这类显式颜色
   - `surface="background" | "card" | "muted"` 这类语义背景
@@ -235,6 +238,20 @@ import {
   - 开启后会自动启用点击空白收起键盘
   - 并默认补上 `keyboardShouldPersistTaps="handled"`
 - `KeyboardDismissView` 适合非页面容器、自定义布局场景下单独包裹使用
+
+#### 容器快捷参数支持矩阵
+
+| 组件                       | 默认行为                         | 支持快捷参数                                                                                       | 补充说明                                                   |
+| -------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `AppView`                  | 基础容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 通用容器基座                                               |
+| `Row`                      | `row`，默认 `items="center"`     | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                     |
+| `Col`                      | 纵向布局，默认 `items="stretch"` | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                     |
+| `Center`                   | 强制居中，默认不撑满             | 继承 `AppView` 大部分快捷参数                                                                      | 内部固定 `center`，需要铺满时请显式传 `flex`               |
+| `AppScrollView`            | 滚动容器                         | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | `row` / `items` / `justify` 作用于 `contentContainerStyle` |
+| `Card`                     | 卡片容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 另有 `noShadow` / `noBorder` / `noRadius`                  |
+| `SafeScreen` / `AppScreen` | 安全区页面容器                   | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 安全区 inset 会自动并入 padding                            |
+
+> 说明：`className` 依然走 NativeWind；上表中的快捷参数本身已经由框架直接转换为内联 `style`。
 
 #### Button 颜色语义
 

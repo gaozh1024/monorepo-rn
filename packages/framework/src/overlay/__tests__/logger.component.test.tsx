@@ -33,6 +33,14 @@ function LogButton() {
   );
 }
 
+function flattenStyle(style: any): Record<string, any> {
+  if (!style) return {};
+  if (Array.isArray(style)) {
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  return style;
+}
+
 describe('LogOverlay', () => {
   it('应该在面板展开后显示日志内容', () => {
     const { getByTestId, getByText } = render(
@@ -85,19 +93,46 @@ describe('LogOverlay', () => {
     );
   });
 
+  it('筛选区、模块区应该横向展示且日志区高度更大', () => {
+    const { getByTestId } = render(
+      <LoggerProvider enabled overlayEnabled consoleEnabled={false}>
+        <LogButton />
+      </LoggerProvider>
+    );
+
+    fireEvent.press(getByTestId('emit-error'));
+    fireEvent.press(getByTestId('emit-auth'));
+    fireEvent.press(getByTestId('logger-overlay-toggle'));
+
+    const levels = getByTestId('logger-overlay-levels');
+    const namespaces = getByTestId('logger-overlay-namespaces');
+    const logs = getByTestId('logger-overlay-logs');
+
+    expect(levels.props.horizontal).toBe(true);
+    expect(flattenStyle(levels.props.contentContainerStyle).flexDirection).toBe('row');
+    expect(flattenStyle(levels.props.style).height).toBe(44);
+
+    expect(namespaces.props.horizontal).toBe(true);
+    expect(flattenStyle(namespaces.props.contentContainerStyle).flexDirection).toBe('row');
+    expect(flattenStyle(namespaces.props.style).height).toBe(44);
+
+    expect(logs.props.showsVerticalScrollIndicator).toBe(true);
+    expect(flattenStyle(logs.props.style).minHeight).toBe(260);
+  });
+
   it('拖动位置应该按屏幕边界限制并在释放后吸边', () => {
     expect(getLoggerOverlayButtonBounds(390, 844)).toEqual({
-      minX: -290,
-      minY: -756,
+      minX: -302,
+      minY: -772,
     });
 
     expect(clampLoggerOverlayButtonPosition({ x: -999, y: -999 }, 390, 844)).toEqual({
-      x: -290,
-      y: -756,
+      x: -302,
+      y: -772,
     });
 
     expect(getLoggerOverlaySnappedPosition({ x: -220, y: -120 }, 390, 844)).toEqual({
-      x: -290,
+      x: -302,
       y: -120,
     });
 

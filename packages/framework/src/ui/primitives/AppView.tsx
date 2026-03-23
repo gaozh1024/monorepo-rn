@@ -2,39 +2,23 @@ import { View, ViewProps } from 'react-native';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
 
 /**
  * AppView 组件属性接口
  */
-export interface AppViewProps extends ViewProps {
-  /** 是否使用 flex 布局，设为 true 使用 flex-1，设为数字使用 flex-${number} */
-  flex?: boolean | number;
-  /** 是否使用水平排列（flex-direction: row） */
-  row?: boolean;
-  /** 是否允许换行 */
-  wrap?: boolean;
-  /** 是否居中显示（items-center justify-center） */
-  center?: boolean;
-  /** 是否两端对齐（justify-between） */
-  between?: boolean;
-  /** 交叉轴对齐方式（align-items） */
-  items?: 'start' | 'center' | 'end' | 'stretch';
-  /** 主轴对齐方式（justify-content） */
-  justify?: 'start' | 'center' | 'end' | 'between' | 'around';
-  /** 内边距 */
-  p?: number;
-  /** 水平内边距 */
-  px?: number;
-  /** 垂直内边距 */
-  py?: number;
-  /** 子元素间距 */
-  gap?: number;
+export interface AppViewProps extends ViewProps, CommonLayoutProps {
   /** 背景颜色 */
   bg?: string;
   /** 语义化背景 */
-  surface?: 'background' | 'card' | 'muted';
-  /** 圆角大小 */
-  rounded?: string;
+  surface?: LayoutSurface;
   /** 自定义类名 */
   className?: string;
 }
@@ -80,10 +64,27 @@ export function AppView({
   p,
   px,
   py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
   gap,
   bg,
   surface,
   rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
   className,
   children,
   style,
@@ -96,24 +97,46 @@ export function AppView({
 
   return (
     <View
-      className={cn(
-        flex === true && 'flex-1',
-        typeof flex === 'number' && `flex-${flex}`,
-        row ? 'flex-row' : 'flex-col',
-        wrap && 'flex-wrap',
-        center && 'items-center justify-center',
-        between && 'justify-between',
-        items && `items-${items}`,
-        justify && `justify-${justify}`,
-        p !== undefined && `p-${p}`,
-        px !== undefined && `px-${px}`,
-        py !== undefined && `py-${py}`,
-        gap !== undefined && `gap-${gap}`,
-        shouldUseClassBg && `bg-${bg}`,
-        rounded && `rounded-${rounded}`,
-        className
-      )}
-      style={[resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined, style]}
+      className={cn(shouldUseClassBg && `bg-${bg}`, className)}
+      style={[
+        resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+        resolveLayoutStyle({
+          flex,
+          row,
+          wrap,
+          center,
+          between,
+          items,
+          justify,
+          gap,
+        }),
+        resolveSpacingStyle({
+          p,
+          px,
+          py,
+          pt,
+          pb,
+          pl,
+          pr,
+          m,
+          mx,
+          my,
+          mt,
+          mb,
+          ml,
+          mr,
+        }),
+        resolveSizingStyle({
+          w,
+          h,
+          minW,
+          minH,
+          maxW,
+          maxH,
+        }),
+        resolveRoundedStyle(rounded),
+        style,
+      ]}
       {...props}
     >
       {children}

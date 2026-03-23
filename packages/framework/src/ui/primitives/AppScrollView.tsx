@@ -2,24 +2,20 @@ import { Keyboard, ScrollView, TouchableWithoutFeedback, type ScrollViewProps } 
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
 
-export interface AppScrollViewProps extends ScrollViewProps {
-  /** 是否使用 flex 布局 */
-  flex?: boolean;
+export interface AppScrollViewProps extends ScrollViewProps, CommonLayoutProps {
   /** 背景颜色 */
   bg?: string;
   /** 语义化背景 */
-  surface?: 'background' | 'card' | 'muted';
-  /** 内边距 */
-  p?: number;
-  /** 水平内边距 */
-  px?: number;
-  /** 垂直内边距 */
-  py?: number;
-  /** 子元素间距 */
-  gap?: number;
-  /** 圆角大小 */
-  rounded?: string;
+  surface?: LayoutSurface;
   /** 自定义类名 */
   className?: string;
   /** 点击非输入区域时是否收起键盘 */
@@ -31,17 +27,41 @@ export interface AppScrollViewProps extends ScrollViewProps {
  */
 export function AppScrollView({
   flex,
+  row,
+  wrap,
+  center,
+  between,
+  items,
+  justify,
   bg,
   p,
   px,
   py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
   gap,
   surface,
   rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
   className,
   dismissKeyboardOnPressOutside = false,
   children,
   style,
+  contentContainerStyle,
   ...props
 }: AppScrollViewProps) {
   const { theme, isDark } = useOptionalTheme();
@@ -51,18 +71,29 @@ export function AppScrollView({
 
   const content = (
     <ScrollView
-      className={cn(
-        flex && 'flex-1',
-        shouldUseClassBg && `bg-${bg}`,
-        p !== undefined && `p-${p}`,
-        px !== undefined && `px-${px}`,
-        py !== undefined && `py-${py}`,
-        gap !== undefined && `gap-${gap}`,
-        rounded && `rounded-${rounded}`,
-        className
-      )}
+      className={cn(shouldUseClassBg && `bg-${bg}`, className)}
       {...props}
-      style={[resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined, style]}
+      style={[
+        resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+        resolveLayoutStyle({ flex }),
+        resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
+        resolveSizingStyle({ w, h, minW, minH, maxW, maxH }),
+        resolveRoundedStyle(rounded),
+        style,
+      ]}
+      contentContainerStyle={[
+        resolveLayoutStyle({
+          row,
+          wrap,
+          center,
+          between,
+          items,
+          justify,
+          gap,
+        }),
+        resolveSpacingStyle({ p, px, py, pt, pb, pl, pr }),
+        contentContainerStyle,
+      ]}
       keyboardShouldPersistTaps={
         dismissKeyboardOnPressOutside
           ? (props.keyboardShouldPersistTaps ?? 'handled')

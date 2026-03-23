@@ -279,7 +279,7 @@ export function AppList<T = any>({
 
   if (error && data.length === 0) {
     return (
-      <Center style={style}>
+      <Center flex style={style}>
         <ErrorState
           error={error}
           onRetry={onRetry}
