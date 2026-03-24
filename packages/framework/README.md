@@ -81,12 +81,15 @@ npm install react-native-svg
 ```bash
 npx expo install react-native-screens react-native-safe-area-context
 npx expo install react-native-gesture-handler react-native-reanimated
-npx expo install @expo/vector-icons expo-linear-gradient
+npx expo install @expo/vector-icons expo-linear-gradient expo-image
 npx expo install react-native-worklets
 npm install @gaozh1024/rn-kit
 ```
 
 如果你是 Expo SDK 53 / RN 0.79 项目，通常不需要单独安装 `react-native-worklets`，以 `expo install` 给出的结果为准。
+
+> 从 `rn-kit 0.4.6` 开始，`AppImage` 基于 `expo-image` 实现。
+> **新建模板项目通常已内置，无需重复安装；旧项目升级到 `rn-kit >= 0.4.6` 时，请执行 `npx expo install expo-image`。**
 
 ### ⚠️ 样式配置（必看）
 

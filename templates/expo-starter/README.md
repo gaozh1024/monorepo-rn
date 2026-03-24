@@ -129,6 +129,11 @@ npx expo start
 
 不要直接让 npm 在 Expo 项目里自由解析这些依赖的最新版本。
 
+补充说明：
+
+- 当前模板已经默认安装 `expo-image`，新建项目后可直接使用 `AppImage`
+- 只有把 `rn-kit >= 0.4.6` 接入到**旧项目**时，才需要手动执行 `npx expo install expo-image`
+
 ## 本地测试模板
 
 推荐在模板发布前，先走一遍本地安装链路验证。
