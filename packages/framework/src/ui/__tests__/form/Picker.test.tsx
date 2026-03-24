@@ -6,6 +6,7 @@ import { Picker } from '../../form/Picker';
 import { renderWithTheme, theme } from './test-utils';
 import { ThemeProvider } from '@/theme';
 import { BottomSheetModal } from '../../form/BottomSheetModal';
+import { resolveInteractiveStyle } from '../style-utils';
 
 describe('Picker', () => {
   it('应该支持通用多列选择', () => {
@@ -96,20 +97,10 @@ describe('Picker', () => {
       trigger = trigger.parent;
     }
 
-    expect(trigger.props.style).toEqual(
-      expect.arrayContaining([
-        expect.arrayContaining([
-          expect.objectContaining({
-            height: 50,
-          }),
-          expect.objectContaining({
-            borderRadius: 9999,
-          }),
-          expect.objectContaining({
-            backgroundColor: '#f38b32',
-          }),
-        ]),
-      ])
-    );
+    expect(resolveInteractiveStyle(trigger.props.style)).toMatchObject({
+      height: 50,
+      borderRadius: 9999,
+      backgroundColor: '#f38b32',
+    });
   });
 });

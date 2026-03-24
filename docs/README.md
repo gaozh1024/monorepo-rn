@@ -51,6 +51,7 @@
 - [expo-starter 0.2.8 Release Notes](./release-notes/expo-starter-0.2.8.md)
 - [expo-starter 0.2.7 Release Notes](./release-notes/expo-starter-0.2.7.md)
 - [expo-starter 0.2.6 Release Notes](./release-notes/expo-starter-0.2.6.md)
+- [rn-kit 0.4.8 Release Notes](./release-notes/0.4.8.md)
 - [rn-kit 0.4.7 Release Notes](./release-notes/0.4.7.md)
 - [rn-kit 0.4.6 Release Notes](./release-notes/0.4.6.md)
 - [rn-kit 0.4.5 Release Notes](./release-notes/0.4.5.md)

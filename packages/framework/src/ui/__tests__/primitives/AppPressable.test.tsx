@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { act } from 'react-test-renderer';
 import { AppPressable } from '../../primitives/AppPressable';
 import { ThemeProvider } from '@/theme';
+import { resolveInteractiveStyle } from '../style-utils';
 
 const lightTheme = {
   colors: {
@@ -56,25 +56,56 @@ describe('AppPressable', () => {
       </ThemeProvider>
     );
 
-    const flattened = StyleSheet.flatten(getByTestId('pressable').props.style);
+    const flattened = resolveInteractiveStyle(getByTestId('pressable').props.style);
 
-    expect(flattened).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          backgroundColor: '#ffffff',
-        }),
-        expect.objectContaining({
-          paddingTop: 4,
-          paddingRight: 4,
-        }),
-        expect.objectContaining({
-          width: 120,
-        }),
-        expect.objectContaining({
-          borderRadius: 12,
-        }),
-      ])
+    expect(flattened).toMatchObject({
+      backgroundColor: '#ffffff',
+      paddingTop: 4,
+      paddingRight: 4,
+      paddingBottom: 4,
+      paddingLeft: 4,
+      width: 120,
+      borderRadius: 12,
+    });
+  });
+
+  it('应该保留原生 style callback 语义并合并快捷参数', () => {
+    const { getByTestId } = render(
+      <ThemeProvider light={lightTheme}>
+        <AppPressable
+          testID="pressable"
+          p={8}
+          rounded="md"
+          style={({ hovered, focused, pressed }) => ({
+            opacity: pressed ? 0.7 : 1,
+            borderWidth: focused ? 2 : 0,
+            borderColor: hovered ? '#f38b32' : '#e5e5e5',
+          })}
+        >
+          <>Press me</>
+        </AppPressable>
+      </ThemeProvider>
     );
+
+    const pressable = getByTestId('pressable');
+
+    expect(typeof pressable.props.style).toBe('function');
+    expect(
+      resolveInteractiveStyle(pressable.props.style, {
+        pressed: true,
+        hovered: true,
+        focused: true,
+      })
+    ).toMatchObject({
+      paddingTop: 8,
+      paddingRight: 8,
+      paddingBottom: 8,
+      paddingLeft: 8,
+      borderRadius: 8,
+      opacity: 0.7,
+      borderWidth: 2,
+      borderColor: '#f38b32',
+    });
   });
 
   it('应该保留按下态类名与 onPressIn/onPressOut 事件', () => {

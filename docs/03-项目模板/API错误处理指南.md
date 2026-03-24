@@ -29,6 +29,7 @@ src/features/*/api.ts         -> 定义业务域接口
 当前 `createAPI` 已支持这些能力：
 
 - 输入参数校验错误统一转成 `AppError`
+- 缺少路径参数时会在发请求前直接抛出校验错误
 - 网络错误统一转成 `AppError`
 - HTTP 错误统一转成 `AppError`
 - 业务错误统一转成 `AppError`
@@ -36,6 +37,7 @@ src/features/*/api.ts         -> 定义业务域接口
 - `GET` 自动将剩余参数拼到 query
 - `POST` / `PUT` / `PATCH` / `DELETE` 自动发送 JSON body
 - 支持静态 `headers` 和动态 `getHeaders`
+- `getHeaders` / 请求构建阶段异常也会统一进入 `onError`
 - endpoint 级 `onError`
 - 全局 `onError`
 - endpoint 级 `parseBusinessError`
@@ -132,6 +134,12 @@ export function createAppAPI<T extends Record<string, ApiEndpointConfig<any, any
 - 统一监听错误
 
 另外建议把 token 注入也统一放在这里，不要让每个业务接口自己写 `Authorization`。
+
+如果这里的 `getHeaders()` 本身抛错，例如 token 读取失败：
+
+- 调用方仍然会拿到标准化 `AppError`
+- 全局 `onError` 仍然会执行
+- 如果开启了 API observability，也会记录 `error` 事件
 
 这里不要定义 `getProfile`、`login`、`getNotifications` 这些具体接口。
 

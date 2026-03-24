@@ -3,6 +3,7 @@ import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
 import { DatePicker } from '../../form/DatePicker';
 import { renderWithTheme } from './test-utils';
+import { resolveInteractiveStyle } from '../style-utils';
 
 describe('DatePicker', () => {
   it('应该渲染格式化后的日期', () => {
@@ -67,20 +68,10 @@ describe('DatePicker', () => {
       trigger = trigger.parent;
     }
 
-    expect(trigger.props.style).toEqual(
-      expect.arrayContaining([
-        expect.arrayContaining([
-          expect.objectContaining({
-            height: 46,
-          }),
-          expect.objectContaining({
-            borderRadius: 9999,
-          }),
-          expect.objectContaining({
-            backgroundColor: '#f38b32',
-          }),
-        ]),
-      ])
-    );
+    expect(resolveInteractiveStyle(trigger.props.style)).toMatchObject({
+      height: 46,
+      borderRadius: 9999,
+      backgroundColor: '#f38b32',
+    });
   });
 });

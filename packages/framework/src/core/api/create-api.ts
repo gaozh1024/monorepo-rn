@@ -135,38 +135,36 @@ function appendQueryValue(searchParams: URLSearchParams, key: string, value: unk
   searchParams.append(key, String(value));
 }
 
+const PATH_PARAM_PATTERN = /\{([^}]+)\}|:([A-Za-z0-9_]+)/g;
+
 function resolvePath(path: string, input: unknown) {
   const pathParamKeys = new Set<string>();
   let missingPathParam: string | undefined;
+  const recordInput = isRecordBody(input) ? input : undefined;
 
-  if (!isRecordBody(input)) {
-    return {
-      path,
-      pathParamKeys,
-      missingPathParam,
-    };
-  }
+  const resolvedPath = path.replace(PATH_PARAM_PATTERN, (match, bracketKey, colonKey) => {
+    const key = (bracketKey || colonKey) as string;
+    const value = recordInput?.[key];
 
-  const resolvedPath = path.replace(
-    /\{([^}]+)\}|:([A-Za-z0-9_]+)/g,
-    (match, bracketKey, colonKey) => {
-      const key = (bracketKey || colonKey) as string;
-      const value = input[key];
-
-      if (value === undefined || value === null) {
-        missingPathParam ??= key;
-        return match;
-      }
-
-      pathParamKeys.add(key);
-      return encodeURIComponent(String(value));
+    if (value === undefined || value === null) {
+      missingPathParam ??= key;
+      return match;
     }
-  );
+
+    pathParamKeys.add(key);
+    return encodeURIComponent(String(value));
+  });
 
   return {
     path: resolvedPath,
     pathParamKeys,
-    missingPathParam,
+    missingPathParam:
+      missingPathParam ??
+      (() => {
+        const unresolved = PATH_PARAM_PATTERN.exec(resolvedPath);
+        PATH_PARAM_PATTERN.lastIndex = 0;
+        return (unresolved?.[1] || unresolved?.[2]) as string | undefined;
+      })(),
   };
 }
 
@@ -287,6 +285,49 @@ async function notifyError(
   return enhanced;
 }
 
+async function notifyAndTrackError(
+  error: AppError,
+  context: ApiErrorContext,
+  endpoint: ApiEndpointConfig<any, any>,
+  config: ApiConfig<Record<string, ApiEndpointConfig<any, any>>>,
+  observability: ReturnType<typeof resolveApiObservability>,
+  payload: {
+    endpointName: string;
+    path: string;
+    method: ApiMethod;
+    url: string;
+    input: unknown;
+    durationMs: number;
+    response?: Response;
+    responseData?: unknown;
+    statusCode?: number;
+  }
+) {
+  const enhanced = await notifyError(error, context, endpoint, config);
+
+  if (observability.enabled) {
+    await Promise.all(
+      observability.transports.map(transport =>
+        transport({
+          stage: 'error',
+          endpointName: payload.endpointName,
+          path: payload.path,
+          method: payload.method,
+          url: payload.url,
+          input: payload.input,
+          response: payload.response,
+          responseData: payload.responseData,
+          statusCode: payload.statusCode,
+          durationMs: payload.durationMs,
+          error: enhanced,
+        })
+      )
+    );
+  }
+
+  return enhanced;
+}
+
 /**
  * 创建类型安全的 API 客户端
  * @template TEndpoints - 端点配置映射类型
@@ -379,39 +420,54 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
       }
 
       let response: Response;
-      const requestInit = await createRequestInit(
-        ep.method,
-        requestContext,
-        input,
-        config.headers,
-        ep.headers,
-        config.getHeaders,
-        ep.getHeaders
-      );
+      let requestInit: RequestInit;
+
+      try {
+        requestInit = await createRequestInit(
+          ep.method,
+          requestContext,
+          input,
+          config.headers,
+          ep.headers,
+          config.getHeaders,
+          ep.getHeaders
+        );
+      } catch (error) {
+        throw await notifyAndTrackError(
+          parseUnknownError(error),
+          context,
+          ep,
+          config as any,
+          observability,
+          {
+            endpointName: name,
+            path: ep.path,
+            method: ep.method,
+            url,
+            input,
+            durationMs: Date.now() - startAt,
+          }
+        );
+      }
 
       try {
         response = await fetcher(url, requestInit);
       } catch (error) {
-        const enhanced = await notifyError(parseNetworkError(error), context, ep, config as any);
-
-        if (observability.enabled) {
-          await Promise.all(
-            observability.transports.map(transport =>
-              transport({
-                stage: 'error',
-                endpointName: name,
-                path: ep.path,
-                method: ep.method,
-                url,
-                input,
-                durationMs: Date.now() - startAt,
-                error: enhanced,
-              })
-            )
-          );
-        }
-
-        throw enhanced;
+        throw await notifyAndTrackError(
+          parseNetworkError(error),
+          context,
+          ep,
+          config as any,
+          observability,
+          {
+            endpointName: name,
+            path: ep.path,
+            method: ep.method,
+            url,
+            input,
+            durationMs: Date.now() - startAt,
+          }
+        );
       }
 
       context.response = response;
@@ -431,63 +487,41 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
       context.responseData = data;
 
       if (!response.ok) {
-        const enhanced = await notifyError(
+        throw await notifyAndTrackError(
           parseHttpError(response, data),
           context,
           ep,
-          config as any
+          config as any,
+          observability,
+          {
+            endpointName: name,
+            path: ep.path,
+            method: ep.method,
+            url,
+            input,
+            response,
+            responseData: data,
+            statusCode: response.status,
+            durationMs: Date.now() - startAt,
+          }
         );
-
-        if (observability.enabled) {
-          await Promise.all(
-            observability.transports.map(transport =>
-              transport({
-                stage: 'error',
-                endpointName: name,
-                path: ep.path,
-                method: ep.method,
-                url,
-                input,
-                response,
-                responseData: data,
-                statusCode: response.status,
-                durationMs: Date.now() - startAt,
-                error: enhanced,
-              })
-            )
-          );
-        }
-
-        throw enhanced;
       }
 
       const businessError =
         ep.parseBusinessError?.(data, response) ?? config.parseBusinessError?.(data, response);
 
       if (businessError) {
-        const enhanced = await notifyError(businessError, context, ep, config as any);
-
-        if (observability.enabled) {
-          await Promise.all(
-            observability.transports.map(transport =>
-              transport({
-                stage: 'error',
-                endpointName: name,
-                path: ep.path,
-                method: ep.method,
-                url,
-                input,
-                response,
-                responseData: data,
-                statusCode: response.status,
-                durationMs: Date.now() - startAt,
-                error: enhanced,
-              })
-            )
-          );
-        }
-
-        throw enhanced;
+        throw await notifyAndTrackError(businessError, context, ep, config as any, observability, {
+          endpointName: name,
+          path: ep.path,
+          method: ep.method,
+          url,
+          input,
+          response,
+          responseData: data,
+          statusCode: response.status,
+          durationMs: Date.now() - startAt,
+        });
       }
 
       try {
@@ -516,29 +550,24 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
           return parsed;
         }
       } catch (error) {
-        const enhanced = await notifyError(parseUnknownError(error), context, ep, config as any);
-
-        if (observability.enabled) {
-          await Promise.all(
-            observability.transports.map(transport =>
-              transport({
-                stage: 'error',
-                endpointName: name,
-                path: ep.path,
-                method: ep.method,
-                url,
-                input,
-                response,
-                responseData: data,
-                statusCode: response.status,
-                durationMs: Date.now() - startAt,
-                error: enhanced,
-              })
-            )
-          );
-        }
-
-        throw enhanced;
+        throw await notifyAndTrackError(
+          parseUnknownError(error),
+          context,
+          ep,
+          config as any,
+          observability,
+          {
+            endpointName: name,
+            path: ep.path,
+            method: ep.method,
+            url,
+            input,
+            response,
+            responseData: data,
+            statusCode: response.status,
+            durationMs: Date.now() - startAt,
+          }
+        );
       }
 
       if (observability.enabled) {

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { Radio } from '../../form/Radio';
 import { ThemeProvider, createTheme } from '@/theme';
+import { resolveInteractiveStyle } from '../style-utils';
 
 const theme = createTheme({
   colors: { primary: '#f38b32' },
@@ -47,21 +47,13 @@ describe('Radio', () => {
       </ThemeProvider>
     );
 
-    const flattened = StyleSheet.flatten(getByTestId('radio').props.style);
+    const flattened = resolveInteractiveStyle(getByTestId('radio').props.style);
 
-    expect(flattened).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          paddingLeft: 6,
-          paddingRight: 6,
-        }),
-        expect.objectContaining({
-          borderRadius: 9999,
-        }),
-        expect.objectContaining({
-          backgroundColor: '#f38b32',
-        }),
-      ])
-    );
+    expect(flattened).toMatchObject({
+      paddingLeft: 6,
+      paddingRight: 6,
+      borderRadius: 9999,
+      backgroundColor: '#f38b32',
+    });
   });
 });

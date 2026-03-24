@@ -109,59 +109,85 @@ export function AppPressable({
   const resolvedBgColor =
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const shouldUseClassBg = !!bg && !resolvedBgColor;
-  const interactionState = React.useMemo<PressableStateCallbackType>(
-    () => ({
-      pressed: isPressed,
-      hovered: false,
-      focused: false,
-    }),
-    [isPressed]
+  const resolvedStyle = React.useCallback(
+    (state: PressableStateCallbackType): StyleProp<ViewStyle> => [
+      resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+      resolveLayoutStyle({
+        flex,
+        row,
+        wrap,
+        center,
+        between,
+        items,
+        justify,
+        gap,
+      }),
+      resolveSpacingStyle({
+        p,
+        px,
+        py,
+        pt,
+        pb,
+        pl,
+        pr,
+        m,
+        mx,
+        my,
+        mt,
+        mb,
+        ml,
+        mr,
+      }),
+      resolveSizingStyle({
+        w,
+        h,
+        minW,
+        minH,
+        maxW,
+        maxH,
+      }),
+      resolveRoundedStyle(rounded),
+      typeof style === 'function' ? style(state) : style,
+    ],
+    [
+      center,
+      between,
+      flex,
+      gap,
+      h,
+      items,
+      justify,
+      m,
+      maxH,
+      maxW,
+      mb,
+      minH,
+      minW,
+      ml,
+      mr,
+      mt,
+      mx,
+      my,
+      p,
+      pb,
+      pl,
+      pr,
+      pt,
+      px,
+      py,
+      resolvedBgColor,
+      rounded,
+      row,
+      style,
+      w,
+      wrap,
+    ]
   );
-  const resolvedUserStyle: StyleProp<ViewStyle> =
-    typeof style === 'function' ? style(interactionState) : style;
 
   return (
     <Pressable
       className={cn(shouldUseClassBg && `bg-${bg}`, className, isPressed && pressedClassName)}
-      style={[
-        resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
-        resolveLayoutStyle({
-          flex,
-          row,
-          wrap,
-          center,
-          between,
-          items,
-          justify,
-          gap,
-        }),
-        resolveSpacingStyle({
-          p,
-          px,
-          py,
-          pt,
-          pb,
-          pl,
-          pr,
-          m,
-          mx,
-          my,
-          mt,
-          mb,
-          ml,
-          mr,
-        }),
-        resolveSizingStyle({
-          w,
-          h,
-          minW,
-          minH,
-          maxW,
-          maxH,
-        }),
-        resolveRoundedStyle(rounded),
-        resolvedUserStyle,
-      ]}
+      style={resolvedStyle}
       onPressIn={e => {
         setIsPressed(true);
         onPressIn?.(e);

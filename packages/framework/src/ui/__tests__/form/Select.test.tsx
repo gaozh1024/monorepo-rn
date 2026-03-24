@@ -6,6 +6,7 @@ import { Select } from '../../form/Select';
 import { ThemeProvider } from '@/theme';
 import { act, create } from 'react-test-renderer';
 import { BottomSheetModal } from '../../form/BottomSheetModal';
+import { resolveInteractiveStyle } from '../style-utils';
 
 const options = [
   { label: '北京', value: 'beijing' },
@@ -136,20 +137,10 @@ describe('Select', () => {
       trigger = trigger.parent;
     }
 
-    expect(trigger.props.style).toEqual(
-      expect.arrayContaining([
-        expect.arrayContaining([
-          expect.objectContaining({
-            height: 48,
-          }),
-          expect.objectContaining({
-            borderRadius: 9999,
-          }),
-          expect.objectContaining({
-            backgroundColor: '#f38b32',
-          }),
-        ]),
-      ])
-    );
+    expect(resolveInteractiveStyle(trigger.props.style)).toMatchObject({
+      height: 48,
+      borderRadius: 9999,
+      backgroundColor: '#f38b32',
+    });
   });
 });

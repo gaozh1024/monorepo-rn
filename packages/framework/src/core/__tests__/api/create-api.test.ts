@@ -233,6 +233,29 @@ describe('createAPI', () => {
     expect(init?.body).toBeUndefined();
   });
 
+  it('当缺少路径参数时应该直接抛出校验错误且不发起请求', async () => {
+    const fetcher = vi.fn();
+
+    const api = createAPI({
+      baseURL: 'https://api.example.com',
+      fetcher: fetcher as typeof fetch,
+      endpoints: {
+        getUser: {
+          method: 'GET',
+          path: '/users/{id}',
+        },
+      },
+    });
+
+    await expect(api.getUser()).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION,
+      field: 'id',
+      message: 'Missing path parameter: id',
+    });
+
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
   it('应该统一监听 HTTP 错误', async () => {
     const onError = vi.fn();
 
@@ -445,6 +468,69 @@ describe('createAPI', () => {
         stage: 'error',
         endpointName: 'getProfile',
         error: expect.objectContaining({ code: ErrorCode.NETWORK }),
+      })
+    );
+  });
+
+  it('请求构建阶段抛错时也应该进入统一错误链路', async () => {
+    const onError = vi.fn();
+    const transport = vi.fn();
+    const fetcher = vi.fn();
+
+    const api = createAPI({
+      baseURL: 'https://api.example.com',
+      fetcher: fetcher as typeof fetch,
+      getHeaders: async () => {
+        throw new Error('token failed');
+      },
+      onError,
+      observability: {
+        enabled: true,
+        transports: [transport],
+      },
+      endpoints: {
+        getProfile: {
+          method: 'GET',
+          path: '/profile',
+        },
+      },
+    });
+
+    await expect(api.getProfile()).rejects.toMatchObject({
+      code: ErrorCode.UNKNOWN,
+      message: 'token failed',
+    });
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: ErrorCode.UNKNOWN,
+        message: 'token failed',
+      }),
+      expect.objectContaining({
+        endpointName: 'getProfile',
+        method: 'GET',
+        path: '/profile',
+      })
+    );
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(transport).toHaveBeenCalledTimes(2);
+    expect(transport).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        stage: 'request',
+        endpointName: 'getProfile',
+      })
+    );
+    expect(transport).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        stage: 'error',
+        endpointName: 'getProfile',
+        error: expect.objectContaining({
+          code: ErrorCode.UNKNOWN,
+          message: 'token failed',
+        }),
       })
     );
   });

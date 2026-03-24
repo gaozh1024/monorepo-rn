@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { Checkbox } from '../../form/Checkbox';
 import { ThemeProvider, createTheme } from '@/theme';
+import { resolveInteractiveStyle } from '../style-utils';
 
 const theme = createTheme({
   colors: { primary: '#f38b32' },
@@ -61,24 +62,16 @@ describe('Checkbox', () => {
       </ThemeProvider>
     );
 
-    const flattened = StyleSheet.flatten(getByTestId('checkbox').props.style);
+    const flattened = resolveInteractiveStyle(getByTestId('checkbox').props.style);
 
-    expect(flattened).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          paddingTop: 4,
-          paddingRight: 4,
-        }),
-        expect.objectContaining({
-          width: 120,
-        }),
-        expect.objectContaining({
-          borderRadius: 12,
-        }),
-        expect.objectContaining({
-          backgroundColor: '#f38b32',
-        }),
-      ])
-    );
+    expect(flattened).toMatchObject({
+      paddingTop: 4,
+      paddingRight: 4,
+      paddingBottom: 4,
+      paddingLeft: 4,
+      width: 120,
+      borderRadius: 12,
+      backgroundColor: '#f38b32',
+    });
   });
 });
