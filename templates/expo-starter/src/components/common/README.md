@@ -34,6 +34,22 @@ import { Logo, LogoIcon } from '@/components/common';
 
 ## 其他公共组件
 
+### PageScreen
+
+统一的“`AppScreen + AppHeader + AppScrollView`” 页面骨架，适合标准二级详情页：
+
+```tsx
+<PageScreen title="设置">
+  <AppText>页面内容</AppText>
+</PageScreen>
+```
+
+约定：
+
+- `AppScreen` 保持默认 `top={false}`
+- 顶部安全区由 `AppHeader` 承接
+- 这样 `status bar + header` 会保持同一块背景
+
 ### ListItem
 
 统一列表行组件，内置：

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { AppInput, AppTextInput } from '../../form/AppInput';
 import { renderWithTheme } from './test-utils';
@@ -44,5 +45,17 @@ describe('AppInput', () => {
     expect(onChangeText).toHaveBeenCalledWith('panther');
     expect(onFocus).toHaveBeenCalledTimes(1);
     expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
+  it('style 中的高度等尺寸样式应该作用到输入容器', () => {
+    const { getByTestId } = renderWithTheme(
+      <AppInput testID="input" value="" style={{ height: 56 }} />
+    );
+
+    const input = getByTestId('input');
+    const inputStyle = StyleSheet.flatten(input.props.style);
+
+    expect(inputStyle.height).toBeUndefined();
+    expect(getByTestId('input-container')).toBeTruthy();
   });
 });

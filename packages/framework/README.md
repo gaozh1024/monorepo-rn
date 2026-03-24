@@ -244,6 +244,28 @@ import {
 - 语义建议：
   - `SafeScreen`：底层安全区容器，默认 `top=true` / `bottom=true`
   - `AppScreen`：业务页面容器，默认 `top=false` / `bottom=true`，更适合和 `AppHeader` 搭配
+- 顶部安全区职责建议：
+  - **带 `AppHeader` 的页面**：顶部安全区交给 `AppHeader`，`AppScreen` 保持默认 `top={false}`
+  - **不带 `AppHeader` 的页面**：顶部安全区交给 `AppScreen top` 或 `SafeScreen`
+  - 这样 `status bar + header` 可以保持同一块背景，避免顶部颜色割裂
+- 推荐模式：
+
+```tsx
+// Header 页
+<AppScreen>
+  <AppHeader title="设置" />
+  <AppScrollView>{/* 内容 */}</AppScrollView>
+</AppScreen>
+
+// 非 Header 页
+<AppScreen top>
+  <AppView flex>{/* 内容 */}</AppView>
+</AppScreen>
+
+// 沉浸式页面
+<SafeScreen top={false}>{/* 内容 */}</SafeScreen>
+```
+
 - `AppScrollView` 支持 `dismissKeyboardOnPressOutside`
   - 开启后会自动启用点击空白收起键盘
   - 并默认补上 `keyboardShouldPersistTaps="handled"`
@@ -252,6 +274,9 @@ import {
   - 内容区支持：布局 / 内边距 / `gap`
   - 开启 `dismissKeyboardOnPressOutside` 时默认补上 `keyboardShouldPersistTaps="handled"`
 - `KeyboardDismissView` 适合非页面容器、自定义布局场景下单独包裹使用
+- `AppInput` 的尺寸控制建议：
+  - `style={{ height: 56 }}` 会作用到输入框外层容器
+  - 更明确的写法可以使用 `containerStyle` / `inputStyle`
 - `AppImage` 已基于 `expo-image` 封装
   - 支持缓存策略 `cachePolicy`
   - 支持占位图 `placeholder`

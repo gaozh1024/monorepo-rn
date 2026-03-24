@@ -214,6 +214,7 @@ npx expo start --android
 
 - 常规业务页（尤其是带 `AppHeader` 的页面）：优先使用 `AppScreen`
 - 无 Header 的全屏页、沉浸式背景页：使用 `SafeScreen`
+- 如果页面**没有 `AppHeader` 但仍需要顶部安全区**，请显式使用 `AppScreen top`
 
 带 `AppHeader` 的页面通常不需要单独处理状态栏，推荐直接：
 
@@ -227,8 +228,17 @@ npx expo start --android
 此时：
 
 - `AppHeader` 会自动注入聚焦态透明状态栏
-- `AppScreen` 默认 `top={false}`，避免 Header 页面首屏出现顶部安全区跳动
+- `AppScreen` 默认 `top={false}`，顶部安全区由 `AppHeader` 自己承接
+- `status bar + header` 会保持同一块背景，避免顶部颜色割裂
 - 底部安全区仍由 `AppScreen` 承接
+
+如果页面**没有 Header**，推荐这样写：
+
+```tsx
+<AppScreen top>
+  <AppView flex>{/* 页面内容 */}</AppView>
+</AppScreen>
+```
 
 例如登录页、启动页这类全屏彩色背景页面，推荐在页面内局部覆盖状态栏：
 
@@ -244,6 +254,14 @@ npx expo start --android
 ```
 
 模板已经预装 `expo-linear-gradient`，因此可以直接使用框架导出的 `GradientView`。
+
+输入框尺寸如果需要统一调整，推荐直接：
+
+```tsx
+<AppInput placeholder="请输入手机号" style={{ height: 56 }} inputStyle={{ fontSize: 16 }} />
+```
+
+其中 `style.height` 会作用到输入框外层容器，适合整体高度控制。
 
 ### 图片与骨架屏约定
 

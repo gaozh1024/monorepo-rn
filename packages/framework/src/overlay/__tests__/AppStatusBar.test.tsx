@@ -28,7 +28,8 @@ describe('AppStatusBar', () => {
 
     const statusBar = getAllByTestId('status-bar')[0];
     expect(statusBar.props.barStyle).toBe('dark-content');
-    expect(statusBar.props.backgroundColor).toBe('#ffffff');
+    expect(statusBar.props.backgroundColor).toBe('transparent');
+    expect(statusBar.props.translucent).toBe(true);
   });
 
   it('应该在暗色主题下自动使用 light-content', () => {
@@ -40,7 +41,8 @@ describe('AppStatusBar', () => {
 
     const statusBar = getAllByTestId('status-bar')[0];
     expect(statusBar.props.barStyle).toBe('light-content');
-    expect(statusBar.props.backgroundColor).toBe('#0a0a0a');
+    expect(statusBar.props.backgroundColor).toBe('transparent');
+    expect(statusBar.props.translucent).toBe(true);
   });
 
   it('应该支持自定义状态栏配置', () => {

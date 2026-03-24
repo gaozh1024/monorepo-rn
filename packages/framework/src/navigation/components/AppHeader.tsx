@@ -38,6 +38,8 @@ export interface AppHeaderProps {
   safeArea?: boolean;
   /** 自定义样式 */
   style?: ViewStyle;
+  /** 测试标识 */
+  testID?: string;
 }
 
 /**
@@ -76,6 +78,7 @@ export function AppHeader({
   transparent = false,
   safeArea = true,
   style,
+  testID,
 }: AppHeaderProps) {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -86,6 +89,7 @@ export function AppHeader({
     <>
       <AppFocusedStatusBar translucent backgroundColor="transparent" />
       <AppView
+        testID={testID}
         style={[
           {
             backgroundColor,

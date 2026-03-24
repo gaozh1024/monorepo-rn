@@ -25,6 +25,8 @@ export function PageScreen({
   const navigation = useNavigation();
 
   return (
+    // 约定：Header 页保持 AppScreen 默认 top=false，
+    // 顶部安全区统一由 AppHeader 承接，确保 status bar 与 header 背景一致。
     <AppScreen>
       <AppHeader
         title={title}

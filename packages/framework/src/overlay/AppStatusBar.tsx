@@ -10,7 +10,7 @@ export interface AppStatusBarProps extends Omit<
   barStyle?: StatusBarStyle | 'auto';
   /** Android 状态栏背景色，默认跟随主题背景色 */
   backgroundColor?: string;
-  /** 是否启用沉浸式状态栏，默认 false */
+  /** 是否启用沉浸式状态栏，默认 true */
   translucent?: boolean;
   /** 测试标识 */
   testID?: string;
@@ -26,7 +26,7 @@ export interface AppStatusBarProps extends Omit<
 export function AppStatusBar({
   barStyle = 'auto',
   backgroundColor,
-  translucent = false,
+  translucent = true,
   ...props
 }: AppStatusBarProps) {
   const { theme, isDark } = useTheme();
