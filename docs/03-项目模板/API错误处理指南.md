@@ -56,7 +56,48 @@ export const appConfig = {
 
 这里不要做业务逻辑，只放配置值。
 
-## 第二步：在 `data/api.ts` 提供统一工厂
+## 第二步：可选，在启动时注入持久化 storage
+
+框架默认导出的 `storage` 是内存实现。
+
+如果你的项目需要：
+
+- 登录态重启后保留
+- `getHeaders()` 里读取持久化 token
+- logger 按钮位置持久化
+- 统一缓存用户信息 / 草稿 / 配置
+
+推荐在启动阶段先注入 storage adapter。
+
+```ts
+// src/bootstrap/storage.ts
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setStorageAdapter } from '@gaozh1024/rn-kit';
+
+setStorageAdapter({
+  getItem: key => AsyncStorage.getItem(key),
+  setItem: (key, value) => AsyncStorage.setItem(key, value),
+  removeItem: key => AsyncStorage.removeItem(key),
+});
+```
+
+然后在应用入口最早执行一次：
+
+```ts
+// App.tsx
+import './src/bootstrap/storage';
+```
+
+这样后续业务代码还是统一使用框架导出的 `storage`：
+
+```ts
+import { storage } from '@gaozh1024/rn-kit';
+
+await storage.setItem('token', 'abc123');
+const token = await storage.getItem('token');
+```
+
+## 第三步：在 `data/api.ts` 提供统一工厂
 
 ```ts
 // src/data/api.ts
@@ -143,7 +184,7 @@ export function createAppAPI<T extends Record<string, ApiEndpointConfig<any, any
 
 这里不要定义 `getProfile`、`login`、`getNotifications` 这些具体接口。
 
-## 第三步：在业务域里定义自己的 API
+## 第四步：在业务域里定义自己的 API
 
 ### Auth
 

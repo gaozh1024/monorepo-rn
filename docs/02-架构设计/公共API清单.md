@@ -104,10 +104,14 @@
 
 ### 3.3 Storage 子模块
 
-| 导出项          | 类型     | 稳定性  | 备注         |
-| --------------- | -------- | ------- | ------------ |
-| `MemoryStorage` | class    | ✅ 稳定 | 内存存储实现 |
-| `storage`       | instance | ✅ 稳定 | 默认存储实例 |
+| 导出项                | 类型     | 稳定性  | 备注                     |
+| --------------------- | -------- | ------- | ------------------------ |
+| `StorageAdapter`      | type     | ✅ 稳定 | 统一存储适配器接口       |
+| `MemoryStorage`       | class    | ✅ 稳定 | 内存存储实现             |
+| `storage`             | instance | ✅ 稳定 | 当前生效的默认存储实例   |
+| `setStorageAdapter`   | function | ✅ 稳定 | 在项目启动时注入存储实现 |
+| `getStorageAdapter`   | function | ✅ 稳定 | 获取当前生效的存储实现   |
+| `resetStorageAdapter` | function | ✅ 稳定 | 重置为默认内存存储实现   |
 
 ### 3.4 Hooks 子模块
 

@@ -108,6 +108,51 @@ pnpm install
 npx expo start
 ```
 
+## 持久化 storage 接入示例（推荐）
+
+模板里 `session.ts`、框架 logger 按钮位置等能力都会使用 `@gaozh1024/rn-kit` 导出的 `storage`。
+
+框架默认是内存 storage。
+如果你希望登录态、用户信息、日志按钮位置在应用重启后继续保留，推荐在项目启动时注入持久化实现：
+
+### 1. 安装 AsyncStorage
+
+```bash
+npx expo install @react-native-async-storage/async-storage
+```
+
+### 2. 新增启动文件
+
+```ts
+// src/bootstrap/storage.ts
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setStorageAdapter } from '@gaozh1024/rn-kit';
+
+setStorageAdapter({
+  getItem: key => AsyncStorage.getItem(key),
+  setItem: (key, value) => AsyncStorage.setItem(key, value),
+  removeItem: key => AsyncStorage.removeItem(key),
+});
+```
+
+### 3. 在入口最早执行
+
+```ts
+// App.tsx
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+import './global.css';
+import './src/bootstrap/storage';
+```
+
+这样模板里的：
+
+- `src/data/session.ts`
+- `createAPI(...getHeaders)`
+- logger 按钮位置持久化
+
+都会自动走你注入的持久化 storage。
+
 ## 依赖兼容性说明
 
 当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护。

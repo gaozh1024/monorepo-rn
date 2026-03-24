@@ -109,8 +109,8 @@ export function AppPressable({
   const resolvedBgColor =
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const shouldUseClassBg = !!bg && !resolvedBgColor;
-  const resolvedStyle = React.useCallback(
-    (state: PressableStateCallbackType): StyleProp<ViewStyle> => [
+  const baseStyle = React.useMemo<StyleProp<ViewStyle>>(
+    () => [
       resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
       resolveLayoutStyle({
         flex,
@@ -147,7 +147,6 @@ export function AppPressable({
         maxH,
       }),
       resolveRoundedStyle(rounded),
-      typeof style === 'function' ? style(state) : style,
     ],
     [
       center,
@@ -178,11 +177,20 @@ export function AppPressable({
       resolvedBgColor,
       rounded,
       row,
-      style,
       w,
       wrap,
     ]
   );
+  const resolvedStyle =
+    typeof style === 'function'
+      ? React.useCallback(
+          (state: PressableStateCallbackType): StyleProp<ViewStyle> => [
+            ...(baseStyle as any[]),
+            style(state),
+          ],
+          [baseStyle, style]
+        )
+      : ([...(baseStyle as any[]), style] as StyleProp<ViewStyle>);
 
   return (
     <Pressable

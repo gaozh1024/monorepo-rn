@@ -4,6 +4,8 @@
  * @description 提供基于内存的键值存储实现，适用于测试环境或不需要持久化的场景
  */
 
+import type { StorageAdapter } from './types';
+
 /**
  * 内存存储类
  * @description 使用 Map 实现的异步键值存储，数据仅在内存中保存，应用重启后丢失
@@ -25,7 +27,7 @@
  * const exists = await storage.getItem('user'); // null
  * ```
  */
-export class MemoryStorage {
+export class MemoryStorage implements StorageAdapter {
   /** 内部存储的 Map 实例 */
   private memory = new Map<string, string>();
 
@@ -57,20 +59,3 @@ export class MemoryStorage {
     this.memory.delete(key);
   }
 }
-
-/**
- * 默认的内存存储实例
- * @description 全局共享的内存存储单例，可用于跨模块的简单数据共享
- * @example
- * ```typescript
- * import { storage } from './memory-storage';
- *
- * // 模块 A
- * await storage.setItem('session', 'abc123');
- *
- * // 模块 B
- * const session = await storage.getItem('session');
- * console.log(session); // 'abc123'
- * ```
- */
-export const storage = new MemoryStorage();

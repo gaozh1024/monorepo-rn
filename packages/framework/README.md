@@ -427,7 +427,18 @@ import {
 
 #### `AppPressable` 状态样式建议
 
-`AppPressable` 在支持快捷参数的同时，仍然保留原生 `Pressable` 的 `style(state)` 语义：
+`AppPressable` 同时支持两类写法：
+
+- 静态 `style={{ ... }}`
+- 原生 `Pressable` 风格的 `style(state) => ({ ... })`
+
+例如静态样式：
+
+```tsx
+<AppPressable p={12} rounded="lg" style={{ backgroundColor: '#6366f1', opacity: 0.9 }} />
+```
+
+以及状态样式：
 
 ```tsx
 <AppPressable
@@ -444,6 +455,7 @@ import {
 
 适合：
 
+- 业务侧自定义静态背景色 / 阴影 / 圆角
 - 按下态透明度
 - Web/TV 场景的 `hovered` / `focused`
 - 与 `pressedClassName` 同时配合使用
@@ -902,6 +914,62 @@ await api.revokeDevice({
 });
 // => POST https://api.example.com/devices/dev_1/revoke
 // => body: {"device_id":"dev_1"}
+```
+
+#### Storage 注入：项目启动时切换为持久化存储
+
+框架默认导出的 `storage` 是内存实现，适合测试和无持久化场景。
+
+如果项目希望统一改成持久化存储，推荐在启动阶段注入。
+
+推荐放到独立启动文件中，例如：
+
+```tsx
+// src/bootstrap/storage.ts
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setStorageAdapter } from '@gaozh1024/rn-kit';
+
+setStorageAdapter({
+  getItem: key => AsyncStorage.getItem(key),
+  setItem: (key, value) => AsyncStorage.setItem(key, value),
+  removeItem: key => AsyncStorage.removeItem(key),
+});
+```
+
+然后在应用入口最早执行：
+
+```tsx
+// App.tsx
+import './src/bootstrap/storage';
+```
+
+如果你只想快速演示，也可以直接在启动代码里写：
+
+```tsx
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setStorageAdapter } from '@gaozh1024/rn-kit';
+
+setStorageAdapter({
+  getItem: key => AsyncStorage.getItem(key),
+  setItem: (key, value) => AsyncStorage.setItem(key, value),
+  removeItem: key => AsyncStorage.removeItem(key),
+});
+```
+
+注入后，框架内所有基于 `storage` 的能力都会自动走你提供的实现，例如：
+
+- `createAPI` 中的 token 读取
+- `useStorage`
+- logger 按钮位置持久化
+- 你自己的 `session` / 缓存 / 草稿等业务存储
+
+业务代码仍然保持：
+
+```tsx
+import { storage } from '@gaozh1024/rn-kit';
+
+await storage.setItem('token', 'abc123');
+const token = await storage.getItem('token');
 ```
 
 #### API 自动打点（request / response / error）
