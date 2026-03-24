@@ -4,7 +4,13 @@
  * @description 提供类型安全的 API 客户端创建功能，支持请求/响应数据的 Zod 校验
  */
 
-import type { ApiConfig, ApiEndpointConfig, ApiErrorContext } from './types';
+import type {
+  ApiConfig,
+  ApiEndpointConfig,
+  ApiErrorContext,
+  ApiMethod,
+  ApiRequestContext,
+} from './types';
 import { ZodError } from 'zod';
 import { ErrorCode, enhanceError, mapHttpStatus, type AppError } from '../error';
 import { resolveApiObservability } from './observability';
@@ -79,6 +85,194 @@ function parseUnknownError(error: unknown): AppError {
   };
 }
 
+function isBinaryBody(value: unknown): value is BodyInit {
+  if (typeof value === 'string' || value instanceof ArrayBuffer || ArrayBuffer.isView(value)) {
+    return true;
+  }
+
+  if (typeof Blob !== 'undefined' && value instanceof Blob) {
+    return true;
+  }
+
+  if (typeof FormData !== 'undefined' && value instanceof FormData) {
+    return true;
+  }
+
+  if (typeof URLSearchParams !== 'undefined' && value instanceof URLSearchParams) {
+    return true;
+  }
+
+  if (typeof ReadableStream !== 'undefined' && value instanceof ReadableStream) {
+    return true;
+  }
+
+  return false;
+}
+
+function isRecordBody(value: unknown): value is Record<string, unknown> {
+  return (
+    typeof value === 'object' && value !== null && !Array.isArray(value) && !isBinaryBody(value)
+  );
+}
+
+function appendQueryValue(searchParams: URLSearchParams, key: string, value: unknown) {
+  if (value === undefined) {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      appendQueryValue(searchParams, key, item);
+    }
+    return;
+  }
+
+  if (value !== null && typeof value === 'object') {
+    searchParams.append(key, JSON.stringify(value));
+    return;
+  }
+
+  searchParams.append(key, String(value));
+}
+
+function resolvePath(path: string, input: unknown) {
+  const pathParamKeys = new Set<string>();
+  let missingPathParam: string | undefined;
+
+  if (!isRecordBody(input)) {
+    return {
+      path,
+      pathParamKeys,
+      missingPathParam,
+    };
+  }
+
+  const resolvedPath = path.replace(
+    /\{([^}]+)\}|:([A-Za-z0-9_]+)/g,
+    (match, bracketKey, colonKey) => {
+      const key = (bracketKey || colonKey) as string;
+      const value = input[key];
+
+      if (value === undefined || value === null) {
+        missingPathParam ??= key;
+        return match;
+      }
+
+      pathParamKeys.add(key);
+      return encodeURIComponent(String(value));
+    }
+  );
+
+  return {
+    path: resolvedPath,
+    pathParamKeys,
+    missingPathParam,
+  };
+}
+
+function buildRequestUrl(baseURL: string, path: string, method: ApiMethod, input: unknown) {
+  const { path: resolvedPath, pathParamKeys, missingPathParam } = resolvePath(path, input);
+  const url = new URL(baseURL + resolvedPath);
+
+  if (method === 'GET' && isRecordBody(input)) {
+    for (const [key, value] of Object.entries(input)) {
+      if (pathParamKeys.has(key)) {
+        continue;
+      }
+      appendQueryValue(url.searchParams, key, value);
+    }
+  }
+
+  return {
+    url: url.toString(),
+    missingPathParam,
+  };
+}
+
+async function resolveDynamicHeaders(
+  requestContext: ApiRequestContext,
+  configHeadersResolver?: (
+    context: ApiRequestContext
+  ) => HeadersInit | undefined | Promise<HeadersInit | undefined>,
+  endpointHeadersResolver?: (
+    context: ApiRequestContext
+  ) => HeadersInit | undefined | Promise<HeadersInit | undefined>
+) {
+  const headers = new Headers();
+
+  const resolvedConfigHeaders = await configHeadersResolver?.(requestContext);
+  if (resolvedConfigHeaders) {
+    new Headers(resolvedConfigHeaders).forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
+  const resolvedEndpointHeaders = await endpointHeadersResolver?.(requestContext);
+  if (resolvedEndpointHeaders) {
+    new Headers(resolvedEndpointHeaders).forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
+  return headers;
+}
+
+async function createRequestInit(
+  method: ApiMethod,
+  requestContext: ApiRequestContext,
+  input: unknown,
+  configHeaders?: HeadersInit,
+  endpointHeaders?: HeadersInit,
+  configHeadersResolver?: (
+    context: ApiRequestContext
+  ) => HeadersInit | undefined | Promise<HeadersInit | undefined>,
+  endpointHeadersResolver?: (
+    context: ApiRequestContext
+  ) => HeadersInit | undefined | Promise<HeadersInit | undefined>
+): Promise<RequestInit> {
+  const headers = new Headers(configHeaders);
+
+  if (endpointHeaders) {
+    new Headers(endpointHeaders).forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
+  const dynamicHeaders = await resolveDynamicHeaders(
+    requestContext,
+    configHeadersResolver,
+    endpointHeadersResolver
+  );
+  dynamicHeaders.forEach((value, key) => {
+    headers.set(key, value);
+  });
+
+  if (input === undefined || method === 'GET') {
+    return {
+      method,
+      headers,
+    };
+  }
+
+  if (isBinaryBody(input)) {
+    return {
+      method,
+      headers,
+      body: input,
+    };
+  }
+
+  if (!headers.has('content-type')) {
+    headers.set('content-type', 'application/json');
+  }
+
+  return {
+    method,
+    headers,
+    body: JSON.stringify(input),
+  };
+}
+
 async function notifyError(
   error: AppError,
   context: ApiErrorContext,
@@ -145,7 +339,28 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
         }
       }
 
-      const url = config.baseURL + ep.path;
+      const { url, missingPathParam } = buildRequestUrl(config.baseURL, ep.path, ep.method, input);
+      const requestContext: ApiRequestContext = {
+        endpointName: name,
+        path: ep.path,
+        method: ep.method,
+        input,
+        url,
+      };
+
+      if (missingPathParam) {
+        throw await notifyError(
+          {
+            code: ErrorCode.VALIDATION,
+            message: `Missing path parameter: ${missingPathParam}`,
+            field: missingPathParam,
+          },
+          context,
+          ep,
+          config as any
+        );
+      }
+
       const startAt = Date.now();
 
       if (observability.enabled) {
@@ -164,8 +379,18 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
       }
 
       let response: Response;
+      const requestInit = await createRequestInit(
+        ep.method,
+        requestContext,
+        input,
+        config.headers,
+        ep.headers,
+        config.getHeaders,
+        ep.getHeaders
+      );
+
       try {
-        response = await fetcher(url, { method: ep.method });
+        response = await fetcher(url, requestInit);
       } catch (error) {
         const enhanced = await notifyError(parseNetworkError(error), context, ep, config as any);
 

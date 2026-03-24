@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { render } from '@testing-library/react-native';
 import { AppText } from '../../primitives/AppText';
 import { ThemeProvider } from '@/theme';
@@ -102,5 +103,38 @@ describe('AppText', () => {
     const text = getByText('Text');
     expect(text.props.className).toContain('text-white');
     expect(text.props.style[0]).toBeUndefined();
+  });
+
+  it('应该支持文本场景常用的基础快捷参数', () => {
+    const { getByText } = render(
+      <ThemeProvider light={lightTheme} dark={darkTheme}>
+        <AppText p={2} rounded="full" bg="primary-500" w={96} flex>
+          Badge
+        </AppText>
+      </ThemeProvider>
+    );
+
+    const flattened = StyleSheet.flatten(getByText('Badge').props.style);
+
+    expect(flattened).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          backgroundColor: '#f38b32',
+        }),
+        expect.objectContaining({
+          flex: 1,
+        }),
+        expect.objectContaining({
+          paddingTop: 2,
+          paddingRight: 2,
+        }),
+        expect.objectContaining({
+          width: 96,
+        }),
+        expect.objectContaining({
+          borderRadius: 9999,
+        }),
+      ])
+    );
   });
 });

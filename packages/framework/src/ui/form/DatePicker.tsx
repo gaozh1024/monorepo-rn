@@ -4,11 +4,29 @@ import { AppText, AppView } from '@/ui/primitives';
 import { formatDate } from '@/utils';
 import { Picker, type PickerColumn, type PickerValue } from './Picker';
 import { useFormThemeColors } from './useFormTheme';
+import type { CommonLayoutProps, LayoutSurface } from '../utils/layout-shortcuts';
 
 /**
  * DatePicker 组件属性接口
  */
-export interface DatePickerProps {
+export interface DatePickerProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+  | 'rounded'
+> {
   /** 选中日期 */
   value?: Date;
   /** 变化回调 */
@@ -45,6 +63,10 @@ export interface DatePickerProps {
   minDateText?: string;
   /** 快捷按钮“最晚”文案 */
   maxDateText?: string;
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
 }
 
 function createSafeDate(year: number, month: number, day: number) {
@@ -60,6 +82,21 @@ function getDateValues(date: Date): PickerValue[] {
  * DatePicker - 日期滚轮选择器，保留日期封装并复用通用 Picker
  */
 export function DatePicker({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  rounded,
   value,
   onChange,
   placeholder = '请选择日期',
@@ -78,6 +115,8 @@ export function DatePicker({
   todayText = '今天',
   minDateText = '最早',
   maxDateText = '最晚',
+  bg,
+  surface,
 }: DatePickerProps) {
   const colors = useFormThemeColors();
   const [tempDate, setTempDate] = useState<Date>(value || new Date());
@@ -188,6 +227,21 @@ export function DatePicker({
 
   return (
     <Picker
+      flex={flex}
+      m={m}
+      mx={mx}
+      my={my}
+      mt={mt}
+      mb={mb}
+      ml={ml}
+      mr={mr}
+      w={w}
+      h={h}
+      minW={minW}
+      minH={minH}
+      maxW={maxW}
+      maxH={maxH}
+      rounded={rounded}
       value={value ? getDateValues(value) : undefined}
       tempValue={getDateValues(tempDate)}
       onTempChange={handleTempChange}
@@ -197,6 +251,8 @@ export function DatePicker({
       placeholder={placeholder}
       disabled={disabled}
       className={className}
+      bg={bg}
+      surface={surface}
       pickerTitle={pickerTitle}
       cancelText={cancelText}
       confirmText={confirmText}

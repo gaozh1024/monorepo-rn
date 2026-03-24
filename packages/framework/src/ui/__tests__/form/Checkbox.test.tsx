@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { Checkbox } from '../../form/Checkbox';
 import { ThemeProvider, createTheme } from '@/theme';
@@ -51,5 +52,33 @@ describe('Checkbox', () => {
       </ThemeProvider>
     );
     expect(getByText('同意协议')).toBeTruthy();
+  });
+
+  it('应该支持基础快捷参数', () => {
+    const { getByTestId } = render(
+      <ThemeProvider light={theme}>
+        <Checkbox testID="checkbox" checked={false} p={4} w={120} rounded="lg" bg="primary-500" />
+      </ThemeProvider>
+    );
+
+    const flattened = StyleSheet.flatten(getByTestId('checkbox').props.style);
+
+    expect(flattened).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          paddingTop: 4,
+          paddingRight: 4,
+        }),
+        expect.objectContaining({
+          width: 120,
+        }),
+        expect.objectContaining({
+          borderRadius: 12,
+        }),
+        expect.objectContaining({
+          backgroundColor: '#f38b32',
+        }),
+      ])
+    );
   });
 });

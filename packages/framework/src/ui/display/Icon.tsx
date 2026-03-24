@@ -2,8 +2,9 @@ import React from 'react';
 import { StyleProp, Text, TextStyle } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useOptionalTheme } from '@/theme';
-import { AppPressable } from '@/ui/primitives';
+import { AppPressable, AppView } from '@/ui/primitives';
 import { resolveNamedColor } from '../utils/theme-color';
+import { type CommonLayoutProps, type LayoutSurface } from '../utils/layout-shortcuts';
 
 /** 图标尺寸类型 */
 export type IconSize = number | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -11,7 +12,31 @@ export type IconSize = number | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 /**
  * Icon 组件属性接口
  */
-export interface IconProps {
+export interface IconProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'p'
+  | 'px'
+  | 'py'
+  | 'pt'
+  | 'pb'
+  | 'pl'
+  | 'pr'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'rounded'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+> {
   /** 图标名称，参考 MaterialIcons 图标库 */
   name: string;
   /** 图标尺寸：预设值 xs(16px)、sm(20px)、md(24px)、lg(32px)、xl(48px) 或直接指定数字 */
@@ -22,6 +47,12 @@ export interface IconProps {
   style?: StyleProp<TextStyle>;
   /** 点击回调，设置了此属性后图标将变为可点击 */
   onPress?: () => void;
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
+  /** 自定义类名 */
+  className?: string;
   /** 测试 ID */
   testID?: string;
 }
@@ -96,10 +127,69 @@ function resolveSize(size: IconSize = 'md'): number {
  * <Icon name={ActionIcons.delete} color="danger-500" />
  * ```
  */
-export function Icon({ name, size = 'md', color = 'gray-600', style, onPress, testID }: IconProps) {
+export function Icon({
+  flex,
+  p,
+  px,
+  py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  name,
+  size = 'md',
+  color = 'gray-600',
+  style,
+  onPress,
+  bg,
+  surface,
+  className,
+  testID,
+}: IconProps) {
   const { theme, isDark } = useOptionalTheme();
   const resolvedSize = resolveSize(size);
   const resolvedColor = resolveNamedColor(color, theme, isDark) ?? color;
+  const shouldWrap =
+    onPress !== undefined ||
+    className !== undefined ||
+    bg !== undefined ||
+    surface !== undefined ||
+    flex !== undefined ||
+    p !== undefined ||
+    px !== undefined ||
+    py !== undefined ||
+    pt !== undefined ||
+    pb !== undefined ||
+    pl !== undefined ||
+    pr !== undefined ||
+    m !== undefined ||
+    mx !== undefined ||
+    my !== undefined ||
+    mt !== undefined ||
+    mb !== undefined ||
+    ml !== undefined ||
+    mr !== undefined ||
+    rounded !== undefined ||
+    w !== undefined ||
+    h !== undefined ||
+    minW !== undefined ||
+    minH !== undefined ||
+    maxW !== undefined ||
+    maxH !== undefined;
   const fallback = (
     <Text
       style={[
@@ -115,33 +205,60 @@ export function Icon({ name, size = 'md', color = 'gray-600', style, onPress, te
       □
     </Text>
   );
-
-  if (!MaterialIconComponent) {
-    return onPress ? <AppPressable onPress={onPress}>{fallback}</AppPressable> : fallback;
-  }
-
-  if (onPress) {
-    return (
-      <AppPressable onPress={onPress} testID={testID}>
-        <MaterialIconComponent
-          name={name as any}
-          size={resolvedSize}
-          color={resolvedColor}
-          style={style}
-        />
-      </AppPressable>
-    );
-  }
-
-  return (
+  const iconNode = !MaterialIconComponent ? (
+    fallback
+  ) : (
     <MaterialIconComponent
       name={name as any}
       size={resolvedSize}
       color={resolvedColor}
       style={style}
-      testID={testID}
+      testID={shouldWrap ? undefined : testID}
     />
   );
+
+  if (!shouldWrap) {
+    return iconNode;
+  }
+
+  const wrapperProps = {
+    flex,
+    p,
+    px,
+    py,
+    pt,
+    pb,
+    pl,
+    pr,
+    m,
+    mx,
+    my,
+    mt,
+    mb,
+    ml,
+    mr,
+    rounded,
+    w,
+    h,
+    minW,
+    minH,
+    maxW,
+    maxH,
+    bg,
+    surface,
+    className,
+    testID,
+  };
+
+  if (onPress) {
+    return (
+      <AppPressable {...wrapperProps} onPress={onPress}>
+        {iconNode}
+      </AppPressable>
+    );
+  }
+
+  return <AppView {...wrapperProps}>{iconNode}</AppView>;
 }
 
 /**

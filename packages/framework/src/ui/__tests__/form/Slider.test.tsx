@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { act, create } from 'react-test-renderer';
 import { ThemeProvider } from '@/theme';
+import { AppView } from '../../primitives';
 import { Slider } from '../../form/Slider';
 import { theme } from './test-utils';
 
@@ -99,5 +100,37 @@ describe('Slider', () => {
     expect(onChangeEnd).toHaveBeenCalledWith(50);
     expect(onChange).not.toHaveBeenCalledWith(Number.NaN);
     expect(onChangeEnd).not.toHaveBeenCalledWith(Number.NaN);
+  });
+
+  it('应该支持基础快捷参数', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Slider w={240} mt={12} rounded="xl" bg="primary-500" />
+        </ThemeProvider>
+      );
+    });
+
+    const container = renderer!.root
+      .findAllByType(AppView)
+      .find(node => node.props.className?.includes?.('py-2'));
+    const track = renderer!.root.find(
+      node => typeof node.type === 'string' && typeof node.props.onTouchEnd === 'function'
+    );
+
+    expect(container?.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ marginTop: 12 }),
+        expect.objectContaining({ width: 240 }),
+      ])
+    );
+    expect(track.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ borderRadius: 16 }),
+        expect.objectContaining({ backgroundColor: '#f38b32' }),
+      ])
+    );
   });
 });

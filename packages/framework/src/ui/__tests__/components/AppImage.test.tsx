@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { act, create } from 'react-test-renderer';
 import { AppImage } from '@/ui';
+import { AppView } from '../../primitives/AppView';
 
 describe('AppImage', () => {
   it('应该基于 expo-image 渲染并映射 resizeMode', () => {
@@ -49,5 +50,31 @@ describe('AppImage', () => {
 
     expect(onLoad).toHaveBeenCalled();
     expect(onError).toHaveBeenCalled();
+  });
+
+  it('应该支持基础快捷参数', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <AppImage
+          source={{ uri: 'https://example.com/avatar.png' }}
+          placeholder={{ uri: 'https://example.com/placeholder.png' }}
+          w={120}
+          h={80}
+          mt={12}
+          rounded="xl"
+          bg="primary-500"
+        />
+      );
+    });
+
+    const wrapper = renderer!.root.findByType(AppView);
+
+    expect(wrapper.props.w).toBe(120);
+    expect(wrapper.props.h).toBe(80);
+    expect(wrapper.props.mt).toBe(12);
+    expect(wrapper.props.rounded).toBe('xl');
+    expect(wrapper.props.bg).toBe('primary-500');
   });
 });

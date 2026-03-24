@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { AppView } from '@/ui/primitives';
+import { Animated, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { AppPressable, AppView } from '@/ui/primitives';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import { type CommonLayoutProps, resolveRoundedStyle } from '../utils/layout-shortcuts';
 
 /**
  * Switch 组件属性接口
  */
-export interface SwitchProps {
+export interface SwitchProps extends Pick<
+  CommonLayoutProps,
+  'flex' | 'm' | 'mx' | 'my' | 'mt' | 'mb' | 'ml' | 'mr' | 'rounded'
+> {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (checked: boolean) => void;
@@ -15,7 +19,7 @@ export interface SwitchProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   testID?: string;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 function createAnimatedValue(value: number) {
@@ -35,6 +39,15 @@ function createAnimatedValue(value: number) {
  * Switch - 开关组件，支持浅色/深色主题
  */
 export function Switch({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  rounded,
   checked,
   defaultChecked,
   onChange,
@@ -140,17 +153,25 @@ export function Switch({
   const thumbBackgroundColor = disabled ? colors.card : colors.textInverse;
 
   return (
-    <TouchableOpacity
+    <AppPressable
+      flex={flex}
+      m={m}
+      mx={mx}
+      my={my}
+      mt={mt}
+      mb={mb}
+      ml={ml}
+      mr={mr}
       onPress={toggle}
       disabled={disabled || isInteractionLocked}
       className={cn(className)}
       testID={testID}
-      activeOpacity={disabled || isInteractionLocked ? 1 : 0.8}
     >
       <AppView
-        className="rounded-full"
+        className={cn(rounded === undefined && 'rounded-full')}
         style={[
           styles.track,
+          resolveRoundedStyle(rounded ?? 'full'),
           {
             width: config.width,
             height: config.height,
@@ -177,7 +198,7 @@ export function Switch({
           ]}
         />
       </AppView>
-    </TouchableOpacity>
+    </AppPressable>
   );
 }
 

@@ -1,11 +1,37 @@
 import { AppView } from '@/ui/primitives';
 import { useTheme } from '@/theme';
 import { cn } from '@/utils';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 /**
  * Progress 组件属性接口
  */
-export interface ProgressProps {
+export interface ProgressProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'rounded'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+> {
   /** 当前进度值 */
   value: number;
   /** 最大值，默认为 100 */
@@ -20,6 +46,10 @@ export interface ProgressProps {
   className?: string;
   /** 自定义进度条样式 */
   barClassName?: string;
+  /** 自定义轨道背景色 */
+  bg?: string;
+  /** 语义化轨道背景 */
+  surface?: LayoutSurface;
 }
 
 /** 尺寸映射表 */
@@ -54,6 +84,21 @@ const colorMap = {
  * ```
  */
 export function Progress({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
   value,
   max = 100,
   size = 'md',
@@ -61,22 +106,39 @@ export function Progress({
   testID,
   className,
   barClassName,
+  bg,
+  surface,
 }: ProgressProps) {
   const { theme, isDark } = useTheme();
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
   // 深色主题下使用更深的背景色
-  const trackBgColor = isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb';
+  const trackBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ??
+    resolveNamedColor(bg, theme, isDark) ??
+    (isDark ? theme.colors.border?.[700] || '#374151' : '#e5e7eb');
+  const resolvedRounded = resolveRoundedStyle(rounded ?? 'full');
 
   return (
     <AppView
-      className={cn('w-full rounded-full', sizeMap[size], className)}
-      style={{ backgroundColor: trackBgColor }}
+      className={cn('w-full', rounded === undefined && 'rounded-full', sizeMap[size], className)}
+      style={[
+        resolveLayoutStyle({ flex }),
+        resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
+        resolveSizingStyle({ w, h, minW, minH, maxW, maxH }),
+        resolvedRounded,
+        { backgroundColor: trackBgColor },
+      ]}
       testID={testID}
     >
       <AppView
-        className={cn('rounded-full', sizeMap[size], colorMap[color], barClassName)}
-        style={{ width: `${percentage}%` }}
+        className={cn(
+          rounded === undefined && 'rounded-full',
+          sizeMap[size],
+          colorMap[color],
+          barClassName
+        )}
+        style={[resolvedRounded, { width: `${percentage}%` }]}
       />
     </AppView>
   );

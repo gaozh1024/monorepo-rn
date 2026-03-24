@@ -1,19 +1,47 @@
 import { useState } from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { AppView, AppText } from '@/ui/primitives';
+import { StyleSheet } from 'react-native';
+import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import { type CommonLayoutProps, type LayoutSurface } from '../utils/layout-shortcuts';
 
 /**
  * Radio 组件属性接口
  */
-export interface RadioProps {
+export interface RadioProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'p'
+  | 'px'
+  | 'py'
+  | 'pt'
+  | 'pb'
+  | 'pl'
+  | 'pr'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'gap'
+  | 'rounded'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+> {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (checked: boolean) => void;
   disabled?: boolean;
   children?: React.ReactNode;
   className?: string;
+  bg?: string;
+  surface?: LayoutSurface;
   testID?: string;
 }
 
@@ -21,12 +49,37 @@ export interface RadioProps {
  * Radio - 单选框组件，支持浅色/深色主题
  */
 export function Radio({
+  flex,
+  p,
+  px,
+  py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  gap,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
   checked,
   defaultChecked,
   onChange,
   disabled = false,
   children,
   className,
+  bg,
+  surface,
   testID,
 }: RadioProps) {
   const colors = useThemeColors();
@@ -47,13 +100,39 @@ export function Radio({
   const disabledOpacity = 0.4;
 
   return (
-    <TouchableOpacity
+    <AppPressable
+      flex={flex}
+      row
+      items="center"
+      p={p}
+      px={px}
+      py={py}
+      pt={pt}
+      pb={pb}
+      pl={pl}
+      pr={pr}
+      m={m}
+      mx={mx}
+      my={my}
+      mt={mt}
+      mb={mb}
+      ml={ml}
+      mr={mr}
+      gap={gap ?? 8}
+      rounded={rounded}
+      w={w}
+      h={h}
+      minW={minW}
+      minH={minH}
+      maxW={maxW}
+      maxH={maxH}
+      bg={bg}
+      surface={surface}
       onPress={toggle}
       disabled={disabled}
-      className={cn('flex-row items-center gap-2', className)}
+      className={cn(className)}
       style={disabled ? { opacity: disabledOpacity } : undefined}
       testID={testID}
-      activeOpacity={0.7}
     >
       <AppView
         className={cn('w-5 h-5 rounded-full items-center justify-center', isChecked && 'border-2')}
@@ -78,7 +157,7 @@ export function Radio({
           {children}
         </AppText>
       )}
-    </TouchableOpacity>
+    </AppPressable>
   );
 }
 

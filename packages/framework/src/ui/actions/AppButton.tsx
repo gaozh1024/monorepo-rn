@@ -3,6 +3,7 @@ import { ActivityIndicator, Keyboard } from 'react-native';
 import { useOptionalTheme } from '@/theme';
 import { AppPressable, AppText } from '@/ui/primitives';
 import { cn } from '@/utils';
+import type { CommonLayoutProps } from '../utils/layout-shortcuts';
 
 /**
  * AppButton 组件属性接口
@@ -17,7 +18,24 @@ export type AppButtonColor =
   | 'danger'
   | 'muted';
 
-export interface AppButtonProps {
+export interface AppButtonProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+  | 'rounded'
+> {
   /** 按钮样式变体：solid(实心)、outline(描边)、ghost(透明) */
   variant?: 'solid' | 'outline' | 'ghost';
   /** 按钮尺寸：sm(小)、md(中)、lg(大) */
@@ -85,6 +103,21 @@ export interface AppButtonProps {
  * ```
  */
 export function AppButton({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  rounded,
   variant = 'solid',
   size = 'md',
   color = 'primary',
@@ -136,10 +169,25 @@ export function AppButton({
 
   return (
     <AppPressable
+      flex={flex}
+      m={m}
+      mx={mx}
+      my={my}
+      mt={mt}
+      mb={mb}
+      ml={ml}
+      mr={mr}
+      w={w}
+      h={h}
+      minW={minW}
+      minH={minH}
+      maxW={maxW}
+      maxH={maxH}
+      rounded={rounded ?? 'lg'}
       onPress={onPress ? handlePress : undefined}
       disabled={isDisabled}
       className={cn(
-        'flex-row items-center justify-center rounded-lg',
+        'flex-row items-center justify-center',
         sizeClasses[size],
         isDisabled && 'opacity-50',
         className

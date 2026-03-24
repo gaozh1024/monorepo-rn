@@ -3,6 +3,8 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { Keyboard } from 'react-native';
 import { AppButton } from '../../actions/AppButton';
+import { AppPressable } from '../../primitives/AppPressable';
+import { act, create } from 'react-test-renderer';
 
 describe('AppButton', () => {
   it('应该显示文本', () => {
@@ -88,5 +90,24 @@ describe('AppButton', () => {
 
     expect(Keyboard.dismiss).not.toHaveBeenCalled();
     expect(onPress).toHaveBeenCalled();
+  });
+
+  it('应该支持按钮外层基础快捷参数', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <AppButton w={180} h={44} rounded="full" mt={12}>
+          Shortcut
+        </AppButton>
+      );
+    });
+
+    const button = renderer!.root.findByType(AppPressable);
+
+    expect(button.props.w).toBe(180);
+    expect(button.props.h).toBe(44);
+    expect(button.props.mt).toBe(12);
+    expect(button.props.rounded).toBe('full');
   });
 });

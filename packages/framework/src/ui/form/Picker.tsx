@@ -11,6 +11,16 @@ import { AppPressable, AppText, AppView } from '@/ui/primitives';
 import { cn } from '@/utils';
 import { BottomSheetModal } from './BottomSheetModal';
 import { type FormThemeColors, useFormThemeColors } from './useFormTheme';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
+import { useOptionalTheme } from '@/theme';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 export type PickerValue = string | number;
 
@@ -32,13 +42,32 @@ export interface PickerRenderFooterContext {
   tempValues: PickerValue[];
 }
 
-export interface PickerProps {
+export interface PickerProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+  | 'rounded'
+> {
   value?: PickerValue[];
   onChange?: (values: PickerValue[]) => void;
   columns: PickerColumn[];
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  bg?: string;
+  surface?: LayoutSurface;
   pickerTitle?: string;
   cancelText?: string;
   confirmText?: string;
@@ -273,12 +302,29 @@ function WheelPickerColumn({
  * Picker - 通用多列滚轮选择器，适用于日期、省市区等多列选择场景
  */
 export function Picker({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  rounded,
   value,
   onChange,
   columns,
   placeholder = '请选择',
   disabled = false,
   className,
+  bg,
+  surface,
   pickerTitle = '请选择',
   cancelText = '取消',
   confirmText = '确定',
@@ -293,10 +339,13 @@ export function Picker({
   visibleRows = 5,
 }: PickerProps) {
   const colors = useFormThemeColors();
+  const { theme, isDark } = useOptionalTheme();
   const [visible, setVisible] = useState(false);
   const [internalTempValues, setInternalTempValues] = useState<PickerValue[]>(
     normalizeValues(columns, defaultTempValue ?? value)
   );
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
 
   const isControlledTemp = tempValue !== undefined;
   const tempValues = useMemo(
@@ -365,14 +414,25 @@ export function Picker({
   }, [onChange, tempValues]);
 
   return (
-    <>
+    <AppView
+      style={[
+        resolveLayoutStyle({ flex }),
+        resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
+        resolveSizingStyle({ w }),
+      ]}
+    >
       <AppPressable
         className={cn(
           'flex-row items-center justify-between px-4 py-3 rounded-lg',
           disabled ? 'opacity-60' : '',
           className
         )}
-        style={[styles.trigger, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        style={[
+          styles.trigger,
+          resolveSizingStyle({ h, minW, minH, maxW, maxH }),
+          resolveRoundedStyle(rounded),
+          { backgroundColor: resolvedBgColor ?? colors.surface, borderColor: colors.border },
+        ]}
         disabled={disabled}
         onPress={openModal}
       >
@@ -439,7 +499,7 @@ export function Picker({
           )}
         </>
       </BottomSheetModal>
-    </>
+    </AppView>
   );
 }
 

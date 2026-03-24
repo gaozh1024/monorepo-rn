@@ -74,4 +74,42 @@ describe('Picker', () => {
     const bottomSheet = renderer!.root.findByType(BottomSheetModal);
     expect(bottomSheet.props.closeOnBackdropPress).toBe(true);
   });
+
+  it('应该支持触发器基础快捷参数', () => {
+    const { getByText } = renderWithTheme(
+      <Picker
+        placeholder="打开地区选择"
+        h={50}
+        rounded="full"
+        bg="primary-500"
+        columns={[
+          {
+            key: 'province',
+            options: [{ label: '广东省', value: 'gd' }],
+          },
+        ]}
+      />
+    );
+
+    let trigger: any = getByText('打开地区选择');
+    while (trigger?.props && !trigger.props.onPress) {
+      trigger = trigger.parent;
+    }
+
+    expect(trigger.props.style).toEqual(
+      expect.arrayContaining([
+        expect.arrayContaining([
+          expect.objectContaining({
+            height: 50,
+          }),
+          expect.objectContaining({
+            borderRadius: 9999,
+          }),
+          expect.objectContaining({
+            backgroundColor: '#f38b32',
+          }),
+        ]),
+      ])
+    );
+  });
 });

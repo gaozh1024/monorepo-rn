@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { Icon } from '../../display/Icon';
+import { AppView } from '../../primitives/AppView';
+import { act, create } from 'react-test-renderer';
 import { ThemeProvider, createTheme } from '@/theme';
 
 const theme = createTheme({
@@ -46,5 +48,23 @@ describe('Icon', () => {
       </ThemeProvider>
     );
     expect(getByTestId('icon')).toBeTruthy();
+  });
+
+  it('应该支持基础快捷参数', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Icon name="home" p={4} rounded="full" bg="primary-500" />
+        </ThemeProvider>
+      );
+    });
+
+    const wrapper = renderer!.root.findByType(AppView);
+
+    expect(wrapper.props.p).toBe(4);
+    expect(wrapper.props.rounded).toBe('full');
+    expect(wrapper.props.bg).toBe('primary-500');
   });
 });

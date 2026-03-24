@@ -4,19 +4,58 @@ import { cn } from '@/utils';
 import {
   hasExplicitTextColorClass,
   resolveNamedColor,
+  resolveSurfaceColor,
   resolveTextTone,
 } from '../utils/theme-color';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
 
 /**
  * AppText 组件属性接口
  */
-export interface AppTextProps extends TextProps {
+export interface AppTextProps
+  extends
+    TextProps,
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'p'
+      | 'px'
+      | 'py'
+      | 'pt'
+      | 'pb'
+      | 'pl'
+      | 'pr'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'rounded'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+    > {
   /** 字体大小：xs(12px)、sm(14px)、md(16px)、lg(18px)、xl(20px)、2xl(24px)、3xl(30px) */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
   /** 字重：normal(400)、medium(500)、semibold(600)、bold(700) */
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
   /** 文字颜色，支持 Tailwind 颜色类名 */
   color?: string;
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
   /** 语义化文字色 */
   tone?:
     | 'default'
@@ -62,9 +101,33 @@ export interface AppTextProps extends TextProps {
  * ```
  */
 export function AppText({
+  flex,
+  p,
+  px,
+  py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
   size = 'md',
   weight = 'normal',
   color,
+  bg,
+  surface,
   tone,
   className,
   children,
@@ -95,7 +158,12 @@ export function AppText({
     (color || hasExplicitStyleColor || hasExplicitClassColor ? undefined : ('default' as const));
   const resolvedColor =
     resolveTextTone(fallbackTone, theme, isDark) ?? resolveNamedColor(color, theme, isDark);
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const shouldUseClassColor = !!color && !resolvedColor;
+  const shouldUseClassBg = !!bg && !resolvedBgColor;
+  const resolvedFlexStyle =
+    flex === true ? { flex: 1 } : typeof flex === 'number' ? { flex } : undefined;
 
   return (
     <Text
@@ -103,9 +171,40 @@ export function AppText({
         sizeMap[size],
         weightMap[weight],
         shouldUseClassColor && `text-${color}`,
+        shouldUseClassBg && `bg-${bg}`,
         className
       )}
-      style={[resolvedColor ? { color: resolvedColor } : undefined, style]}
+      style={[
+        resolvedColor ? { color: resolvedColor } : undefined,
+        resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+        resolvedFlexStyle,
+        resolveSpacingStyle({
+          p,
+          px,
+          py,
+          pt,
+          pb,
+          pl,
+          pr,
+          m,
+          mx,
+          my,
+          mt,
+          mb,
+          ml,
+          mr,
+        }),
+        resolveSizingStyle({
+          w,
+          h,
+          minW,
+          minH,
+          maxW,
+          maxH,
+        }),
+        resolveRoundedStyle(rounded),
+        style,
+      ]}
       {...props}
     >
       {children}

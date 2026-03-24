@@ -12,13 +12,40 @@ import { Icon } from '@/ui/display';
 import { cn } from '@/utils';
 import { BottomSheetModal } from './BottomSheetModal';
 import { useFormThemeColors } from './useFormTheme';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
+import { useOptionalTheme } from '@/theme';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 export interface SelectOption {
   label: string;
   value: string;
 }
 
-export interface SelectProps {
+export interface SelectProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+  | 'rounded'
+> {
   /** 选中值 */
   value?: string | string[];
   /** 变化回调 */
@@ -51,6 +78,10 @@ export interface SelectProps {
   confirmText?: string;
   /** 自定义样式 */
   className?: string;
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
 }
 
 function formatSelectedCountText(template: string, count: number) {
@@ -61,6 +92,21 @@ function formatSelectedCountText(template: string, count: number) {
  * 底部弹出选择器组件，支持浅色/深色主题
  */
 export function Select({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  rounded,
   value,
   onChange,
   options,
@@ -77,10 +123,15 @@ export function Select({
   selectedCountText = '已选择 {{count}} 项',
   confirmText = '确定',
   className,
+  bg,
+  surface,
 }: SelectProps) {
   const colors = useFormThemeColors();
+  const { theme, isDark } = useOptionalTheme();
   const [visible, setVisible] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
 
   // 处理值格式
   const selectedValues = useMemo(() => {
@@ -168,7 +219,13 @@ export function Select({
   );
 
   return (
-    <>
+    <AppView
+      style={[
+        resolveLayoutStyle({ flex }),
+        resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
+        resolveSizingStyle({ w }),
+      ]}
+    >
       {/* 触发区域 */}
       <AppPressable
         className={cn(
@@ -176,7 +233,15 @@ export function Select({
           disabled ? 'opacity-60' : '',
           className
         )}
-        style={[styles.trigger, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        style={[
+          styles.trigger,
+          resolveSizingStyle({ h, minW, minH, maxW, maxH }),
+          resolveRoundedStyle(rounded),
+          {
+            backgroundColor: resolvedBgColor ?? colors.surface,
+            borderColor: colors.border,
+          },
+        ]}
         disabled={disabled}
         onPress={() => setVisible(true)}
       >
@@ -293,7 +358,7 @@ export function Select({
           )}
         </>
       </BottomSheetModal>
-    </>
+    </AppView>
   );
 }
 

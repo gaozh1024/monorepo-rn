@@ -10,11 +10,24 @@ import {
 import { AppView, AppText } from '@/ui/primitives';
 import { cn } from '@/utils';
 import { useFormThemeColors } from './useFormTheme';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
+import { useOptionalTheme } from '@/theme';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 /**
  * Slider 组件属性接口
  */
-export interface SliderProps {
+export interface SliderProps extends Pick<
+  CommonLayoutProps,
+  'flex' | 'm' | 'mx' | 'my' | 'mt' | 'mb' | 'ml' | 'mr' | 'w' | 'minW' | 'maxW' | 'rounded'
+> {
   value?: number;
   defaultValue?: number;
   min?: number;
@@ -25,12 +38,26 @@ export interface SliderProps {
   onChange?: (value: number) => void;
   onChangeEnd?: (value: number) => void;
   className?: string;
+  bg?: string;
+  surface?: LayoutSurface;
 }
 
 /**
  * Slider - 滑块组件，支持浅色/深色主题
  */
 export function Slider({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  w,
+  minW,
+  maxW,
+  rounded,
   value,
   defaultValue = 0,
   min = 0,
@@ -41,8 +68,11 @@ export function Slider({
   onChange,
   onChangeEnd,
   className,
+  bg,
+  surface,
 }: SliderProps) {
   const colors = useFormThemeColors();
+  const { theme, isDark } = useOptionalTheme();
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [isDragging, setIsDragging] = useState(false);
   const trackWidthRef = useRef(0);
@@ -54,6 +84,8 @@ export function Slider({
 
   // 主题颜色
   const disabledOpacity = 0.4;
+  const resolvedTrackBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
 
   // 计算进度百分比
   const progress = range <= 0 ? 0 : ((currentValue - min) / range) * 100;
@@ -158,7 +190,14 @@ export function Slider({
   }, []);
 
   return (
-    <AppView className={cn('py-2', className)}>
+    <AppView
+      className={cn('py-2', className)}
+      style={[
+        resolveLayoutStyle({ flex }),
+        resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
+        resolveSizingStyle({ w, minW, maxW }),
+      ]}
+    >
       {/* Tooltip */}
       {showTooltip && isDragging && (
         <AppView
@@ -190,18 +229,23 @@ export function Slider({
       {/* Track */}
       <View
         onLayout={onLayout}
-        className="rounded-full"
+        className={cn(rounded === undefined && 'rounded-full')}
         style={[
           styles.track,
-          { backgroundColor: colors.divider, opacity: disabled ? disabledOpacity : 1 },
+          resolveRoundedStyle(rounded ?? 'full'),
+          {
+            backgroundColor: resolvedTrackBgColor ?? colors.divider,
+            opacity: disabled ? disabledOpacity : 1,
+          },
         ]}
         onTouchEnd={handleTrackPress}
       >
         {/* Filled track */}
         <AppView
-          className="rounded-full"
+          className={cn(rounded === undefined && 'rounded-full')}
           style={[
             styles.filledTrack,
+            resolveRoundedStyle(rounded ?? 'full'),
             {
               backgroundColor: colors.primary,
               width: `${progress}%`,

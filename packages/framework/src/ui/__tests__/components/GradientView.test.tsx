@@ -22,6 +22,9 @@ describe('GradientView', () => {
         colors={['#f38b32', '#fb923c']}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
+        p={4}
+        rounded="xl"
+        w={240}
         style={{ borderRadius: 16 }}
         testID="gradient"
       />

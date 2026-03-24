@@ -125,4 +125,31 @@ describe('Select', () => {
     const bottomSheet = renderer!.root.findByType(BottomSheetModal);
     expect(bottomSheet.props.closeOnBackdropPress).toBe(true);
   });
+
+  it('应该支持触发器基础快捷参数', () => {
+    const { getByText } = renderWithTheme(
+      <Select placeholder="选择城市" options={options} h={48} rounded="full" bg="primary-500" />
+    );
+
+    let trigger: any = getByText('选择城市');
+    while (trigger?.props && !trigger.props.onPress) {
+      trigger = trigger.parent;
+    }
+
+    expect(trigger.props.style).toEqual(
+      expect.arrayContaining([
+        expect.arrayContaining([
+          expect.objectContaining({
+            height: 48,
+          }),
+          expect.objectContaining({
+            borderRadius: 9999,
+          }),
+          expect.objectContaining({
+            backgroundColor: '#f38b32',
+          }),
+        ]),
+      ])
+    );
+  });
 });

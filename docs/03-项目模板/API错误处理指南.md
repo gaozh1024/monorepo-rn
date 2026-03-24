@@ -32,6 +32,10 @@ src/features/*/api.ts         -> 定义业务域接口
 - 网络错误统一转成 `AppError`
 - HTTP 错误统一转成 `AppError`
 - 业务错误统一转成 `AppError`
+- 支持 `{id}` / `:id` 路径参数替换
+- `GET` 自动将剩余参数拼到 query
+- `POST` / `PUT` / `PATCH` / `DELETE` 自动发送 JSON body
+- 支持静态 `headers` 和动态 `getHeaders`
 - endpoint 级 `onError`
 - 全局 `onError`
 - endpoint 级 `parseBusinessError`
@@ -56,6 +60,7 @@ export const appConfig = {
 // src/data/api.ts
 import { createAPI, ErrorCode, type ApiEndpointConfig, type AppError } from '@gaozh1024/rn-kit';
 import { appConfig } from '../bootstrap/app-config';
+import { session } from './session';
 
 function handleGlobalError(error: AppError) {
   if (error.code === ErrorCode.UNAUTHORIZED) {
@@ -78,6 +83,15 @@ export function createAppAPI<T extends Record<string, ApiEndpointConfig<any, any
   return createAPI({
     baseURL: appConfig.apiBaseURL,
     endpoints,
+    getHeaders: async () => {
+      const token = await session.getToken();
+
+      if (!token) return undefined;
+
+      return {
+        Authorization: `Bearer ${token}`,
+      };
+    },
     parseBusinessError: data => {
       const result = data as
         | {
@@ -117,6 +131,8 @@ export function createAppAPI<T extends Record<string, ApiEndpointConfig<any, any
 - 统一创建 API
 - 统一监听错误
 
+另外建议把 token 注入也统一放在这里，不要让每个业务接口自己写 `Authorization`。
+
 这里不要定义 `getProfile`、`login`、`getNotifications` 这些具体接口。
 
 ## 第三步：在业务域里定义自己的 API
@@ -154,7 +170,11 @@ import { createAppAPI } from '../../data/api';
 export const profileApi = createAppAPI({
   getProfile: {
     method: 'GET',
-    path: '/profile',
+    path: '/profile/{user_id}',
+    input: z.object({
+      user_id: z.string(),
+      include: z.string().optional(),
+    }),
     output: z.object({
       id: z.string(),
       name: z.string(),
@@ -162,6 +182,37 @@ export const profileApi = createAppAPI({
     }),
   },
 });
+```
+
+上面的调用行为会是：
+
+```ts
+await profileApi.getProfile({
+  user_id: 'u_1',
+  include: 'devices',
+});
+// => GET /profile/u_1?include=devices
+```
+
+如果是非 GET 请求：
+
+```ts
+export const deviceApi = createAppAPI({
+  revokeDevice: {
+    method: 'POST',
+    path: '/devices/{device_id}/revoke',
+    input: z.object({
+      device_id: z.string(),
+    }),
+    output: z.void(),
+  },
+});
+
+await deviceApi.revokeDevice({
+  device_id: 'dev_1',
+});
+// => POST /devices/dev_1/revoke
+// => body: {"device_id":"dev_1"}
 ```
 
 ## 全局监听和 endpoint 监听的边界

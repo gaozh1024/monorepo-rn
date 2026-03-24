@@ -56,4 +56,31 @@ describe('DatePicker', () => {
     expect(getByText('日期')).toBeTruthy();
     expect(getByText('今日')).toBeTruthy();
   });
+
+  it('应该透传基础快捷参数到日期触发器', () => {
+    const { getByText } = renderWithTheme(
+      <DatePicker placeholder="选择日期" h={46} rounded="full" bg="primary-500" />
+    );
+
+    let trigger: any = getByText('选择日期');
+    while (trigger?.props && !trigger.props.onPress) {
+      trigger = trigger.parent;
+    }
+
+    expect(trigger.props.style).toEqual(
+      expect.arrayContaining([
+        expect.arrayContaining([
+          expect.objectContaining({
+            height: 46,
+          }),
+          expect.objectContaining({
+            borderRadius: 9999,
+          }),
+          expect.objectContaining({
+            backgroundColor: '#f38b32',
+          }),
+        ]),
+      ])
+    );
+  });
 });

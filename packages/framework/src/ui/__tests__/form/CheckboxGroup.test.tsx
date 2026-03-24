@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
+import { act, create } from 'react-test-renderer';
+import { AppView } from '../../primitives/AppView';
 import { CheckboxGroup } from '../../form/CheckboxGroup';
 import { renderWithTheme } from './test-utils';
 
@@ -34,5 +36,22 @@ describe('CheckboxGroup', () => {
     fireEvent.press(getByText('Svelte'));
 
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('应该支持分组容器快捷参数', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <CheckboxGroup options={options} p={4} rounded="xl" gap={12} surface="card" />
+      );
+    });
+
+    const group = renderer!.root.findByType(AppView);
+
+    expect(group.props.p).toBe(4);
+    expect(group.props.gap).toBe(12);
+    expect(group.props.rounded).toBe('xl');
+    expect(group.props.surface).toBe('card');
   });
 });

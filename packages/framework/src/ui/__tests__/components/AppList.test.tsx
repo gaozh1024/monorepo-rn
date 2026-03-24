@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
+import { act, create } from 'react-test-renderer';
+import { FlatList, TouchableWithoutFeedback } from 'react-native';
 import { AppList } from '../../display/AppList';
 import { AppText } from '../../primitives';
 import { ThemeProvider, createTheme } from '@/theme';
@@ -8,6 +10,13 @@ import { ThemeProvider, createTheme } from '@/theme';
 const theme = createTheme({
   colors: { primary: '#f38b32' },
 });
+
+function flattenStyle(style: any) {
+  if (!style) return {};
+  if (Array.isArray(style))
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  return style;
+}
 
 describe('AppList', () => {
   const mockData = [
@@ -117,5 +126,42 @@ describe('AppList', () => {
 
     expect(getByText('Item 1')).toBeTruthy();
     expect(getByText('Item 2')).toBeTruthy();
+  });
+
+  it('应该支持基础快捷参数与点击空白收起键盘', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <AppList
+            data={mockData}
+            renderItem={({ item }) => <AppText>{item.title}</AppText>}
+            keyExtractor={item => item.id}
+            flex
+            p={4}
+            gap={3}
+            row
+            items="center"
+            bg="primary-500"
+            dismissKeyboardOnPressOutside
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const list = renderer!.root.findByType(FlatList);
+    const style = flattenStyle(list.props.style);
+    const contentStyle = flattenStyle(list.props.contentContainerStyle);
+
+    expect(style.flex).toBe(1);
+    expect(style.backgroundColor).toBe('#f38b32');
+    expect(contentStyle.paddingTop).toBe(4);
+    expect(contentStyle.paddingRight).toBe(4);
+    expect(contentStyle.flexDirection).toBe('row');
+    expect(contentStyle.alignItems).toBe('center');
+    expect(contentStyle.gap).toBe(3);
+    expect(list.props.keyboardShouldPersistTaps).toBe('handled');
+    expect(renderer!.root.findAllByType(TouchableWithoutFeedback)).toHaveLength(1);
   });
 });

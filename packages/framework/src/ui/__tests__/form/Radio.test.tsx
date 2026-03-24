@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { Radio } from '../../form/Radio';
 import { ThemeProvider, createTheme } from '@/theme';
@@ -37,5 +38,30 @@ describe('Radio', () => {
       </ThemeProvider>
     );
     expect(getByText('选项A')).toBeTruthy();
+  });
+
+  it('应该支持基础快捷参数', () => {
+    const { getByTestId } = render(
+      <ThemeProvider light={theme}>
+        <Radio testID="radio" checked={false} px={6} rounded="full" bg="primary-500" />
+      </ThemeProvider>
+    );
+
+    const flattened = StyleSheet.flatten(getByTestId('radio').props.style);
+
+    expect(flattened).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          paddingLeft: 6,
+          paddingRight: 6,
+        }),
+        expect.objectContaining({
+          borderRadius: 9999,
+        }),
+        expect.objectContaining({
+          backgroundColor: '#f38b32',
+        }),
+      ])
+    );
   });
 });

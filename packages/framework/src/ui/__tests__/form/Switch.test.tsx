@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
-import { act } from 'react-test-renderer';
+import { act, create } from 'react-test-renderer';
 import { Switch } from '../../form/Switch';
+import { AppPressable, AppView } from '../../primitives';
 import { renderWithTheme } from './test-utils';
 
 describe('Switch', () => {
@@ -52,5 +53,28 @@ describe('Switch', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('应该支持基础快捷参数', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(<Switch testID="switch" size="lg" mt={10} flex rounded="xl" />);
+    });
+
+    const pressable = renderer!.root.findByType(AppPressable);
+    const track = renderer!.root
+      .findAllByType(AppView)
+      .find(
+        node =>
+          Array.isArray(node.props.style) &&
+          node.props.style.some((part: Record<string, unknown> | undefined) => part?.width === 60)
+      );
+
+    expect(pressable.props.mt).toBe(10);
+    expect(pressable.props.flex).toBe(true);
+    expect(track?.props.style).toEqual(
+      expect.arrayContaining([expect.objectContaining({ borderRadius: 16 })])
+    );
   });
 });

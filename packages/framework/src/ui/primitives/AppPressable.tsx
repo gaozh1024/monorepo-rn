@@ -1,11 +1,31 @@
 import * as React from 'react';
-import { Pressable, PressableProps } from 'react-native';
+import {
+  Pressable,
+  type PressableProps,
+  type PressableStateCallbackType,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
+import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
 
 /**
  * AppPressable 组件属性接口
  */
-export interface AppPressableProps extends PressableProps {
+export interface AppPressableProps extends PressableProps, CommonLayoutProps {
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
   /** 自定义类名 */
   className?: string;
   /** 按下状态时的类名 */
@@ -45,23 +65,110 @@ export interface AppPressableProps extends PressableProps {
  * ```
  */
 export function AppPressable({
+  flex,
+  row,
+  wrap,
+  center,
+  between,
+  items,
+  justify,
+  p,
+  px,
+  py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  gap,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  bg,
+  surface,
   className,
   pressedClassName,
   children,
+  style,
+  onPressIn,
+  onPressOut,
   ...props
 }: AppPressableProps) {
   const [isPressed, setIsPressed] = React.useState(false);
+  const { theme, isDark } = useOptionalTheme();
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
+  const shouldUseClassBg = !!bg && !resolvedBgColor;
+  const interactionState = React.useMemo<PressableStateCallbackType>(
+    () => ({
+      pressed: isPressed,
+      hovered: false,
+      focused: false,
+    }),
+    [isPressed]
+  );
+  const resolvedUserStyle: StyleProp<ViewStyle> =
+    typeof style === 'function' ? style(interactionState) : style;
 
   return (
     <Pressable
-      className={cn(className, isPressed && pressedClassName)}
+      className={cn(shouldUseClassBg && `bg-${bg}`, className, isPressed && pressedClassName)}
+      style={[
+        resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+        resolveLayoutStyle({
+          flex,
+          row,
+          wrap,
+          center,
+          between,
+          items,
+          justify,
+          gap,
+        }),
+        resolveSpacingStyle({
+          p,
+          px,
+          py,
+          pt,
+          pb,
+          pl,
+          pr,
+          m,
+          mx,
+          my,
+          mt,
+          mb,
+          ml,
+          mr,
+        }),
+        resolveSizingStyle({
+          w,
+          h,
+          minW,
+          minH,
+          maxW,
+          maxH,
+        }),
+        resolveRoundedStyle(rounded),
+        resolvedUserStyle,
+      ]}
       onPressIn={e => {
         setIsPressed(true);
-        props.onPressIn?.(e);
+        onPressIn?.(e);
       }}
       onPressOut={e => {
         setIsPressed(false);
-        props.onPressOut?.(e);
+        onPressOut?.(e);
       }}
       {...props}
     >

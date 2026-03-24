@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import {
+  Keyboard,
   FlatList,
   ListRenderItem,
   RefreshControl,
@@ -7,14 +8,56 @@ import {
   StyleProp,
   ViewStyle,
   StyleSheet,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import { useTheme, useThemeColors } from '@/theme';
+import { useTheme, useThemeColors, useOptionalTheme } from '@/theme';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from './Icon';
 import { Center } from '@/ui/layout';
 import { SkeletonAvatar, SkeletonText } from '@/ui/feedback';
+import { cn } from '@/utils';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
 
-export interface AppListProps<T = any> {
+export interface AppListProps<T = any> extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'row'
+  | 'wrap'
+  | 'center'
+  | 'between'
+  | 'items'
+  | 'justify'
+  | 'p'
+  | 'px'
+  | 'py'
+  | 'pt'
+  | 'pb'
+  | 'pl'
+  | 'pr'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'gap'
+  | 'rounded'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+> {
   data: T[];
   renderItem: ListRenderItem<T>;
   keyExtractor?: (item: T, index: number) => string;
@@ -53,6 +96,10 @@ export interface AppListProps<T = any> {
   horizontal?: boolean;
   showsVerticalScrollIndicator?: boolean;
   showsHorizontalScrollIndicator?: boolean;
+  bg?: string;
+  surface?: LayoutSurface;
+  className?: string;
+  dismissKeyboardOnPressOutside?: boolean;
 }
 
 function renderListSlot(
@@ -172,6 +219,35 @@ function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
 }
 
 export function AppList<T = any>({
+  flex,
+  row,
+  wrap,
+  center,
+  between,
+  items,
+  justify,
+  p,
+  px,
+  py,
+  pt,
+  pb,
+  pl,
+  pr,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  gap,
+  rounded,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
   data,
   renderItem,
   keyExtractor,
@@ -210,9 +286,61 @@ export function AppList<T = any>({
   horizontal,
   showsVerticalScrollIndicator,
   showsHorizontalScrollIndicator,
+  bg,
+  surface,
+  className,
+  dismissKeyboardOnPressOutside = false,
 }: AppListProps<T>) {
   const { theme } = useTheme();
+  const { theme: optionalTheme, isDark } = useOptionalTheme();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const resolvedBgColor =
+    resolveSurfaceColor(surface, optionalTheme, isDark) ??
+    resolveNamedColor(bg, optionalTheme, isDark);
+  const shouldUseClassBg = !!bg && !resolvedBgColor;
+  const resolvedListStyle = useMemo(
+    () => [
+      resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+      resolveLayoutStyle({ flex }),
+      resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
+      resolveSizingStyle({ w, h, minW, minH, maxW, maxH }),
+      resolveRoundedStyle(rounded),
+      style,
+    ],
+    [flex, h, m, maxH, maxW, mb, minH, minW, ml, mr, mt, mx, my, rounded, style, resolvedBgColor, w]
+  );
+  const resolvedContentStyle = useMemo(
+    () => [
+      resolveLayoutStyle({
+        row,
+        wrap,
+        center,
+        between,
+        items,
+        justify,
+        gap,
+      }),
+      resolveSpacingStyle({ p, px, py, pt, pb, pl, pr }),
+      contentContainerStyle,
+    ],
+    [
+      between,
+      center,
+      contentContainerStyle,
+      gap,
+      items,
+      justify,
+      p,
+      pb,
+      pl,
+      pr,
+      pt,
+      px,
+      py,
+      row,
+      wrap,
+    ]
+  );
 
   const handleEndReached = useCallback(async () => {
     if (isLoadingMore || !hasMore || !onEndReached) return;
@@ -260,32 +388,71 @@ export function AppList<T = any>({
     return `app-list-columns-${numColumns ?? 1}`;
   }, [horizontal, numColumns]);
 
-  if (loading && data.length === 0) {
+  const renderFlatList = (
+    listData: readonly T[] | readonly { _skeletonId: number }[],
+    listRenderItem: ListRenderItem<any>,
+    listKeyExtractor: (item: any, index: number) => string,
+    listKey?: string,
+    extraProps?: Partial<React.ComponentProps<typeof FlatList<any>>>
+  ) => (
+    <FlatList
+      key={listKey ?? flatListKey}
+      className={cn(shouldUseClassBg && `bg-${bg}`, className)}
+      data={listData as any}
+      renderItem={listRenderItem}
+      keyExtractor={listKeyExtractor}
+      contentContainerStyle={resolvedContentStyle}
+      style={resolvedListStyle}
+      numColumns={numColumns}
+      columnWrapperStyle={columnWrapperStyle}
+      horizontal={horizontal}
+      showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+      showsHorizontalScrollIndicator={showsHorizontalScrollIndicator}
+      keyboardShouldPersistTaps={
+        dismissKeyboardOnPressOutside
+          ? (extraProps?.keyboardShouldPersistTaps ?? 'handled')
+          : extraProps?.keyboardShouldPersistTaps
+      }
+      {...extraProps}
+    />
+  );
+
+  const renderListWithKeyboardDismiss = (content: React.ReactElement) => {
+    if (!dismissKeyboardOnPressOutside) {
+      return content;
+    }
+
     return (
-      <FlatList
-        key={`${flatListKey}-skeleton`}
-        data={skeletonData}
-        renderItem={skeletonRenderItem}
-        keyExtractor={(_, index) => `skeleton-${index}`}
-        contentContainerStyle={contentContainerStyle}
-        style={style}
-        showsVerticalScrollIndicator={showsVerticalScrollIndicator}
-        showsHorizontalScrollIndicator={showsHorizontalScrollIndicator}
-      />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        {content}
+      </TouchableWithoutFeedback>
+    );
+  };
+
+  if (loading && data.length === 0) {
+    return renderListWithKeyboardDismiss(
+      renderFlatList(
+        skeletonData,
+        skeletonRenderItem,
+        (_, index) => `skeleton-${index}`,
+        `${flatListKey}-skeleton`
+      )
     );
   }
 
   if (error && data.length === 0) {
     return (
-      <Center flex style={style}>
-        <ErrorState
-          error={error}
-          onRetry={onRetry}
-          errorTitle={errorTitle}
-          errorDescription={errorDescription}
-          retryText={retryText}
-        />
-      </Center>
+      <AppView className={cn(shouldUseClassBg && `bg-${bg}`, className)} style={resolvedListStyle}>
+        <Center flex>
+          <ErrorState
+            error={error}
+            onRetry={onRetry}
+            errorTitle={errorTitle}
+            errorDescription={errorDescription}
+            retryText={retryText}
+          />
+        </Center>
+      </AppView>
     );
   }
 
@@ -305,39 +472,26 @@ export function AppList<T = any>({
 
   const HeaderComponent = useMemo(() => renderListSlot(ListHeaderComponent), [ListHeaderComponent]);
 
-  return (
-    <FlatList
-      key={flatListKey}
-      data={data}
-      renderItem={wrappedRenderItem}
-      keyExtractor={defaultKeyExtractor}
-      refreshControl={
-        onRefresh ? (
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={theme.colors.primary?.[500]}
-            colors={[theme.colors.primary?.[500]]}
-          />
-        ) : undefined
-      }
-      onEndReached={onEndReached ? handleEndReached : undefined}
-      onEndReachedThreshold={onEndReachedThreshold}
-      ListEmptyComponent={ListEmptyComponent}
-      ListHeaderComponent={HeaderComponent}
-      ListFooterComponent={FooterComponent}
-      contentContainerStyle={contentContainerStyle}
-      style={style}
-      numColumns={numColumns}
-      columnWrapperStyle={columnWrapperStyle}
-      horizontal={horizontal}
-      showsVerticalScrollIndicator={showsVerticalScrollIndicator}
-      showsHorizontalScrollIndicator={showsHorizontalScrollIndicator}
-      removeClippedSubviews={true}
-      maxToRenderPerBatch={10}
-      windowSize={10}
-      initialNumToRender={10}
-    />
+  return renderListWithKeyboardDismiss(
+    renderFlatList(data, wrappedRenderItem, defaultKeyExtractor, undefined, {
+      refreshControl: onRefresh ? (
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={theme.colors.primary?.[500]}
+          colors={[theme.colors.primary?.[500]]}
+        />
+      ) : undefined,
+      onEndReached: onEndReached ? handleEndReached : undefined,
+      onEndReachedThreshold,
+      ListEmptyComponent,
+      ListHeaderComponent: HeaderComponent,
+      ListFooterComponent: FooterComponent,
+      removeClippedSubviews: true,
+      maxToRenderPerBatch: 10,
+      windowSize: 10,
+      initialNumToRender: 10,
+    })
   );
 }
 

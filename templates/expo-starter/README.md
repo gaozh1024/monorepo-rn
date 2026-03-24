@@ -210,6 +210,13 @@ npx expo start --android
 
 页面层尽量不要直接从 `react-native` 或 `@react-navigation/*` 引入基础 UI / 导航能力，优先使用 `rn-kit` 暴露的统一 API。
 
+- `AppPressable` 已支持基础容器快捷参数，适合直接写可点击卡片、列表行、筛选项
+- `AppText` 也支持文本场景常用的快捷参数（如 `p` / `m` / `w` / `rounded` / `bg`），但不建议把它当布局容器使用
+- `GradientView` / `FormItem` 也已支持基础容器快捷参数
+- `AppButton` / `AppInput` / `Select` / `Picker` / `DatePicker` 已支持常用外层快捷参数，适合直接控制 `mt` / `w` / `h` / `rounded`
+- `Checkbox` / `Radio` / `Switch` / `Slider` / `CheckboxGroup` / `RadioGroup` / `Progress` 也已补齐常用基础快捷参数，表单与状态组件现在可以直接做快速排版
+- `AppList` / `AppImage` / `Icon` 也已支持基础快捷参数，列表、图片、图标入口的快速排版会更统一
+
 页面容器推荐这样区分：
 
 - 常规业务页（尤其是带 `AppHeader` 的页面）：优先使用 `AppScreen`

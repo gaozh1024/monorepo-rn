@@ -58,4 +58,28 @@ describe('AppInput', () => {
     expect(inputStyle.height).toBeUndefined();
     expect(getByTestId('input-container')).toBeTruthy();
   });
+
+  it('应该支持输入容器基础快捷参数', () => {
+    const { getByTestId } = renderWithTheme(
+      <AppInput testID="input" value="" h={52} rounded="full" bg="primary-500" />
+    );
+
+    const style = getByTestId('input-container').props.style;
+
+    expect(style).toEqual(
+      expect.arrayContaining([
+        expect.arrayContaining([
+          expect.objectContaining({
+            height: 52,
+          }),
+          expect.objectContaining({
+            borderRadius: 9999,
+          }),
+          expect.objectContaining({
+            backgroundColor: '#f38b32',
+          }),
+        ]),
+      ])
+    );
+  });
 });

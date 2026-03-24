@@ -29,6 +29,23 @@ export type ApiErrorHandler = (error: AppError, context: ApiErrorContext) => voi
 
 export type ApiBusinessErrorParser = (data: unknown, response: Response) => AppError | null;
 
+export interface ApiRequestContext {
+  /** 当前调用的 endpoint 名称 */
+  endpointName: string;
+  /** 当前 endpoint 的原始 path */
+  path: string;
+  /** HTTP 方法 */
+  method: ApiMethod;
+  /** 调用入参 */
+  input?: unknown;
+  /** 解析后的请求 URL */
+  url: string;
+}
+
+export type ApiHeadersResolver = (
+  context: ApiRequestContext
+) => HeadersInit | undefined | Promise<HeadersInit | undefined>;
+
 export type ApiLogStage = 'request' | 'response' | 'error';
 
 export interface ApiLogEvent {
@@ -79,6 +96,10 @@ export interface ApiEndpointConfig<TInput, TOutput> {
   method: ApiMethod;
   /** API 路径（相对于 baseURL） */
   path: string;
+  /** 当前 endpoint 的默认请求头（可选） */
+  headers?: HeadersInit;
+  /** 当前 endpoint 的动态请求头解析器（可选） */
+  getHeaders?: ApiHeadersResolver;
   /** 请求数据的 Zod 校验模式（可选） */
   input?: z.ZodSchema<TInput>;
   /** 响应数据的 Zod 校验模式（可选） */
@@ -108,6 +129,10 @@ export interface ApiConfig<TEndpoints extends Record<string, ApiEndpointConfig<a
   baseURL: string;
   /** 端点配置映射 */
   endpoints: TEndpoints;
+  /** 全局默认请求头（可选） */
+  headers?: HeadersInit;
+  /** 全局动态请求头解析器（可选） */
+  getHeaders?: ApiHeadersResolver;
   /** 自定义 fetch 实现（可选） */
   fetcher?: typeof fetch;
   /** 全局业务错误解析器（可选） */

@@ -1,11 +1,16 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, type ImageStyle, type StyleProp, View } from 'react-native';
+import { ActivityIndicator, type ImageStyle, type StyleProp, type ViewStyle } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
 import { AppPressable, AppView } from '@/ui/primitives';
 import { SkeletonBlock } from '@/ui/feedback';
 import { Icon } from './Icon';
+import {
+  type CommonLayoutProps,
+  type LayoutRounded,
+  type LayoutSurface,
+} from '../utils/layout-shortcuts';
 
 type ExpoImageComponentProps = React.ComponentProps<typeof ExpoImage>;
 
@@ -25,7 +30,24 @@ const resizeModeToContentFit: Record<
 /**
  * AppImage 组件属性接口
  */
-export interface AppImageProps {
+export interface AppImageProps extends Pick<
+  CommonLayoutProps,
+  | 'flex'
+  | 'm'
+  | 'mx'
+  | 'my'
+  | 'mt'
+  | 'mb'
+  | 'ml'
+  | 'mr'
+  | 'w'
+  | 'h'
+  | 'minW'
+  | 'minH'
+  | 'maxW'
+  | 'maxH'
+  | 'rounded'
+> {
   /** 图片资源，可以是本地资源或远程 URL */
   source: ExpoImageComponentProps['source'];
   /** 宽度，数字表示像素，字符串表示百分比 */
@@ -62,6 +84,10 @@ export interface AppImageProps {
   className?: string;
   /** 自定义样式 */
   style?: StyleProp<ImageStyle>;
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
 }
 
 /**
@@ -80,7 +106,7 @@ const radiusMap: Record<string, number> = {
 /**
  * 解析圆角值
  */
-function resolveRadius(radius: AppImageProps['borderRadius']): number {
+function resolveRadius(radius: AppImageProps['borderRadius'] | LayoutRounded): number {
   if (typeof radius === 'number') return radius;
   return radiusMap[radius || 'none'];
 }
@@ -89,6 +115,21 @@ function resolveRadius(radius: AppImageProps['borderRadius']): number {
  * AppImage - 基于 expo-image 的图片组件
  */
 export function AppImage({
+  flex,
+  m,
+  mx,
+  my,
+  mt,
+  mb,
+  ml,
+  mr,
+  w,
+  h,
+  minW,
+  minH,
+  maxW,
+  maxH,
+  rounded,
   source,
   width = '100%',
   height = 'auto',
@@ -107,12 +148,14 @@ export function AppImage({
   onLongPress,
   className,
   style,
+  bg,
+  surface,
 }: AppImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const { theme } = useOptionalTheme();
 
-  const resolvedRadius = resolveRadius(borderRadius);
+  const resolvedRadius = resolveRadius(rounded ?? borderRadius);
   const contentFit = resizeModeToContentFit[resizeMode];
 
   const handleLoad = useCallback(() => {
@@ -140,6 +183,34 @@ export function AppImage({
       style,
     ],
     [resolvedRadius, style]
+  );
+  const resolvedWidth = w ?? width;
+  const resolvedHeight = h ?? height;
+  const resolvedWrapperWidth = (w === undefined ? resolvedWidth : undefined) as ViewStyle['width'];
+  const resolvedWrapperHeight = (
+    (h === undefined && typeof resolvedHeight === 'number') ||
+    (h === undefined &&
+      typeof resolvedHeight === 'string' &&
+      resolvedHeight !== 'auto' &&
+      !resolvedHeight.startsWith('aspect-'))
+      ? resolvedHeight
+      : undefined
+  ) as ViewStyle['height'];
+  const resolvedWrapperAspectRatio =
+    h === undefined && typeof resolvedHeight === 'string' && resolvedHeight.startsWith('aspect-')
+      ? Number(resolvedHeight.replace('aspect-', '').split('/')[0]) /
+        Number(resolvedHeight.replace('aspect-', '').split('/')[1] || 1)
+      : undefined;
+  const wrapperStyle = useMemo(
+    () => [
+      {
+        overflow: 'hidden' as const,
+        width: resolvedWrapperWidth,
+        height: resolvedWrapperHeight,
+        aspectRatio: resolvedWrapperAspectRatio,
+      },
+    ],
+    [resolvedWrapperAspectRatio, resolvedWrapperHeight, resolvedWrapperWidth]
   );
 
   const renderLoading = () => {
@@ -201,23 +272,8 @@ export function AppImage({
     return null;
   };
 
-  const isNumberWidth = typeof width === 'number';
-  const isNumberHeight = typeof height === 'number';
-
   const content = (
-    <View
-      className={cn('overflow-hidden', className)}
-      style={{
-        width: isNumberWidth ? width : '100%',
-        height: isNumberHeight ? height : undefined,
-        aspectRatio:
-          typeof height === 'string' && height.startsWith('aspect-')
-            ? Number(height.replace('aspect-', '').split('/')[0]) /
-              Number(height.replace('aspect-', '').split('/')[1] || 1)
-            : undefined,
-        borderRadius: resolvedRadius,
-      }}
-    >
+    <>
       <ExpoImage
         source={source}
         placeholder={placeholder}
@@ -232,16 +288,62 @@ export function AppImage({
       />
       {renderLoading()}
       {renderError()}
-    </View>
+    </>
   );
 
   if (onPress || onLongPress) {
     return (
-      <AppPressable onPress={onPress} onLongPress={onLongPress}>
+      <AppPressable
+        flex={flex}
+        m={m}
+        mx={mx}
+        my={my}
+        mt={mt}
+        mb={mb}
+        ml={ml}
+        mr={mr}
+        w={w}
+        h={typeof h === 'number' || typeof h === 'string' ? h : undefined}
+        minW={minW}
+        minH={minH}
+        maxW={maxW}
+        maxH={maxH}
+        rounded={rounded ?? borderRadius}
+        bg={bg}
+        surface={surface}
+        className={cn(className)}
+        style={wrapperStyle}
+        onPress={onPress}
+        onLongPress={onLongPress}
+      >
         {content}
       </AppPressable>
     );
   }
 
-  return content;
+  return (
+    <AppView
+      flex={flex}
+      m={m}
+      mx={mx}
+      my={my}
+      mt={mt}
+      mb={mb}
+      ml={ml}
+      mr={mr}
+      w={w}
+      h={typeof h === 'number' || typeof h === 'string' ? h : undefined}
+      minW={minW}
+      minH={minH}
+      maxW={maxW}
+      maxH={maxH}
+      rounded={rounded ?? borderRadius}
+      bg={bg}
+      surface={surface}
+      className={cn(className)}
+      style={wrapperStyle}
+    >
+      {content}
+    </AppView>
+  );
 }

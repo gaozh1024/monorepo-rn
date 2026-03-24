@@ -11,11 +11,41 @@ import {
 import { AppView, AppText } from '@/ui/primitives';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import {
+  type CommonLayoutProps,
+  type LayoutSurface,
+  resolveLayoutStyle,
+  resolveRoundedStyle,
+  resolveSizingStyle,
+  resolveSpacingStyle,
+} from '../utils/layout-shortcuts';
+import { useOptionalTheme } from '@/theme';
+import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
 /**
  * AppInput 组件属性接口
  */
-export interface AppInputProps extends Omit<TextInputProps, 'editable'> {
+export interface AppInputProps
+  extends
+    Omit<TextInputProps, 'editable'>,
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+      | 'rounded'
+    > {
   /** 标签文本 */
   label?: string;
   /** 错误信息 */
@@ -28,6 +58,10 @@ export interface AppInputProps extends Omit<TextInputProps, 'editable'> {
   rightIcon?: React.ReactNode;
   /** 自定义样式 */
   className?: string;
+  /** 背景颜色 */
+  bg?: string;
+  /** 语义化背景 */
+  surface?: LayoutSurface;
   /** 输入容器样式 */
   containerStyle?: StyleProp<ViewStyle>;
   /** 输入框文本样式 */
@@ -99,12 +133,29 @@ function splitInputStyles(style?: StyleProp<TextStyle>) {
 export const AppInput = forwardRef<TextInput, AppInputProps>(
   (
     {
+      flex,
+      m,
+      mx,
+      my,
+      mt,
+      mb,
+      ml,
+      mr,
+      w,
+      h,
+      minW,
+      minH,
+      maxW,
+      maxH,
+      rounded,
       label,
       error,
       disabled = false,
       leftIcon,
       rightIcon,
       className,
+      bg,
+      surface,
       style,
       containerStyle,
       inputStyle,
@@ -113,8 +164,11 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
     ref
   ) => {
     const colors = useThemeColors();
+    const { theme, isDark } = useOptionalTheme();
     const [isFocused, setIsFocused] = useState(false);
     const resolvedStyles = useMemo(() => splitInputStyles(style), [style]);
+    const resolvedBgColor =
+      resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
 
     const errorColor = '#ef4444';
 
@@ -126,7 +180,14 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
     };
 
     return (
-      <AppView className={cn('flex-col gap-1', className)}>
+      <AppView
+        className={cn('flex-col gap-1', className)}
+        style={[
+          resolveLayoutStyle({ flex }),
+          resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
+          resolveSizingStyle({ w }),
+        ]}
+      >
         {label && (
           <AppText size="sm" weight="medium" style={{ color: colors.textSecondary }}>
             {label}
@@ -139,10 +200,13 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
           className="rounded-lg px-3"
           style={[
             styles.inputContainer,
+            resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
+            resolveSizingStyle({ h, minW, minH, maxW, maxH }),
+            resolveRoundedStyle(rounded),
             resolvedStyles.containerStyle,
             containerStyle,
             {
-              backgroundColor: colors.card,
+              backgroundColor: resolvedBgColor ?? colors.card,
               borderColor: getBorderColor(),
               opacity: disabled ? 0.6 : 1,
             },
