@@ -1,74 +1,34 @@
 import { type ViewStyle, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useThemeColors } from '@/theme';
-import { AppView, AppText, AppPressable, Icon } from '@/ui';
+import { AppView, AppText, AppPressable, Icon, useMotionConfig } from '@/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppFocusedStatusBar } from '@/overlay';
+import type { PressMotionProps, UseCollapsibleHeaderMotionReturn } from '@/ui/motion';
 
-/**
- * 右侧图标配置
- */
 export interface RightIcon {
-  /** 图标名称 */
   icon: string;
-  /** 点击回调 */
   onPress: () => void;
-  /** 徽标数量（可选） */
   badge?: number;
 }
 
-/**
- * 应用头部组件 Props
- */
-export interface AppHeaderProps {
-  /** 标题 */
+export interface AppHeaderProps extends PressMotionProps {
   title?: string;
-  /** 副标题 */
   subtitle?: string;
-  /** 左侧图标名称（默认为 'chevron-left' iOS风格） */
   leftIcon?: string | null;
-  /** 左侧图标点击回调 */
   onLeftPress?: () => void;
-  /** 右侧图标列表 */
   rightIcons?: RightIcon[];
-  /** 是否透明背景 */
   transparent?: boolean;
-  /** 是否启用模糊效果（暂未实现） */
   blur?: boolean;
-  /** 是否包含安全区域（默认为 true） */
   safeArea?: boolean;
-  /** 自定义样式 */
   style?: ViewStyle;
-  /** 测试标识 */
   testID?: string;
+  collapsibleMotion?: Pick<
+    UseCollapsibleHeaderMotionReturn,
+    'headerStyle' | 'backgroundStyle' | 'titleStyle'
+  >;
 }
 
-/**
- * 应用头部组件
- *
- * iOS 风格的顶部导航栏，标题始终居中，不受左右按钮影响
- * 内部会自动注入聚焦态透明状态栏，让顶部状态栏区域跟随 Header 背景显示
- *
- * @example
- * ```tsx
- * // 基本用法
- * <AppHeader title="首页" />
- *
- * // 带右侧按钮
- * <AppHeader
- *   title="消息"
- *   rightIcons={[
- *     { icon: 'search', onPress: () => {} },
- *     { icon: 'notifications', onPress: () => {}, badge: 5 }
- *   ]}
- * />
- *
- * // 透明背景
- * <AppHeader title="详情" transparent onLeftPress={() => navigation.goBack()} />
- *
- * // 无左侧按钮
- * <AppHeader title="首页" leftIcon={null} />
- * ```
- */
 export function AppHeader({
   title,
   subtitle,
@@ -79,11 +39,18 @@ export function AppHeader({
   safeArea = true,
   style,
   testID,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
+  collapsibleMotion,
 }: AppHeaderProps) {
+  const motionConfig = useMotionConfig();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
 
   const backgroundColor = transparent ? 'transparent' : colors.card;
+  const titleAnimatedStyle = collapsibleMotion?.titleStyle;
 
   return (
     <>
@@ -94,62 +61,93 @@ export function AppHeader({
           {
             backgroundColor,
             paddingTop: safeArea ? insets.top : 0,
+            overflow: 'hidden',
+            position: 'relative',
           },
           style,
         ]}
       >
-        {/* iOS 风格导航栏：标题始终居中 */}
-        <AppView row items="center" px={4} style={styles.container}>
-          {/* 左侧按钮区域 - 固定宽度 70，左对齐 */}
-          <AppView style={[styles.sideContainer, styles.leftContainer]}>
-            {leftIcon && (
-              <AppPressable onPress={onLeftPress} style={styles.iconButton}>
-                <Icon name={leftIcon} size={24} color={colors.text} />
-              </AppPressable>
-            )}
-          </AppView>
+        <Animated.View
+          testID={testID ? `${testID}-background` : undefined}
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFillObject,
+            { backgroundColor },
+            collapsibleMotion?.backgroundStyle,
+          ]}
+        />
 
-          {/* 中间标题区域 - 绝对居中 */}
-          <AppView style={styles.centerContainer}>
-            {title && (
-              <AppText
-                size="lg"
-                weight="semibold"
-                style={[styles.title, { color: colors.text }]}
-                numberOfLines={1}
-              >
-                {title}
-              </AppText>
-            )}
-            {subtitle && (
-              <AppText
-                size="xs"
-                style={[styles.subtitle, { color: colors.textMuted }]}
-                numberOfLines={1}
-              >
-                {subtitle}
-              </AppText>
-            )}
-          </AppView>
+        <Animated.View
+          testID={testID ? `${testID}-nav` : undefined}
+          style={[styles.container, collapsibleMotion?.headerStyle]}
+        >
+          <AppView row items="center" px={4} style={styles.fill}>
+            <AppView style={[styles.sideContainer, styles.leftContainer]}>
+              {leftIcon && (
+                <AppPressable
+                  onPress={onLeftPress}
+                  style={styles.iconButton}
+                  motionPreset={resolvedMotionPreset}
+                  motionDuration={motionDuration}
+                  motionReduceMotion={motionReduceMotion}
+                >
+                  <Icon name={leftIcon} size={24} color={colors.text} />
+                </AppPressable>
+              )}
+            </AppView>
 
-          {/* 右侧按钮区域 - 固定宽度 70，右对齐 */}
-          <AppView row items="center" style={[styles.sideContainer, styles.rightContainer]}>
-            {rightIcons.map((icon, index) => (
-              <AppPressable key={index} onPress={icon.onPress} style={styles.iconButton}>
-                <AppView>
-                  <Icon name={icon.icon} size={24} color={colors.text} />
-                  {icon.badge ? (
-                    <AppView style={styles.badge}>
-                      <AppText size="xs" color="white" style={styles.badgeText}>
-                        {icon.badge > 99 ? '99+' : icon.badge}
-                      </AppText>
-                    </AppView>
-                  ) : null}
-                </AppView>
-              </AppPressable>
-            ))}
+            <AppView style={styles.centerContainer}>
+              <Animated.View
+                testID={testID ? `${testID}-title-wrap` : undefined}
+                style={titleAnimatedStyle}
+              >
+                {title && (
+                  <AppText
+                    size="lg"
+                    weight="semibold"
+                    style={[styles.title, { color: colors.text }]}
+                    numberOfLines={1}
+                  >
+                    {title}
+                  </AppText>
+                )}
+                {subtitle && (
+                  <AppText
+                    size="xs"
+                    style={[styles.subtitle, { color: colors.textMuted }]}
+                    numberOfLines={1}
+                  >
+                    {subtitle}
+                  </AppText>
+                )}
+              </Animated.View>
+            </AppView>
+
+            <AppView row items="center" style={[styles.sideContainer, styles.rightContainer]}>
+              {rightIcons.map((icon, index) => (
+                <AppPressable
+                  key={index}
+                  onPress={icon.onPress}
+                  style={styles.iconButton}
+                  motionPreset={resolvedMotionPreset}
+                  motionDuration={motionDuration}
+                  motionReduceMotion={motionReduceMotion}
+                >
+                  <AppView>
+                    <Icon name={icon.icon} size={24} color={colors.text} />
+                    {icon.badge ? (
+                      <AppView style={styles.badge}>
+                        <AppText size="xs" color="white" style={styles.badgeText}>
+                          {icon.badge > 99 ? '99+' : icon.badge}
+                        </AppText>
+                      </AppView>
+                    ) : null}
+                  </AppView>
+                </AppPressable>
+              ))}
+            </AppView>
           </AppView>
-        </AppView>
+        </Animated.View>
       </AppView>
     </>
   );
@@ -157,10 +155,14 @@ export function AppHeader({
 
 const styles = StyleSheet.create({
   container: {
-    height: 44, // iOS 标准导航栏高度
+    height: 44,
+  },
+  fill: {
+    width: '100%',
+    height: '100%',
   },
   sideContainer: {
-    width: 70, // 固定宽度，确保标题居中
+    width: 70,
     flexDirection: 'row',
     alignItems: 'center',
   },

@@ -1,12 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-  GestureResponderEvent,
-  StyleSheet,
-} from 'react-native';
+import { View, FlatList, TextInput, GestureResponderEvent, StyleSheet } from 'react-native';
+import { useMotionConfig, type PressMotionProps, type SheetMotionProps } from '@/ui/motion';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
 import { cn } from '@/utils';
@@ -28,24 +22,28 @@ export interface SelectOption {
   value: string;
 }
 
-export interface SelectProps extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-  | 'rounded'
-> {
+export interface SelectProps
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+      | 'rounded'
+    >,
+    SheetMotionProps,
+    PressMotionProps {
   /** 选中值 */
   value?: string | string[];
   /** 变化回调 */
@@ -125,11 +123,20 @@ export function Select({
   className,
   bg,
   surface,
+  motionPreset,
+  motionDistance,
+  motionOverlayOpacity,
+  motionSwipeThreshold,
+  motionVelocityThreshold,
+  motionReduceMotion,
+  motionDuration,
 }: SelectProps) {
+  const motionConfig = useMotionConfig();
   const colors = useFormThemeColors();
   const { theme, isDark } = useOptionalTheme();
   const [visible, setVisible] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
   const resolvedBgColor =
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
 
@@ -207,6 +214,9 @@ export function Select({
             isSelected && { backgroundColor: colors.primarySurface },
           ]}
           onPress={() => handleSelect(item.value)}
+          motionPreset={resolvedMotionPreset}
+          motionDuration={motionDuration}
+          motionReduceMotion={motionReduceMotion}
         >
           <AppText style={{ color: isSelected ? colors.primary : colors.text }}>
             {item.label}
@@ -244,6 +254,9 @@ export function Select({
         ]}
         disabled={disabled}
         onPress={() => setVisible(true)}
+        motionPreset={resolvedMotionPreset}
+        motionDuration={motionDuration}
+        motionReduceMotion={motionReduceMotion}
       >
         <AppText
           className="flex-1"
@@ -254,9 +267,16 @@ export function Select({
         </AppText>
         <View className="flex-row items-center">
           {clearable && selectedValues.length > 0 && !disabled && (
-            <TouchableOpacity onPress={handleClear} className="mr-2 p-1">
+            <AppPressable
+              onPress={handleClear}
+              className="mr-2 p-1"
+              pressedClassName="opacity-70"
+              motionPreset={resolvedMotionPreset}
+              motionDuration={motionDuration}
+              motionReduceMotion={motionReduceMotion}
+            >
               <Icon name="close" size="sm" color={colors.icon} />
-            </TouchableOpacity>
+            </AppPressable>
           )}
           <Icon name="keyboard-arrow-down" size="md" color={colors.icon} />
         </View>
@@ -270,6 +290,11 @@ export function Select({
         surfaceColor={colors.surface}
         closeOnBackdropPress
         contentClassName="max-h-[70%]"
+        motionDistance={motionDistance}
+        motionOverlayOpacity={motionOverlayOpacity}
+        motionSwipeThreshold={motionSwipeThreshold}
+        motionVelocityThreshold={motionVelocityThreshold}
+        motionReduceMotion={motionReduceMotion}
       >
         <>
           {/* 头部 */}
@@ -283,9 +308,16 @@ export function Select({
             <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
               {multiple ? multipleSelectTitle : singleSelectTitle}
             </AppText>
-            <TouchableOpacity onPress={() => setVisible(false)}>
+            <AppPressable
+              onPress={() => setVisible(false)}
+              className="p-1"
+              pressedClassName="opacity-70"
+              motionPreset={resolvedMotionPreset}
+              motionDuration={motionDuration}
+              motionReduceMotion={motionReduceMotion}
+            >
               <Icon name="close" size="md" color={colors.icon} />
-            </TouchableOpacity>
+            </AppPressable>
           </AppView>
 
           {/* 搜索框 */}
@@ -313,9 +345,16 @@ export function Select({
                   autoFocus
                 />
                 {searchKeyword.length > 0 && (
-                  <TouchableOpacity onPress={() => setSearchKeyword('')}>
+                  <AppPressable
+                    onPress={() => setSearchKeyword('')}
+                    className="p-1"
+                    pressedClassName="opacity-70"
+                    motionPreset={resolvedMotionPreset}
+                    motionDuration={motionDuration}
+                    motionReduceMotion={motionReduceMotion}
+                  >
                     <Icon name="close" size="sm" color={colors.icon} />
-                  </TouchableOpacity>
+                  </AppPressable>
                 )}
               </AppView>
             </AppView>
@@ -345,15 +384,19 @@ export function Select({
               <AppText style={{ color: colors.textMuted }}>
                 {formatSelectedCountText(selectedCountText, selectedValues.length)}
               </AppText>
-              <TouchableOpacity
+              <AppPressable
                 className="px-4 py-2 rounded-lg"
                 style={{ backgroundColor: colors.primary }}
                 onPress={() => setVisible(false)}
+                pressedClassName="opacity-90"
+                motionPreset={resolvedMotionPreset}
+                motionDuration={motionDuration}
+                motionReduceMotion={motionReduceMotion}
               >
                 <AppText className="font-medium" style={{ color: colors.textInverse }}>
                   {confirmText}
                 </AppText>
-              </TouchableOpacity>
+              </AppPressable>
             </AppView>
           )}
         </>

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Animated from 'react-native-reanimated';
 import {
   Pressable,
   type PressableProps,
@@ -8,6 +9,9 @@ import {
 } from 'react-native';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
+import type { MotionAnimatedViewStyle, PressMotionProps } from '../motion';
+import { useMotionConfig } from '../motion/context';
+import { usePressMotion } from '../motion/hooks/usePressMotion';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 import {
   type CommonLayoutProps,
@@ -18,52 +22,18 @@ import {
   resolveSpacingStyle,
 } from '../utils/layout-shortcuts';
 
-/**
- * AppPressable 组件属性接口
- */
-export interface AppPressableProps extends PressableProps, CommonLayoutProps {
-  /** 背景颜色 */
+export interface AppPressableProps extends PressableProps, CommonLayoutProps, PressMotionProps {
   bg?: string;
-  /** 语义化背景 */
   surface?: LayoutSurface;
-  /** 自定义类名 */
   className?: string;
-  /** 按下状态时的类名 */
   pressedClassName?: string;
 }
 
-/**
- * AppPressable - 可按压组件
- *
- * 基于 React Native 的 Pressable 组件封装，支持按下状态样式切换
- * 自动管理按下状态，支持自定义普通状态和按下状态的样式
- *
- * @example
- * ```tsx
- * // 基础使用
- * <AppPressable onPress={() => console.log('pressed')}>
- *   <Text>点击我</Text>
- * </AppPressable>
- *
- * // 带按下效果
- * <AppPressable
- *   className="p-4 bg-blue-500"
- *   pressedClassName="bg-blue-600"
- *   onPress={handlePress}
- * >
- *   <Text className="text-white">按钮</Text>
- * </AppPressable>
- *
- * // 带透明度变化
- * <AppPressable
- *   className="p-3 rounded-lg"
- *   pressedClassName="opacity-70"
- *   onPress={handlePress}
- * >
- *   <Icon name="arrow-forward" />
- * </AppPressable>
- * ```
- */
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+type AppPressableResolvedStyleItem = StyleProp<ViewStyle> | MotionAnimatedViewStyle | undefined;
+type AppPressableResolvedStyle = AppPressableResolvedStyleItem[];
+
 export function AppPressable({
   flex,
   row,
@@ -98,6 +68,9 @@ export function AppPressable({
   surface,
   className,
   pressedClassName,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
   children,
   style,
   onPressIn,
@@ -105,11 +78,19 @@ export function AppPressable({
   ...props
 }: AppPressableProps) {
   const [isPressed, setIsPressed] = React.useState(false);
+  const motionConfig = useMotionConfig();
   const { theme, isDark } = useOptionalTheme();
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'none';
   const resolvedBgColor =
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const shouldUseClassBg = !!bg && !resolvedBgColor;
-  const baseStyle = React.useMemo<StyleProp<ViewStyle>>(
+  const pressMotion = usePressMotion({
+    preset: resolvedMotionPreset,
+    duration: motionDuration,
+    disabled: props.disabled === true,
+    reduceMotion: motionReduceMotion,
+  });
+  const baseStyle = React.useMemo<AppPressableResolvedStyle>(
     () => [
       resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
       resolveLayoutStyle({
@@ -147,10 +128,11 @@ export function AppPressable({
         maxH,
       }),
       resolveRoundedStyle(rounded),
+      pressMotion.animatedStyle,
     ],
     [
-      center,
       between,
+      center,
       flex,
       gap,
       h,
@@ -171,6 +153,7 @@ export function AppPressable({
       pb,
       pl,
       pr,
+      pressMotion.animatedStyle,
       pt,
       px,
       py,
@@ -184,29 +167,31 @@ export function AppPressable({
   const resolvedStyle =
     typeof style === 'function'
       ? React.useCallback(
-          (state: PressableStateCallbackType): StyleProp<ViewStyle> => [
+          (state: PressableStateCallbackType): AppPressableResolvedStyle => [
             ...(baseStyle as any[]),
             style(state),
           ],
           [baseStyle, style]
         )
-      : ([...(baseStyle as any[]), style] as StyleProp<ViewStyle>);
+      : ([...(baseStyle as any[]), style] as AppPressableResolvedStyle);
 
   return (
-    <Pressable
+    <AnimatedPressable
       className={cn(shouldUseClassBg && `bg-${bg}`, className, isPressed && pressedClassName)}
       style={resolvedStyle}
       onPressIn={e => {
         setIsPressed(true);
+        pressMotion.onPressIn();
         onPressIn?.(e);
       }}
       onPressOut={e => {
         setIsPressed(false);
+        pressMotion.onPressOut();
         onPressOut?.(e);
       }}
       {...props}
     >
       {children}
-    </Pressable>
+    </AnimatedPressable>
   );
 }

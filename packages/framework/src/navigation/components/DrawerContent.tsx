@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
 import { useTheme, useThemeColors } from '@/theme';
-import { AppText, AppView, Icon } from '@/ui';
+import { AppText, AppView, Icon, AppPressable, Presence, StaggerItem, useMotionConfig } from '@/ui';
+import type { PresencePreset, PressMotionProps, StaggerMotionProps } from '@/ui/motion';
 
 /**
  * 抽屉菜单项配置
@@ -21,7 +22,8 @@ export interface DrawerItem {
 /**
  * 抽屉内容组件 Props
  */
-export interface DrawerContentProps extends DrawerContentComponentProps {
+export interface DrawerContentProps
+  extends DrawerContentComponentProps, PressMotionProps, StaggerMotionProps {
   /** 头部内容（如用户信息） */
   header?: React.ReactNode;
   /** 底部内容（如退出按钮） */
@@ -34,6 +36,24 @@ export interface DrawerContentProps extends DrawerContentComponentProps {
   activeTintColor?: string;
   /** 未激活文字颜色 */
   inactiveTintColor?: string;
+  /** 是否启用菜单项错峰动画 */
+  staggerItems?: boolean;
+  /** 是否显示激活态指示条 */
+  showActiveIndicator?: boolean;
+  /** 激活态指示条颜色 */
+  activeIndicatorColor?: string;
+  /** 激活态指示条显隐动画预设 */
+  indicatorMotionPreset?: PresencePreset;
+  /** 激活态指示条显隐动画时长 */
+  indicatorMotionDuration?: number;
+  /** 激活态指示条进入动画时长 */
+  indicatorMotionEnterDuration?: number;
+  /** 激活态指示条退出动画时长 */
+  indicatorMotionExitDuration?: number;
+  /** 激活态指示条动画距离 */
+  indicatorMotionDistance?: number;
+  /** 是否关闭激活态指示条动画 */
+  indicatorMotionReduceMotion?: boolean;
 }
 
 /**
@@ -71,9 +91,29 @@ export function DrawerContent({
   activeBackgroundColor,
   activeTintColor,
   inactiveTintColor,
+  staggerItems = false,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
+  staggerPreset,
+  staggerMs,
+  staggerBaseDelayMs,
+  staggerDuration,
+  staggerDistance,
+  staggerReduceMotion,
+  showActiveIndicator = true,
+  activeIndicatorColor,
+  indicatorMotionPreset,
+  indicatorMotionDuration,
+  indicatorMotionEnterDuration,
+  indicatorMotionExitDuration,
+  indicatorMotionDistance,
+  indicatorMotionReduceMotion,
 }: DrawerContentProps) {
+  const motionConfig = useMotionConfig();
   const { theme, isDark } = useTheme();
   const colors = useThemeColors();
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
 
   const activeBgColor =
     activeBackgroundColor ||
@@ -82,6 +122,7 @@ export function DrawerContent({
   const inactiveColor = inactiveTintColor || (isDark ? '#d1d5db' : '#4b5563');
   const backgroundColor = colors.card;
   const dividerColor = colors.divider;
+  const indicatorColor = activeIndicatorColor || activeColor;
 
   // 使用自定义项目或从路由生成
   const drawerItems: DrawerItem[] =
@@ -104,19 +145,40 @@ export function DrawerContent({
 
       {/* 菜单列表 */}
       <AppView className="py-2">
-        {drawerItems.map(item => {
+        {drawerItems.map((item, index) => {
           const isFocused = state.routes[state.index].name === item.name;
+          const badgeContent =
+            typeof item.badge === 'number' && item.badge > 99 ? '99+' : item.badge;
 
           const onPress = () => {
             navigation.navigate(item.name);
           };
 
-          return (
-            <TouchableOpacity
-              key={item.name}
+          const row = (
+            <AppPressable
+              testID={`drawer-item-${item.name}`}
               onPress={onPress}
+              motionPreset={resolvedMotionPreset}
+              motionDuration={motionDuration}
+              motionReduceMotion={motionReduceMotion}
               style={[styles.item, isFocused && { backgroundColor: activeBgColor }]}
             >
+              {showActiveIndicator && (
+                <Presence
+                  visible={isFocused}
+                  preset={indicatorMotionPreset ?? 'slideRight'}
+                  motionDuration={indicatorMotionDuration}
+                  motionEnterDuration={indicatorMotionEnterDuration}
+                  motionExitDuration={indicatorMotionExitDuration}
+                  motionDistance={indicatorMotionDistance}
+                  motionReduceMotion={indicatorMotionReduceMotion}
+                >
+                  <View
+                    testID={`drawer-item-${item.name}-indicator`}
+                    style={[styles.activeIndicator, { backgroundColor: indicatorColor }]}
+                  />
+                </Presence>
+              )}
               {item.icon && (
                 <View style={styles.iconContainer}>
                   <Icon
@@ -127,6 +189,7 @@ export function DrawerContent({
                 </View>
               )}
               <AppText
+                testID={`drawer-item-${item.name}-label`}
                 style={[
                   styles.label,
                   { color: isFocused ? activeColor : inactiveColor },
@@ -137,13 +200,32 @@ export function DrawerContent({
                 {item.label}
               </AppText>
               {item.badge != null && (
-                <View style={[styles.badge, { backgroundColor: activeColor }]}>
-                  <AppText style={styles.badgeText}>
-                    {typeof item.badge === 'number' && item.badge > 99 ? '99+' : item.badge}
-                  </AppText>
+                <View
+                  testID={`drawer-item-${item.name}-badge`}
+                  style={[styles.badge, { backgroundColor: activeColor }]}
+                >
+                  <AppText style={styles.badgeText}>{badgeContent}</AppText>
                 </View>
               )}
-            </TouchableOpacity>
+            </AppPressable>
+          );
+
+          if (!staggerItems) return <React.Fragment key={item.name}>{row}</React.Fragment>;
+
+          return (
+            <StaggerItem
+              key={item.name}
+              index={index}
+              visible
+              staggerPreset={staggerPreset}
+              staggerMs={staggerMs}
+              staggerBaseDelayMs={staggerBaseDelayMs}
+              staggerDuration={staggerDuration}
+              staggerDistance={staggerDistance}
+              staggerReduceMotion={staggerReduceMotion}
+            >
+              {row}
+            </StaggerItem>
           );
         })}
       </AppView>
@@ -171,6 +253,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginVertical: 2,
     borderRadius: 8,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    left: 0,
+    top: 10,
+    bottom: 10,
+    width: 3,
+    borderRadius: 999,
   },
   iconContainer: {
     width: 32,

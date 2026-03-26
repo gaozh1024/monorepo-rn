@@ -8,6 +8,12 @@ import { act, create } from 'react-test-renderer';
 import { BottomSheetModal } from '../../form/BottomSheetModal';
 import { resolveInteractiveStyle } from '../style-utils';
 
+const useSheetMotionMock = vi.hoisted(() => vi.fn());
+
+vi.mock('../../motion/hooks/useSheetMotion', () => ({
+  useSheetMotion: useSheetMotionMock,
+}));
+
 const options = [
   { label: '北京', value: 'beijing' },
   { label: '上海', value: 'shanghai' },
@@ -15,6 +21,19 @@ const options = [
 ];
 
 describe('Select', () => {
+  beforeEach(() => {
+    useSheetMotionMock.mockReset();
+    useSheetMotionMock.mockImplementation((options: any) => ({
+      mounted: options.visible,
+      progress: { interpolate: vi.fn() },
+      overlayStyle: {},
+      sheetStyle: {},
+      panHandlers: undefined,
+      open: vi.fn(),
+      close: vi.fn(),
+    }));
+  });
+
   it('应该支持单选', () => {
     const onChange = vi.fn();
     const { getByText } = renderWithTheme(
@@ -125,6 +144,35 @@ describe('Select', () => {
 
     const bottomSheet = renderer!.root.findByType(BottomSheetModal);
     expect(bottomSheet.props.closeOnBackdropPress).toBe(true);
+  });
+
+  it('应该透传自定义底部弹层动画配置', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Select
+            placeholder="打开城市选择"
+            options={options}
+            motionDistance={320}
+            motionOverlayOpacity={0.75}
+            motionSwipeThreshold={96}
+            motionVelocityThreshold={1.5}
+            motionReduceMotion
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const bottomSheet = renderer!.root.findByType(BottomSheetModal);
+    expect(bottomSheet.props).toMatchObject({
+      motionDistance: 320,
+      motionOverlayOpacity: 0.75,
+      motionSwipeThreshold: 96,
+      motionVelocityThreshold: 1.5,
+      motionReduceMotion: true,
+    });
   });
 
   it('应该支持触发器基础快捷参数', () => {

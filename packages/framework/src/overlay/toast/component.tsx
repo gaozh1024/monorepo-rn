@@ -3,43 +3,61 @@
  * @module overlay/toast/component
  */
 
-import { useRef, useEffect } from 'react';
-import { Animated } from 'react-native';
+import { useEffect, useState } from 'react';
+import Animated from 'react-native-reanimated';
 import { AppView, AppText } from '@/ui';
 import { useOptionalTheme } from '@/theme';
+import { useMotionConfig, usePresenceMotion } from '@/ui/motion';
 import type { ToastItem } from './types';
 
 interface ToastItemViewProps extends ToastItem {
   onHide: () => void;
 }
 
-function createAnimatedValue(value: number) {
-  const AnimatedValue = Animated.Value as unknown as {
-    new (initialValue: number): Animated.Value;
-    (initialValue: number): Animated.Value;
-  };
-
-  try {
-    return new AnimatedValue(value);
-  } catch {
-    return AnimatedValue(value);
-  }
-}
-
 /**
  * Toast 项组件
  */
-export function ToastItemView({ message, type, onHide }: ToastItemViewProps) {
-  const fadeAnim = useRef(createAnimatedValue(0)).current;
+export function ToastItemView({
+  message,
+  type,
+  onHide,
+  duration = 3000,
+  motionPreset,
+  motionDuration,
+  motionEnterDuration,
+  motionExitDuration,
+  motionDistance,
+  motionReduceMotion,
+}: ToastItemViewProps) {
   const { theme } = useOptionalTheme();
+  const motionConfig = useMotionConfig();
+  const [visible, setVisible] = useState(true);
+  const presence = usePresenceMotion({
+    visible,
+    preset: motionPreset ?? motionConfig.defaultPresencePreset ?? 'toast',
+    duration: motionDuration,
+    enterDuration: motionEnterDuration,
+    exitDuration: motionExitDuration,
+    distance: motionDistance,
+    reduceMotion: motionReduceMotion,
+    unmountOnExit: true,
+    onExited: onHide,
+  });
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
-      Animated.delay(2500),
-      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
-    ]).start(onHide);
-  }, []);
+    const timer = setTimeout(
+      () => {
+        setVisible(false);
+      },
+      Math.max(0, duration - 200)
+    );
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [duration]);
+
+  if (!presence.mounted) return null;
 
   const palette = {
     success: {
@@ -70,19 +88,7 @@ export function ToastItemView({ message, type, onHide }: ToastItemViewProps) {
   };
 
   return (
-    <Animated.View
-      style={{
-        opacity: fadeAnim,
-        transform: [
-          {
-            translateY: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [-20, 0],
-            }),
-          },
-        ],
-      }}
-    >
+    <Animated.View style={presence.animatedStyle}>
       <AppView
         testID={`toast-item-${type}`}
         className={`${bgStyles[type]} px-4 py-3 rounded-lg mb-2 mx-4 shadow-lg`}

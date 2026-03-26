@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { TouchableOpacity } from 'react-native';
-import { AppText, AppView } from '@/ui/primitives';
+import { useMotionConfig, type PressMotionProps, type SheetMotionProps } from '@/ui/motion';
+import { AppPressable, AppText, AppView } from '@/ui/primitives';
 import { formatDate } from '@/utils';
 import { Picker, type PickerColumn, type PickerValue } from './Picker';
 import { useFormThemeColors } from './useFormTheme';
@@ -9,24 +9,28 @@ import type { CommonLayoutProps, LayoutSurface } from '../utils/layout-shortcuts
 /**
  * DatePicker 组件属性接口
  */
-export interface DatePickerProps extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-  | 'rounded'
-> {
+export interface DatePickerProps
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+      | 'rounded'
+    >,
+    SheetMotionProps,
+    PressMotionProps {
   /** 选中日期 */
   value?: Date;
   /** 变化回调 */
@@ -117,9 +121,18 @@ export function DatePicker({
   maxDateText = '最晚',
   bg,
   surface,
+  motionPreset,
+  motionDistance,
+  motionOverlayOpacity,
+  motionSwipeThreshold,
+  motionVelocityThreshold,
+  motionReduceMotion,
+  motionDuration,
 }: DatePickerProps) {
+  const motionConfig = useMotionConfig();
   const colors = useFormThemeColors();
   const [tempDate, setTempDate] = useState<Date>(value || new Date());
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
 
   useEffect(() => {
     if (value) setTempDate(value);
@@ -253,6 +266,13 @@ export function DatePicker({
       className={className}
       bg={bg}
       surface={surface}
+      motionPreset={resolvedMotionPreset}
+      motionDuration={motionDuration}
+      motionReduceMotion={motionReduceMotion}
+      motionDistance={motionDistance}
+      motionOverlayOpacity={motionOverlayOpacity}
+      motionSwipeThreshold={motionSwipeThreshold}
+      motionVelocityThreshold={motionVelocityThreshold}
       pickerTitle={pickerTitle}
       cancelText={cancelText}
       confirmText={confirmText}
@@ -261,14 +281,18 @@ export function DatePicker({
       renderFooter={() => (
         <AppView row className="gap-2">
           {quickActions.map(action => (
-            <TouchableOpacity
+            <AppPressable
               key={action.label}
               className="flex-1 py-2 items-center rounded-lg"
               style={{ backgroundColor: colors.surfaceMuted }}
               onPress={() => setTempDate(action.date)}
+              motionPreset={resolvedMotionPreset}
+              motionDuration={motionDuration}
+              motionReduceMotion={motionReduceMotion}
+              pressedClassName="opacity-90"
             >
               <AppText style={{ color: colors.text }}>{action.label}</AppText>
-            </TouchableOpacity>
+            </AppPressable>
           ))}
         </AppView>
       )}

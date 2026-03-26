@@ -1,39 +1,42 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import type { ToggleMotionProps } from '../motion';
+import { useToggleMotion } from '../motion/hooks/useToggleMotion';
 import { type CommonLayoutProps, type LayoutSurface } from '../utils/layout-shortcuts';
 
-/**
- * Radio 组件属性接口
- */
-export interface RadioProps extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'p'
-  | 'px'
-  | 'py'
-  | 'pt'
-  | 'pb'
-  | 'pl'
-  | 'pr'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'gap'
-  | 'rounded'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-> {
+export interface RadioProps
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'p'
+      | 'px'
+      | 'py'
+      | 'pt'
+      | 'pb'
+      | 'pl'
+      | 'pr'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'gap'
+      | 'rounded'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+    >,
+    ToggleMotionProps {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (checked: boolean) => void;
@@ -45,9 +48,6 @@ export interface RadioProps extends Pick<
   testID?: string;
 }
 
-/**
- * Radio - 单选框组件，支持浅色/深色主题
- */
 export function Radio({
   flex,
   p,
@@ -81,11 +81,18 @@ export function Radio({
   bg,
   surface,
   testID,
+  motionDuration,
+  motionReduceMotion,
 }: RadioProps) {
   const colors = useThemeColors();
   const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
-
   const isChecked = checked !== undefined ? checked : internalChecked;
+  const toggleMotion = useToggleMotion({
+    value: isChecked,
+    preset: 'radio',
+    duration: motionDuration,
+    reduceMotion: motionReduceMotion,
+  });
 
   const toggle = () => {
     if (disabled) return;
@@ -96,7 +103,6 @@ export function Radio({
     onChange?.(newChecked);
   };
 
-  // 主题颜色
   const disabledOpacity = 0.4;
 
   return (
@@ -146,9 +152,9 @@ export function Radio({
         ]}
       >
         {isChecked && (
-          <AppView
+          <Animated.View
             className="rounded-full"
-            style={[styles.inner, { backgroundColor: colors.primary }]}
+            style={[styles.inner, { backgroundColor: colors.primary }, toggleMotion.indicatorStyle]}
           />
         )}
       </AppView>

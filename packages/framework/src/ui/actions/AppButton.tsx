@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { ActivityIndicator, Keyboard } from 'react-native';
 import { useOptionalTheme } from '@/theme';
+import { useMotionConfig, type PressMotionProps } from '@/ui/motion';
 import { AppPressable, AppText } from '@/ui/primitives';
 import { cn } from '@/utils';
 import type { CommonLayoutProps } from '../utils/layout-shortcuts';
@@ -18,24 +19,27 @@ export type AppButtonColor =
   | 'danger'
   | 'muted';
 
-export interface AppButtonProps extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-  | 'rounded'
-> {
+export interface AppButtonProps
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+      | 'rounded'
+    >,
+    PressMotionProps {
   /** 按钮样式变体：solid(实心)、outline(描边)、ghost(透明) */
   variant?: 'solid' | 'outline' | 'ghost';
   /** 按钮尺寸：sm(小)、md(中)、lg(大) */
@@ -127,9 +131,14 @@ export function AppButton({
   dismissKeyboardOnPress = true,
   children,
   className,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
 }: AppButtonProps) {
+  const motionConfig = useMotionConfig();
   const { theme, isDark } = useOptionalTheme();
   const isDisabled = disabled || loading;
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
 
   const sizeClasses = { sm: 'px-3 py-2', md: 'px-4 py-3', lg: 'px-6 py-4' };
   const buttonColors: Record<AppButtonColor, string> = {
@@ -186,6 +195,9 @@ export function AppButton({
       rounded={rounded ?? 'lg'}
       onPress={onPress ? handlePress : undefined}
       disabled={isDisabled}
+      motionPreset={resolvedMotionPreset}
+      motionDuration={motionDuration}
+      motionReduceMotion={motionReduceMotion}
       className={cn(
         'flex-row items-center justify-center',
         sizeClasses[size],

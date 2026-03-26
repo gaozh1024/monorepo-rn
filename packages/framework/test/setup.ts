@@ -1,5 +1,5 @@
 import React from 'react';
-import { vi, beforeEach } from 'vitest';
+import { vi, beforeAll, beforeEach, afterAll } from 'vitest';
 
 (
   globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -30,6 +30,53 @@ const createNavigator = () => ({
 });
 
 let lastBottomTabNavigatorProps: any = null;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+const originalStderrWrite = process.stderr.write.bind(process.stderr);
+
+const shouldIgnoreTestNoise = (value: string) =>
+  value.includes('react-test-renderer is deprecated') ||
+  value.includes('An update to Switch inside a test was not wrapped in act') ||
+  value.includes('An update to AppPressable inside a test was not wrapped in act');
+
+beforeAll(() => {
+  vi.spyOn(console, 'error').mockImplementation((message?: unknown, ...args: unknown[]) => {
+    const combined = [message, ...args]
+      .map(item => (typeof item === 'string' ? item : String(item)))
+      .join(' ');
+
+    if (shouldIgnoreTestNoise(combined)) {
+      return;
+    }
+
+    originalConsoleError(message as any, ...args);
+  });
+  vi.spyOn(console, 'warn').mockImplementation((message?: unknown, ...args: unknown[]) => {
+    const combined = [message, ...args]
+      .map(item => (typeof item === 'string' ? item : String(item)))
+      .join(' ');
+
+    if (shouldIgnoreTestNoise(combined)) {
+      return;
+    }
+
+    originalConsoleWarn(message as any, ...args);
+  });
+
+  process.stderr.write = ((chunk: any, encoding?: any, cb?: any) => {
+    const text = typeof chunk === 'string' ? chunk : (chunk?.toString?.(encoding) ?? '');
+    if (shouldIgnoreTestNoise(text)) {
+      if (typeof cb === 'function') cb();
+      return true;
+    }
+    return originalStderrWrite(chunk, encoding, cb);
+  }) as typeof process.stderr.write;
+});
+
+afterAll(() => {
+  vi.restoreAllMocks();
+  process.stderr.write = originalStderrWrite as typeof process.stderr.write;
+});
 
 global.fetch = vi.fn();
 
@@ -131,6 +178,16 @@ vi.mock('@testing-library/react-native', async () => {
     return undefined;
   };
 
+  const findGestureHandler = (node: any, handlerName: 'onPressIn' | 'onPressOut') => {
+    let current = node;
+    while (current) {
+      if (current?.props?.disabled === true) return undefined;
+      if (typeof current?.props?.[handlerName] === 'function') return current.props[handlerName];
+      current = current.parent;
+    }
+    return undefined;
+  };
+
   return {
     render: (ui: React.ReactElement) => {
       let renderer: any;
@@ -219,6 +276,7 @@ vi.mock('@testing-library/react-native', async () => {
           act(() => {
             renderer.update(nextUi);
           });
+          act(() => {});
         },
       };
     },
@@ -257,6 +315,33 @@ vi.mock('@testing-library/react-native', async () => {
               stopPropagation: () => {},
             });
           });
+          act(() => {});
+        }
+      },
+      pressIn: (element: any) => {
+        const onPressIn = findGestureHandler(element, 'onPressIn');
+        if (onPressIn) {
+          act(() => {
+            onPressIn({
+              nativeEvent: {},
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            });
+          });
+          act(() => {});
+        }
+      },
+      pressOut: (element: any) => {
+        const onPressOut = findGestureHandler(element, 'onPressOut');
+        if (onPressOut) {
+          act(() => {
+            onPressOut({
+              nativeEvent: {},
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            });
+          });
+          act(() => {});
         }
       },
       changeText: (element: any, value: string) => {
@@ -264,12 +349,14 @@ vi.mock('@testing-library/react-native', async () => {
           act(() => {
             element.props.onChangeText(value);
           });
+          act(() => {});
           return;
         }
         if (typeof element?.props?.onChange === 'function') {
           act(() => {
             element.props.onChange({ nativeEvent: { text: value } });
           });
+          act(() => {});
         }
       },
     },
@@ -277,25 +364,175 @@ vi.mock('@testing-library/react-native', async () => {
 });
 
 // Mock Animated
-const AnimatedValue = vi.fn().mockImplementation((value: number) => ({
-  setValue: vi.fn(),
-  interpolate: vi.fn(() => ({ __getValue: () => value })),
-  __getValue: () => value,
-}));
+const interpolateValue = (
+  value: number,
+  inputRange: number[],
+  outputRange: Array<number | string>
+) => {
+  const [inputStart, inputEnd] = inputRange;
+  const [outputStart, outputEnd] = outputRange;
+  const ratio = inputEnd === inputStart ? 0 : (value - inputStart) / (inputEnd - inputStart);
+  const clampedRatio = Math.min(Math.max(ratio, 0), 1);
+
+  if (typeof outputStart === 'string' && typeof outputEnd === 'string') {
+    const start = Number.parseFloat(outputStart);
+    const end = Number.parseFloat(outputEnd);
+    const unit = outputEnd.replace(String(end), '');
+    return `${start + (end - start) * clampedRatio}${unit}`;
+  }
+
+  return (outputStart as number) + ((outputEnd as number) - (outputStart as number)) * clampedRatio;
+};
+
+const AnimatedValue = vi.fn(function AnimatedValueMock(value: number) {
+  return {
+    setValue: vi.fn(function setValue() {}),
+    interpolate: vi.fn(function interpolate(config: {
+      inputRange: number[];
+      outputRange: Array<number | string>;
+    }) {
+      return {
+        __getValue: () => interpolateValue(value, config.inputRange, config.outputRange),
+      };
+    }),
+    __getValue: () => value,
+  };
+});
 
 const Animated = {
   Value: AnimatedValue,
-  timing: vi.fn(() => ({ start: vi.fn((cb?: any) => cb && cb()) })),
-  sequence: vi.fn((animations: any[]) => ({
-    start: vi.fn((cb?: any) => {
-      animations.forEach(anim => anim.start?.());
-      if (cb) cb();
-    }),
-  })),
-  delay: vi.fn(() => ({ start: vi.fn((cb?: any) => cb && cb()) })),
+  timing: vi.fn(function timing() {
+    return {
+      start: vi.fn(function start(cb?: any) {
+        cb?.();
+      }),
+    };
+  }),
+  parallel: vi.fn(function parallel(animations: any[]) {
+    return {
+      start: vi.fn(function start(cb?: any) {
+        animations.forEach(anim => anim.start?.());
+        cb?.({ finished: true });
+      }),
+    };
+  }),
+  sequence: vi.fn(function sequence(animations: any[]) {
+    return {
+      start: vi.fn(function start(cb?: any) {
+        animations.forEach(anim => anim.start?.());
+        cb?.();
+      }),
+    };
+  }),
+  delay: vi.fn(function delay() {
+    return {
+      start: vi.fn(function start(cb?: any) {
+        cb?.();
+      }),
+    };
+  }),
+  event: vi.fn(function event() {
+    return vi.fn(function animatedEvent() {});
+  }),
+  createAnimatedComponent: vi.fn(function createAnimatedComponent(Component: any) {
+    return Component;
+  }),
   View: createNativeComponent('Animated.View'),
   Text: createNativeComponent('Animated.Text'),
 };
+
+const createSharedValue = (initialValue: any) => {
+  let currentValue = initialValue;
+
+  return {
+    get value() {
+      return currentValue;
+    },
+    set value(next) {
+      currentValue = next && typeof next === 'object' && '__value' in next ? next.__value : next;
+    },
+    setValue(next: any) {
+      currentValue = next;
+    },
+    get: () => currentValue,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    modify: vi.fn((modifier: (value: any) => any) => {
+      currentValue = modifier(currentValue);
+      return currentValue;
+    }),
+  };
+};
+
+const Reanimated = {
+  View: createNativeComponent('Animated.View'),
+  Text: createNativeComponent('Animated.Text'),
+  ScrollView: createNativeComponent('Animated.ScrollView'),
+  createAnimatedComponent: vi.fn(function createAnimatedComponent(Component: any) {
+    return Component;
+  }),
+};
+
+vi.mock('react-native-reanimated', () => {
+  const useSharedValue = (initialValue: any) =>
+    React.useMemo(() => createSharedValue(initialValue), []);
+  const resolveAnimatedValue = (value: any) =>
+    value && typeof value === 'object' && 'value' in value ? value.value : value;
+
+  const withTiming = vi.fn(
+    (toValue: any, _config?: any, callback?: (finished: boolean) => void) => {
+      callback?.(true);
+      return { __value: toValue };
+    }
+  );
+
+  const withDelay = vi.fn((_delay: number, animation: any) => ({
+    __value:
+      animation && typeof animation === 'object' && '__value' in animation
+        ? animation.__value
+        : animation,
+  }));
+
+  const withSequence = vi.fn((...animations: any[]) => {
+    const last = animations[animations.length - 1];
+    return {
+      __value: last && typeof last === 'object' && '__value' in last ? last.__value : last,
+    };
+  });
+
+  const interpolateMock = vi.fn(
+    (value: any, inputRange: number[], outputRange: Array<number | string>) =>
+      interpolateValue(resolveAnimatedValue(value), inputRange, outputRange)
+  );
+
+  return {
+    __esModule: true,
+    default: Reanimated,
+    Easing: {
+      linear: vi.fn((value: number) => value),
+    },
+    Extrapolation: {
+      CLAMP: 'clamp',
+    },
+    cancelAnimation: vi.fn(),
+    interpolate: interpolateMock,
+    makeMutable: vi.fn((value: any) => createSharedValue(value)),
+    runOnJS:
+      (fn: (...args: any[]) => any) =>
+      (...args: any[]) =>
+        fn(...args),
+    useAnimatedScrollHandler: vi.fn((handler: any) => {
+      if (typeof handler === 'function') return (event: any) => handler(event);
+      return (event: any) => handler?.onScroll?.(event);
+    }),
+    useAnimatedStyle: vi.fn((updater: () => Record<string, any>) => updater()),
+    useDerivedValue: vi.fn((updater: () => any) => createSharedValue(updater())),
+    useSharedValue,
+    withDelay,
+    withSequence,
+    withTiming,
+  };
+});
 
 vi.mock('react-native', () => {
   const View = createNativeComponent('View');
@@ -316,6 +553,10 @@ vi.mock('react-native', () => {
     create: (config: any) => ({
       panHandlers: config,
     }),
+  };
+  const AccessibilityInfo = {
+    isReduceMotionEnabled: vi.fn(async () => false),
+    addEventListener: vi.fn(() => ({ remove: vi.fn() })),
   };
   const BackHandler = {
     addEventListener: vi.fn((_eventName: string, handler: () => boolean) => ({
@@ -382,6 +623,7 @@ vi.mock('react-native', () => {
     RefreshControl,
     Keyboard,
     PanResponder,
+    AccessibilityInfo,
     BackHandler,
     Animated,
     StyleSheet: {

@@ -9,6 +9,7 @@ import React from 'react';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ThemeProvider, type ThemeConfig } from '@/theme';
 import { NavigationProvider, type NavigationProviderProps } from '@/navigation';
+import { MotionConfigProvider, type MotionConfig } from '@/ui/motion';
 import { AppStatusBar, type AppStatusBarProps } from './AppStatusBar';
 import { OverlayProvider } from './provider';
 import type { LoggerProviderProps } from './logger/types';
@@ -82,6 +83,8 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
   isDark?: boolean;
   /** 全局状态栏配置 */
   statusBarProps?: AppStatusBarProps;
+  /** 全局动画配置 */
+  motion?: MotionConfig;
   /** Logger Provider 配置 */
   loggerProps?: Omit<LoggerProviderProps, 'children'>;
   /** Error Boundary 配置 */
@@ -203,6 +206,7 @@ export function AppProvider({
   defaultDark = false,
   isDark,
   statusBarProps,
+  motion,
   loggerProps,
   errorBoundaryProps,
   ...navigationProps
@@ -266,6 +270,11 @@ export function AppProvider({
         </>
       </ThemeProvider>
     );
+  }
+
+  // Motion - 供 Overlay / UI / Navigation 内统一消费
+  if (motion) {
+    content = <MotionConfigProvider {...motion}>{content}</MotionConfigProvider>;
   }
 
   // 4. SafeArea - 最外层

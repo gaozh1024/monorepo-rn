@@ -1,11 +1,37 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
 import { DatePicker } from '../../form/DatePicker';
 import { renderWithTheme } from './test-utils';
 import { resolveInteractiveStyle } from '../style-utils';
+import { act, create } from 'react-test-renderer';
+import { ThemeProvider, createTheme } from '@/theme';
+import { Picker } from '../../form/Picker';
+
+const useSheetMotionMock = vi.hoisted(() => vi.fn());
+
+vi.mock('../../motion/hooks/useSheetMotion', () => ({
+  useSheetMotion: useSheetMotionMock,
+}));
+
+const theme = createTheme({
+  colors: { primary: '#f38b32' },
+});
 
 describe('DatePicker', () => {
+  beforeEach(() => {
+    useSheetMotionMock.mockReset();
+    useSheetMotionMock.mockImplementation((options: any) => ({
+      mounted: options.visible,
+      progress: { interpolate: vi.fn() },
+      overlayStyle: {},
+      sheetStyle: {},
+      panHandlers: undefined,
+      open: vi.fn(),
+      close: vi.fn(),
+    }));
+  });
+
   it('应该渲染格式化后的日期', () => {
     const { getByText } = renderWithTheme(<DatePicker value={new Date(2024, 1, 3)} />);
 
@@ -72,6 +98,34 @@ describe('DatePicker', () => {
       height: 46,
       borderRadius: 9999,
       backgroundColor: '#f38b32',
+    });
+  });
+
+  it('应该透传自定义底部弹层动画配置给内部 Picker', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <DatePicker
+            placeholder="打开日期"
+            motionDistance={300}
+            motionOverlayOpacity={0.7}
+            motionSwipeThreshold={92}
+            motionVelocityThreshold={1.3}
+            motionReduceMotion
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const picker = renderer!.root.findByType(Picker);
+    expect(picker.props).toMatchObject({
+      motionDistance: 300,
+      motionOverlayOpacity: 0.7,
+      motionSwipeThreshold: 92,
+      motionVelocityThreshold: 1.3,
+      motionReduceMotion: true,
     });
   });
 });

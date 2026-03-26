@@ -33,6 +33,10 @@ export const PanResponder = {
     panHandlers: config,
   }),
 };
+export const AccessibilityInfo = {
+  isReduceMotionEnabled: async () => false,
+  addEventListener: () => ({ remove: () => {} }),
+};
 export const BackHandler = {
   addEventListener: (_eventName: string, handler: () => boolean) => ({
     remove: () => handler,
@@ -98,6 +102,62 @@ export const StyleSheet = {
   absoluteFillObject: {},
 };
 
+export const Animated = {
+  Value: function AnimatedValue(value: number) {
+    return {
+      setValue: () => value,
+      interpolate: (config: { inputRange: number[]; outputRange: Array<number | string> }) => ({
+        __getValue: () => {
+          const [inputStart, inputEnd] = config.inputRange;
+          const [outputStart, outputEnd] = config.outputRange;
+          const ratio =
+            inputEnd === inputStart ? 0 : (value - inputStart) / (inputEnd - inputStart);
+          const clampedRatio = Math.min(Math.max(ratio, 0), 1);
+
+          if (typeof outputStart === 'string' && typeof outputEnd === 'string') {
+            const start = Number.parseFloat(outputStart);
+            const end = Number.parseFloat(outputEnd);
+            const unit = outputEnd.replace(String(end), '');
+            return `${start + (end - start) * clampedRatio}${unit}`;
+          }
+
+          return (
+            (outputStart as number) +
+            ((outputEnd as number) - (outputStart as number)) * clampedRatio
+          );
+        },
+      }),
+      __getValue: () => value,
+    };
+  },
+  timing: () => ({
+    start: (cb?: (result?: { finished?: boolean }) => void) => cb?.({ finished: true }),
+  }),
+  parallel: (
+    animations: Array<{ start?: (cb?: (result?: { finished?: boolean }) => void) => void }>
+  ) => ({
+    start: (cb?: (result?: { finished?: boolean }) => void) => {
+      animations.forEach(animation => animation.start?.());
+      cb?.({ finished: true });
+    },
+  }),
+  sequence: (
+    animations: Array<{ start?: (cb?: (result?: { finished?: boolean }) => void) => void }>
+  ) => ({
+    start: (cb?: (result?: { finished?: boolean }) => void) => {
+      animations.forEach(animation => animation.start?.());
+      cb?.({ finished: true });
+    },
+  }),
+  delay: () => ({
+    start: (cb?: (result?: { finished?: boolean }) => void) => cb?.({ finished: true }),
+  }),
+  event: () => () => {},
+  createAnimatedComponent: (Component: any) => Component,
+  View: createNativeComponent('Animated.View'),
+  Text: createNativeComponent('Animated.Text'),
+};
+
 export const Platform = {
   OS: 'ios',
   Version: '17',
@@ -144,7 +204,9 @@ const ReactNative = {
   FlatList,
   RefreshControl,
   PanResponder,
+  AccessibilityInfo,
   BackHandler,
+  Animated,
   StyleSheet,
   Platform,
   Dimensions,

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Dimensions, PanResponder } from 'react-native';
+import { Dimensions, PanResponder } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import type { LogEntry, LogLevel } from '@/core/logger';
 import { formatLogTime, serializeLogEntries, stringifyLogData } from '@/core/logger';
 import { useThemeColors } from '@/theme';
@@ -44,6 +45,12 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
+function animateValueTo(value: { value: number }, toValue: number) {
+  value.value = withTiming(toValue, {
+    duration: 180,
+  });
+}
+
 export function getLoggerOverlayButtonBounds(width: number, height: number) {
   return {
     minX: -(width - TOGGLE_BUTTON_WIDTH - TOGGLE_BUTTON_RIGHT_GAP * 2),
@@ -78,27 +85,6 @@ export function getLoggerOverlaySnappedPosition(
   };
 }
 
-function createAnimatedValue(value: number) {
-  const AnimatedValue = Animated.Value as unknown as {
-    new (initialValue: number): Animated.Value;
-    (initialValue: number): Animated.Value;
-  };
-
-  try {
-    return new AnimatedValue(value);
-  } catch {
-    return AnimatedValue(value);
-  }
-}
-
-function animateValueTo(value: Animated.Value, toValue: number) {
-  Animated.timing(value, {
-    toValue,
-    duration: 180,
-    useNativeDriver: true,
-  }).start();
-}
-
 export function LogOverlay({
   entries,
   onClear,
@@ -115,8 +101,8 @@ export function LogOverlay({
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [filter, setFilter] = useState<OverlayFilter>('all');
   const [namespaceFilter, setNamespaceFilter] = useState<NamespaceFilter>(ALL_NAMESPACE);
-  const buttonTranslateX = useRef(createAnimatedValue(0)).current;
-  const buttonTranslateY = useRef(createAnimatedValue(0)).current;
+  const buttonTranslateX = useSharedValue(0);
+  const buttonTranslateY = useSharedValue(0);
   const buttonPositionRef = useRef({ x: 0, y: 0 });
   const dragStartRef = useRef({ x: 0, y: 0 });
 
@@ -167,8 +153,8 @@ export function LogOverlay({
           );
 
           buttonPositionRef.current = nextPosition;
-          buttonTranslateX.setValue(nextPosition.x);
-          buttonTranslateY.setValue(nextPosition.y);
+          buttonTranslateX.value = nextPosition.x;
+          buttonTranslateY.value = nextPosition.y;
         },
         onPanResponderRelease: () => {
           const nextPosition = getLoggerOverlaySnappedPosition(
@@ -210,9 +196,16 @@ export function LogOverlay({
     );
 
     buttonPositionRef.current = nextPosition;
-    buttonTranslateX.setValue(nextPosition.x);
-    buttonTranslateY.setValue(nextPosition.y);
+    buttonTranslateX.value = nextPosition.x;
+    buttonTranslateY.value = nextPosition.y;
   }, [buttonPosition, buttonTranslateX, buttonTranslateY, height, width]);
+
+  const buttonAnimatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ translateX: buttonTranslateX.value }, { translateY: buttonTranslateY.value }],
+    }),
+    []
+  );
 
   const levelStyles: Record<LogLevel, { text: string; bg: string }> = {
     debug: { text: colors.muted, bg: colors.cardElevated },
@@ -436,12 +429,14 @@ export function LogOverlay({
       <Animated.View
         testID="logger-overlay-toggle-wrapper"
         pointerEvents="box-none"
-        style={{
-          position: 'absolute',
-          right: TOGGLE_BUTTON_RIGHT_GAP,
-          bottom: TOGGLE_BUTTON_BOTTOM_GAP,
-          transform: [{ translateX: buttonTranslateX }, { translateY: buttonTranslateY }],
-        }}
+        style={[
+          {
+            position: 'absolute',
+            right: TOGGLE_BUTTON_RIGHT_GAP,
+            bottom: TOGGLE_BUTTON_BOTTOM_GAP,
+          },
+          buttonAnimatedStyle,
+        ]}
         {...buttonPanResponder.panHandlers}
       >
         <AppPressable

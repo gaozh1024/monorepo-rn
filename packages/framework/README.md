@@ -73,7 +73,7 @@ npm install react-native-svg
 
 - `expo`: `>=53 <55`
 - `react-native`: `>=0.79 <0.82`
-- `react-native-reanimated`: `>=3.17.0 <4.2.0`
+- `react-native-reanimated`: `>=3.17.0 <5`
 - `react-native-worklets`: `>=0.5.0 <0.6.0`（可选）
 
 如果你在 Expo 项目中安装依赖，建议顺序是：
@@ -705,6 +705,356 @@ import {
   useStorage,
 } from '@gaozh1024/rn-kit';
 ```
+
+### 🎞 Motion / 动画
+
+框架当前动画底层已统一迁移到 **react-native-reanimated**，并继续通过 `motion/animated` adapter 收口 runtime。
+
+当前 driver 固定为 `reanimated`，可直接读取 runtime 能力信息：
+
+```tsx
+import {
+  getMotionAnimatedCapabilities,
+  getMotionAnimatedDriver,
+  getMotionScenarioRecommendation,
+  shouldPreferReanimatedForScenario,
+  supportsMotionCapability,
+} from '@gaozh1024/rn-kit';
+
+const driver = getMotionAnimatedDriver(); // 'reanimated'
+const capabilities = getMotionAnimatedCapabilities();
+const supportsSharedValues = supportsMotionCapability('sharedValues'); // true
+const recommendation = getMotionScenarioRecommendation('sheet-drawer');
+const preferReanimated = shouldPreferReanimatedForScenario('complex-gesture'); // true
+```
+
+当前 capability 结论：
+
+- 基础 timing / sequence / parallel / event：支持
+- `useNativeDriver` 兼容层：支持
+- shared values / worklets / layout transitions：支持
+- 复杂手势、滚动联动、抽屉 / sheet、可折叠 header 已统一跑在 reanimated 上
+
+当前场景建议可简单理解为：
+
+- 推荐直接使用当前 driver：
+  - `press-feedback`
+  - `presence-transition`
+  - `progress-feedback`
+  - `toggle-control`
+  - `sheet-drawer`
+  - `stagger-list`
+  - `collapsible-header`
+  - `complex-gesture`
+- 当前 runtime 已支持，但是否采用还取决于上层方案：
+  - `shared-element`
+  - `layout-transition`
+
+可以直接使用的 motion 能力：
+
+```tsx
+import {
+  // motion hooks
+  useReducedMotion,
+  usePresenceMotion,
+  usePressMotion,
+  useToggleMotion,
+  useProgressMotion,
+  useSheetMotion,
+  useStaggerMotion,
+  useCollapsibleHeaderMotion,
+  // motion components
+  MotionView,
+  MotionPressable,
+  Presence,
+  StaggerItem,
+} from '@gaozh1024/rn-kit';
+```
+
+#### 1. 按压动画
+
+以下组件已经内置按压动效，常用按压参数统一为：
+
+- `motionPreset`
+- `motionDuration`
+- `motionReduceMotion`
+
+其中 `AppButton` 默认启用 soft：
+
+- `AppPressable`
+- `AppButton`
+- `Card`
+- `Select`
+- `Picker`
+- `DatePicker`
+- `AppHeader`
+- `BottomTabBar`
+- `DrawerContent`
+- `PageDrawer`
+
+```tsx
+<AppButton>保存</AppButton>
+<AppButton motionDuration={180}>保存</AppButton>
+<Card onPress={() => {}} motionPreset="strong" />
+```
+
+可选值：
+
+- `'soft'`
+- `'strong'`
+- `'none'`
+
+也可以通过全局 Provider 统一控制：
+
+```tsx
+import { AppProvider, MotionConfigProvider } from '@gaozh1024/rn-kit';
+
+<MotionConfigProvider defaultPressPreset="strong" durationScale={0.9}>
+  <App />
+</MotionConfigProvider>;
+
+<AppProvider
+  motion={{
+    reduceMotion: false,
+    durationScale: 0.9,
+    defaultPressPreset: 'soft',
+    defaultPresencePreset: 'fadeUp',
+  }}
+>
+  <App />
+</AppProvider>;
+```
+
+可用于：
+
+- 全局降低 / 关闭动画
+- 统一默认按压反馈强度
+- 统一默认显隐预设
+
+#### 2. 显隐动画
+
+适合弹层、提示、局部块出现/消失：
+
+```tsx
+import { Presence } from '@gaozh1024/rn-kit';
+
+<Presence visible={visible} preset="fadeUp">
+  <AppView>
+    <AppText>内容出现</AppText>
+  </AppView>
+</Presence>;
+
+<MotionView
+  visible={visible}
+  preset="fadeUp"
+  motionDuration={260}
+  motionDistance={24}
+  motionReduceMotion={false}
+/>;
+```
+
+常用 `preset`：
+
+- `fade`
+- `fadeUp`
+- `fadeDown`
+- `scale`
+- `scaleFade`
+- `slideUp`
+- `slideDown`
+- `slideLeft`
+- `slideRight`
+- `dialog`
+- `toast`
+- `sheet`
+
+`Presence` / `MotionView` 额外支持：
+
+- `motionPreset`（与 `preset` 并存，优先级更高）
+- `motionDuration`
+- `motionEnterDuration`
+- `motionExitDuration`
+- `motionDistance`
+- `motionReduceMotion`
+
+#### 3. 列表错峰动画
+
+```tsx
+<AppList data={data} stagger staggerMs={50} renderItem={({ item }) => <Card>{item.title}</Card>} />
+```
+
+导航抽屉也支持：
+
+```tsx
+<DrawerContent {...props} staggerItems />
+```
+
+#### 4. Sheet / Drawer 动画
+
+`BottomSheetModal` 与 `PageDrawer` 已统一接入内部 motion：
+
+- 遮罩淡入淡出
+- 面板进出场
+- 手势关闭
+- 支持组件级 motion 参数覆盖
+
+```tsx
+<PageDrawer
+  visible={visible}
+  onClose={close}
+  placement="right"
+  motionPreset="soft"
+  motionOverlayOpacity={0.72}
+  motionVelocityThreshold={1.4}
+/>
+
+<BottomSheetModal
+  visible={visible}
+  onRequestClose={close}
+  overlayColor="rgba(0,0,0,0.5)"
+  surfaceColor="#fff"
+  motionDistance={320}
+  motionOverlayOpacity={0.72}
+  motionSwipeThreshold={96}
+/>
+```
+
+`BottomSheetModal` 可选：
+
+- `motionDistance`
+- `motionOverlayOpacity`
+- `motionSwipeThreshold`
+- `motionVelocityThreshold`
+- `motionReduceMotion`
+
+`PageDrawer` 也支持：
+
+- `motionPreset`
+- `motionDuration`
+- `motionReduceMotion`
+- `motionDistance`
+- `motionOverlayOpacity`
+- `motionSwipeThreshold`（兼容旧的 `swipeThreshold`）
+- `motionVelocityThreshold`
+
+`Select` / `Picker` / `DatePicker` 也支持同一组 sheet 动画参数：
+
+- 按压：`motionPreset` / `motionDuration` / `motionReduceMotion`
+- `motionDistance`
+- `motionOverlayOpacity`
+- `motionSwipeThreshold`
+- `motionVelocityThreshold`
+- `motionReduceMotion`
+
+#### 5. 可折叠 Header
+
+```tsx
+import { Animated, AppHeader, useCollapsibleHeaderMotion } from '@gaozh1024/rn-kit';
+
+const headerMotion = useCollapsibleHeaderMotion({
+  minHeight: 44,
+  maxHeight: 88,
+});
+
+<>
+  <AppHeader title="首页" collapsibleMotion={headerMotion} />
+
+  <Animated.ScrollView onScroll={headerMotion.onScroll} scrollEventThrottle={16}>
+    {/* content */}
+  </Animated.ScrollView>
+</>;
+```
+
+#### 6. 当前已接入动画的组件范围
+
+- 反馈：`Alert` / `Toast` / overlay alert / overlay toast
+- 表单：`Switch` / `Checkbox` / `Radio` / `Select` / `Picker` / `DatePicker`
+- 展示：`Progress` / `Card` / `AppList` / `PageDrawer` / `AppButton`
+- 导航：`AppHeader` / `BottomTabBar` / `DrawerContent`
+
+其中 `Alert` / `Toast` 以及 overlay alert 也支持组件级显隐动画控制：
+
+- `motionPreset`
+- `motionDuration`
+- `motionEnterDuration`
+- `motionExitDuration`
+- `motionDistance`
+- `motionReduceMotion`
+
+`Presence` / `MotionView` / `StaggerItem` 额外支持基于 reanimated 的布局级动画透传：
+
+- `motionEntering`
+- `motionExiting`
+- `motionLayout`
+
+`Progress` 也支持：
+
+- `motionDuration`
+- `motionReduceMotion`
+
+`Switch` / `Checkbox` / `Radio` 也支持：
+
+- `motionDuration`
+- `motionReduceMotion`
+
+`AppButton` / `Card` / `Select` / `Picker` / `DatePicker` / `PageDrawer` 也统一支持：
+
+- `motionPreset`
+- `motionDuration`
+- `motionReduceMotion`
+
+`AppList` 错峰 / 列表项动画还支持：
+
+- `staggerPreset`
+- `staggerMs`
+- `staggerBaseDelayMs`
+- `staggerDuration`
+- `staggerDistance`
+- `staggerReduceMotion`
+- `motionEntering`
+- `motionExiting`
+- `motionLayout`
+
+导航组件的动画参数也已统一：
+
+- `AppHeader`
+  - `motionPreset`
+  - `motionDuration`
+  - `motionReduceMotion`
+- `BottomTabBar`
+  - 按压：`motionPreset` / `motionDuration` / `motionReduceMotion`
+  - 指示器：`indicatorMotionPreset` / `indicatorMotionDuration` / `indicatorMotionEnterDuration` / `indicatorMotionExitDuration` / `indicatorMotionDistance` / `indicatorMotionReduceMotion`
+- `DrawerContent`
+  - 按压：`motionPreset` / `motionDuration` / `motionReduceMotion`
+  - 指示条：`indicatorMotionPreset` / `indicatorMotionDuration` / `indicatorMotionEnterDuration` / `indicatorMotionExitDuration` / `indicatorMotionDistance` / `indicatorMotionReduceMotion`
+  - 错峰：`staggerPreset` / `staggerMs` / `staggerBaseDelayMs` / `staggerDuration` / `staggerDistance` / `staggerReduceMotion`
+
+#### 7. 可复用的动画类型
+
+可直接从包中导入：
+
+```tsx
+import type {
+  PressMotionProps,
+  PresenceMotionProps,
+  SheetMotionProps,
+  ProgressMotionProps,
+  ToggleMotionProps,
+  StaggerMotionProps,
+  MotionSharedValue,
+  MotionAnimatedViewStyle,
+  MotionAnimatedTextStyle,
+  MotionAnimatedScrollHandler,
+} from '@gaozh1024/rn-kit';
+```
+
+#### 8. Reanimated 迁移状态
+
+当前框架 motion runtime 已完成统一迁移：
+
+1. motion hooks 默认返回 reanimated shared value / animated style
+2. `Pressable` / `Progress` / `Sheet` / `Drawer` / `Alert` / `Toast` / `Header` 等组件已接入 reanimated
+3. 复杂手势、滚动联动和后续布局动画扩展都以 reanimated 为基础继续演进
 
 ### 🧭 导航
 

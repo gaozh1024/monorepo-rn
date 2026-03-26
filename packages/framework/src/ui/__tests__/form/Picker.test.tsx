@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
 import { act, create } from 'react-test-renderer';
@@ -8,7 +8,26 @@ import { ThemeProvider } from '@/theme';
 import { BottomSheetModal } from '../../form/BottomSheetModal';
 import { resolveInteractiveStyle } from '../style-utils';
 
+const useSheetMotionMock = vi.hoisted(() => vi.fn());
+
+vi.mock('../../motion/hooks/useSheetMotion', () => ({
+  useSheetMotion: useSheetMotionMock,
+}));
+
 describe('Picker', () => {
+  beforeEach(() => {
+    useSheetMotionMock.mockReset();
+    useSheetMotionMock.mockImplementation((options: any) => ({
+      mounted: options.visible,
+      progress: { interpolate: vi.fn() },
+      overlayStyle: {},
+      sheetStyle: {},
+      panHandlers: undefined,
+      open: vi.fn(),
+      close: vi.fn(),
+    }));
+  });
+
   it('应该支持通用多列选择', () => {
     const onChange = vi.fn();
     const { getByText } = renderWithTheme(
@@ -74,6 +93,40 @@ describe('Picker', () => {
 
     const bottomSheet = renderer!.root.findByType(BottomSheetModal);
     expect(bottomSheet.props.closeOnBackdropPress).toBe(true);
+  });
+
+  it('应该透传自定义底部弹层动画配置', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Picker
+            placeholder="打开地区选择"
+            motionDistance={360}
+            motionOverlayOpacity={0.8}
+            motionSwipeThreshold={88}
+            motionVelocityThreshold={1.4}
+            motionReduceMotion
+            columns={[
+              {
+                key: 'province',
+                options: [{ label: '广东省', value: 'gd' }],
+              },
+            ]}
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const bottomSheet = renderer!.root.findByType(BottomSheetModal);
+    expect(bottomSheet.props).toMatchObject({
+      motionDistance: 360,
+      motionOverlayOpacity: 0.8,
+      motionSwipeThreshold: 88,
+      motionVelocityThreshold: 1.4,
+      motionReduceMotion: true,
+    });
   });
 
   it('应该支持触发器基础快捷参数', () => {

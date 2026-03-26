@@ -1,6 +1,9 @@
+import Animated from 'react-native-reanimated';
 import { AppView } from '@/ui/primitives';
 import { useTheme } from '@/theme';
 import { cn } from '@/utils';
+import type { ProgressMotionProps } from '../motion';
+import { useProgressMotion } from '../motion/hooks/useProgressMotion';
 import {
   type CommonLayoutProps,
   type LayoutSurface,
@@ -14,24 +17,27 @@ import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 /**
  * Progress 组件属性接口
  */
-export interface ProgressProps extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'rounded'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-> {
+export interface ProgressProps
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'rounded'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+    >,
+    ProgressMotionProps {
   /** 当前进度值 */
   value: number;
   /** 最大值，默认为 100 */
@@ -50,6 +56,8 @@ export interface ProgressProps extends Pick<
   bg?: string;
   /** 语义化轨道背景 */
   surface?: LayoutSurface;
+  /** 是否启用进度动画 */
+  animated?: boolean;
 }
 
 /** 尺寸映射表 */
@@ -64,25 +72,6 @@ const colorMap = {
   error: 'bg-error-500',
 };
 
-/**
- * Progress - 进度条组件
- *
- * 用于展示操作进度的可视化组件，支持浅色/深色主题
- *
- * @example
- * ```tsx
- * // 基础使用
- * <Progress value={50} />
- *
- * // 不同尺寸
- * <Progress value={30} size="sm" />
- * <Progress value={60} size="lg" />
- *
- * // 不同颜色
- * <Progress value={75} color="success" />
- * <Progress value={90} color="warning" />
- * ```
- */
 export function Progress({
   flex,
   m,
@@ -108,11 +97,20 @@ export function Progress({
   barClassName,
   bg,
   surface,
+  animated = true,
+  motionDuration,
+  motionReduceMotion,
 }: ProgressProps) {
   const { theme, isDark } = useTheme();
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+  const progressMotion = useProgressMotion({
+    value,
+    min: 0,
+    max,
+    duration: motionDuration,
+    reduceMotion: motionReduceMotion,
+  });
 
-  // 深色主题下使用更深的背景色
   const trackBgColor =
     resolveSurfaceColor(surface, theme, isDark) ??
     resolveNamedColor(bg, theme, isDark) ??
@@ -131,14 +129,14 @@ export function Progress({
       ]}
       testID={testID}
     >
-      <AppView
+      <Animated.View
         className={cn(
           rounded === undefined && 'rounded-full',
           sizeMap[size],
           colorMap[color],
           barClassName
         )}
-        style={[resolvedRounded, { width: `${percentage}%` }]}
+        style={[resolvedRounded, animated ? progressMotion.barStyle : { width: `${percentage}%` }]}
       />
     </AppView>
   );

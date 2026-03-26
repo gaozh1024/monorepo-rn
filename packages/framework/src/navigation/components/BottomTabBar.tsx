@@ -1,14 +1,16 @@
-import { View, TouchableOpacity, StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
+import { View, StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useThemeColors } from '@/theme';
-import { AppText } from '@/ui';
+import { AppText, AppPressable, useMotionConfig } from '@/ui';
+import { Presence } from '@/ui/motion';
+import type { PresencePreset, PressMotionPreset, PressMotionProps } from '@/ui/motion';
 
 /**
  * 自定义底部标签栏组件 Props
  * 继承自 @react-navigation/bottom-tabs 的 BottomTabBarProps
  */
-export interface CustomBottomTabBarProps extends BottomTabBarProps {
+export interface CustomBottomTabBarProps extends BottomTabBarProps, PressMotionProps {
   /** 是否显示标签 */
   showLabel?: boolean;
   /** 激活颜色 */
@@ -27,10 +29,150 @@ export interface CustomBottomTabBarProps extends BottomTabBarProps {
   labelStyle?: TextStyle;
   /** 标签栏样式 */
   style?: ViewStyle;
+  /** 是否显示激活态指示器 */
+  showActiveIndicator?: boolean;
+  /** 激活态指示器颜色 */
+  indicatorColor?: string;
+  /** 激活态指示器高度 */
+  indicatorHeight?: number;
+  /** 激活态指示器显隐动画预设 */
+  indicatorMotionPreset?: PresencePreset;
+  /** 激活态指示器显隐动画时长 */
+  indicatorMotionDuration?: number;
+  /** 激活态指示器进入动画时长 */
+  indicatorMotionEnterDuration?: number;
+  /** 激活态指示器退出动画时长 */
+  indicatorMotionExitDuration?: number;
+  /** 激活态指示器动画距离 */
+  indicatorMotionDistance?: number;
+  /** 是否关闭激活态指示器动画 */
+  indicatorMotionReduceMotion?: boolean;
 }
 
 /** 默认 TabBar 高度 */
 const DEFAULT_TAB_BAR_HEIGHT = 65;
+
+interface BottomTabBarItemProps {
+  activeBackgroundColor?: string;
+  activeColor: string;
+  accessibilityLabel?: string;
+  badge: unknown;
+  iconStyle?: ViewStyle;
+  iconNode: any;
+  inactiveBackgroundColor?: string;
+  inactiveColor: string;
+  indicatorColor: string;
+  indicatorHeight: number;
+  indicatorMotionDistance?: number;
+  indicatorMotionDuration?: number;
+  indicatorMotionEnterDuration?: number;
+  indicatorMotionExitDuration?: number;
+  indicatorMotionPreset?: PresencePreset;
+  indicatorMotionReduceMotion?: boolean;
+  isFocused: boolean;
+  label: string;
+  labelStyle?: TextStyle;
+  motionPreset: PressMotionPreset;
+  motionDuration?: number;
+  motionReduceMotion?: boolean;
+  onLongPress: () => void;
+  onPress: () => void;
+  showLabel: boolean;
+  showActiveIndicator: boolean;
+  testID?: string;
+}
+
+function BottomTabBarItem({
+  activeBackgroundColor,
+  activeColor,
+  accessibilityLabel,
+  badge,
+  iconStyle,
+  iconNode,
+  inactiveBackgroundColor,
+  inactiveColor,
+  indicatorColor,
+  indicatorHeight,
+  indicatorMotionDistance,
+  indicatorMotionDuration,
+  indicatorMotionEnterDuration,
+  indicatorMotionExitDuration,
+  indicatorMotionPreset,
+  indicatorMotionReduceMotion,
+  isFocused,
+  label,
+  labelStyle,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
+  onLongPress,
+  onPress,
+  showLabel,
+  showActiveIndicator,
+  testID,
+}: BottomTabBarItemProps) {
+  const badgeContent = typeof badge === 'number' && badge > 99 ? '99+' : (badge as any);
+
+  return (
+    <AppPressable
+      accessibilityRole="button"
+      accessibilityState={isFocused ? { selected: true } : {}}
+      accessibilityLabel={accessibilityLabel}
+      testID={testID}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      motionPreset={motionPreset}
+      motionDuration={motionDuration}
+      motionReduceMotion={motionReduceMotion}
+      style={[
+        styles.tab,
+        {
+          backgroundColor: isFocused ? activeBackgroundColor : inactiveBackgroundColor,
+        },
+      ]}
+    >
+      {showActiveIndicator && (
+        <Presence
+          visible={isFocused}
+          preset={indicatorMotionPreset ?? 'scaleFade'}
+          motionDuration={indicatorMotionDuration}
+          motionEnterDuration={indicatorMotionEnterDuration}
+          motionExitDuration={indicatorMotionExitDuration}
+          motionDistance={indicatorMotionDistance}
+          motionReduceMotion={indicatorMotionReduceMotion}
+        >
+          <View
+            testID={testID ? `${testID}-indicator` : undefined}
+            style={[
+              styles.indicator,
+              {
+                backgroundColor: indicatorColor,
+                height: indicatorHeight,
+              },
+            ]}
+          />
+        </Presence>
+      )}
+
+      <View style={[styles.iconContainer, iconStyle]}>
+        {iconNode}
+        {badge != null && (
+          <View style={[styles.badge, { backgroundColor: activeColor }]}>
+            <AppText style={styles.badgeText}>{badgeContent}</AppText>
+          </View>
+        )}
+      </View>
+      {showLabel && (
+        <AppText
+          style={[styles.label, { color: isFocused ? activeColor : inactiveColor }, labelStyle]}
+          numberOfLines={1}
+        >
+          {label}
+        </AppText>
+      )}
+    </AppPressable>
+  );
+}
 
 /**
  * 自定义底部标签栏组件
@@ -60,14 +202,29 @@ export function BottomTabBar({
   iconStyle,
   labelStyle,
   style,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
+  showActiveIndicator = true,
+  indicatorColor,
+  indicatorHeight = 3,
+  indicatorMotionPreset,
+  indicatorMotionDuration,
+  indicatorMotionEnterDuration,
+  indicatorMotionExitDuration,
+  indicatorMotionDistance,
+  indicatorMotionReduceMotion,
 }: CustomBottomTabBarProps) {
+  const motionConfig = useMotionConfig();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
 
   const activeColor = activeTintColor || colors.primary;
   const inactiveColor = inactiveTintColor || colors.textMuted;
   const backgroundColor = style?.backgroundColor || colors.card;
   const borderTopColor = colors.divider;
+  const resolvedIndicatorColor = indicatorColor || activeColor;
 
   return (
     <View
@@ -121,44 +278,36 @@ export function BottomTabBar({
         const badge = options.tabBarBadge;
 
         return (
-          <TouchableOpacity
+          <BottomTabBarItem
             key={route.key}
-            accessibilityRole="button"
-            accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={(options as any).tabBarTestID}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
             onPress={onPress}
             onLongPress={onLongPress}
-            style={[
-              styles.tab,
-              {
-                backgroundColor: isFocused ? activeBackgroundColor : inactiveBackgroundColor,
-              },
-            ]}
-          >
-            <View style={[styles.iconContainer, iconStyle]}>
-              {iconName}
-              {badge != null && (
-                <View style={[styles.badge, { backgroundColor: activeColor }]}>
-                  <AppText style={styles.badgeText}>
-                    {typeof badge === 'number' && badge > 99 ? '99+' : badge}
-                  </AppText>
-                </View>
-              )}
-            </View>
-            {showLabel && (
-              <AppText
-                style={[
-                  styles.label,
-                  { color: isFocused ? activeColor : inactiveColor },
-                  labelStyle,
-                ]}
-                numberOfLines={1}
-              >
-                {label as string}
-              </AppText>
-            )}
-          </TouchableOpacity>
+            motionPreset={resolvedMotionPreset}
+            activeBackgroundColor={activeBackgroundColor}
+            inactiveBackgroundColor={inactiveBackgroundColor}
+            activeColor={activeColor}
+            inactiveColor={inactiveColor}
+            iconNode={iconName}
+            iconStyle={iconStyle}
+            badge={badge}
+            isFocused={isFocused}
+            label={label as string}
+            labelStyle={labelStyle}
+            showLabel={showLabel}
+            showActiveIndicator={showActiveIndicator}
+            indicatorColor={resolvedIndicatorColor}
+            indicatorHeight={indicatorHeight}
+            indicatorMotionPreset={indicatorMotionPreset}
+            indicatorMotionDuration={indicatorMotionDuration}
+            indicatorMotionEnterDuration={indicatorMotionEnterDuration}
+            indicatorMotionExitDuration={indicatorMotionExitDuration}
+            indicatorMotionDistance={indicatorMotionDistance}
+            indicatorMotionReduceMotion={indicatorMotionReduceMotion}
+            motionDuration={motionDuration}
+            motionReduceMotion={motionReduceMotion}
+          />
         );
       })}
     </View>
@@ -181,6 +330,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 6,
+    position: 'relative',
+  },
+  indicator: {
+    position: 'absolute',
+    top: 2,
+    width: 24,
+    borderRadius: 999,
   },
   iconContainer: {
     position: 'relative',

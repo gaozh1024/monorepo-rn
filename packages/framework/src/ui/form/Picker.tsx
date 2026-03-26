@@ -2,10 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
+import {
+  useMotionConfig,
+  type PressMotionPreset,
+  type PressMotionProps,
+  type SheetMotionProps,
+} from '@/ui/motion';
 import { Icon } from '@/ui/display';
 import { AppPressable, AppText, AppView } from '@/ui/primitives';
 import { cn } from '@/utils';
@@ -42,24 +47,28 @@ export interface PickerRenderFooterContext {
   tempValues: PickerValue[];
 }
 
-export interface PickerProps extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-  | 'rounded'
-> {
+export interface PickerProps
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+      | 'rounded'
+    >,
+    SheetMotionProps,
+    PressMotionProps {
   value?: PickerValue[];
   onChange?: (values: PickerValue[]) => void;
   columns: PickerColumn[];
@@ -97,6 +106,9 @@ function normalizeValues(columns: PickerColumn[], values?: PickerValue[]) {
 interface WheelPickerColumnProps {
   colors: FormThemeColors;
   column: PickerColumn;
+  motionPreset: PressMotionPreset;
+  motionDuration?: number;
+  motionReduceMotion?: boolean;
   onChange: (value: PickerValue) => void;
   rowHeight: number;
   selectedValue?: PickerValue;
@@ -107,6 +119,9 @@ interface WheelPickerColumnProps {
 function WheelPickerColumn({
   colors,
   column,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
   onChange,
   rowHeight,
   selectedValue,
@@ -216,7 +231,7 @@ function WheelPickerColumn({
             const selected = option.value === selectedValue;
 
             return (
-              <TouchableOpacity
+              <AppPressable
                 key={`${column.key}-${String(option.value)}-${index}`}
                 disabled={option.disabled}
                 onPress={() => {
@@ -231,6 +246,9 @@ function WheelPickerColumn({
                     opacity: option.disabled ? 0.35 : selected ? 1 : 0.72,
                   },
                 ]}
+                motionPreset={motionPreset}
+                motionDuration={motionDuration}
+                motionReduceMotion={motionReduceMotion}
               >
                 <AppText
                   className={cn(selected ? 'font-semibold' : undefined)}
@@ -238,7 +256,7 @@ function WheelPickerColumn({
                 >
                   {option.label}
                 </AppText>
-              </TouchableOpacity>
+              </AppPressable>
             );
           })}
         </ScrollView>
@@ -337,7 +355,15 @@ export function Picker({
   onOpen,
   rowHeight = 40,
   visibleRows = 5,
+  motionPreset,
+  motionDistance,
+  motionOverlayOpacity,
+  motionSwipeThreshold,
+  motionVelocityThreshold,
+  motionReduceMotion,
+  motionDuration,
 }: PickerProps) {
+  const motionConfig = useMotionConfig();
   const colors = useFormThemeColors();
   const { theme, isDark } = useOptionalTheme();
   const [visible, setVisible] = useState(false);
@@ -346,6 +372,7 @@ export function Picker({
   );
   const resolvedBgColor =
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
 
   const isControlledTemp = tempValue !== undefined;
   const tempValues = useMemo(
@@ -435,6 +462,9 @@ export function Picker({
         ]}
         disabled={disabled}
         onPress={openModal}
+        motionPreset={resolvedMotionPreset}
+        motionDuration={motionDuration}
+        motionReduceMotion={motionReduceMotion}
       >
         <AppText
           className="flex-1"
@@ -452,6 +482,11 @@ export function Picker({
         overlayColor={colors.overlay}
         surfaceColor={colors.surface}
         closeOnBackdropPress
+        motionDistance={motionDistance}
+        motionOverlayOpacity={motionOverlayOpacity}
+        motionSwipeThreshold={motionSwipeThreshold}
+        motionVelocityThreshold={motionVelocityThreshold}
+        motionReduceMotion={motionReduceMotion}
       >
         <>
           <AppView
@@ -461,17 +496,31 @@ export function Picker({
             className="px-4 py-3"
             style={[styles.header, { borderBottomColor: colors.divider }]}
           >
-            <TouchableOpacity onPress={() => setVisible(false)}>
+            <AppPressable
+              onPress={() => setVisible(false)}
+              className="py-1"
+              pressedClassName="opacity-70"
+              motionPreset={resolvedMotionPreset}
+              motionDuration={motionDuration}
+              motionReduceMotion={motionReduceMotion}
+            >
               <AppText style={{ color: colors.textMuted }}>{cancelText}</AppText>
-            </TouchableOpacity>
+            </AppPressable>
             <AppText className="text-lg font-semibold" style={{ color: colors.text }}>
               {pickerTitle}
             </AppText>
-            <TouchableOpacity onPress={handleConfirm}>
+            <AppPressable
+              onPress={handleConfirm}
+              className="py-1"
+              pressedClassName="opacity-70"
+              motionPreset={resolvedMotionPreset}
+              motionDuration={motionDuration}
+              motionReduceMotion={motionReduceMotion}
+            >
               <AppText className="font-medium" style={{ color: colors.primary }}>
                 {confirmText}
               </AppText>
-            </TouchableOpacity>
+            </AppPressable>
           </AppView>
 
           <AppView row>
@@ -480,6 +529,9 @@ export function Picker({
                 key={column.key}
                 colors={colors}
                 column={column}
+                motionPreset={resolvedMotionPreset}
+                motionDuration={motionDuration}
+                motionReduceMotion={motionReduceMotion}
                 onChange={nextValue => updateColumnValue(index, nextValue)}
                 rowHeight={rowHeight}
                 selectedValue={tempValues[index]}

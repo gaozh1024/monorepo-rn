@@ -11,6 +11,7 @@ import { useLoading } from '../loading/hooks';
 import { useToast } from '../toast/hooks';
 import { useAlert } from '../alert/hooks';
 import { useLogger } from '../logger/hooks';
+import { useReducedMotion } from '@/ui/motion';
 
 // 测试组件：使用 Overlay 功能
 function TestOverlayComponent() {
@@ -31,6 +32,14 @@ function TestOverlayComponent() {
 
 function CrashComponent() {
   throw new Error('app provider crash');
+}
+
+function MotionStateProbe() {
+  const motion = useReducedMotion();
+
+  return (
+    <div testID="motion-state">{`${String(motion.reduceMotion)}|${String(motion.durationScale)}`}</div>
+  );
 }
 
 describe('AppProvider', () => {
@@ -132,6 +141,16 @@ describe('AppProvider', () => {
     );
     expect(getByTestId('child')).toBeTruthy();
     expect(getByTestId('status-bar')).toBeTruthy();
+  });
+
+  it('应该支持通过 AppProvider 注入全局 motion 配置', () => {
+    const { getByText } = render(
+      <AppProvider motion={{ reduceMotion: true, durationScale: 0.5 }}>
+        <MotionStateProbe />
+      </AppProvider>
+    );
+
+    expect(getByText('true|0')).toBeTruthy();
   });
 
   it('启用错误边界后应该显示回退界面', () => {

@@ -3,10 +3,12 @@
  * @module overlay/alert/types
  */
 
+import type { PresenceMotionProps } from '@/ui/motion';
+
 /**
  * Alert 选项
  */
-export interface AlertOptions {
+export interface AlertOptions extends PresenceMotionProps {
   /** 标题 */
   title?: string;
   /** 消息内容 */

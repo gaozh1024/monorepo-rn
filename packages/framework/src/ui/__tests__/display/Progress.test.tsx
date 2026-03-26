@@ -21,12 +21,17 @@ describe('Progress', () => {
       );
     });
 
-    const views = renderer!.root.findAllByType(AppView);
-    const bar = views[1];
+    const track = renderer!.root.findByType(AppView);
+    const bar = renderer!.root.findAll(
+      node =>
+        typeof node.type === 'string' &&
+        node.type === 'Animated.View' &&
+        Array.isArray(node.props.style)
+    )[0];
 
-    expect(bar.props.style).toEqual(
-      expect.arrayContaining([expect.objectContaining({ width: '40%' })])
-    );
+    expect(track).toBeTruthy();
+    const widthStyle = bar.props.style.find((style: Record<string, unknown>) => 'width' in style);
+    expect(widthStyle.width).toBe('40%');
   });
 
   it('应该支持基础快捷参数', () => {
@@ -40,9 +45,13 @@ describe('Progress', () => {
       );
     });
 
-    const views = renderer!.root.findAllByType(AppView);
-    const track = views[0];
-    const bar = views[1];
+    const track = renderer!.root.findByType(AppView);
+    const bar = renderer!.root.findAll(
+      node =>
+        typeof node.type === 'string' &&
+        node.type === 'Animated.View' &&
+        Array.isArray(node.props.style)
+    )[0];
 
     expect(track.props.style).toEqual(
       expect.arrayContaining([
@@ -53,10 +62,9 @@ describe('Progress', () => {
       ])
     );
     expect(bar.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ borderRadius: 16 }),
-        expect.objectContaining({ width: '60%' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ borderRadius: 16 })])
     );
+    const widthStyle = bar.props.style.find((style: Record<string, unknown>) => 'width' in style);
+    expect(widthStyle.width).toBe('60%');
   });
 });

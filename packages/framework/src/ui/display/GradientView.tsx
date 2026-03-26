@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { LinearGradient, type LinearGradientProps } from 'expo-linear-gradient';
+import { cn } from '@/utils';
 import {
   type CommonLayoutProps,
   resolveLayoutStyle,
@@ -15,6 +16,8 @@ export interface GradientViewProps
   colors: readonly [string, string, ...string[]];
   /** 子元素 */
   children?: React.ReactNode;
+  /** NativeWind 类名 */
+  className?: string;
   /** 自定义容器样式 */
   style?: StyleProp<ViewStyle>;
 }
@@ -68,11 +71,13 @@ export function GradientView({
   start = { x: 0, y: 0 },
   end = { x: 1, y: 1 },
   children,
+  className,
   style,
   ...props
 }: GradientViewProps) {
   return (
     <LinearGradient
+      className={cn(className)}
       colors={[...colors]}
       start={start}
       end={end}

@@ -3,9 +3,10 @@
  * @module overlay/alert/component
  */
 
-import { useEffect, useRef } from 'react';
-import { View, Modal, StyleSheet, Animated } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { Modal, StyleSheet } from 'react-native';
 import { AppView, AppText, AppPressable } from '@/ui';
+import { useMotionConfig, usePresenceMotion } from '@/ui/motion';
 import type { AlertOptions } from './types';
 
 type AlertModalProps = AlertOptions & {
@@ -13,19 +14,6 @@ type AlertModalProps = AlertOptions & {
   onConfirm: () => void;
   onCancel: () => void;
 };
-
-function createAnimatedValue(value: number) {
-  const AnimatedValue = Animated.Value as unknown as {
-    new (initialValue: number): Animated.Value;
-    (initialValue: number): Animated.Value;
-  };
-
-  try {
-    return new AnimatedValue(value);
-  } catch {
-    return AnimatedValue(value);
-  }
-}
 
 /**
  * Alert 弹窗组件
@@ -37,53 +25,34 @@ export function AlertModal({
   confirmText,
   cancelText,
   showCancel,
+  motionPreset,
+  motionDuration,
+  motionEnterDuration,
+  motionExitDuration,
+  motionDistance,
+  motionReduceMotion,
   onConfirm,
   onCancel,
 }: AlertModalProps) {
-  const progress = useRef(createAnimatedValue(0)).current;
+  const motionConfig = useMotionConfig();
+  const presence = usePresenceMotion({
+    visible,
+    preset: motionPreset ?? motionConfig.defaultPresencePreset ?? 'dialog',
+    duration: motionDuration,
+    enterDuration: motionEnterDuration,
+    exitDuration: motionExitDuration,
+    distance: motionDistance,
+    reduceMotion: motionReduceMotion,
+    unmountOnExit: true,
+  });
 
-  useEffect(() => {
-    if (!visible) {
-      progress.setValue(0);
-      return;
-    }
-
-    progress.setValue(0);
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: 220,
-      useNativeDriver: true,
-    }).start();
-  }, [progress, visible]);
-
-  if (!visible) return null;
+  if (!presence.mounted) return null;
 
   return (
-    <Modal transparent visible animationType="none">
-      <View style={styles.container}>
-        <Animated.View style={[styles.overlay, { opacity: progress }]} />
-        <Animated.View
-          style={[
-            styles.alertBox,
-            {
-              opacity: progress,
-              transform: [
-                {
-                  translateY: progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 0],
-                  }),
-                },
-                {
-                  scale: progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.96, 1],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
+    <Modal transparent visible={presence.mounted} animationType="none">
+      <AppView style={styles.container}>
+        <Animated.View style={[styles.overlay, presence.overlayAnimatedStyle]} />
+        <Animated.View style={[styles.alertBox, presence.animatedStyle]}>
           {title && <AppText className="text-lg font-semibold text-center mb-2">{title}</AppText>}
           {message && <AppText className="text-gray-600 text-center mb-4">{message}</AppText>}
           <AppView row gap={3} className="mt-2">
@@ -97,7 +66,7 @@ export function AlertModal({
             </AppPressable>
           </AppView>
         </Animated.View>
-      </View>
+      </AppView>
     </Modal>
   );
 }

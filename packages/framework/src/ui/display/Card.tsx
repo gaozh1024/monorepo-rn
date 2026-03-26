@@ -1,6 +1,8 @@
 import { View, ViewProps } from 'react-native';
 import { useThemeColors } from '@/theme';
+import { useMotionConfig, type PressMotionProps } from '@/ui/motion';
 import { cn } from '@/utils';
+import { AppPressable } from '@/ui/primitives';
 import {
   type CommonLayoutProps,
   type LayoutSurface,
@@ -15,7 +17,7 @@ import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 /**
  * Card 组件属性接口
  */
-export interface CardProps extends ViewProps, CommonLayoutProps {
+export interface CardProps extends ViewProps, CommonLayoutProps, PressMotionProps {
   /** 背景颜色 */
   bg?: string;
   /** 语义化背景 */
@@ -28,6 +30,12 @@ export interface CardProps extends ViewProps, CommonLayoutProps {
   noBorder?: boolean;
   /** 是否禁用圆角 */
   noRadius?: boolean;
+  /** 点击回调；传入后卡片将切换为可按压态 */
+  onPress?: () => void;
+  /** 是否禁用按压 */
+  disabled?: boolean;
+  /** 按压态类名 */
+  pressedClassName?: string;
 }
 
 /**
@@ -71,60 +79,84 @@ export function Card({
   noShadow = false,
   noBorder = false,
   noRadius = false,
+  onPress,
+  disabled,
+  pressedClassName,
+  motionPreset,
+  motionDuration,
+  motionReduceMotion,
   ...props
 }: CardProps) {
+  const motionConfig = useMotionConfig();
   const colors = useThemeColors();
   const { theme, isDark } = useOptionalTheme();
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
   const resolvedBgColor =
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
+  const sharedClassName = cn(!noShadow && 'shadow-sm', 'overflow-hidden', className);
+  const sharedStyle = [
+    {
+      backgroundColor: resolvedBgColor ?? colors.card,
+      ...(noBorder ? {} : { borderWidth: 0.5, borderColor: colors.divider }),
+    },
+    resolveLayoutStyle({
+      flex,
+      row,
+      wrap,
+      center,
+      between,
+      items,
+      justify,
+      gap,
+    }),
+    resolveSpacingStyle({
+      p,
+      px,
+      py,
+      pt,
+      pb,
+      pl,
+      pr,
+      m,
+      mx,
+      my,
+      mt,
+      mb,
+      ml,
+      mr,
+    }),
+    resolveSizingStyle({
+      w,
+      h,
+      minW,
+      minH,
+      maxW,
+      maxH,
+    }),
+    noRadius ? undefined : resolveRoundedStyle(rounded ?? 'lg'),
+    style,
+  ];
+
+  if (onPress) {
+    return (
+      <AppPressable
+        className={sharedClassName}
+        style={sharedStyle}
+        onPress={onPress}
+        disabled={disabled}
+        pressedClassName={pressedClassName}
+        motionPreset={resolvedMotionPreset}
+        motionDuration={motionDuration}
+        motionReduceMotion={motionReduceMotion}
+        {...props}
+      >
+        {children}
+      </AppPressable>
+    );
+  }
 
   return (
-    <View
-      className={cn(!noShadow && 'shadow-sm', 'overflow-hidden', className)}
-      style={[
-        {
-          backgroundColor: resolvedBgColor ?? colors.card,
-          ...(noBorder ? {} : { borderWidth: 0.5, borderColor: colors.divider }),
-        },
-        resolveLayoutStyle({
-          flex,
-          row,
-          wrap,
-          center,
-          between,
-          items,
-          justify,
-          gap,
-        }),
-        resolveSpacingStyle({
-          p,
-          px,
-          py,
-          pt,
-          pb,
-          pl,
-          pr,
-          m,
-          mx,
-          my,
-          mt,
-          mb,
-          ml,
-          mr,
-        }),
-        resolveSizingStyle({
-          w,
-          h,
-          minW,
-          minH,
-          maxW,
-          maxH,
-        }),
-        noRadius ? undefined : resolveRoundedStyle(rounded ?? 'lg'),
-        style,
-      ]}
-      {...props}
-    >
+    <View className={sharedClassName} style={sharedStyle} {...props}>
       {children}
     </View>
   );

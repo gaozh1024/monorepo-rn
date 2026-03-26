@@ -31,8 +31,11 @@ describe('GradientView', () => {
     );
 
     const node = getByTestId('gradient');
+    const resolvedStyle = Array.isArray(node.props.style)
+      ? Object.assign({}, ...node.props.style.filter(Boolean))
+      : node.props.style;
     expect(node.props.start).toEqual({ x: 0, y: 0 });
     expect(node.props.end).toEqual({ x: 0, y: 1 });
-    expect(node.props.style.borderRadius).toBe(16);
+    expect(resolvedStyle.borderRadius).toBe(16);
   });
 });

@@ -5,17 +5,42 @@ import { act, create } from 'react-test-renderer';
 import { Switch } from '../../form/Switch';
 import { AppPressable, AppView } from '../../primitives';
 import { renderWithTheme } from './test-utils';
+import { ThemeProvider, createTheme } from '@/theme';
+
+const theme = createTheme({
+  colors: { primary: '#f38b32' },
+});
 
 describe('Switch', () => {
   it('应该在非受控模式下切换状态', () => {
-    const onChange = vi.fn();
-    const { getByTestId } = renderWithTheme(
-      <Switch testID="switch" defaultChecked={false} onChange={onChange} />
-    );
+    vi.useFakeTimers();
 
-    fireEvent.press(getByTestId('switch'));
+    try {
+      const onChange = vi.fn();
+      let renderer: ReturnType<typeof create>;
 
-    expect(onChange).toHaveBeenCalledWith(true);
+      act(() => {
+        renderer = create(
+          <ThemeProvider light={theme}>
+            <Switch testID="switch" defaultChecked={false} onChange={onChange} />
+          </ThemeProvider>
+        );
+      });
+
+      const pressable = renderer!.root.findByType(AppPressable);
+
+      act(() => {
+        pressable.props.onPress?.();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(220);
+      });
+
+      expect(onChange).toHaveBeenCalledWith(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('应该在禁用时阻止切换', () => {
@@ -34,12 +59,24 @@ describe('Switch', () => {
 
     try {
       const onChange = vi.fn();
-      const { getByTestId } = renderWithTheme(
-        <Switch testID="switch" checked={false} onChange={onChange} />
-      );
+      let renderer: ReturnType<typeof create>;
 
-      fireEvent.press(getByTestId('switch'));
-      fireEvent.press(getByTestId('switch'));
+      act(() => {
+        renderer = create(
+          <ThemeProvider light={theme}>
+            <Switch testID="switch" checked={false} onChange={onChange} />
+          </ThemeProvider>
+        );
+      });
+
+      const pressable = renderer!.root.findByType(AppPressable);
+
+      act(() => {
+        pressable.props.onPress?.();
+      });
+      act(() => {
+        pressable.props.onPress?.();
+      });
 
       expect(onChange).toHaveBeenCalledTimes(1);
 
@@ -47,7 +84,13 @@ describe('Switch', () => {
         vi.advanceTimersByTime(220);
       });
 
-      fireEvent.press(getByTestId('switch'));
+      act(() => {
+        pressable.props.onPress?.();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(220);
+      });
 
       expect(onChange).toHaveBeenCalledTimes(2);
     } finally {

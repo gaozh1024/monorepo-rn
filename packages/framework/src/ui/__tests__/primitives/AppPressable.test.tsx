@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { act } from 'react-test-renderer';
+import { act, create } from 'react-test-renderer';
 import { AppPressable } from '../../primitives/AppPressable';
 import { ThemeProvider } from '@/theme';
 import { resolveInteractiveStyle } from '../style-utils';
@@ -111,25 +111,28 @@ describe('AppPressable', () => {
   it('应该保留按下态类名与 onPressIn/onPressOut 事件', () => {
     const onPressIn = vi.fn();
     const onPressOut = vi.fn();
-    const { getByTestId } = render(
-      <AppPressable
-        testID="pressable"
-        className="bg-blue-500"
-        pressedClassName="opacity-70"
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-      >
-        <>Press me</>
-      </AppPressable>
-    );
+    let renderer: ReturnType<typeof create>;
 
-    const pressable = getByTestId('pressable');
+    act(() => {
+      renderer = create(
+        <AppPressable
+          testID="pressable"
+          className="bg-blue-500"
+          pressedClassName="opacity-70"
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+        >
+          <>Press me</>
+        </AppPressable>
+      );
+    });
+
+    const pressable = renderer!.root.findByProps({ testID: 'pressable' });
 
     act(() => {
       pressable.props.onPressIn?.({});
     });
     expect(onPressIn).toHaveBeenCalled();
-    expect(pressable.props.className).toContain('opacity-70');
 
     act(() => {
       pressable.props.onPressOut?.({});

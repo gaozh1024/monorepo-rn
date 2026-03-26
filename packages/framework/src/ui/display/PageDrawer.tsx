@@ -1,39 +1,27 @@
 import React from 'react';
-import { BackHandler, Modal, PanResponder, StyleSheet } from 'react-native';
+import { BackHandler, Modal, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useThemeColors } from '@/theme';
+import { useMotionConfig, type PressMotionProps, type SheetMotionProps } from '@/ui/motion';
 import { AppPressable, AppScrollView, AppText, AppView } from '@/ui/primitives';
+import { useSheetMotion } from '../motion/hooks/useSheetMotion';
 import { Icon } from './Icon';
 
-export interface PageDrawerProps {
-  /** 是否显示 */
+export interface PageDrawerProps extends SheetMotionProps, PressMotionProps {
   visible: boolean;
-  /** 关闭回调 */
   onClose?: () => void;
-  /** 标题 */
   title?: string;
-  /** 自定义头部 */
   header?: React.ReactNode;
-  /** 自定义底部 */
   footer?: React.ReactNode;
-  /** 抽屉位置 */
   placement?: 'left' | 'right';
-  /** 抽屉宽度 */
   width?: number;
-  /** 是否启用手势关闭 */
   swipeEnabled?: boolean;
-  /** 关闭阈值 */
   swipeThreshold?: number;
-  /** 点击遮罩是否关闭 */
   closeOnBackdropPress?: boolean;
-  /** 是否显示关闭按钮 */
   showCloseButton?: boolean;
-  /** 内容 */
   children?: React.ReactNode;
-  /** 测试 ID */
   testID?: string;
-  /** 内容测试 ID */
   contentTestID?: string;
-  /** 遮罩测试 ID */
   backdropTestID?: string;
 }
 
@@ -49,18 +37,35 @@ export function PageDrawer({
   swipeThreshold = 80,
   closeOnBackdropPress = true,
   showCloseButton = true,
+  motionPreset,
+  motionDistance = width,
+  motionOverlayOpacity = 1,
+  motionSwipeThreshold,
+  motionVelocityThreshold,
+  motionReduceMotion,
+  motionDuration,
   children,
   testID,
   contentTestID = 'page-drawer-content',
   backdropTestID = 'page-drawer-backdrop',
 }: PageDrawerProps) {
+  const motionConfig = useMotionConfig();
   const colors = useThemeColors();
-  const [translateX, setTranslateX] = React.useState(0);
-
+  const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
   const handleClose = React.useCallback(() => {
-    setTranslateX(0);
     onClose?.();
   }, [onClose]);
+  const sheetMotion = useSheetMotion({
+    visible,
+    placement,
+    distance: motionDistance,
+    overlayOpacity: motionOverlayOpacity,
+    closeOnSwipe: swipeEnabled,
+    swipeThreshold: motionSwipeThreshold ?? swipeThreshold,
+    velocityThreshold: motionVelocityThreshold,
+    reduceMotion: motionReduceMotion,
+    onRequestClose: handleClose,
+  });
 
   React.useEffect(() => {
     if (!visible) return;
@@ -73,128 +78,105 @@ export function PageDrawer({
     return () => subscription.remove();
   }, [handleClose, visible]);
 
-  const panResponder = React.useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_event, gestureState) => {
-          if (!swipeEnabled) return false;
-
-          const isHorizontal = Math.abs(gestureState.dx) > Math.abs(gestureState.dy);
-          const reachesThreshold = Math.abs(gestureState.dx) > 8;
-
-          return isHorizontal && reachesThreshold;
-        },
-        onPanResponderMove: (_event, gestureState) => {
-          if (!swipeEnabled) return;
-
-          const nextTranslateX =
-            placement === 'right'
-              ? Math.min(0, Math.max(-width, gestureState.dx))
-              : Math.max(0, Math.min(width, gestureState.dx));
-
-          setTranslateX(nextTranslateX);
-        },
-        onPanResponderRelease: (_event, gestureState) => {
-          if (!swipeEnabled) {
-            setTranslateX(0);
-            return;
-          }
-
-          const reachedCloseThreshold =
-            placement === 'right'
-              ? gestureState.dx <= -swipeThreshold
-              : gestureState.dx >= swipeThreshold;
-
-          if (reachedCloseThreshold) {
-            handleClose();
-            return;
-          }
-
-          setTranslateX(0);
-        },
-        onPanResponderTerminate: () => {
-          setTranslateX(0);
-        },
-      }),
-    [handleClose, placement, swipeEnabled, swipeThreshold, width]
-  );
-
-  if (!visible) return null;
+  if (!sheetMotion.mounted) return null;
 
   const drawerContent = (
-    <AppView
-      testID={contentTestID}
-      className="h-full"
-      {...panResponder.panHandlers}
-      style={[
-        styles.drawer,
-        {
-          width,
-          backgroundColor: colors.card,
-          borderLeftWidth: placement === 'right' ? 0.5 : 0,
-          borderRightWidth: placement === 'left' ? 0.5 : 0,
-          borderLeftColor: colors.border,
-          borderRightColor: colors.border,
-          transform: [{ translateX }],
-        },
-      ]}
-    >
-      {(header || title || showCloseButton) && (
-        <AppView
-          row
-          items="center"
-          between
-          className="px-4 py-4"
-          style={[styles.header, { borderBottomColor: colors.divider }]}
-        >
-          <AppView flex>
-            {header ||
-              (title ? (
-                <AppText size="lg" weight="semibold">
-                  {title}
-                </AppText>
-              ) : null)}
+    <Animated.View style={sheetMotion.sheetStyle}>
+      <AppView
+        testID={contentTestID}
+        className="h-full"
+        style={[
+          styles.drawer,
+          {
+            width,
+            backgroundColor: colors.card,
+            borderLeftWidth: placement === 'right' ? 0.5 : 0,
+            borderRightWidth: placement === 'left' ? 0.5 : 0,
+            borderLeftColor: colors.border,
+            borderRightColor: colors.border,
+          },
+        ]}
+        {...sheetMotion.panHandlers}
+      >
+        {(header || title || showCloseButton) && (
+          <AppView
+            row
+            items="center"
+            between
+            className="px-4 py-4"
+            style={[styles.header, { borderBottomColor: colors.divider }]}
+          >
+            <AppView flex>
+              {header ||
+                (title ? (
+                  <AppText size="lg" weight="semibold">
+                    {title}
+                  </AppText>
+                ) : null)}
+            </AppView>
+            {showCloseButton && (
+              <AppPressable
+                testID="page-drawer-close"
+                className="p-1"
+                pressedClassName="opacity-70"
+                motionPreset={resolvedMotionPreset}
+                motionDuration={motionDuration}
+                motionReduceMotion={motionReduceMotion}
+                onPress={handleClose}
+              >
+                <Icon name="close" size="md" color={colors.textSecondary} />
+              </AppPressable>
+            )}
           </AppView>
-          {showCloseButton && (
-            <AppPressable
-              testID="page-drawer-close"
-              className="p-1"
-              pressedClassName="opacity-70"
-              onPress={handleClose}
-            >
-              <Icon name="close" size="md" color={colors.textSecondary} />
-            </AppPressable>
-          )}
-        </AppView>
-      )}
+        )}
 
-      <AppScrollView flex className="px-4 py-4">
-        {children}
-      </AppScrollView>
+        <AppScrollView flex className="px-4 py-4">
+          {children}
+        </AppScrollView>
 
-      {footer && (
-        <AppView className="px-4 py-4" style={[styles.footer, { borderTopColor: colors.divider }]}>
-          {footer}
-        </AppView>
-      )}
-    </AppView>
+        {footer && (
+          <AppView
+            className="px-4 py-4"
+            style={[styles.footer, { borderTopColor: colors.divider }]}
+          >
+            {footer}
+          </AppView>
+        )}
+      </AppView>
+    </Animated.View>
   );
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={handleClose}>
+    <Modal
+      visible={sheetMotion.mounted}
+      transparent
+      animationType="none"
+      onRequestClose={handleClose}
+    >
       <AppView
         testID={testID}
         flex
         row
-        style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        style={{ backgroundColor: 'transparent' }}
         justify={placement === 'right' ? 'end' : 'start'}
       >
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFillObject,
+            { backgroundColor: 'rgba(0,0,0,0.5)' },
+            sheetMotion.overlayStyle,
+          ]}
+        />
+
         {placement === 'left' && drawerContent}
 
         <AppPressable
           testID={backdropTestID}
           className="flex-1"
           onPress={closeOnBackdropPress ? handleClose : undefined}
+          motionPreset="none"
+          motionReduceMotion
         />
 
         {placement === 'right' && drawerContent}

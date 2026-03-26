@@ -3,6 +3,8 @@
  * @module overlay/toast/types
  */
 
+import type { PresenceMotionProps } from '@/ui/motion';
+
 /**
  * Toast 类型
  */
@@ -11,7 +13,7 @@ export type ToastType = 'success' | 'error' | 'info' | 'warning';
 /**
  * Toast 项
  */
-export interface ToastItem {
+export interface ToastItem extends PresenceMotionProps {
   id: string;
   message: string;
   type: ToastType;

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import Animated from 'react-native-reanimated';
 import {
   Keyboard,
   FlatList,
@@ -16,6 +17,12 @@ import { Icon } from './Icon';
 import { Center } from '@/ui/layout';
 import { SkeletonAvatar, SkeletonText } from '@/ui/feedback';
 import { cn } from '@/utils';
+import { StaggerItem } from '@/ui/motion';
+import type {
+  MotionEntryExitAnimation,
+  MotionLayoutAnimation,
+  StaggerMotionProps,
+} from '../motion';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 import {
   type CommonLayoutProps,
@@ -26,38 +33,41 @@ import {
   resolveSpacingStyle,
 } from '../utils/layout-shortcuts';
 
-export interface AppListProps<T = any> extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'row'
-  | 'wrap'
-  | 'center'
-  | 'between'
-  | 'items'
-  | 'justify'
-  | 'p'
-  | 'px'
-  | 'py'
-  | 'pt'
-  | 'pb'
-  | 'pl'
-  | 'pr'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'gap'
-  | 'rounded'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-> {
+export interface AppListProps<T = any>
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'row'
+      | 'wrap'
+      | 'center'
+      | 'between'
+      | 'items'
+      | 'justify'
+      | 'p'
+      | 'px'
+      | 'py'
+      | 'pt'
+      | 'pb'
+      | 'pl'
+      | 'pr'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'gap'
+      | 'rounded'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+    >,
+    StaggerMotionProps {
   data: T[];
   renderItem: ListRenderItem<T>;
   keyExtractor?: (item: T, index: number) => string;
@@ -100,6 +110,8 @@ export interface AppListProps<T = any> extends Pick<
   surface?: LayoutSurface;
   className?: string;
   dismissKeyboardOnPressOutside?: boolean;
+  /** 是否为列表项启用错峰入场动画 */
+  stagger?: boolean;
 }
 
 function renderListSlot(
@@ -218,6 +230,24 @@ function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
   );
 }
 
+function AppListMotionItem({
+  children,
+  entering,
+  exiting,
+  layout,
+}: {
+  children: React.ReactNode;
+  entering?: MotionEntryExitAnimation;
+  exiting?: MotionEntryExitAnimation;
+  layout?: MotionLayoutAnimation;
+}) {
+  return (
+    <Animated.View entering={entering} exiting={exiting} layout={layout}>
+      {children}
+    </Animated.View>
+  );
+}
+
 export function AppList<T = any>({
   flex,
   row,
@@ -290,6 +320,16 @@ export function AppList<T = any>({
   surface,
   className,
   dismissKeyboardOnPressOutside = false,
+  stagger = false,
+  staggerPreset,
+  staggerMs = 40,
+  staggerBaseDelayMs,
+  staggerDuration,
+  staggerDistance,
+  staggerReduceMotion,
+  motionEntering,
+  motionExiting,
+  motionLayout,
 }: AppListProps<T>) {
   const { theme } = useTheme();
   const { theme: optionalTheme, isDark } = useOptionalTheme();
@@ -361,16 +401,85 @@ export function AppList<T = any>({
     [keyExtractor]
   );
 
+  const itemMotionProps = useMemo(
+    () =>
+      staggerReduceMotion
+        ? undefined
+        : {
+            entering: motionEntering,
+            exiting: motionExiting,
+            layout: motionLayout,
+          },
+    [motionEntering, motionExiting, motionLayout, staggerReduceMotion]
+  );
+
+  const shouldWrapItemWithMotion = useMemo(
+    () =>
+      stagger ||
+      Boolean(itemMotionProps?.entering || itemMotionProps?.exiting || itemMotionProps?.layout),
+    [itemMotionProps, stagger]
+  );
+
   const wrappedRenderItem = useCallback(
     (info: any) => {
-      return (
+      const content = (
         <>
           {divider && info.index > 0 && <Divider style={dividerStyle} />}
           {renderItem(info)}
         </>
       );
+
+      if (!shouldWrapItemWithMotion) return content;
+
+      if (stagger) {
+        return (
+          <StaggerItem
+            index={info.index}
+            visible
+            staggerPreset={staggerPreset}
+            staggerMs={staggerMs}
+            staggerBaseDelayMs={staggerBaseDelayMs}
+            staggerDuration={staggerDuration}
+            staggerDistance={staggerDistance}
+            staggerReduceMotion={staggerReduceMotion}
+            motionEntering={motionEntering}
+            motionExiting={motionExiting}
+            motionLayout={motionLayout}
+          >
+            {content}
+          </StaggerItem>
+        );
+      }
+
+      return (
+        <AppListMotionItem
+          entering={itemMotionProps?.entering}
+          exiting={itemMotionProps?.exiting}
+          layout={itemMotionProps?.layout}
+        >
+          {content}
+        </AppListMotionItem>
+      );
     },
-    [renderItem, divider, dividerStyle]
+    [
+      divider,
+      dividerStyle,
+      itemMotionProps?.entering,
+      itemMotionProps?.exiting,
+      itemMotionProps?.layout,
+      motionEntering,
+      motionExiting,
+      motionLayout,
+      renderItem,
+      shouldWrapItemWithMotion,
+      stagger,
+      staggerBaseDelayMs,
+      staggerDistance,
+      staggerDuration,
+      staggerMs,
+      staggerPreset,
+      staggerReduceMotion,
+    ]
   );
 
   const skeletonData = useMemo(

@@ -51,6 +51,12 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
         confirmText={alert?.confirmText}
         cancelText={alert?.cancelText}
         showCancel={alert?.showCancel}
+        motionPreset={alert?.motionPreset}
+        motionDuration={alert?.motionDuration}
+        motionEnterDuration={alert?.motionEnterDuration}
+        motionExitDuration={alert?.motionExitDuration}
+        motionDistance={alert?.motionDistance}
+        motionReduceMotion={alert?.motionReduceMotion}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />

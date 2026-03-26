@@ -1,6 +1,7 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react-native';
+import { act, create } from 'react-test-renderer';
 import { ThemeProvider } from '@/theme';
 import { AppHeader } from '../components/AppHeader';
 import { AppScreen } from '@/ui/layout/SafeScreen';
@@ -78,5 +79,45 @@ describe('AppHeader', () => {
     const flattened = flattenStyle(getByTestId('header').props.style);
 
     expect(flattened.paddingTop).toBe(0);
+  });
+
+  it('应该支持透传可折叠头部动画样式', () => {
+    let tree: ReturnType<typeof create>;
+
+    act(() => {
+      tree = create(
+        <ThemeProvider light={theme}>
+          <AppHeader
+            testID="header"
+            title="标题"
+            collapsibleMotion={{
+              headerStyle: { height: 72 },
+              backgroundStyle: { opacity: 0.35 },
+              titleStyle: { opacity: 0.9, transform: [{ scale: 1.04 }] },
+            }}
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const nodes = tree!.root.findAll(node => typeof node.props?.testID === 'string');
+    const navNode = nodes.find(node => node.props.testID === 'header-nav');
+    const backgroundNode = nodes.find(node => node.props.testID === 'header-background');
+    const titleWrapNode = nodes.find(node => node.props.testID === 'header-title-wrap');
+
+    expect(navNode).toBeTruthy();
+    expect(backgroundNode).toBeTruthy();
+    expect(titleWrapNode).toBeTruthy();
+
+    expect(flattenStyle(navNode!.props.style)).toMatchObject({
+      height: 72,
+    });
+    expect(flattenStyle(backgroundNode!.props.style)).toMatchObject({
+      opacity: 0.35,
+    });
+    expect(flattenStyle(titleWrapNode!.props.style)).toMatchObject({
+      opacity: 0.9,
+      transform: [{ scale: 1.04 }],
+    });
   });
 });

@@ -1,40 +1,43 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { AppView, AppText, AppPressable } from '@/ui/primitives';
 import { Icon } from '@/ui/display';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import type { ToggleMotionProps } from '../motion';
+import { useToggleMotion } from '../motion/hooks/useToggleMotion';
 import { type CommonLayoutProps, type LayoutSurface } from '../utils/layout-shortcuts';
 
-/**
- * Checkbox 组件属性接口
- */
-export interface CheckboxProps extends Pick<
-  CommonLayoutProps,
-  | 'flex'
-  | 'p'
-  | 'px'
-  | 'py'
-  | 'pt'
-  | 'pb'
-  | 'pl'
-  | 'pr'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
-  | 'gap'
-  | 'rounded'
-  | 'w'
-  | 'h'
-  | 'minW'
-  | 'minH'
-  | 'maxW'
-  | 'maxH'
-> {
+export interface CheckboxProps
+  extends
+    Pick<
+      CommonLayoutProps,
+      | 'flex'
+      | 'p'
+      | 'px'
+      | 'py'
+      | 'pt'
+      | 'pb'
+      | 'pl'
+      | 'pr'
+      | 'm'
+      | 'mx'
+      | 'my'
+      | 'mt'
+      | 'mb'
+      | 'ml'
+      | 'mr'
+      | 'gap'
+      | 'rounded'
+      | 'w'
+      | 'h'
+      | 'minW'
+      | 'minH'
+      | 'maxW'
+      | 'maxH'
+    >,
+    ToggleMotionProps {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (checked: boolean) => void;
@@ -46,9 +49,6 @@ export interface CheckboxProps extends Pick<
   testID?: string;
 }
 
-/**
- * Checkbox - 复选框组件，支持浅色/深色主题
- */
 export function Checkbox({
   flex,
   p,
@@ -82,11 +82,18 @@ export function Checkbox({
   bg,
   surface,
   testID,
+  motionDuration,
+  motionReduceMotion,
 }: CheckboxProps) {
   const colors = useThemeColors();
   const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
-
   const isChecked = checked !== undefined ? checked : internalChecked;
+  const toggleMotion = useToggleMotion({
+    value: isChecked,
+    preset: 'checkbox',
+    duration: motionDuration,
+    reduceMotion: motionReduceMotion,
+  });
 
   const toggle = () => {
     if (disabled) return;
@@ -97,7 +104,6 @@ export function Checkbox({
     onChange?.(newChecked);
   };
 
-  // 主题颜色
   const disabledOpacity = 0.4;
 
   return (
@@ -149,9 +155,13 @@ export function Checkbox({
         ]}
       >
         {isChecked && (
-          <AppView pointerEvents="none" style={styles.iconContainer} testID={`${testID}-icon`}>
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.iconContainer, toggleMotion.indicatorStyle]}
+            testID={`${testID}-icon`}
+          >
             <Icon name="check" size={14} color="white" style={styles.icon} />
-          </AppView>
+          </Animated.View>
         )}
       </AppView>
       {children && (

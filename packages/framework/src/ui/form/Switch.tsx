@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { AppPressable, AppView } from '@/ui/primitives';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import type { ToggleMotionProps } from '../motion';
+import { useToggleMotion } from '../motion/hooks/useToggleMotion';
 import { type CommonLayoutProps, resolveRoundedStyle } from '../utils/layout-shortcuts';
 
-/**
- * Switch 组件属性接口
- */
-export interface SwitchProps extends Pick<
-  CommonLayoutProps,
-  'flex' | 'm' | 'mx' | 'my' | 'mt' | 'mb' | 'ml' | 'mr' | 'rounded'
-> {
+export interface SwitchProps
+  extends
+    Pick<CommonLayoutProps, 'flex' | 'm' | 'mx' | 'my' | 'mt' | 'mb' | 'ml' | 'mr' | 'rounded'>,
+    ToggleMotionProps {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (checked: boolean) => void;
@@ -22,22 +22,6 @@ export interface SwitchProps extends Pick<
   style?: StyleProp<ViewStyle>;
 }
 
-function createAnimatedValue(value: number) {
-  const AnimatedValue = Animated.Value as unknown as {
-    new (initialValue: number): Animated.Value;
-    (initialValue: number): Animated.Value;
-  };
-
-  try {
-    return new AnimatedValue(value);
-  } catch {
-    return AnimatedValue(value);
-  }
-}
-
-/**
- * Switch - 开关组件，支持浅色/深色主题
- */
 export function Switch({
   flex,
   m,
@@ -56,16 +40,16 @@ export function Switch({
   className,
   testID,
   style,
+  motionDuration,
+  motionReduceMotion,
 }: SwitchProps) {
   const colors = useThemeColors();
   const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
   const [isInteractionLocked, setIsInteractionLocked] = useState(false);
-  const isFirstRender = useRef(true);
   const unlockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isChecked = checked !== undefined ? checked : internalChecked;
 
-  // 尺寸配置
   const sizes = {
     sm: { width: 36, height: 20, thumb: 16, padding: 2 },
     md: { width: 48, height: 26, thumb: 22, padding: 2 },
@@ -73,8 +57,15 @@ export function Switch({
   };
 
   const config = sizes[size];
-  const maxTranslateX = config.width - config.thumb - config.padding * 2;
-  const thumbTranslateX = useRef(createAnimatedValue(isChecked ? maxTranslateX : 0)).current;
+  const toggleMotion = useToggleMotion({
+    value: isChecked,
+    preset: 'switch',
+    duration: motionDuration,
+    reduceMotion: motionReduceMotion,
+    trackWidth: config.width,
+    thumbSize: config.thumb,
+    trackPadding: config.padding,
+  });
 
   const clearUnlockTimer = () => {
     if (!unlockTimerRef.current) return;
@@ -82,31 +73,13 @@ export function Switch({
     unlockTimerRef.current = null;
   };
 
-  const animateThumb = (nextChecked: boolean, shouldUnlock = true) => {
-    Animated.timing(thumbTranslateX, {
-      toValue: nextChecked ? maxTranslateX : 0,
-      duration: 180,
-      useNativeDriver: true,
-    }).start(result => {
-      if (result?.finished ?? true) {
-        thumbTranslateX.setValue(nextChecked ? maxTranslateX : 0);
-      }
-      if (shouldUnlock) {
-        clearUnlockTimer();
-        setIsInteractionLocked(false);
-      }
-    });
+  const scheduleUnlock = () => {
+    clearUnlockTimer();
+    unlockTimerRef.current = setTimeout(() => {
+      unlockTimerRef.current = null;
+      setIsInteractionLocked(false);
+    }, 220);
   };
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      thumbTranslateX.setValue(isChecked ? maxTranslateX : 0);
-      isFirstRender.current = false;
-      return;
-    }
-
-    animateThumb(isChecked);
-  }, [isChecked, maxTranslateX, thumbTranslateX]);
 
   useEffect(() => {
     return () => {
@@ -120,15 +93,10 @@ export function Switch({
     const newChecked = !isChecked;
 
     setIsInteractionLocked(true);
+    scheduleUnlock();
 
     if (checked === undefined) {
       setInternalChecked(newChecked);
-    } else {
-      animateThumb(newChecked, false);
-      unlockTimerRef.current = setTimeout(() => {
-        unlockTimerRef.current = null;
-        setIsInteractionLocked(false);
-      }, 220);
     }
 
     onChange?.(newChecked);
@@ -189,12 +157,12 @@ export function Switch({
               height: config.thumb,
               borderRadius: config.thumb / 2,
               backgroundColor: thumbBackgroundColor,
-              transform: [{ translateX: thumbTranslateX }],
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 1 },
               shadowOpacity: 0.25,
               shadowRadius: 1,
             },
+            toggleMotion.thumbStyle,
           ]}
         />
       </AppView>
