@@ -67,11 +67,23 @@ function createProps(index = 0) {
 }
 
 describe('BottomTabBar', () => {
-  it('应该渲染激活态指示器并在切换时更新', () => {
+  it('默认不应该渲染激活态指示器', () => {
+    const props = createProps(0);
+    const { queryByTestId } = render(
+      <ThemeProvider light={theme}>
+        <BottomTabBar {...props} />
+      </ThemeProvider>
+    );
+
+    expect(queryByTestId('home-tab-indicator')).toBeNull();
+    expect(queryByTestId('profile-tab-indicator')).toBeNull();
+  });
+
+  it('显式开启后应该渲染激活态指示器并在切换时更新', () => {
     const props = createProps(0);
     const { queryByTestId, rerender } = render(
       <ThemeProvider light={theme}>
-        <BottomTabBar {...props} />
+        <BottomTabBar {...props} showActiveIndicator />
       </ThemeProvider>
     );
 
@@ -80,7 +92,7 @@ describe('BottomTabBar', () => {
 
     rerender(
       <ThemeProvider light={theme}>
-        <BottomTabBar {...createProps(1)} />
+        <BottomTabBar {...createProps(1)} showActiveIndicator />
       </ThemeProvider>
     );
 

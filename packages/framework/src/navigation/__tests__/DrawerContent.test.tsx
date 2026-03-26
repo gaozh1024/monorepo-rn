@@ -41,7 +41,7 @@ function createProps(index = 0) {
 }
 
 describe('DrawerContent', () => {
-  it('应该渲染自定义头尾、菜单项与激活态指示条', () => {
+  it('默认不应渲染激活态指示条，但应保留自定义头尾和菜单项', () => {
     const { getByText, getByTestId, queryByTestId } = render(
       <ThemeProvider light={theme}>
         <DrawerContent
@@ -61,8 +61,26 @@ describe('DrawerContent', () => {
     expect(getByText('首页')).toBeTruthy();
     expect(getByText('设置')).toBeTruthy();
     expect(queryByTestId('drawer-item-Home-indicator')).toBeNull();
-    expect(getByTestId('drawer-item-Settings-indicator')).toBeTruthy();
+    expect(queryByTestId('drawer-item-Settings-indicator')).toBeNull();
     expect(getByText('99+')).toBeTruthy();
+  });
+
+  it('显式开启时应该渲染激活态指示条', () => {
+    const { queryByTestId, getByTestId } = render(
+      <ThemeProvider light={theme}>
+        <DrawerContent
+          {...createProps(1)}
+          showActiveIndicator
+          items={[
+            { name: 'Home', label: '首页' },
+            { name: 'Settings', label: '设置' },
+          ]}
+        />
+      </ThemeProvider>
+    );
+
+    expect(queryByTestId('drawer-item-Home-indicator')).toBeNull();
+    expect(getByTestId('drawer-item-Settings-indicator')).toBeTruthy();
   });
 
   it('点击菜单项时应该触发导航', () => {

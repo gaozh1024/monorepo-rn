@@ -203,6 +203,7 @@ import {
   AppText,
   AppPressable,
   KeyboardDismissView,
+  KeyboardInsetView,
   AppInput, // 原子组件
   Row,
   Col,
@@ -274,6 +275,7 @@ import {
   - 内容区支持：布局 / 内边距 / `gap`
   - 开启 `dismissKeyboardOnPressOutside` 时默认补上 `keyboardShouldPersistTaps="handled"`
 - `KeyboardDismissView` 适合非页面容器、自定义布局场景下单独包裹使用
+- `KeyboardInsetView` 适合底部输入栏 / 评论框 / 聊天输入区的键盘避让
 - `AppInput` 的尺寸控制建议：
   - `style={{ height: 56 }}` 会作用到输入框外层容器
   - 更明确的写法可以使用 `containerStyle` / `inputStyle`
@@ -387,6 +389,31 @@ import {
   </AppView>
 </KeyboardDismissView>
 ```
+
+聊天页 / 底部输入栏场景推荐：
+
+```tsx
+<AppScreen>
+  <AppView flex>{/* message list */}</AppView>
+
+  <KeyboardInsetView px={4} py={3} surface="card">
+    <AppInput placeholder="输入消息..." />
+  </KeyboardInsetView>
+</AppScreen>
+```
+
+`KeyboardInsetView` 支持：
+
+- `enabled`
+- `bottomSafeArea`
+- `keyboardOffset`
+
+适合：
+
+- 聊天输入框
+- 评论输入框
+- 底部回复栏
+- 固定在页面底部的表单操作区
 
 列表场景则推荐：
 
@@ -1091,6 +1118,7 @@ const headerMotion = useCollapsibleHeaderMotion({
   - `motionPreset`
   - `motionDuration`
   - `motionReduceMotion`
+  - 支持通过 `style.backgroundColor` 直接覆盖 header 背景色
 - `BottomTabBar`
   - 按压：`motionPreset` / `motionDuration` / `motionReduceMotion`
   - 指示器：`indicatorMotionPreset` / `indicatorMotionDuration` / `indicatorMotionEnterDuration` / `indicatorMotionExitDuration` / `indicatorMotionDistance` / `indicatorMotionReduceMotion`
@@ -1155,12 +1183,17 @@ import {
 
 `TabNavigator` 在未显式传入 `tabBar` 时，会默认使用框架内置的 `BottomTabBar`（默认高度 `65`）。
 
+> 默认情况下，框架已关闭底部导航“选中横条”指示器；如需开启，可通过 `tabBarOptions.showActiveIndicator` 或自定义 `BottomTabBar` 打开。
+
 ```tsx
 <TabNavigator
   tabBarOptions={{
     activeTintColor: '#f38b32',
     inactiveTintColor: '#9ca3af',
     height: 72,
+    showActiveIndicator: true,
+    indicatorColor: '#f38b32',
+    indicatorHeight: 3,
     style: { borderTopWidth: 0 },
   }}
 >
@@ -1273,6 +1306,8 @@ const drawer = usePageDrawer();
 
 适合整个导航结构都交给抽屉接管的场景：
 
+> 默认情况下，框架已关闭 `DrawerContent` 当前项指示条；如需开启，可显式传入 `showActiveIndicator`。
+
 ```tsx
 import { DrawerContent, DrawerNavigator } from '@gaozh1024/rn-kit';
 
@@ -1280,6 +1315,7 @@ import { DrawerContent, DrawerNavigator } from '@gaozh1024/rn-kit';
   drawerContent={props => (
     <DrawerContent
       {...props}
+      showActiveIndicator
       items={[
         { name: 'Home', label: '首页', icon: 'home' },
         { name: 'Settings', label: '设置', icon: 'settings' },

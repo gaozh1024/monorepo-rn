@@ -127,6 +127,7 @@ describe('navigation motion props', () => {
             motionPreset="strong"
             motionDuration={200}
             motionReduceMotion
+            showActiveIndicator
             indicatorMotionPreset="slideUp"
             indicatorMotionDuration={260}
             indicatorMotionEnterDuration={300}
@@ -165,6 +166,7 @@ describe('navigation motion props', () => {
           <DrawerContent
             {...createDrawerProps(0)}
             staggerItems
+            showActiveIndicator
             items={[
               { name: 'Home', label: '首页' },
               { name: 'Settings', label: '设置' },

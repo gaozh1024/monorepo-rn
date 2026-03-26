@@ -1,4 +1,4 @@
-import { type ViewStyle, StyleSheet } from 'react-native';
+import { type StyleProp, type ViewStyle, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useThemeColors } from '@/theme';
 import { AppView, AppText, AppPressable, Icon, useMotionConfig } from '@/ui';
@@ -21,7 +21,7 @@ export interface AppHeaderProps extends PressMotionProps {
   transparent?: boolean;
   blur?: boolean;
   safeArea?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
   collapsibleMotion?: Pick<
     UseCollapsibleHeaderMotionReturn,
@@ -48,8 +48,11 @@ export function AppHeader({
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
+  const flattenedStyle = StyleSheet.flatten(style);
 
-  const backgroundColor = transparent ? 'transparent' : colors.card;
+  const backgroundColor = transparent
+    ? 'transparent'
+    : (flattenedStyle?.backgroundColor ?? colors.card);
   const titleAnimatedStyle = collapsibleMotion?.titleStyle;
 
   return (

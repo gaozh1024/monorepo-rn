@@ -55,6 +55,8 @@ export interface TabScreenOptions {
 export interface TabBarOptions {
   /** 是否显示标签 */
   showLabel?: boolean;
+  /** 是否显示激活态横条指示器 */
+  showActiveIndicator?: boolean;
   /** 激活状态颜色 */
   activeTintColor?: string;
   /** 非激活状态颜色 */
@@ -71,6 +73,10 @@ export interface TabBarOptions {
   labelStyle?: TextStyle;
   /** 图标样式 */
   iconStyle?: ViewStyle;
+  /** 激活态指示器颜色 */
+  indicatorColor?: string;
+  /** 激活态指示器高度 */
+  indicatorHeight?: number;
   /** 标签栏样式 */
   style?: ViewStyle;
   /** 标签栏高度（不含底部安全区，默认 65） */

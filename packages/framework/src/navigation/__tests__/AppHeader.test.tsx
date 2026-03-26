@@ -120,4 +120,29 @@ describe('AppHeader', () => {
       transform: [{ scale: 1.04 }],
     });
   });
+
+  it('应支持通过 style.backgroundColor 覆盖 header 背景色', () => {
+    let tree: ReturnType<typeof create>;
+
+    act(() => {
+      tree = create(
+        <ThemeProvider light={theme}>
+          <AppHeader testID="header" title="标题" style={{ backgroundColor: '#ff0000' }} />
+        </ThemeProvider>
+      );
+    });
+
+    const nodes = tree!.root.findAll(node => typeof node.props?.testID === 'string');
+    const headerNode = nodes.find(node => node.props.testID === 'header');
+    const backgroundNode = nodes.find(node => node.props.testID === 'header-background');
+
+    expect(headerNode).toBeTruthy();
+    expect(backgroundNode).toBeTruthy();
+    expect(flattenStyle(headerNode!.props.style)).toMatchObject({
+      backgroundColor: '#ff0000',
+    });
+    expect(flattenStyle(backgroundNode!.props.style)).toMatchObject({
+      backgroundColor: '#ff0000',
+    });
+  });
 });

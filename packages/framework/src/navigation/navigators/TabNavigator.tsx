@@ -97,11 +97,14 @@ export function TabNavigator({
       <BottomTabBar
         {...props}
         showLabel={tabBarOptions?.showLabel}
+        showActiveIndicator={tabBarOptions?.showActiveIndicator}
         activeTintColor={tabBarOptions?.activeTintColor}
         inactiveTintColor={tabBarOptions?.inactiveTintColor}
         activeBackgroundColor={tabBarOptions?.activeBackgroundColor}
         inactiveBackgroundColor={tabBarOptions?.inactiveBackgroundColor}
         iconStyle={tabBarOptions?.iconStyle}
+        indicatorColor={tabBarOptions?.indicatorColor}
+        indicatorHeight={tabBarOptions?.indicatorHeight}
         labelStyle={tabBarOptions?.labelStyle}
         style={tabBarOptions?.style}
         height={tabBarOptions?.height}
@@ -110,11 +113,14 @@ export function TabNavigator({
   }, [
     tabBar,
     tabBarOptions?.showLabel,
+    tabBarOptions?.showActiveIndicator,
     tabBarOptions?.activeTintColor,
     tabBarOptions?.inactiveTintColor,
     tabBarOptions?.activeBackgroundColor,
     tabBarOptions?.inactiveBackgroundColor,
     tabBarOptions?.iconStyle,
+    tabBarOptions?.indicatorColor,
+    tabBarOptions?.indicatorHeight,
     tabBarOptions?.labelStyle,
     tabBarOptions?.style,
     tabBarOptions?.height,

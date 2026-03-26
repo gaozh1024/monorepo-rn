@@ -53,10 +53,13 @@ describe('导航器模块', () => {
         <TabNavigator
           tabBarOptions={{
             showLabel: false,
+            showActiveIndicator: true,
             activeTintColor: '#f38b32',
             inactiveTintColor: '#9ca3af',
             activeBackgroundColor: '#fff7ed',
             inactiveBackgroundColor: '#ffffff',
+            indicatorColor: '#111827',
+            indicatorHeight: 4,
             labelStyle: { fontSize: 13 },
             iconStyle: { marginBottom: 4 },
             style: { borderTopWidth: 0, backgroundColor: '#ffffff' },
@@ -81,10 +84,13 @@ describe('导航器模块', () => {
 
     expect(tabBarElement.type).toBe(BottomTabBar);
     expect(tabBarElement.props.showLabel).toBe(false);
+    expect(tabBarElement.props.showActiveIndicator).toBe(true);
     expect(tabBarElement.props.activeTintColor).toBe('#f38b32');
     expect(tabBarElement.props.inactiveTintColor).toBe('#9ca3af');
     expect(tabBarElement.props.activeBackgroundColor).toBe('#fff7ed');
     expect(tabBarElement.props.inactiveBackgroundColor).toBe('#ffffff');
+    expect(tabBarElement.props.indicatorColor).toBe('#111827');
+    expect(tabBarElement.props.indicatorHeight).toBe(4);
     expect(tabBarElement.props.labelStyle).toEqual({ fontSize: 13 });
     expect(tabBarElement.props.iconStyle).toEqual({ marginBottom: 4 });
     expect(tabBarElement.props.style).toEqual({ borderTopWidth: 0, backgroundColor: '#ffffff' });

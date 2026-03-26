@@ -5,3 +5,4 @@ export { AppText, type AppTextProps } from './AppText';
 export { AppPressable, type AppPressableProps } from './AppPressable';
 
 export { KeyboardDismissView, type KeyboardDismissViewProps } from './KeyboardDismissView';
+export { KeyboardInsetView, type KeyboardInsetViewProps } from './KeyboardInsetView';

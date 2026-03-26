@@ -205,7 +205,7 @@ export function BottomTabBar({
   motionPreset,
   motionDuration,
   motionReduceMotion,
-  showActiveIndicator = true,
+  showActiveIndicator = false,
   indicatorColor,
   indicatorHeight = 3,
   indicatorMotionPreset,

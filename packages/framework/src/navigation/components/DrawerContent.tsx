@@ -101,7 +101,7 @@ export function DrawerContent({
   staggerDuration,
   staggerDistance,
   staggerReduceMotion,
-  showActiveIndicator = true,
+  showActiveIndicator = false,
   activeIndicatorColor,
   indicatorMotionPreset,
   indicatorMotionDuration,
