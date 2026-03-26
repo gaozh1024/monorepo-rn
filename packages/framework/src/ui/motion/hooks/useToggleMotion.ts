@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import type {
   MotionAnimatedViewStyle,
   MotionSharedValue,
@@ -7,7 +13,7 @@ import type {
   ToggleMotionPreset,
 } from '../types';
 import { motionDurations } from '../tokens';
-import { resolveDuration } from '../utils';
+import { resolveDuration, resolveSpringConfig } from '../utils';
 import { useReducedMotion } from './useReducedMotion';
 
 export interface UseToggleMotionOptions {
@@ -32,6 +38,7 @@ export function useToggleMotion({
   value,
   preset = 'switch',
   duration,
+  spring,
   reduceMotion: reduceMotionOverride,
   trackWidth,
   thumbSize,
@@ -46,10 +53,16 @@ export function useToggleMotion({
     reduceMotion,
     durationScale
   );
+  const springConfig = spring && !reduceMotion ? resolveSpringConfig(spring) : undefined;
 
   useEffect(() => {
+    if (springConfig) {
+      progress.value = withSpring(value ? 1 : 0, springConfig);
+      return;
+    }
+
     progress.value = withTiming(value ? 1 : 0, { duration: resolvedDuration });
-  }, [progress, resolvedDuration, value]);
+  }, [progress, resolvedDuration, springConfig, value]);
 
   const maxTranslateX =
     trackWidth !== undefined && thumbSize !== undefined

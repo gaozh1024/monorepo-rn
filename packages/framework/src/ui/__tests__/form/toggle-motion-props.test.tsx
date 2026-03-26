@@ -30,7 +30,7 @@ describe('toggle motion props', () => {
   it('Switch 应该透传自定义切换动画配置', () => {
     render(
       <ThemeProvider light={theme}>
-        <Switch checked motionDuration={260} motionReduceMotion />
+        <Switch checked motionDuration={260} motionSpringPreset="snappy" motionReduceMotion />
       </ThemeProvider>
     );
 
@@ -39,6 +39,7 @@ describe('toggle motion props', () => {
         value: true,
         preset: 'switch',
         duration: 260,
+        spring: 'snappy',
         reduceMotion: true,
       })
     );
@@ -47,7 +48,7 @@ describe('toggle motion props', () => {
   it('Checkbox 应该透传自定义切换动画配置', () => {
     render(
       <ThemeProvider light={theme}>
-        <Checkbox checked motionDuration={180} motionReduceMotion />
+        <Checkbox checked motionDuration={180} motionSpringPreset="smooth" motionReduceMotion />
       </ThemeProvider>
     );
 
@@ -56,6 +57,7 @@ describe('toggle motion props', () => {
         value: true,
         preset: 'checkbox',
         duration: 180,
+        spring: 'smooth',
         reduceMotion: true,
       })
     );
@@ -64,7 +66,7 @@ describe('toggle motion props', () => {
   it('Radio 应该透传自定义切换动画配置', () => {
     render(
       <ThemeProvider light={theme}>
-        <Radio checked motionDuration={200} motionReduceMotion />
+        <Radio checked motionDuration={200} motionSpringPreset="bouncy" motionReduceMotion />
       </ThemeProvider>
     );
 
@@ -73,6 +75,7 @@ describe('toggle motion props', () => {
         value: true,
         preset: 'radio',
         duration: 200,
+        spring: 'bouncy',
         reduceMotion: true,
       })
     );

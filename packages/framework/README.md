@@ -965,7 +965,71 @@ const headerMotion = useCollapsibleHeaderMotion({
 </>;
 ```
 
-#### 6. 当前已接入动画的组件范围
+#### 6. 高级布局动画预设
+
+`Presence` / `MotionView` / `StaggerItem` / `AppList` 现在支持更高层的布局动画封装：
+
+- `motionLayoutPreset`
+- `motionLayoutDuration`
+- `motionLayoutDelay`
+- `motionLayoutSpring`
+
+可选预设：
+
+- `fade`
+- `fade-up`
+- `fade-down`
+- `slide-left`
+- `slide-right`
+- `zoom-fade`
+- `list-item`
+- `list-reorder`
+- `accordion`
+- `dialog`
+
+```tsx
+<Presence
+  visible={visible}
+  motionLayoutPreset="dialog"
+  motionLayoutDuration={280}
+  motionLayoutSpring="smooth"
+>
+  <AppView>{/* content */}</AppView>
+</Presence>
+
+<AppList
+  data={data}
+  motionLayoutPreset="list-item"
+  motionLayoutDuration={260}
+  motionLayoutDelay={30}
+  motionLayoutSpring="snappy"
+  renderItem={({ item }) => <Card>{item.title}</Card>}
+/>
+```
+
+如果同时传入 `motionEntering` / `motionExiting` / `motionLayout`，则显式传入值优先。
+
+#### 7. Spring 动画配置
+
+`Progress` / `Switch` / `Checkbox` / `Radio` 现在支持：
+
+- `motionSpringPreset`
+
+可选值：
+
+- `snappy`
+- `smooth`
+- `bouncy`
+
+```tsx
+<Progress value={72} motionSpringPreset="smooth" />
+<Switch checked={enabled} onChange={setEnabled} motionSpringPreset="bouncy" />
+<Checkbox checked motionSpringPreset="smooth" />
+```
+
+未传 `motionSpringPreset` 时，仍默认使用 timing 动画。
+
+#### 8. 当前已接入动画的组件范围
 
 - 反馈：`Alert` / `Toast` / overlay alert / overlay toast
 - 表单：`Switch` / `Checkbox` / `Radio` / `Select` / `Picker` / `DatePicker`
@@ -986,15 +1050,21 @@ const headerMotion = useCollapsibleHeaderMotion({
 - `motionEntering`
 - `motionExiting`
 - `motionLayout`
+- `motionLayoutPreset`
+- `motionLayoutDuration`
+- `motionLayoutDelay`
+- `motionLayoutSpring`
 
 `Progress` 也支持：
 
 - `motionDuration`
+- `motionSpringPreset`
 - `motionReduceMotion`
 
 `Switch` / `Checkbox` / `Radio` 也支持：
 
 - `motionDuration`
+- `motionSpringPreset`
 - `motionReduceMotion`
 
 `AppButton` / `Card` / `Select` / `Picker` / `DatePicker` / `PageDrawer` 也统一支持：
@@ -1029,7 +1099,7 @@ const headerMotion = useCollapsibleHeaderMotion({
   - 指示条：`indicatorMotionPreset` / `indicatorMotionDuration` / `indicatorMotionEnterDuration` / `indicatorMotionExitDuration` / `indicatorMotionDistance` / `indicatorMotionReduceMotion`
   - 错峰：`staggerPreset` / `staggerMs` / `staggerBaseDelayMs` / `staggerDuration` / `staggerDistance` / `staggerReduceMotion`
 
-#### 7. 可复用的动画类型
+#### 9. 可复用的动画类型
 
 可直接从包中导入：
 
@@ -1048,13 +1118,26 @@ import type {
 } from '@gaozh1024/rn-kit';
 ```
 
-#### 8. Reanimated 迁移状态
+运行时 helper 也可直接复用：
+
+```tsx
+import { resolveMotionLayoutPreset } from '@gaozh1024/rn-kit';
+
+const layoutPreset = resolveMotionLayoutPreset({
+  preset: 'dialog',
+  duration: 280,
+  spring: 'smooth',
+});
+```
+
+#### 10. Reanimated 迁移状态
 
 当前框架 motion runtime 已完成统一迁移：
 
 1. motion hooks 默认返回 reanimated shared value / animated style
 2. `Pressable` / `Progress` / `Sheet` / `Drawer` / `Alert` / `Toast` / `Header` 等组件已接入 reanimated
-3. 复杂手势、滚动联动和后续布局动画扩展都以 reanimated 为基础继续演进
+3. 高级布局动画预设与 spring 动画已在常见组件层完成封装
+4. 复杂手势、滚动联动和后续布局动画扩展都以 reanimated 为基础继续演进
 
 ### 🧭 导航
 

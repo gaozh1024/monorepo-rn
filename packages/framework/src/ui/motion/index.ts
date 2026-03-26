@@ -4,6 +4,7 @@ export * from './presets';
 export * from './context';
 export * from './props';
 export * from './animated';
+export * from './layout';
 
 export * from './hooks/useReducedMotion';
 export * from './hooks/usePresenceMotion';

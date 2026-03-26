@@ -99,6 +99,7 @@ export function Progress({
   surface,
   animated = true,
   motionDuration,
+  motionSpringPreset,
   motionReduceMotion,
 }: ProgressProps) {
   const { theme, isDark } = useTheme();
@@ -108,6 +109,7 @@ export function Progress({
     min: 0,
     max,
     duration: motionDuration,
+    spring: motionSpringPreset,
     reduceMotion: motionReduceMotion,
   });
 

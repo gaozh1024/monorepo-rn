@@ -27,7 +27,7 @@ describe('Progress motion props', () => {
   it('应该透传自定义 progress motion 配置', () => {
     render(
       <ThemeProvider light={theme}>
-        <Progress value={50} motionDuration={280} motionReduceMotion />
+        <Progress value={50} motionDuration={280} motionSpringPreset="smooth" motionReduceMotion />
       </ThemeProvider>
     );
 
@@ -37,6 +37,7 @@ describe('Progress motion props', () => {
         min: 0,
         max: 100,
         duration: 280,
+        spring: 'smooth',
         reduceMotion: true,
       })
     );

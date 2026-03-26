@@ -139,4 +139,28 @@ describe('AppList motion props', () => {
 
     expect(itemWrapper).toBeUndefined();
   });
+
+  it('应该透传高级布局预设配置给 StaggerItem', () => {
+    render(
+      <ThemeProvider light={theme}>
+        <AppList
+          data={[{ id: '1', title: 'A' }]}
+          stagger
+          motionLayoutPreset="list-item"
+          motionLayoutDuration={260}
+          motionLayoutDelay={30}
+          motionLayoutSpring="snappy"
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => <AppText>{item.title}</AppText>}
+        />
+      </ThemeProvider>
+    );
+
+    expect(staggerItemState.propsHistory[0]).toMatchObject({
+      motionLayoutPreset: 'list-item',
+      motionLayoutDuration: 260,
+      motionLayoutDelay: 30,
+      motionLayoutSpring: 'snappy',
+    });
+  });
 });

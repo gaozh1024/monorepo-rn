@@ -5,6 +5,7 @@ import Reanimated, {
   runOnJS,
   withDelay,
   withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import type {
@@ -135,4 +136,13 @@ export function shouldPreferReanimatedForScenario(_scenario: MotionScenario) {
   return true;
 }
 
-export { Easing, Extrapolation, interpolate, runOnJS, withDelay, withSequence, withTiming };
+export {
+  Easing,
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  withDelay,
+  withSequence,
+  withSpring,
+  withTiming,
+};

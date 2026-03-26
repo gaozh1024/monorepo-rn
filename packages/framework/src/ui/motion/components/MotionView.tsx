@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import Animated from 'react-native-reanimated';
 import { AppView, type AppViewProps } from '@/ui/primitives';
 import { usePresenceMotion } from '../hooks/usePresenceMotion';
+import { resolveMotionLayoutProps } from '../layout';
 import type { PresencePreset } from '../types';
 import type { PresenceMotionProps } from '../props';
 
@@ -24,6 +25,10 @@ export function MotionView({
   motionEntering,
   motionExiting,
   motionLayout,
+  motionLayoutPreset,
+  motionLayoutDuration,
+  motionLayoutDelay,
+  motionLayoutSpring,
   children,
   ...rest
 }: MotionViewProps) {
@@ -39,14 +44,26 @@ export function MotionView({
 
   const layoutAnimationProps = useMemo(
     () =>
-      motionReduceMotion
-        ? undefined
-        : {
-            entering: motionEntering,
-            exiting: motionExiting,
-            layout: motionLayout,
-          },
-    [motionEntering, motionExiting, motionLayout, motionReduceMotion]
+      resolveMotionLayoutProps({
+        entering: motionEntering,
+        exiting: motionExiting,
+        layout: motionLayout,
+        preset: motionLayoutPreset,
+        duration: motionLayoutDuration,
+        delay: motionLayoutDelay,
+        spring: motionLayoutSpring,
+        reduceMotion: motionReduceMotion,
+      }),
+    [
+      motionEntering,
+      motionExiting,
+      motionLayout,
+      motionLayoutDelay,
+      motionLayoutDuration,
+      motionLayoutPreset,
+      motionLayoutSpring,
+      motionReduceMotion,
+    ]
   );
 
   if (!presence.mounted) return null;

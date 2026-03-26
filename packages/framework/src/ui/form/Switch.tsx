@@ -41,6 +41,7 @@ export function Switch({
   testID,
   style,
   motionDuration,
+  motionSpringPreset,
   motionReduceMotion,
 }: SwitchProps) {
   const colors = useThemeColors();
@@ -61,6 +62,7 @@ export function Switch({
     value: isChecked,
     preset: 'switch',
     duration: motionDuration,
+    spring: motionSpringPreset,
     reduceMotion: motionReduceMotion,
     trackWidth: config.width,
     thumbSize: config.thumb,

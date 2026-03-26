@@ -500,6 +500,51 @@ vi.mock('react-native-reanimated', () => {
     };
   });
 
+  const withSpring = vi.fn(
+    (toValue: any, _config?: any, callback?: (finished: boolean) => void) => {
+      callback?.(true);
+      return { __value: toValue };
+    }
+  );
+
+  const createBuilder = (name: string) => {
+    const builder: Record<string, any> = {
+      __builder: name,
+      __config: {},
+    };
+
+    builder.duration = vi.fn((value: number) => {
+      builder.__config.duration = value;
+      return builder;
+    });
+    builder.delay = vi.fn((value: number) => {
+      builder.__config.delay = value;
+      return builder;
+    });
+    builder.springify = vi.fn(() => {
+      builder.__config.spring = true;
+      return builder;
+    });
+    builder.damping = vi.fn((value: number) => {
+      builder.__config.damping = value;
+      return builder;
+    });
+    builder.stiffness = vi.fn((value: number) => {
+      builder.__config.stiffness = value;
+      return builder;
+    });
+    builder.mass = vi.fn((value: number) => {
+      builder.__config.mass = value;
+      return builder;
+    });
+    builder.reduceMotion = vi.fn((value: string) => {
+      builder.__config.reduceMotion = value;
+      return builder;
+    });
+
+    return builder;
+  };
+
   const interpolateMock = vi.fn(
     (value: any, inputRange: number[], outputRange: Array<number | string>) =>
       interpolateValue(resolveAnimatedValue(value), inputRange, outputRange)
@@ -528,8 +573,27 @@ vi.mock('react-native-reanimated', () => {
     useAnimatedStyle: vi.fn((updater: () => Record<string, any>) => updater()),
     useDerivedValue: vi.fn((updater: () => any) => createSharedValue(updater())),
     useSharedValue,
+    FadeIn: createBuilder('FadeIn'),
+    FadeInDown: createBuilder('FadeInDown'),
+    FadeInUp: createBuilder('FadeInUp'),
+    FadeOut: createBuilder('FadeOut'),
+    FadeOutDown: createBuilder('FadeOutDown'),
+    FadeOutUp: createBuilder('FadeOutUp'),
+    JumpingTransition: createBuilder('JumpingTransition'),
+    Layout: createBuilder('Layout'),
+    LinearTransition: createBuilder('LinearTransition'),
+    SequencedTransition: createBuilder('SequencedTransition'),
+    SlideInLeft: createBuilder('SlideInLeft'),
+    SlideInRight: createBuilder('SlideInRight'),
+    SlideOutLeft: createBuilder('SlideOutLeft'),
+    SlideOutRight: createBuilder('SlideOutRight'),
+    StretchInY: createBuilder('StretchInY'),
+    StretchOutY: createBuilder('StretchOutY'),
+    ZoomIn: createBuilder('ZoomIn'),
+    ZoomOut: createBuilder('ZoomOut'),
     withDelay,
     withSequence,
+    withSpring,
     withTiming,
   };
 });

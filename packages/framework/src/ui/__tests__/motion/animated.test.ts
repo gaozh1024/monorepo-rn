@@ -13,6 +13,7 @@ import {
   supportsMotionCapability,
   withDelay,
   withSequence,
+  withSpring,
   withTiming,
 } from '../../motion/animated';
 
@@ -25,6 +26,7 @@ describe('motion animated adapter', () => {
     expect(typeof interpolate).toBe('function');
     expect(typeof runOnJS).toBe('function');
     expect(typeof withTiming).toBe('function');
+    expect(typeof withSpring).toBe('function');
     expect(typeof withDelay).toBe('function');
     expect(typeof withSequence).toBe('function');
   });

@@ -156,4 +156,41 @@ describe('motion container props', () => {
     expect(animatedView.props.exiting).toBe(exiting);
     expect(animatedView.props.layout).toBe(layout);
   });
+
+  it('Presence 应该支持通过 motionLayoutPreset 自动生成高级布局动画', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <Presence
+          visible
+          motionLayoutPreset="dialog"
+          motionLayoutDuration={280}
+          motionLayoutDelay={40}
+          motionLayoutSpring="smooth"
+        >
+          <></>
+        </Presence>
+      );
+    });
+
+    const animatedView = renderer!.root.findByType('Animated.View');
+    expect(animatedView.props.entering).toMatchObject({
+      __builder: 'ZoomIn',
+      __config: expect.objectContaining({
+        duration: 280,
+        delay: 40,
+        spring: true,
+        damping: 22,
+        stiffness: 180,
+        mass: 1,
+      }),
+    });
+    expect(animatedView.props.exiting).toMatchObject({
+      __builder: 'ZoomOut',
+    });
+    expect(animatedView.props.layout).toMatchObject({
+      __builder: 'LinearTransition',
+    });
+  });
 });

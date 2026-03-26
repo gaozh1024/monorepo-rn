@@ -82,6 +82,7 @@ export function Radio({
   surface,
   testID,
   motionDuration,
+  motionSpringPreset,
   motionReduceMotion,
 }: RadioProps) {
   const colors = useThemeColors();
@@ -91,6 +92,7 @@ export function Radio({
     value: isChecked,
     preset: 'radio',
     duration: motionDuration,
+    spring: motionSpringPreset,
     reduceMotion: motionReduceMotion,
   });
 

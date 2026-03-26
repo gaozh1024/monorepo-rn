@@ -18,10 +18,11 @@ import { Center } from '@/ui/layout';
 import { SkeletonAvatar, SkeletonText } from '@/ui/feedback';
 import { cn } from '@/utils';
 import { StaggerItem } from '@/ui/motion';
-import type {
-  MotionEntryExitAnimation,
-  MotionLayoutAnimation,
-  StaggerMotionProps,
+import {
+  resolveMotionLayoutProps,
+  type MotionEntryExitAnimation,
+  type MotionLayoutAnimation,
+  type StaggerMotionProps,
 } from '../motion';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 import {
@@ -330,6 +331,10 @@ export function AppList<T = any>({
   motionEntering,
   motionExiting,
   motionLayout,
+  motionLayoutPreset,
+  motionLayoutDuration,
+  motionLayoutDelay,
+  motionLayoutSpring,
 }: AppListProps<T>) {
   const { theme } = useTheme();
   const { theme: optionalTheme, isDark } = useOptionalTheme();
@@ -403,14 +408,26 @@ export function AppList<T = any>({
 
   const itemMotionProps = useMemo(
     () =>
-      staggerReduceMotion
-        ? undefined
-        : {
-            entering: motionEntering,
-            exiting: motionExiting,
-            layout: motionLayout,
-          },
-    [motionEntering, motionExiting, motionLayout, staggerReduceMotion]
+      resolveMotionLayoutProps({
+        entering: motionEntering,
+        exiting: motionExiting,
+        layout: motionLayout,
+        preset: motionLayoutPreset,
+        duration: motionLayoutDuration,
+        delay: motionLayoutDelay,
+        spring: motionLayoutSpring,
+        reduceMotion: staggerReduceMotion,
+      }),
+    [
+      motionEntering,
+      motionExiting,
+      motionLayout,
+      motionLayoutDelay,
+      motionLayoutDuration,
+      motionLayoutPreset,
+      motionLayoutSpring,
+      staggerReduceMotion,
+    ]
   );
 
   const shouldWrapItemWithMotion = useMemo(
@@ -445,6 +462,10 @@ export function AppList<T = any>({
             motionEntering={motionEntering}
             motionExiting={motionExiting}
             motionLayout={motionLayout}
+            motionLayoutPreset={motionLayoutPreset}
+            motionLayoutDuration={motionLayoutDuration}
+            motionLayoutDelay={motionLayoutDelay}
+            motionLayoutSpring={motionLayoutSpring}
           >
             {content}
           </StaggerItem>
@@ -470,6 +491,10 @@ export function AppList<T = any>({
       motionEntering,
       motionExiting,
       motionLayout,
+      motionLayoutDelay,
+      motionLayoutDuration,
+      motionLayoutPreset,
+      motionLayoutSpring,
       renderItem,
       shouldWrapItemWithMotion,
       stagger,

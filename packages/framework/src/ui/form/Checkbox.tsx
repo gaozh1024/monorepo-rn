@@ -83,6 +83,7 @@ export function Checkbox({
   surface,
   testID,
   motionDuration,
+  motionSpringPreset,
   motionReduceMotion,
 }: CheckboxProps) {
   const colors = useThemeColors();
@@ -92,6 +93,7 @@ export function Checkbox({
     value: isChecked,
     preset: 'checkbox',
     duration: motionDuration,
+    spring: motionSpringPreset,
     reduceMotion: motionReduceMotion,
   });
 

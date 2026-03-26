@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import Animated from 'react-native-reanimated';
 import type { StaggerMotionProps } from '../props';
 import { useStaggerMotion } from '../hooks/useStaggerMotion';
+import { resolveMotionLayoutProps } from '../layout';
 
 export interface StaggerItemProps extends StaggerMotionProps {
   index: number;
@@ -21,6 +22,10 @@ export function StaggerItem({
   motionEntering,
   motionExiting,
   motionLayout,
+  motionLayoutPreset,
+  motionLayoutDuration,
+  motionLayoutDelay,
+  motionLayoutSpring,
   children,
 }: StaggerItemProps) {
   const motion = useStaggerMotion({
@@ -36,14 +41,26 @@ export function StaggerItem({
 
   const layoutAnimationProps = useMemo(
     () =>
-      staggerReduceMotion
-        ? undefined
-        : {
-            entering: motionEntering,
-            exiting: motionExiting,
-            layout: motionLayout,
-          },
-    [motionEntering, motionExiting, motionLayout, staggerReduceMotion]
+      resolveMotionLayoutProps({
+        entering: motionEntering,
+        exiting: motionExiting,
+        layout: motionLayout,
+        preset: motionLayoutPreset,
+        duration: motionLayoutDuration,
+        delay: motionLayoutDelay,
+        spring: motionLayoutSpring,
+        reduceMotion: staggerReduceMotion,
+      }),
+    [
+      motionEntering,
+      motionExiting,
+      motionLayout,
+      motionLayoutDelay,
+      motionLayoutDuration,
+      motionLayoutPreset,
+      motionLayoutSpring,
+      staggerReduceMotion,
+    ]
   );
 
   if (!motion.mounted) return null;

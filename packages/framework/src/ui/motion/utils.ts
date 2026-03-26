@@ -1,3 +1,6 @@
+import { motionSprings } from './tokens';
+import type { MotionSpringPreset } from './types';
+
 export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
@@ -17,4 +20,8 @@ export function resolveDuration(
   if (reduceMotion || durationScale <= 0) return 0;
 
   return Math.round((duration ?? fallback) * durationScale);
+}
+
+export function resolveSpringConfig(preset: MotionSpringPreset) {
+  return motionSprings[preset];
 }

@@ -1,6 +1,8 @@
 import type {
   MotionEntryExitAnimation,
   MotionLayoutAnimation,
+  MotionLayoutPreset,
+  MotionSpringPreset,
   PresencePreset,
   PressMotionPreset,
 } from './types';
@@ -21,6 +23,14 @@ export interface LayoutMotionProps {
   motionExiting?: MotionEntryExitAnimation;
   /** 组件布局变化时的 layout 动画 */
   motionLayout?: MotionLayoutAnimation;
+  /** 高级布局动画预设 */
+  motionLayoutPreset?: MotionLayoutPreset;
+  /** 高级布局动画预设时长 */
+  motionLayoutDuration?: number;
+  /** 高级布局动画预设延迟 */
+  motionLayoutDelay?: number;
+  /** 高级布局动画预设 spring 配置 */
+  motionLayoutSpring?: MotionSpringPreset;
 }
 
 export interface PresenceMotionProps extends LayoutMotionProps {
@@ -54,6 +64,8 @@ export interface SheetMotionProps {
 export interface ProgressMotionProps {
   /** 进度变化动画时长 */
   motionDuration?: number;
+  /** 进度变化动画 spring 预设 */
+  motionSpringPreset?: MotionSpringPreset;
   /** 是否关闭进度动画 */
   motionReduceMotion?: boolean;
 }
@@ -61,6 +73,8 @@ export interface ProgressMotionProps {
 export interface ToggleMotionProps {
   /** 状态切换动画时长 */
   motionDuration?: number;
+  /** 状态切换动画 spring 预设 */
+  motionSpringPreset?: MotionSpringPreset;
   /** 是否关闭切换动画 */
   motionReduceMotion?: boolean;
 }

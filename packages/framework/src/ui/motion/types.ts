@@ -12,6 +12,17 @@ export type MotionDurationPreset = 'instant' | 'fast' | 'normal' | 'medium' | 's
 
 export type MotionSpringPreset = 'snappy' | 'smooth' | 'bouncy';
 export type MotionAnimatedDriver = 'reanimated';
+export type MotionLayoutPreset =
+  | 'fade'
+  | 'fade-up'
+  | 'fade-down'
+  | 'slide-left'
+  | 'slide-right'
+  | 'zoom-fade'
+  | 'list-item'
+  | 'list-reorder'
+  | 'accordion'
+  | 'dialog';
 export type MotionCapabilityKey =
   | 'timing'
   | 'sequence'
@@ -87,6 +98,12 @@ export type MotionLayoutAnimation =
   | BaseAnimationBuilder
   | typeof BaseAnimationBuilder
   | LayoutAnimationFunction;
+
+export interface MotionLayoutAnimationPreset {
+  entering?: MotionEntryExitAnimation;
+  exiting?: MotionEntryExitAnimation;
+  layout?: MotionLayoutAnimation;
+}
 
 export interface MotionStyleReturn {
   animatedStyle: MotionAnimatedViewStyle;
