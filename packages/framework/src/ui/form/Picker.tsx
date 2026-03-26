@@ -362,6 +362,8 @@ export function Picker({
   motionVelocityThreshold,
   motionReduceMotion,
   motionDuration,
+  motionOpenDuration,
+  motionCloseDuration,
 }: PickerProps) {
   const motionConfig = useMotionConfig();
   const colors = useFormThemeColors();
@@ -482,6 +484,9 @@ export function Picker({
         overlayColor={colors.overlay}
         surfaceColor={colors.surface}
         closeOnBackdropPress
+        motionDuration={motionDuration}
+        motionOpenDuration={motionOpenDuration}
+        motionCloseDuration={motionCloseDuration}
         motionDistance={motionDistance}
         motionOverlayOpacity={motionOverlayOpacity}
         motionSwipeThreshold={motionSwipeThreshold}

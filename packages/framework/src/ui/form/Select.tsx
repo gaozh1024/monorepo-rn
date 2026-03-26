@@ -130,6 +130,8 @@ export function Select({
   motionVelocityThreshold,
   motionReduceMotion,
   motionDuration,
+  motionOpenDuration,
+  motionCloseDuration,
 }: SelectProps) {
   const motionConfig = useMotionConfig();
   const colors = useFormThemeColors();
@@ -291,6 +293,9 @@ export function Select({
         closeOnBackdropPress
         contentClassName="max-h-[70%]"
         motionDistance={motionDistance}
+        motionDuration={motionDuration}
+        motionOpenDuration={motionOpenDuration}
+        motionCloseDuration={motionCloseDuration}
         motionOverlayOpacity={motionOverlayOpacity}
         motionSwipeThreshold={motionSwipeThreshold}
         motionVelocityThreshold={motionVelocityThreshold}

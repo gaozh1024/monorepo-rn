@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Modal, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 import { AppPressable, AppView } from '@/ui/primitives';
 import type { SheetMotionProps } from '../motion';
@@ -38,6 +39,9 @@ export function BottomSheetModal({
   backdropTestID = 'bottom-sheet-backdrop',
   handleTestID = 'bottom-sheet-handle',
   motionDistance = SHEET_CLOSED_OFFSET,
+  motionDuration,
+  motionOpenDuration,
+  motionCloseDuration,
   motionOverlayOpacity = 1,
   motionSwipeThreshold,
   motionVelocityThreshold,
@@ -46,6 +50,9 @@ export function BottomSheetModal({
   const sheetMotion = useSheetMotion({
     visible,
     placement: 'bottom',
+    duration: motionDuration,
+    openDuration: motionOpenDuration,
+    closeDuration: motionCloseDuration,
     distance: motionDistance,
     overlayOpacity: motionOverlayOpacity,
     closeOnSwipe: swipeToClose,
@@ -89,14 +96,16 @@ export function BottomSheetModal({
           ]}
         >
           {showHandle && (
-            <AppView
-              testID={handleTestID}
-              center
-              className="pt-2 pb-1"
-              {...sheetMotion.panHandlers}
-            >
-              <AppView style={styles.handle} />
-            </AppView>
+            <GestureDetector gesture={sheetMotion.gesture}>
+              <AppView
+                testID={handleTestID}
+                center
+                className="pt-2 pb-1"
+                {...sheetMotion.panHandlers}
+              >
+                <AppView style={styles.handle} />
+              </AppView>
+            </GestureDetector>
           )}
           {children}
         </Animated.View>

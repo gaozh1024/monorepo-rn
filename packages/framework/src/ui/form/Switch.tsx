@@ -4,8 +4,11 @@ import Animated from 'react-native-reanimated';
 import { AppPressable, AppView } from '@/ui/primitives';
 import { useThemeColors } from '@/theme';
 import { cn } from '@/utils';
+import { motionDurations } from '../motion/tokens';
 import type { ToggleMotionProps } from '../motion';
 import { useToggleMotion } from '../motion/hooks/useToggleMotion';
+import { useReducedMotion } from '../motion/hooks/useReducedMotion';
+import { resolveDuration } from '../motion/utils';
 import { type CommonLayoutProps, resolveRoundedStyle } from '../utils/layout-shortcuts';
 
 export interface SwitchProps
@@ -45,9 +48,17 @@ export function Switch({
   motionReduceMotion,
 }: SwitchProps) {
   const colors = useThemeColors();
+  const { reduceMotion: systemReduceMotion, durationScale } = useReducedMotion();
   const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
   const [isInteractionLocked, setIsInteractionLocked] = useState(false);
   const unlockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reduceMotion = motionReduceMotion ?? systemReduceMotion;
+  const interactionLockDuration = resolveDuration(
+    motionDuration,
+    motionSpringPreset ? motionDurations.medium : motionDurations.normal,
+    reduceMotion,
+    durationScale
+  );
 
   const isChecked = checked !== undefined ? checked : internalChecked;
 
@@ -63,7 +74,7 @@ export function Switch({
     preset: 'switch',
     duration: motionDuration,
     spring: motionSpringPreset,
-    reduceMotion: motionReduceMotion,
+    reduceMotion,
     trackWidth: config.width,
     thumbSize: config.thumb,
     trackPadding: config.padding,
@@ -77,10 +88,14 @@ export function Switch({
 
   const scheduleUnlock = () => {
     clearUnlockTimer();
+    if (interactionLockDuration <= 0) {
+      setIsInteractionLocked(false);
+      return;
+    }
     unlockTimerRef.current = setTimeout(() => {
       unlockTimerRef.current = null;
       setIsInteractionLocked(false);
-    }, 220);
+    }, interactionLockDuration);
   };
 
   useEffect(() => {
@@ -94,8 +109,10 @@ export function Switch({
 
     const newChecked = !isChecked;
 
-    setIsInteractionLocked(true);
-    scheduleUnlock();
+    if (interactionLockDuration > 0) {
+      setIsInteractionLocked(true);
+      scheduleUnlock();
+    }
 
     if (checked === undefined) {
       setInternalChecked(newChecked);

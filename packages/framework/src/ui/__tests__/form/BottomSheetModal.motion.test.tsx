@@ -31,6 +31,9 @@ describe('BottomSheetModal motion props', () => {
         onRequestClose={vi.fn()}
         overlayColor="rgba(0,0,0,0.5)"
         surfaceColor="#ffffff"
+        motionDuration={240}
+        motionOpenDuration={320}
+        motionCloseDuration={180}
         motionDistance={320}
         motionOverlayOpacity={0.72}
         motionSwipeThreshold={96}
@@ -45,6 +48,9 @@ describe('BottomSheetModal motion props', () => {
       expect.objectContaining({
         visible: true,
         placement: 'bottom',
+        duration: 240,
+        openDuration: 320,
+        closeDuration: 180,
         distance: 320,
         overlayOpacity: 0.72,
         closeOnSwipe: true,

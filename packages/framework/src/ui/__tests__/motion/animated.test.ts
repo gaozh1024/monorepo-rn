@@ -3,6 +3,7 @@ import {
   Animated,
   Easing,
   Extrapolation,
+  cancelAnimation,
   getMotionAnimatedCapabilities,
   getMotionAnimatedDriver,
   getMotionScenarioRecommendation,
@@ -11,7 +12,13 @@ import {
   runOnJS,
   shouldPreferReanimatedForScenario,
   supportsMotionCapability,
+  useAnimatedReaction,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
   withDelay,
+  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -23,11 +30,18 @@ describe('motion animated adapter', () => {
     expect(typeof Animated.createAnimatedComponent).toBe('function');
     expect(Easing).toBeTruthy();
     expect(Extrapolation).toBeTruthy();
+    expect(typeof cancelAnimation).toBe('function');
     expect(typeof interpolate).toBe('function');
     expect(typeof runOnJS).toBe('function');
+    expect(typeof useSharedValue).toBe('function');
+    expect(typeof useAnimatedStyle).toBe('function');
+    expect(typeof useAnimatedScrollHandler).toBe('function');
+    expect(typeof useDerivedValue).toBe('function');
+    expect(typeof useAnimatedReaction).toBe('function');
     expect(typeof withTiming).toBe('function');
     expect(typeof withSpring).toBe('function');
     expect(typeof withDelay).toBe('function');
+    expect(typeof withRepeat).toBe('function');
     expect(typeof withSequence).toBe('function');
   });
 

@@ -103,6 +103,9 @@ describe('Picker', () => {
         <ThemeProvider light={theme}>
           <Picker
             placeholder="打开地区选择"
+            motionDuration={240}
+            motionOpenDuration={320}
+            motionCloseDuration={180}
             motionDistance={360}
             motionOverlayOpacity={0.8}
             motionSwipeThreshold={88}
@@ -121,6 +124,9 @@ describe('Picker', () => {
 
     const bottomSheet = renderer!.root.findByType(BottomSheetModal);
     expect(bottomSheet.props).toMatchObject({
+      motionDuration: 240,
+      motionOpenDuration: 320,
+      motionCloseDuration: 180,
       motionDistance: 360,
       motionOverlayOpacity: 0.8,
       motionSwipeThreshold: 88,

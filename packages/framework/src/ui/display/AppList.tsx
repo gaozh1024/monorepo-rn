@@ -113,6 +113,8 @@ export interface AppListProps<T = any>
   dismissKeyboardOnPressOutside?: boolean;
   /** 是否为列表项启用错峰入场动画 */
   stagger?: boolean;
+  /** 非错峰布局动画是否关闭 */
+  motionReduceMotion?: boolean;
 }
 
 function renderListSlot(
@@ -322,6 +324,7 @@ export function AppList<T = any>({
   className,
   dismissKeyboardOnPressOutside = false,
   stagger = false,
+  motionReduceMotion,
   staggerPreset,
   staggerMs = 40,
   staggerBaseDelayMs,
@@ -416,7 +419,7 @@ export function AppList<T = any>({
         duration: motionLayoutDuration,
         delay: motionLayoutDelay,
         spring: motionLayoutSpring,
-        reduceMotion: staggerReduceMotion,
+        reduceMotion: motionReduceMotion,
       }),
     [
       motionEntering,
@@ -426,7 +429,7 @@ export function AppList<T = any>({
       motionLayoutDuration,
       motionLayoutPreset,
       motionLayoutSpring,
-      staggerReduceMotion,
+      motionReduceMotion,
     ]
   );
 

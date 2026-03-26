@@ -19,3 +19,4 @@ export * from './components/MotionView';
 export * from './components/MotionPressable';
 export * from './components/Presence';
 export * from './components/StaggerItem';
+export * from './components/CollapseView';

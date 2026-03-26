@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PanResponder, type PanResponderInstance } from 'react-native';
+import { Gesture } from 'react-native-gesture-handler';
 import {
   interpolate,
   runOnJS,
@@ -15,6 +15,9 @@ import { useReducedMotion } from './useReducedMotion';
 export interface UseSheetMotionOptions {
   visible: boolean;
   placement?: SheetPlacement;
+  duration?: number;
+  openDuration?: number;
+  closeDuration?: number;
   distance?: number;
   overlayOpacity?: number;
   closeOnSwipe?: boolean;
@@ -31,7 +34,13 @@ export interface UseSheetMotionReturn {
   progress: MotionSharedValue<number>;
   overlayStyle: MotionAnimatedViewStyle;
   sheetStyle: MotionAnimatedViewStyle;
-  panHandlers?: PanResponderInstance['panHandlers'];
+  gesture: ReturnType<typeof Gesture.Pan>;
+  panHandlers?: {
+    onPanResponderGrant?: () => void;
+    onPanResponderMove?: (_event: unknown, gestureState: any) => void;
+    onPanResponderRelease?: (_event: unknown, gestureState: any) => void;
+    onPanResponderTerminate?: () => void;
+  };
   open: () => void;
   close: () => void;
 }
@@ -41,6 +50,9 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
 export function useSheetMotion({
   visible,
   placement = 'bottom',
+  duration,
+  openDuration: openDurationOverride,
+  closeDuration: closeDurationOverride,
   distance = 240,
   overlayOpacity = 0.45,
   closeOnSwipe = true,
@@ -58,13 +70,13 @@ export function useSheetMotion({
   const sheetTranslate = useSharedValue(visible ? 0 : distance);
 
   const openDuration = resolveDuration(
-    undefined,
+    openDurationOverride ?? duration,
     motionDurations.medium,
     reduceMotion,
     durationScale
   );
   const closeDuration = resolveDuration(
-    undefined,
+    closeDurationOverride ?? duration,
     motionDurations.normal,
     reduceMotion,
     durationScale
@@ -139,66 +151,175 @@ export function useSheetMotion({
     sheetTranslate.value = withTiming(0, { duration: openDuration });
   }, [openDuration, progress, reduceMotion, sheetTranslate, syncDragProgress]);
 
-  const panResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_event, gestureState) => {
-          if (!visible || !closeOnSwipe) return false;
+  const handleGestureUpdate = useCallback(
+    (translationX: number, translationY: number) => {
+      if (!visible || !closeOnSwipe) return;
 
-          if (placement === 'bottom') {
-            return Math.abs(gestureState.dy) > Math.abs(gestureState.dx) && gestureState.dy > 6;
-          }
+      if (placement === 'bottom') {
+        syncDragProgress(clamp(translationY, 0, distance));
+        return;
+      }
 
-          return (
-            Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 6
-          );
-        },
-        onPanResponderMove: (_event, gestureState) => {
-          if (!visible || !closeOnSwipe) return;
+      if (placement === 'left') {
+        syncDragProgress(clamp(-translationX, 0, distance));
+        return;
+      }
 
-          if (placement === 'bottom') {
-            syncDragProgress(clamp(gestureState.dy, 0, distance));
-            return;
-          }
+      syncDragProgress(clamp(translationX, 0, distance));
+    },
+    [closeOnSwipe, distance, placement, syncDragProgress, visible]
+  );
 
-          if (placement === 'left') {
-            syncDragProgress(clamp(-gestureState.dx, 0, distance));
-            return;
-          }
+  const handleGestureRelease = useCallback(
+    (translationX: number, translationY: number, velocityX: number, velocityY: number) => {
+      if (!visible || !closeOnSwipe) return;
 
-          syncDragProgress(clamp(gestureState.dx, 0, distance));
-        },
-        onPanResponderRelease: (_event, gestureState) => {
-          if (!visible || !closeOnSwipe) return;
+      const shouldClose =
+        placement === 'bottom'
+          ? translationY >= swipeThreshold || velocityY >= velocityThreshold
+          : Math.abs(translationX) >= swipeThreshold || Math.abs(velocityX) >= velocityThreshold;
 
-          const shouldClose =
-            placement === 'bottom'
-              ? gestureState.dy >= swipeThreshold || gestureState.vy >= velocityThreshold
-              : Math.abs(gestureState.dx) >= swipeThreshold ||
-                Math.abs(gestureState.vx) >= velocityThreshold;
+      if (shouldClose) {
+        onRequestClose?.();
+        return;
+      }
 
-          if (shouldClose) {
-            onRequestClose?.();
-            return;
-          }
-
-          animateBackToOpen();
-        },
-        onPanResponderTerminate: () => {
-          animateBackToOpen();
-        },
-      }),
+      animateBackToOpen();
+    },
     [
       animateBackToOpen,
       closeOnSwipe,
-      distance,
       onRequestClose,
       placement,
       swipeThreshold,
-      syncDragProgress,
       velocityThreshold,
       visible,
     ]
+  );
+
+  const gesture = useMemo(() => {
+    const pan = Gesture.Pan().enabled(visible && closeOnSwipe);
+
+    if (placement === 'bottom') {
+      pan.activeOffsetY([6, Number.MAX_SAFE_INTEGER]);
+    } else if (placement === 'left') {
+      pan.activeOffsetX([Number.MIN_SAFE_INTEGER, -6]);
+    } else {
+      pan.activeOffsetX([6, Number.MAX_SAFE_INTEGER]);
+    }
+
+    pan
+      .onUpdate(event => {
+        'worklet';
+
+        if (!visible || !closeOnSwipe) return;
+
+        if (placement === 'bottom') {
+          const nextTranslate = Math.max(0, Math.min(distance, event.translationY));
+          const safeDistance = Math.max(distance, 1);
+          const nextProgress = reduceMotion
+            ? nextTranslate === 0
+              ? 1
+              : 0
+            : 1 - nextTranslate / safeDistance;
+          progress.value = clamp(nextProgress, 0, 1);
+          sheetTranslate.value = nextTranslate;
+          return;
+        }
+
+        if (placement === 'left') {
+          const nextTranslate = Math.max(0, Math.min(distance, -event.translationX));
+          const safeDistance = Math.max(distance, 1);
+          const nextProgress = reduceMotion
+            ? nextTranslate === 0
+              ? 1
+              : 0
+            : 1 - nextTranslate / safeDistance;
+          progress.value = clamp(nextProgress, 0, 1);
+          sheetTranslate.value = nextTranslate;
+          return;
+        }
+
+        const nextTranslate = Math.max(0, Math.min(distance, event.translationX));
+        const safeDistance = Math.max(distance, 1);
+        const nextProgress = reduceMotion
+          ? nextTranslate === 0
+            ? 1
+            : 0
+          : 1 - nextTranslate / safeDistance;
+        progress.value = clamp(nextProgress, 0, 1);
+        sheetTranslate.value = nextTranslate;
+      })
+      .onEnd(event => {
+        'worklet';
+
+        if (!visible || !closeOnSwipe) return;
+
+        const shouldClose =
+          placement === 'bottom'
+            ? event.translationY >= swipeThreshold || event.velocityY >= velocityThreshold
+            : Math.abs(event.translationX) >= swipeThreshold ||
+              Math.abs(event.velocityX) >= velocityThreshold;
+
+        if (shouldClose) {
+          if (onRequestClose) {
+            runOnJS(onRequestClose)();
+          }
+          return;
+        }
+
+        if (reduceMotion) {
+          progress.value = 1;
+          sheetTranslate.value = 0;
+          return;
+        }
+
+        progress.value = withTiming(1, { duration: openDuration });
+        sheetTranslate.value = withTiming(0, { duration: openDuration });
+      })
+      .onFinalize(() => {
+        'worklet';
+
+        if (!visible || !closeOnSwipe) return;
+      });
+
+    return pan;
+  }, [
+    closeOnSwipe,
+    distance,
+    onRequestClose,
+    openDuration,
+    placement,
+    progress,
+    reduceMotion,
+    sheetTranslate,
+    swipeThreshold,
+    velocityThreshold,
+    visible,
+  ]);
+
+  const panHandlers = useMemo(
+    () =>
+      closeOnSwipe
+        ? {
+            onPanResponderGrant: () => {},
+            onPanResponderMove: (_event: unknown, gestureState: any) => {
+              handleGestureUpdate(gestureState.dx ?? 0, gestureState.dy ?? 0);
+            },
+            onPanResponderRelease: (_event: unknown, gestureState: any) => {
+              handleGestureRelease(
+                gestureState.dx ?? 0,
+                gestureState.dy ?? 0,
+                gestureState.vx ?? 0,
+                gestureState.vy ?? 0
+              );
+            },
+            onPanResponderTerminate: () => {
+              animateBackToOpen();
+            },
+          }
+        : undefined,
+    [animateBackToOpen, closeOnSwipe, handleGestureRelease, handleGestureUpdate]
   );
 
   const sheetStyle = useAnimatedStyle(() => {
@@ -243,7 +364,8 @@ export function useSheetMotion({
     progress,
     overlayStyle,
     sheetStyle,
-    panHandlers: closeOnSwipe ? panResponder.panHandlers : undefined,
+    gesture,
+    panHandlers,
     open: animateOpen,
     close: animateClose,
   };

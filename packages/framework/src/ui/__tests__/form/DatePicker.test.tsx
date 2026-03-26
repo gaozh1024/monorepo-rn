@@ -109,6 +109,9 @@ describe('DatePicker', () => {
         <ThemeProvider light={theme}>
           <DatePicker
             placeholder="打开日期"
+            motionDuration={240}
+            motionOpenDuration={320}
+            motionCloseDuration={180}
             motionDistance={300}
             motionOverlayOpacity={0.7}
             motionSwipeThreshold={92}
@@ -121,6 +124,9 @@ describe('DatePicker', () => {
 
     const picker = renderer!.root.findByType(Picker);
     expect(picker.props).toMatchObject({
+      motionDuration: 240,
+      motionOpenDuration: 320,
+      motionCloseDuration: 180,
       motionDistance: 300,
       motionOverlayOpacity: 0.7,
       motionSwipeThreshold: 92,

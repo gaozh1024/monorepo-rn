@@ -98,6 +98,52 @@ describe('Switch', () => {
     }
   });
 
+  it('应该根据 motionDuration 调整交互锁定时长', () => {
+    vi.useFakeTimers();
+
+    try {
+      const onChange = vi.fn();
+      let renderer: ReturnType<typeof create>;
+
+      act(() => {
+        renderer = create(
+          <ThemeProvider light={theme}>
+            <Switch testID="switch" checked={false} onChange={onChange} motionDuration={100} />
+          </ThemeProvider>
+        );
+      });
+
+      const pressable = renderer!.root.findByType(AppPressable);
+
+      act(() => {
+        pressable.props.onPress?.();
+      });
+      act(() => {
+        pressable.props.onPress?.();
+      });
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        vi.advanceTimersByTime(99);
+      });
+      act(() => {
+        pressable.props.onPress?.();
+      });
+      expect(onChange).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      act(() => {
+        pressable.props.onPress?.();
+      });
+      expect(onChange).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('应该支持基础快捷参数', () => {
     let renderer: ReturnType<typeof create>;
 

@@ -37,7 +37,8 @@ const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const shouldIgnoreTestNoise = (value: string) =>
   value.includes('react-test-renderer is deprecated') ||
   value.includes('An update to Switch inside a test was not wrapped in act') ||
-  value.includes('An update to AppPressable inside a test was not wrapped in act');
+  value.includes('An update to AppPressable inside a test was not wrapped in act') ||
+  value.includes('An update to CollapseView inside a test was not wrapped in act');
 
 beforeAll(() => {
   vi.spyOn(console, 'error').mockImplementation((message?: unknown, ...args: unknown[]) => {
@@ -500,6 +501,13 @@ vi.mock('react-native-reanimated', () => {
     };
   });
 
+  const withRepeat = vi.fn((animation: any, _numberOfReps?: number, _reverse?: boolean) => ({
+    __value:
+      animation && typeof animation === 'object' && '__value' in animation
+        ? animation.__value
+        : animation,
+  }));
+
   const withSpring = vi.fn(
     (toValue: any, _config?: any, callback?: (finished: boolean) => void) => {
       callback?.(true);
@@ -566,6 +574,12 @@ vi.mock('react-native-reanimated', () => {
       (fn: (...args: any[]) => any) =>
       (...args: any[]) =>
         fn(...args),
+    useAnimatedReaction: vi.fn(
+      (prepare: () => any, react?: (current: any, previous: any) => void) => {
+        const current = prepare();
+        react?.(current, undefined);
+      }
+    ),
     useAnimatedScrollHandler: vi.fn((handler: any) => {
       if (typeof handler === 'function') return (event: any) => handler(event);
       return (event: any) => handler?.onScroll?.(event);
@@ -592,6 +606,7 @@ vi.mock('react-native-reanimated', () => {
     ZoomIn: createBuilder('ZoomIn'),
     ZoomOut: createBuilder('ZoomOut'),
     withDelay,
+    withRepeat,
     withSequence,
     withSpring,
     withTiming,
@@ -721,6 +736,29 @@ vi.mock('react-native', () => {
     PixelRatio: {
       get: () => 3,
       roundToNearestPixel: (value: number) => value,
+    },
+  };
+});
+
+vi.mock('react-native-gesture-handler', () => {
+  const createPanGesture = () => {
+    const chain = {
+      enabled: vi.fn(() => chain),
+      activeOffsetX: vi.fn(() => chain),
+      activeOffsetY: vi.fn(() => chain),
+      onUpdate: vi.fn(() => chain),
+      onEnd: vi.fn(() => chain),
+      onFinalize: vi.fn(() => chain),
+    };
+
+    return chain;
+  };
+
+  return {
+    GestureDetector: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
+    Gesture: {
+      Pan: vi.fn(() => createPanGesture()),
     },
   };
 });

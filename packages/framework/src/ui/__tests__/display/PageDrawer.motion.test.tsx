@@ -39,6 +39,9 @@ describe('PageDrawer motion props', () => {
           placement="left"
           width={280}
           swipeThreshold={96}
+          motionDuration={220}
+          motionOpenDuration={320}
+          motionCloseDuration={180}
           motionSwipeThreshold={108}
           motionDistance={360}
           motionOverlayOpacity={0.8}
@@ -54,6 +57,9 @@ describe('PageDrawer motion props', () => {
       expect.objectContaining({
         visible: true,
         placement: 'left',
+        duration: 220,
+        openDuration: 320,
+        closeDuration: 180,
         distance: 360,
         overlayOpacity: 0.8,
         closeOnSwipe: true,

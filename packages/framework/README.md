@@ -795,6 +795,7 @@ import {
   MotionPressable,
   Presence,
   StaggerItem,
+  CollapseView,
 } from '@gaozh1024/rn-kit';
 ```
 
@@ -806,9 +807,14 @@ import {
 - `motionDuration`
 - `motionReduceMotion`
 
-其中 `AppButton` 默认启用 soft：
+默认策略：
+
+- `AppPressable` 默认 `motionPreset="none"`，更适合做基础可点击容器
+- `MotionPressable` 默认 `motionPreset="soft"`
+- `AppButton` / `Card` / `Select` / `Picker` / `DatePicker` / `PageDrawer` 等语义组件默认按压反馈为 `soft`
 
 - `AppPressable`
+- `MotionPressable`
 - `AppButton`
 - `Card`
 - `Select`
@@ -910,6 +916,11 @@ import { Presence } from '@gaozh1024/rn-kit';
 <AppList data={data} stagger staggerMs={50} renderItem={({ item }) => <Card>{item.title}</Card>} />
 ```
 
+列表动画参数语义：
+
+- `motionReduceMotion`：关闭普通列表项 entering / exiting / layout 动画
+- `staggerReduceMotion`：仅关闭 `stagger` 模式下的错峰入场动画
+
 导航抽屉也支持：
 
 ```tsx
@@ -940,6 +951,9 @@ import { Presence } from '@gaozh1024/rn-kit';
   onRequestClose={close}
   overlayColor="rgba(0,0,0,0.5)"
   surfaceColor="#fff"
+  motionDuration={240}
+  motionOpenDuration={320}
+  motionCloseDuration={180}
   motionDistance={320}
   motionOverlayOpacity={0.72}
   motionSwipeThreshold={96}
@@ -948,6 +962,9 @@ import { Presence } from '@gaozh1024/rn-kit';
 
 `BottomSheetModal` 可选：
 
+- `motionDuration`
+- `motionOpenDuration`
+- `motionCloseDuration`
 - `motionDistance`
 - `motionOverlayOpacity`
 - `motionSwipeThreshold`
@@ -958,6 +975,8 @@ import { Presence } from '@gaozh1024/rn-kit';
 
 - `motionPreset`
 - `motionDuration`
+- `motionOpenDuration`
+- `motionCloseDuration`
 - `motionReduceMotion`
 - `motionDistance`
 - `motionOverlayOpacity`
@@ -967,11 +986,38 @@ import { Presence } from '@gaozh1024/rn-kit';
 `Select` / `Picker` / `DatePicker` 也支持同一组 sheet 动画参数：
 
 - 按压：`motionPreset` / `motionDuration` / `motionReduceMotion`
+- `motionOpenDuration`
+- `motionCloseDuration`
 - `motionDistance`
 - `motionOverlayOpacity`
 - `motionSwipeThreshold`
 - `motionVelocityThreshold`
 - `motionReduceMotion`
+
+#### 4.1 真实高度折叠 / 展开
+
+如果你需要“高度从 `0` 平滑展开到内容实际高度”的效果，优先使用 `CollapseView`。
+
+```tsx
+<CollapseView visible={open} motionDuration={280} motionSpringPreset="smooth" unmountOnExit={false}>
+  <AppView pt={15} pb={15}>
+    {/* content */}
+  </AppView>
+</CollapseView>
+```
+
+可选参数：
+
+- `motionDuration`
+- `motionSpringPreset`
+- `motionReduceMotion`
+- `collapsedHeight`
+- `unmountOnExit`
+
+说明：
+
+- `CollapseView` 用于真实高度折叠动画
+- `motionLayoutPreset="accordion"` 仍然是布局/拉伸类预设，不等价于精确 height 补间
 
 #### 5. 可折叠 Header
 
@@ -1146,17 +1192,53 @@ import type {
 } from '@gaozh1024/rn-kit';
 ```
 
-运行时 helper 也可直接复用：
+运行时 helper / hooks 也可直接复用：
 
 ```tsx
-import { resolveMotionLayoutPreset } from '@gaozh1024/rn-kit';
+import { useEffect } from 'react';
+import {
+  resolveMotionLayoutPreset,
+  Animated,
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+} from '@gaozh1024/rn-kit';
 
 const layoutPreset = resolveMotionLayoutPreset({
   preset: 'dialog',
   duration: 280,
   spring: 'smooth',
 });
+
+function PulseDot() {
+  const progress = useSharedValue(0);
+
+  useEffect(() => {
+    progress.value = withRepeat(withTiming(1, { duration: 600 }), -1, true);
+  }, [progress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+
+  return <Animated.View style={animatedStyle} />;
+}
 ```
+
+如需自定义循环动画、shared value 或滚动联动，推荐统一从框架导出的 motion adapter 获取：
+
+- `Animated`（框架导出的 reanimated adapter alias，不是 RN 原生 `Animated`）
+- `useSharedValue`
+- `useAnimatedStyle`
+- `useAnimatedScrollHandler`
+- `useDerivedValue`
+- `useAnimatedReaction`
+- `withTiming`
+- `withSpring`
+- `withDelay`
+- `withSequence`
+- `withRepeat`
 
 #### 10. Reanimated 迁移状态
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BackHandler, Modal, StyleSheet } from 'react-native';
+import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 import { useThemeColors } from '@/theme';
 import { useMotionConfig, type PressMotionProps, type SheetMotionProps } from '@/ui/motion';
@@ -38,6 +39,8 @@ export function PageDrawer({
   closeOnBackdropPress = true,
   showCloseButton = true,
   motionPreset,
+  motionOpenDuration,
+  motionCloseDuration,
   motionDistance = width,
   motionOverlayOpacity = 1,
   motionSwipeThreshold,
@@ -58,6 +61,9 @@ export function PageDrawer({
   const sheetMotion = useSheetMotion({
     visible,
     placement,
+    duration: motionDuration,
+    openDuration: motionOpenDuration,
+    closeDuration: motionCloseDuration,
     distance: motionDistance,
     overlayOpacity: motionOverlayOpacity,
     closeOnSwipe: swipeEnabled,
@@ -81,69 +87,71 @@ export function PageDrawer({
   if (!sheetMotion.mounted) return null;
 
   const drawerContent = (
-    <Animated.View style={sheetMotion.sheetStyle}>
-      <AppView
-        testID={contentTestID}
-        className="h-full"
-        style={[
-          styles.drawer,
-          {
-            width,
-            backgroundColor: colors.card,
-            borderLeftWidth: placement === 'right' ? 0.5 : 0,
-            borderRightWidth: placement === 'left' ? 0.5 : 0,
-            borderLeftColor: colors.border,
-            borderRightColor: colors.border,
-          },
-        ]}
-        {...sheetMotion.panHandlers}
-      >
-        {(header || title || showCloseButton) && (
-          <AppView
-            row
-            items="center"
-            between
-            className="px-4 py-4"
-            style={[styles.header, { borderBottomColor: colors.divider }]}
-          >
-            <AppView flex>
-              {header ||
-                (title ? (
-                  <AppText size="lg" weight="semibold">
-                    {title}
-                  </AppText>
-                ) : null)}
+    <GestureDetector gesture={sheetMotion.gesture}>
+      <Animated.View style={sheetMotion.sheetStyle}>
+        <AppView
+          testID={contentTestID}
+          className="h-full"
+          style={[
+            styles.drawer,
+            {
+              width,
+              backgroundColor: colors.card,
+              borderLeftWidth: placement === 'right' ? 0.5 : 0,
+              borderRightWidth: placement === 'left' ? 0.5 : 0,
+              borderLeftColor: colors.border,
+              borderRightColor: colors.border,
+            },
+          ]}
+          {...sheetMotion.panHandlers}
+        >
+          {(header || title || showCloseButton) && (
+            <AppView
+              row
+              items="center"
+              between
+              className="px-4 py-4"
+              style={[styles.header, { borderBottomColor: colors.divider }]}
+            >
+              <AppView flex>
+                {header ||
+                  (title ? (
+                    <AppText size="lg" weight="semibold">
+                      {title}
+                    </AppText>
+                  ) : null)}
+              </AppView>
+              {showCloseButton && (
+                <AppPressable
+                  testID="page-drawer-close"
+                  className="p-1"
+                  pressedClassName="opacity-70"
+                  motionPreset={resolvedMotionPreset}
+                  motionDuration={motionDuration}
+                  motionReduceMotion={motionReduceMotion}
+                  onPress={handleClose}
+                >
+                  <Icon name="close" size="md" color={colors.textSecondary} />
+                </AppPressable>
+              )}
             </AppView>
-            {showCloseButton && (
-              <AppPressable
-                testID="page-drawer-close"
-                className="p-1"
-                pressedClassName="opacity-70"
-                motionPreset={resolvedMotionPreset}
-                motionDuration={motionDuration}
-                motionReduceMotion={motionReduceMotion}
-                onPress={handleClose}
-              >
-                <Icon name="close" size="md" color={colors.textSecondary} />
-              </AppPressable>
-            )}
-          </AppView>
-        )}
+          )}
 
-        <AppScrollView flex className="px-4 py-4">
-          {children}
-        </AppScrollView>
+          <AppScrollView flex className="px-4 py-4">
+            {children}
+          </AppScrollView>
 
-        {footer && (
-          <AppView
-            className="px-4 py-4"
-            style={[styles.footer, { borderTopColor: colors.divider }]}
-          >
-            {footer}
-          </AppView>
-        )}
-      </AppView>
-    </Animated.View>
+          {footer && (
+            <AppView
+              className="px-4 py-4"
+              style={[styles.footer, { borderTopColor: colors.divider }]}
+            >
+              {footer}
+            </AppView>
+          )}
+        </AppView>
+      </Animated.View>
+    </GestureDetector>
   );
 
   return (

@@ -108,7 +108,7 @@ describe('AppList motion props', () => {
     expect(itemWrapper).toBeTruthy();
   });
 
-  it('staggerReduceMotion 开启时应该关闭 item-level layout animation props', () => {
+  it('motionReduceMotion 开启时应该关闭非错峰列表项 layout animation props', () => {
     const entering = { type: 'enter' } as any;
     const exiting = { type: 'exit' } as any;
     const layout = { type: 'layout' } as any;
@@ -119,7 +119,7 @@ describe('AppList motion props', () => {
         <ThemeProvider light={theme}>
           <AppList
             data={[{ id: '1', title: 'A' }]}
-            staggerReduceMotion
+            motionReduceMotion
             motionEntering={entering}
             motionExiting={exiting}
             motionLayout={layout}
@@ -138,6 +138,36 @@ describe('AppList motion props', () => {
     );
 
     expect(itemWrapper).toBeUndefined();
+  });
+
+  it('staggerReduceMotion 不应影响未开启 stagger 时的普通列表项 layout animation props', () => {
+    const entering = { type: 'enter' } as any;
+    const layout = { type: 'layout' } as any;
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <AppList
+            data={[{ id: '1', title: 'A' }]}
+            staggerReduceMotion
+            motionEntering={entering}
+            motionLayout={layout}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => <AppText>{item.title}</AppText>}
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const animatedViews = renderer!.root.findAll(
+      node => typeof node.type === 'string' && node.type === 'Animated.View'
+    );
+    const itemWrapper = animatedViews.find(
+      node => node.props.entering === entering && node.props.layout === layout
+    );
+
+    expect(itemWrapper).toBeTruthy();
   });
 
   it('应该透传高级布局预设配置给 StaggerItem', () => {

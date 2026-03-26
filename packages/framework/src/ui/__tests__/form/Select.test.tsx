@@ -155,6 +155,9 @@ describe('Select', () => {
           <Select
             placeholder="打开城市选择"
             options={options}
+            motionDuration={240}
+            motionOpenDuration={320}
+            motionCloseDuration={180}
             motionDistance={320}
             motionOverlayOpacity={0.75}
             motionSwipeThreshold={96}
@@ -167,6 +170,9 @@ describe('Select', () => {
 
     const bottomSheet = renderer!.root.findByType(BottomSheetModal);
     expect(bottomSheet.props).toMatchObject({
+      motionDuration: 240,
+      motionOpenDuration: 320,
+      motionCloseDuration: 180,
       motionDistance: 320,
       motionOverlayOpacity: 0.75,
       motionSwipeThreshold: 96,

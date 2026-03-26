@@ -49,6 +49,12 @@ export interface PresenceMotionProps extends LayoutMotionProps {
 }
 
 export interface SheetMotionProps {
+  /** 统一面板开合动画时长 */
+  motionDuration?: number;
+  /** 面板打开动画时长 */
+  motionOpenDuration?: number;
+  /** 面板关闭动画时长 */
+  motionCloseDuration?: number;
   /** 面板关闭时的位移距离 */
   motionDistance?: number;
   /** 遮罩最大透明度 */
@@ -80,6 +86,8 @@ export interface ToggleMotionProps {
 }
 
 export interface StaggerMotionProps extends LayoutMotionProps {
+  /** 非错峰布局动画是否关闭 */
+  motionReduceMotion?: boolean;
   /** 错峰入场预设 */
   staggerPreset?: Extract<PresencePreset, 'fade' | 'fadeUp' | 'fadeDown' | 'scaleFade'>;
   /** 错峰间隔（ms） */

@@ -128,6 +128,8 @@ export function DatePicker({
   motionVelocityThreshold,
   motionReduceMotion,
   motionDuration,
+  motionOpenDuration,
+  motionCloseDuration,
 }: DatePickerProps) {
   const motionConfig = useMotionConfig();
   const colors = useFormThemeColors();
@@ -268,6 +270,8 @@ export function DatePicker({
       surface={surface}
       motionPreset={resolvedMotionPreset}
       motionDuration={motionDuration}
+      motionOpenDuration={motionOpenDuration}
+      motionCloseDuration={motionCloseDuration}
       motionReduceMotion={motionReduceMotion}
       motionDistance={motionDistance}
       motionOverlayOpacity={motionOverlayOpacity}
