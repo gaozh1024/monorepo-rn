@@ -1,8 +1,9 @@
 # 发布指南
 
-适用于以下两个包：
+适用于以下三个包：
 
 - `@gaozh1024/rn-kit`
+- `@gaozh1024/aliyun-speech`
 - `@gaozh1024/expo-starter`
 
 ## 1. 发布前检查
@@ -10,9 +11,11 @@
 ### 必跑验证
 
 ```bash
-pnpm --dir packages/framework typecheck
-pnpm --dir packages/framework test
-pnpm --dir packages/framework build
+pnpm --dir packages/rn-kit typecheck
+pnpm --dir packages/rn-kit test
+pnpm --dir packages/rn-kit build
+pnpm --dir packages/aliyun-speech typecheck
+pnpm --dir packages/aliyun-speech build
 pnpm --dir templates/expo-starter lint
 ```
 
@@ -20,7 +23,10 @@ pnpm --dir templates/expo-starter lint
 
 ```bash
 # 检查打包内容
-cd packages/framework
+cd packages/rn-kit
+npm pack --dry-run
+
+cd ../aliyun-speech
 npm pack --dry-run
 
 cd ../../templates/expo-starter
@@ -30,7 +36,10 @@ npm pack --dry-run
 如果本机 `~/.npm` 缓存权限异常，可临时这样执行：
 
 ```bash
-cd packages/framework
+cd packages/rn-kit
+npm_config_cache=/tmp/npm-cache npm pack --dry-run
+
+cd ../aliyun-speech
 npm_config_cache=/tmp/npm-cache npm pack --dry-run
 
 cd ../../templates/expo-starter
@@ -41,16 +50,17 @@ npm_config_cache=/tmp/npm-cache npm pack --dry-run
 
 发布前请同步检查：
 
-1. `packages/framework/package.json` 版本号
-2. `templates/expo-starter/package.json` 版本号
-3. 模板依赖的 `@gaozh1024/rn-kit` 版本范围
-4. `docs/release-notes/` 是否新增对应 release notes
-5. `docs/README.md` 是否新增文档入口
+1. `packages/rn-kit/package.json` 版本号
+2. `packages/aliyun-speech/package.json` 版本号（若本次涉及语音包）
+3. `templates/expo-starter/package.json` 版本号
+4. 模板依赖的 `@gaozh1024/rn-kit` 版本范围
+5. `docs/release-notes/` 是否新增对应 release notes
+6. `docs/README.md` 是否新增文档入口
 
 推荐顺序：
 
-- 先确定 `rn-kit` 版本
-- 再同步模板依赖版本
+- 先确定 `rn-kit` / `aliyun-speech` 版本
+- 再同步模板依赖版本（如有）
 - 再补文档与 release notes
 
 ## 3. 正式版发布
@@ -64,11 +74,18 @@ npm login
 ### 3.2 发布框架包
 
 ```bash
-cd packages/framework
+cd packages/rn-kit
 npm publish --access public
 ```
 
-### 3.3 发布模板包
+### 3.3 发布语音包
+
+```bash
+cd ../aliyun-speech
+npm publish --access public
+```
+
+### 3.4 发布模板包
 
 模板依赖框架包，所以一定要在框架包成功发布后再发模板：
 
@@ -77,12 +94,18 @@ cd ../../templates/expo-starter
 npm publish --access public
 ```
 
-### 3.4 推荐安装方式
+### 3.5 推荐安装方式
 
 框架包：
 
 ```bash
 pnpm add @gaozh1024/rn-kit
+```
+
+语音包：
+
+```bash
+pnpm add @gaozh1024/aliyun-speech
 ```
 
 模板包：
@@ -96,7 +119,10 @@ npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 如果本次改动较大，建议先发 beta：
 
 ```bash
-cd packages/framework
+cd packages/rn-kit
+npm publish --tag beta --access public
+
+cd ../aliyun-speech
 npm publish --tag beta --access public
 ```
 
@@ -106,12 +132,14 @@ npm publish --tag beta --access public
 
 ```bash
 npm view @gaozh1024/rn-kit versions --json | grep beta
+npm view @gaozh1024/aliyun-speech versions --json | grep beta
 ```
 
 安装 beta：
 
 ```bash
 pnpm add @gaozh1024/rn-kit@beta
+pnpm add @gaozh1024/aliyun-speech@beta
 ```
 
 ## 5. Yalc 本地联调
@@ -144,8 +172,7 @@ pnpm yalc:push
 
 - [ ] 版本号已更新
 - [ ] release notes 已补充
-- [ ] 框架 README 已同步
-- [ ] 模板 README 已同步
+- [ ] 框架 / 语音包 / 模板 README 已同步
 - [ ] `typecheck / test / build / lint` 已通过
 - [ ] `npm pack --dry-run` 已检查
 - [ ] 模板对 `rn-kit` 的依赖版本已同步

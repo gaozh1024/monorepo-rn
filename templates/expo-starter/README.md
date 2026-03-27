@@ -395,7 +395,7 @@ export function LoginAction() {
 
 详细说明见：
 
-- `packages/framework/README.md`
+- `packages/rn-kit/README.md`
 - `docs/04-开发规范/开发态可观测性说明.md`
 
 ### 键盘交互约定

@@ -42,7 +42,7 @@ module.exports = {
 
     // 如果你在本地通过 workspace / file: / 本地源码方式接入框架，
     // 还需要把实际源码路径加进来
-    // '../rn-monorepo/packages/framework/src/**/*.{ts,tsx}',
+    // '../rn-monorepo/packages/rn-kit/src/**/*.{ts,tsx}',
   ],
   safelist: [
     // AppView / SafeScreen 的动态类

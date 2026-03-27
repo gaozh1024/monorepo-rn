@@ -14,8 +14,8 @@
 已验证：
 
 - `pnpm --dir templates/expo-starter lint`
-- `pnpm --dir packages/framework test`
-- `pnpm --dir packages/framework build`
+- `pnpm --dir packages/rn-kit test`
+- `pnpm --dir packages/rn-kit build`
 
 ## 配套版本
 

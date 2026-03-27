@@ -105,7 +105,7 @@ module.exports = function (api) {
 };
 ```
 
-📖 [查看完整配置指南](./packages/framework/TAILWIND_SETUP.md)
+📖 [查看完整配置指南](./packages/rn-kit/TAILWIND_SETUP.md)
 
 ### 基础用法
 
@@ -233,7 +233,7 @@ pnpm yalc:push
 ```
 monorepo-rn/
 ├── packages/
-│   └── framework/          # 统一框架包
+│   └── rn-kit/          # 统一框架包
 │       ├── src/
 │       │   ├── utils/      # 工具函数
 │       │   ├── theme/      # 主题系统

@@ -16,7 +16,7 @@ monorepo-rn/
 ├── .gitignore                    ← Git忽略（根目录统一）
 ├── IGNORE_GUIDE.md               ← 📖 本指南
 ├── packages/
-│   └── framework/                ← 统一框架包 @gaozh1024/rn-kit
+│   └── rn-kit/                ← 统一框架包 @gaozh1024/rn-kit
 │       ├── src/                  ← 源代码
 │       ├── dist/                 ← 编译输出 ✅发布
 │       ├── package.json          ← 包含 files 字段控制发布内容

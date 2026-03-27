@@ -14,6 +14,7 @@
 - 🧭 **导航组件** - Stack、Tab、Drawer 导航器，支持主题集成
 - 🛡️ **错误处理** - 统一的错误分类和处理
 - 📝 **TypeScript** - 完整的类型支持
+- 🎙️ **语音转文字** - 可独立发布的阿里云实时语音识别能力包
 - 🧪 **测试覆盖** - 全面的单元测试
 
 ## 📦 安装
@@ -39,7 +40,7 @@ npm install react-native-svg
 
 ### ⚠️ 样式配置（必看）
 
-本框架使用 **Tailwind CSS** 类名实现样式，需要配置 **NativeWind**。详见 [Tailwind 配置指南](./packages/framework/TAILWIND_SETUP.md)。
+本框架使用 **Tailwind CSS** 类名实现样式，需要配置 **NativeWind**。详见 [Tailwind 配置指南](./packages/rn-kit/TAILWIND_SETUP.md)。
 
 如果你在 app 中发现 `AppView`、`AppButton`、`AppHeader` 没有样式，通常不是 `ThemeProvider` 问题，而是：
 
@@ -92,7 +93,8 @@ function App() {
 
 ## 📄 文档
 
-- [框架文档](./packages/framework/README.md) - 详细使用文档
+- [框架文档](./packages/rn-kit/README.md) - `@gaozh1024/rn-kit` 详细使用文档
+- [语音包文档](./packages/aliyun-speech/README.md) - `@gaozh1024/aliyun-speech` 使用说明
 - [公共 API 清单](./docs/02-架构设计/公共API清单.md) - 稳定 API 与类型入口
 - [文档索引](./docs/README.md) - 所有文档的入口
 - [初始化指南](./SETUP.md)
@@ -130,7 +132,8 @@ pnpm -r test:coverage
 ```
 monorepo-rn/
 ├── packages/
-│   └── framework/      # 统一框架包 (@gaozh1024/rn-kit)
+│   ├── rn-kit/      # 统一框架包 (@gaozh1024/rn-kit)
+│   └── aliyun-speech/  # 阿里云语音转文字包 (@gaozh1024/aliyun-speech)
 ├── docs/               # 文档
 └── README.md           # 本文件
 ```

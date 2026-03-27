@@ -2,9 +2,10 @@
 
 ## 📦 包文档
 
-| 包                | 描述       | 链接                                      |
-| ----------------- | ---------- | ----------------------------------------- |
-| @gaozh1024/rn-kit | 统一框架包 | [README](../packages/framework/README.md) |
+| 包                       | 描述               | 链接                                          |
+| ------------------------ | ------------------ | --------------------------------------------- |
+| @gaozh1024/rn-kit        | 统一框架包         | [README](../packages/rn-kit/README.md)        |
+| @gaozh1024/aliyun-speech | 阿里云语音转文字包 | [README](../packages/aliyun-speech/README.md) |
 
 ---
 
@@ -44,6 +45,7 @@
 
 版本发布记录：
 
+- [aliyun-speech 0.1.0 Release Notes](./release-notes/aliyun-speech-0.1.0.md)
 - [expo-starter 0.2.12 Release Notes](./release-notes/expo-starter-0.2.12.md)
 - [expo-starter 0.2.11 Release Notes](./release-notes/expo-starter-0.2.11.md)
 - [expo-starter 0.2.10 Release Notes](./release-notes/expo-starter-0.2.10.md)
@@ -81,5 +83,5 @@
 ## 🧭 维护建议
 
 - API 以 [公共 API 清单](./02-架构设计/公共API清单.md) 为唯一准入文档
-- 组件使用说明以 [@gaozh1024/rn-kit README](../packages/framework/README.md) 为主
+- 组件使用说明以 [@gaozh1024/rn-kit README](../packages/rn-kit/README.md) 为主
 - 发布内容以 [release-notes](./release-notes/) 为准

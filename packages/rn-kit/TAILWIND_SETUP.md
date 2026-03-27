@@ -39,7 +39,7 @@ module.exports = {
 
     // 如果你通过 workspace / file: / 本地源码接入框架，
     // 还需要把实际源码路径加进来
-    // '../rn-monorepo/packages/framework/src/**/*.{ts,tsx}',
+    // '../rn-monorepo/packages/rn-kit/src/**/*.{ts,tsx}',
   ],
   safelist: [
     { pattern: /^(flex)-(1|2|3|4|5|6|7|8|9|10|11|12)$/ },
