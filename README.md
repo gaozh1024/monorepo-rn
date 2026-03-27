@@ -15,6 +15,8 @@
 - 🛡️ **错误处理** - 统一的错误分类和处理
 - 📝 **TypeScript** - 完整的类型支持
 - 🎙️ **语音转文字** - 可独立发布的阿里云实时语音识别能力包
+- 🖼️ **图片/相册选择** - 可独立发布的相册选择与裁剪能力包
+- 🔔 **移动推送** - 可独立发布的阿里云移动推送能力包
 - 🧪 **测试覆盖** - 全面的单元测试
 
 ## 📦 安装
@@ -95,6 +97,8 @@ function App() {
 
 - [框架文档](./packages/rn-kit/README.md) - `@gaozh1024/rn-kit` 详细使用文档
 - [语音包文档](./packages/aliyun-speech/README.md) - `@gaozh1024/aliyun-speech` 使用说明
+- [相册包文档](./packages/photo-album-picker/README.md) - `@gaozh1024/photo-album-picker` 使用说明
+- [推送包文档](./packages/aliyun-push/README.md) - `@gaozh1024/aliyun-push` 使用说明
 - [公共 API 清单](./docs/02-架构设计/公共API清单.md) - 稳定 API 与类型入口
 - [文档索引](./docs/README.md) - 所有文档的入口
 - [初始化指南](./SETUP.md)
@@ -132,8 +136,10 @@ pnpm -r test:coverage
 ```
 monorepo-rn/
 ├── packages/
-│   ├── rn-kit/      # 统一框架包 (@gaozh1024/rn-kit)
-│   └── aliyun-speech/  # 阿里云语音转文字包 (@gaozh1024/aliyun-speech)
+│   ├── rn-kit/              # 统一框架包 (@gaozh1024/rn-kit)
+│   ├── aliyun-speech/      # 阿里云语音转文字包 (@gaozh1024/aliyun-speech)
+│   ├── photo-album-picker/ # 相册选择包 (@gaozh1024/photo-album-picker)
+│   └── aliyun-push/        # 阿里云移动推送包 (@gaozh1024/aliyun-push)
 ├── docs/               # 文档
 └── README.md           # 本文件
 ```

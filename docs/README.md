@@ -2,10 +2,12 @@
 
 ## 📦 包文档
 
-| 包                       | 描述               | 链接                                          |
-| ------------------------ | ------------------ | --------------------------------------------- |
-| @gaozh1024/rn-kit        | 统一框架包         | [README](../packages/rn-kit/README.md)        |
-| @gaozh1024/aliyun-speech | 阿里云语音转文字包 | [README](../packages/aliyun-speech/README.md) |
+| 包                            | 描述               | 链接                                               |
+| ----------------------------- | ------------------ | -------------------------------------------------- |
+| @gaozh1024/rn-kit             | 统一框架包         | [README](../packages/rn-kit/README.md)             |
+| @gaozh1024/aliyun-speech      | 阿里云语音转文字包 | [README](../packages/aliyun-speech/README.md)      |
+| @gaozh1024/photo-album-picker | 相册选择包         | [README](../packages/photo-album-picker/README.md) |
+| @gaozh1024/aliyun-push        | 阿里云移动推送包   | [README](../packages/aliyun-push/README.md)        |
 
 ---
 
@@ -45,7 +47,9 @@
 
 版本发布记录：
 
+- [aliyun-push 0.1.0 Release Notes](./release-notes/aliyun-push-0.1.0.md)
 - [aliyun-speech 0.1.0 Release Notes](./release-notes/aliyun-speech-0.1.0.md)
+- [photo-album-picker 0.1.0 Release Notes](./release-notes/photo-album-picker-0.1.0.md)
 - [expo-starter 0.2.12 Release Notes](./release-notes/expo-starter-0.2.12.md)
 - [expo-starter 0.2.11 Release Notes](./release-notes/expo-starter-0.2.11.md)
 - [expo-starter 0.2.10 Release Notes](./release-notes/expo-starter-0.2.10.md)
@@ -53,22 +57,23 @@
 - [expo-starter 0.2.8 Release Notes](./release-notes/expo-starter-0.2.8.md)
 - [expo-starter 0.2.7 Release Notes](./release-notes/expo-starter-0.2.7.md)
 - [expo-starter 0.2.6 Release Notes](./release-notes/expo-starter-0.2.6.md)
-- [rn-kit 0.4.10 Release Notes](./release-notes/0.4.10.md)
-- [rn-kit 0.4.9 Release Notes](./release-notes/0.4.9.md)
-- [rn-kit 0.4.7 Release Notes](./release-notes/0.4.7.md)
-- [rn-kit 0.4.6 Release Notes](./release-notes/0.4.6.md)
-- [rn-kit 0.4.5 Release Notes](./release-notes/0.4.5.md)
-- [rn-kit 0.4.4 Release Notes](./release-notes/0.4.4.md)
-- [rn-kit 0.4.3 Release Notes](./release-notes/0.4.3.md)
-- [rn-kit 0.4.2 Release Notes](./release-notes/0.4.2.md)
-- [rn-kit 0.4.1 Release Notes](./release-notes/0.4.1.md)
-- [rn-kit 0.4.0 Release Notes](./release-notes/0.4.0.md)
-- [rn-kit 0.3.4 Release Notes](./release-notes/0.3.4.md)
-- [rn-kit 0.3.3 Release Notes](./release-notes/0.3.3.md)
-- [rn-kit 0.3.2 Release Notes](./release-notes/0.3.2.md)
-- [rn-kit 0.3.1 Release Notes](./release-notes/0.3.1.md)
-- [rn-kit 0.3.0 Release Notes](./release-notes/0.3.0.md)
-- [rn-kit 0.2.0 Release Notes](./release-notes/0.2.0.md)
+- [rn-kit 0.4.15 Release Notes](./release-notes/rn-kit-0.4.15.md)
+- [rn-kit 0.4.10 Release Notes](./release-notes/rn-kit-0.4.10.md)
+- [rn-kit 0.4.9 Release Notes](./release-notes/rn-kit-0.4.9.md)
+- [rn-kit 0.4.7 Release Notes](./release-notes/rn-kit-0.4.7.md)
+- [rn-kit 0.4.6 Release Notes](./release-notes/rn-kit-0.4.6.md)
+- [rn-kit 0.4.5 Release Notes](./release-notes/rn-kit-0.4.5.md)
+- [rn-kit 0.4.4 Release Notes](./release-notes/rn-kit-0.4.4.md)
+- [rn-kit 0.4.3 Release Notes](./release-notes/rn-kit-0.4.3.md)
+- [rn-kit 0.4.2 Release Notes](./release-notes/rn-kit-0.4.2.md)
+- [rn-kit 0.4.1 Release Notes](./release-notes/rn-kit-0.4.1.md)
+- [rn-kit 0.4.0 Release Notes](./release-notes/rn-kit-0.4.0.md)
+- [rn-kit 0.3.4 Release Notes](./release-notes/rn-kit-0.3.4.md)
+- [rn-kit 0.3.3 Release Notes](./release-notes/rn-kit-0.3.3.md)
+- [rn-kit 0.3.2 Release Notes](./release-notes/rn-kit-0.3.2.md)
+- [rn-kit 0.3.1 Release Notes](./release-notes/rn-kit-0.3.1.md)
+- [rn-kit 0.3.0 Release Notes](./release-notes/rn-kit-0.3.0.md)
+- [rn-kit 0.2.0 Release Notes](./release-notes/rn-kit-0.2.0.md)
 
 ---
 
