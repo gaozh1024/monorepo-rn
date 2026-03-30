@@ -20,6 +20,17 @@
 pnpm add @gaozh1024/photo-album-picker
 ```
 
+### 当前兼容基线
+
+当前版本按 Expo SDK 54 验证，推荐依赖基线：
+
+- `expo`: `~54.0.33`
+- `expo-image`: `~3.0.11`
+- `expo-image-manipulator`: `~14.0.8`
+- `expo-media-library`: `~18.2.1`
+
+当前 npm 包版本：`0.2.0`
+
 ### 必需依赖
 
 这个包本身依赖以下库：
@@ -27,6 +38,18 @@ pnpm add @gaozh1024/photo-album-picker
 ```bash
 pnpm add @gaozh1024/rn-kit
 pnpm add @react-navigation/native @shopify/flash-list
+npx expo install expo-image expo-image-manipulator expo-media-library
+npx expo install react-native-safe-area-context react-native-gesture-handler react-native-reanimated
+pnpm add react-native-zoom-toolkit
+```
+
+请优先使用 `npx expo install` 安装 Expo 官方包，让 Expo 根据当前 SDK 自动选择兼容版本；不要手动把 `expo-image-manipulator` 升到 55.x，否则在 Expo 54 项目里可能出现原生不兼容。
+
+### Expo 54 推荐安装示例
+
+```bash
+pnpm add @gaozh1024/photo-album-picker@^0.2.0
+pnpm add @gaozh1024/rn-kit @react-navigation/native @shopify/flash-list
 npx expo install expo-image expo-image-manipulator expo-media-library
 npx expo install react-native-safe-area-context react-native-gesture-handler react-native-reanimated
 pnpm add react-native-zoom-toolkit
@@ -53,6 +76,27 @@ pnpm add react-native-zoom-toolkit
 - `react-native-reanimated`
 
 如果你的项目已经在使用 `@gaozh1024/rn-kit`，通常这几个基础依赖已经存在；但接入 `@gaozh1024/photo-album-picker` 时仍建议确认版本兼容。
+
+## 版本兼容与排障
+
+### Expo SDK 54
+
+当前版本按 Expo SDK 54 验证，裁剪能力依赖的 `expo-image-manipulator` 必须使用 `14.x`。
+
+如果你在 Expo 54 项目里手动安装了 `expo-image-manipulator@55.x`，可能在裁剪时看到类似错误：
+
+```txt
+Error: Call to function 'ExpoImageManipulator.manipulate' has been rejected.
+Caused by: java.lang.NoSuchMethodError
+```
+
+处理方式：
+
+```bash
+npx expo install expo-image-manipulator
+```
+
+不要使用 `npm install --legacy-peer-deps` 去掩盖这个问题；正确做法是让 Expo 官方依赖回到和当前 SDK 一致的版本。
 
 ## 权限与 Expo 配置
 

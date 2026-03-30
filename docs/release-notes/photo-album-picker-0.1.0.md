@@ -28,3 +28,9 @@ pnpm --dir packages/photo-album-picker build
 ## 相关包
 
 - `@gaozh1024/photo-album-picker`：`0.1.0`
+
+## 已知兼容性说明
+
+`0.1.0` 的 `peerDependencies` 中，`expo` 与 `expo-image-manipulator` 的版本范围存在不一致，可能导致 Expo SDK 54 项目误装到不兼容的 `expo-image-manipulator@55.x`。
+
+这个问题已在 `0.2.0` 中修复。对于 Expo SDK 54 项目，建议升级到 `@gaozh1024/photo-album-picker@^0.2.0`，并使用 `npx expo install expo-image expo-image-manipulator expo-media-library` 安装 Expo 官方依赖。
