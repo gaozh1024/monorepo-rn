@@ -221,6 +221,7 @@ export function HomeScreen() {
               </Col>
             </Row>
             <AppPressable
+              onPress={() => navigation.navigate('GlobalDrawer')}
               style={{
                 width: 44,
                 height: 44,

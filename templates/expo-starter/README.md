@@ -29,6 +29,8 @@ npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 - ✅ 开发环境已预配置日志浮层、错误边界与 API 自动打点
 - ✅ API 示例默认带敏感字段脱敏，便于发布前直接联调
 - ✅ 已预置统一骨架屏能力，可直接使用 `Skeleton` / `SkeletonText` / `SkeletonAvatar`
+- ✅ 设置页已接入框架 `Switch`，登录/注册/找回密码页使用框架 `AppButton`
+- ✅ 页面容器优先使用 `AppScreen surface="background"` 自动适配主题
 
 ## 页面列表
 
@@ -50,9 +52,10 @@ npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 
 ```
 expo-starter/
-├── App.tsx                       # Expo 入口
+├── index.js                      # Expo 注册入口
+├── App.tsx                       # 应用根组件
 ├── src/
-│   ├── app/                      # 应用级装配代码
+│   ├── root/                     # 应用级装配代码
 │   │   ├── RootApp.tsx           # 根应用，启动流程控制
 │   │   └── providers.tsx         # 统一 Provider 配置
 │   ├── bootstrap/                # 启动配置层
@@ -60,10 +63,8 @@ expo-starter/
 │   │   ├── theme.ts              # 主题配置
 │   │   └── constants.ts          # 常量定义
 │   ├── navigation/               # 导航定义
-│   │   ├── RootNavigator.tsx     # 根导航器
-│   │   ├── AuthStack.tsx         # 认证导航栈
+│   │   ├── RootNavigator.tsx     # 根导航器（单层导航）
 │   │   ├── MainTabs.tsx          # 主 Tab 导航
-│   │   ├── MyStack.tsx           # 我的页面栈
 │   │   ├── routes.ts             # 路由常量
 │   │   └── types.ts              # 导航类型
 │   ├── features/                 # 业务域
@@ -89,6 +90,8 @@ expo-starter/
 ├── metro.config.js               # Metro 配置
 └── package.json
 ```
+
+> 当前模板采用**单层根导航**结构：所有页面统一注册在 `RootNavigator` 中，`MainTabs` 仅包含 Home 与 My 两个 Tab，二级页面（如 Settings、UserInfo 等）与 Tab 同级挂在 RootStack 下。这种结构在 rn-kit 0.4.x 推荐用法下更简洁，也便于全局手势与页面转场统一管理。
 
 ## 快速开始
 
@@ -135,7 +138,7 @@ setStorageAdapter({
 });
 ```
 
-### 3. 在入口最早执行
+### 3. 在应用入口最早执行
 
 ```ts
 // App.tsx
@@ -155,7 +158,7 @@ import './src/bootstrap/storage';
 
 ## 依赖兼容性说明
 
-当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护。
+当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护，配套 `@gaozh1024/rn-kit ^0.4.15`。
 
 如果你准备把 `@gaozh1024/rn-kit` 接入到其他 Expo 项目，建议：
 
@@ -247,7 +250,7 @@ npx expo start --android
 - 布局：`AppScreen` / `SafeScreen` / `AppView` / `Center` / `AppScrollView`
 - 展示：`AppText` / `Card` / `Icon` / `AppImage`
 - 交互：`AppButton` / `AppPressable`
-- 表单：`AppInput` / `Select` / `Picker` / `DatePicker`
+- 表单：`AppInput` / `Select` / `Picker` / `DatePicker` / `Switch`
 - 反馈：`Toast` / `Loading` / `Skeleton` / `SkeletonText` / `SkeletonAvatar` / `useAlert`
 - 状态栏：`AppStatusBar` / `AppFocusedStatusBar`
 - 导航：`StackNavigator` / `TabNavigator` / `useNavigation`
@@ -258,20 +261,20 @@ npx expo start --android
 - `AppPressable` 已支持基础容器快捷参数，适合直接写可点击卡片、列表行、筛选项
 - `AppText` 也支持文本场景常用的快捷参数（如 `p` / `m` / `w` / `rounded` / `bg`），但不建议把它当布局容器使用
 - `GradientView` / `FormItem` 也已支持基础容器快捷参数
-- `AppButton` / `AppInput` / `Select` / `Picker` / `DatePicker` 已支持常用外层快捷参数，适合直接控制 `mt` / `w` / `h` / `rounded`
-- `Checkbox` / `Radio` / `Switch` / `Slider` / `CheckboxGroup` / `RadioGroup` / `Progress` 也已补齐常用基础快捷参数，表单与状态组件现在可以直接做快速排版
+- `AppButton` / `AppInput` / `Select` / `Picker` / `DatePicker` / `Switch` 已支持常用外层快捷参数，适合直接控制 `mt` / `w` / `h` / `rounded`
+- `Checkbox` / `Radio` / `Slider` / `CheckboxGroup` / `RadioGroup` / `Progress` 也已补齐常用基础快捷参数，表单与状态组件现在可以直接做快速排版
 - `AppList` / `AppImage` / `Icon` 也已支持基础快捷参数，列表、图片、图标入口的快速排版会更统一
 
 页面容器推荐这样区分：
 
-- 常规业务页（尤其是带 `AppHeader` 的页面）：优先使用 `AppScreen`
+- 常规业务页（尤其是带 `AppHeader` 的页面）：优先使用 `AppScreen surface="background"`
 - 无 Header 的全屏页、沉浸式背景页：使用 `SafeScreen`
 - 如果页面**没有 `AppHeader` 但仍需要顶部安全区**，请显式使用 `AppScreen top`
 
 带 `AppHeader` 的页面通常不需要单独处理状态栏，推荐直接：
 
 ```tsx
-<AppScreen>
+<AppScreen surface="background">
   <AppHeader title="设置" />
   <AppScrollView>{/* 页面内容 */}</AppScrollView>
 </AppScreen>
@@ -280,14 +283,14 @@ npx expo start --android
 此时：
 
 - `AppHeader` 会自动注入聚焦态透明状态栏
-- `AppScreen` 默认 `top={false}`，顶部安全区由 `AppHeader` 自己承接
+- `AppScreen` 默认 `top=false`，顶部安全区由 `AppHeader` 自己承接
 - `status bar + header` 会保持同一块背景，避免顶部颜色割裂
 - 底部安全区仍由 `AppScreen` 承接
 
 如果页面**没有 Header**，推荐这样写：
 
 ```tsx
-<AppScreen top>
+<AppScreen top surface="background">
   <AppView flex>{/* 页面内容 */}</AppView>
 </AppScreen>
 ```
@@ -370,7 +373,7 @@ export function LoginAction() {
 }
 ```
 
-如果你想显式控制，可以在 `src/app/providers.tsx` 中给 `AppProvider` 传：
+如果你想显式控制，可以在 `src/root/providers.tsx` 中给 `AppProvider` 传：
 
 ```tsx
 <AppProvider
@@ -380,6 +383,12 @@ export function LoginAction() {
     level: 'info',
     overlayEnabled: true,
     exportEnabled: true,
+  }}
+  errorBoundaryProps={{
+    title: '应用渲染异常',
+    description: '开发环境已启用错误边界，可结合日志浮层快速排查问题。',
+    showDetails: true,
+    resetText: '重新加载',
   }}
 >
   <RootApp />
@@ -475,10 +484,10 @@ import { KeyboardDismissView } from '@gaozh1024/rn-kit';
 
 ```tsx
 import { useNavigation } from '@gaozh1024/rn-kit';
-import type { AuthNavigationProp } from '@/navigation/types';
+import type { RootNavigationProp } from '@/navigation/types';
 
 export function LoginScreen() {
-  const navigation = useNavigation<AuthNavigationProp>();
+  const navigation = useNavigation<RootNavigationProp>();
 
   return null;
 }
@@ -491,12 +500,18 @@ export function LoginScreen() {
 
 不会直接耦合 `@react-navigation/native` 或 `@react-navigation/stack`。
 
+导航结构说明：
+
+- `RootNavigator`：根导航器，管理整个应用的路由栈
+- `MainTabs`：主 Tab 导航，包含 Home 和 My 两个标签页
+- 认证页面（Login、Register、ForgotPassword）和二级页面（Theme、Language、UserInfo、Settings、About）都在 RootStack 中注册
+
 ### 添加新页面
 
 1. 在 `src/features/{domain}/screens/` 创建页面组件
 2. 在 `src/navigation/types.ts` 添加路由参数类型
 3. 如有需要，在 `src/navigation/types.ts` 增加页面对应的导航类型别名
-4. 在对应导航组件中注册页面
+4. 在 `RootNavigator.tsx` 中注册页面
 
 ### 添加新 API
 

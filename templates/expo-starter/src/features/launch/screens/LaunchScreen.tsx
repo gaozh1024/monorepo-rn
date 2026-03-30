@@ -166,7 +166,7 @@ export function LaunchScreen() {
               marginTop: 16,
             }}
           >
-            v1.0.0
+            v0.2.13
           </AppText>
         </Animated.View>
       </Center>

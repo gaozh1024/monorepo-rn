@@ -1,4 +1,5 @@
 import React from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { AppPressable, AppView, useThemeColors } from '@gaozh1024/rn-kit';
 
 export interface ListItemProps {
@@ -10,6 +11,7 @@ export interface ListItemProps {
   className?: string;
   contentClassName?: string;
   pressedClassName?: string;
+  contentStyle?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -28,6 +30,7 @@ export function ListItem({
   className,
   contentClassName,
   pressedClassName = 'opacity-70',
+  contentStyle,
 }: ListItemProps) {
   const colors = useThemeColors();
 
@@ -36,10 +39,13 @@ export function ListItem({
       row
       items="center"
       className={['p-4', contentClassName].filter(Boolean).join(' ')}
-      style={{
-        borderBottomWidth: showDivider ? 0.5 : 0,
-        borderBottomColor: colors.divider,
-      }}
+      style={[
+        {
+          borderBottomWidth: showDivider ? 0.5 : 0,
+          borderBottomColor: colors.divider,
+        },
+        contentStyle,
+      ]}
     >
       {left ? <AppView className="mr-3">{left}</AppView> : null}
       <AppView className="flex-1">{children}</AppView>

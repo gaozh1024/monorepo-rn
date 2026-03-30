@@ -12,6 +12,7 @@ import {
   Row,
   SafeScreen,
   useLogger,
+  AppButton,
 } from '@gaozh1024/rn-kit';
 import { useSessionStore } from '../../../store/session.store';
 import { loginResponse } from '../../../data/mocks/user.mock';
@@ -19,8 +20,8 @@ import type { RootNavigationProp } from '../../../navigation/types';
 import { appColors } from '../../../bootstrap/theme';
 
 /**
- * 登录页 - 现代简约设计 v2
- * 更大的卡片、精致阴影、分层感
+ * 登录页 - 现代简约设计
+ * 使用 rn-kit AppButton 替代手搓按钮，保持统一交互与主题
  */
 export function LoginScreen() {
   const navigation = useNavigation<RootNavigationProp>();
@@ -56,13 +57,7 @@ export function LoginScreen() {
         translucent
         backgroundColor="transparent"
       />
-      <SafeScreen
-        flex
-        dismissKeyboardOnPressOutside
-        style={{
-          backgroundColor: isDark ? appColors.slate[950] : '#f8fafc',
-        }}
-      >
+      <SafeScreen flex dismissKeyboardOnPressOutside surface="background">
         {/* 背景装饰 */}
         <AppView
           style={{
@@ -215,28 +210,10 @@ export function LoginScreen() {
                 </AppText>
               </AppPressable>
 
-              {/* 登录按钮 */}
-              <AppPressable
-                onPress={handleLogin}
-                disabled={loading}
-                style={{
-                  height: 56,
-                  borderRadius: 16,
-                  backgroundColor: appColors.primary[500],
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  shadowColor: appColors.primary[500],
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 16,
-                  elevation: 8,
-                  opacity: loading ? 0.7 : 1,
-                }}
-              >
-                <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-                  {loading ? '登录中...' : '登录'}
-                </AppText>
-              </AppPressable>
+              {/* 登录按钮 - 使用 AppButton */}
+              <AppButton size="lg" loading={loading} onPress={handleLogin}>
+                {loading ? '登录中...' : '登录'}
+              </AppButton>
 
               {/* 注册链接 */}
               <Row center style={{ marginTop: 8, gap: 6 }}>

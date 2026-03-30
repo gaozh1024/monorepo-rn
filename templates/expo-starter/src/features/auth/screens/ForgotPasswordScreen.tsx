@@ -4,7 +4,6 @@ import {
   AppView,
   AppText,
   AppInput,
-  AppPressable,
   Center,
   useNavigation,
   useTheme,
@@ -12,12 +11,13 @@ import {
   Row,
   AppScrollView,
   AppHeader,
+  AppButton,
 } from '@gaozh1024/rn-kit';
 import type { RootNavigationProp } from '../../../navigation/types';
 import { appColors } from '../../../bootstrap/theme';
 
 /**
- * 找回密码页 - 使用 AppHeader
+ * 找回密码页 - 使用 AppHeader 与 AppButton
  */
 export function ForgotPasswordScreen() {
   const navigation = useNavigation<RootNavigationProp>();
@@ -41,11 +41,7 @@ export function ForgotPasswordScreen() {
   };
 
   return (
-    <AppScreen
-      style={{
-        backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
-      }}
-    >
+    <AppScreen surface="background">
       <AppHeader title="找回密码" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
       <AppScrollView
         flex
@@ -140,27 +136,9 @@ export function ForgotPasswordScreen() {
               >
                 请检查您的手机短信，按指引重置密码
               </AppText>
-              <AppPressable
-                onPress={() => navigation.goBack()}
-                style={{
-                  height: 56,
-                  borderRadius: 16,
-                  backgroundColor: appColors.primary[500],
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: 32,
-                  minWidth: 200,
-                  shadowColor: appColors.primary[500],
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 16,
-                  elevation: 8,
-                }}
-              >
-                <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-                  返回登录
-                </AppText>
-              </AppPressable>
+              <AppButton size="lg" onPress={() => navigation.goBack()} mt={32} w={200}>
+                返回登录
+              </AppButton>
             </Center>
           ) : (
             // 输入手机号
@@ -202,28 +180,9 @@ export function ForgotPasswordScreen() {
                 />
               </AppView>
 
-              <AppPressable
-                onPress={handleSendCode}
-                disabled={loading}
-                style={{
-                  height: 56,
-                  borderRadius: 16,
-                  backgroundColor: appColors.primary[500],
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: 8,
-                  shadowColor: appColors.primary[500],
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 16,
-                  elevation: 8,
-                  opacity: loading ? 0.7 : 1,
-                }}
-              >
-                <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-                  {loading ? '发送中...' : '发送重置链接'}
-                </AppText>
-              </AppPressable>
+              <AppButton size="lg" loading={loading} onPress={handleSendCode} mt={8}>
+                {loading ? '发送中...' : '发送重置链接'}
+              </AppButton>
             </AppView>
           )}
         </AppView>

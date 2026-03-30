@@ -1,17 +1,6 @@
 import React from 'react';
-import {
-  AppText,
-  Icon,
-  AppPressable,
-  AppScreen,
-  AppView,
-  AppScrollView,
-  Row,
-  Col,
-  useTheme,
-  useNavigation,
-  AppHeader,
-} from '@gaozh1024/rn-kit';
+import { AppText, Icon, AppPressable, AppView, Row, Col, useTheme } from '@gaozh1024/rn-kit';
+import { PageScreen } from '../../../components/common';
 import { useUIStore } from '../../../store/ui.store';
 import { THEME_MODES, type ThemeMode } from '../../../bootstrap/constants';
 import { appColors } from '../../../bootstrap/theme';
@@ -160,7 +149,6 @@ function ThemeOption({
 export function ThemeScreen() {
   const { themeMode, setThemeMode } = useUIStore();
   const { isDark } = useTheme();
-  const navigation = useNavigation();
 
   const options: {
     value: ThemeMode;
@@ -205,126 +193,117 @@ export function ThemeScreen() {
   ];
 
   return (
-    <AppScreen
-      style={{
-        backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
-      }}
+    <PageScreen
+      title="主题模式"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ padding: 20 }}
     >
-      <AppHeader title="主题模式" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
-      <AppScrollView
-        flex
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          padding: 20,
-        }}
-      >
-        {/* 当前主题预览 */}
-        <AppView style={{ marginBottom: 24 }}>
-          <AppText
-            size="xs"
-            weight="semibold"
-            style={{
-              color: isDark ? appColors.slate[500] : appColors.slate[500],
-              marginBottom: 12,
-              marginLeft: 4,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            当前预览
-          </AppText>
-          <AppView
-            style={{
-              backgroundColor: appColors.primary[500],
-              borderRadius: 24,
-              padding: 24,
-            }}
-          >
-            <Row items="center">
-              <AppView
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 18,
-                  backgroundColor: 'rgba(255,255,255,0.15)',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Icon name={isDark ? 'nights-stay' : 'wb-sunny'} size={28} color="#ffffff" />
-              </AppView>
-              <Col style={{ marginLeft: 16, flex: 1 }}>
-                <AppText size="md" weight="bold" style={{ color: '#ffffff' }}>
-                  {options.find(o => o.value === themeMode)?.label}
-                </AppText>
-                <AppText size="sm" style={{ color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-                  已启用
-                </AppText>
-              </Col>
-            </Row>
-          </AppView>
-        </AppView>
-
-        {/* 主题选项 */}
-        <AppView>
-          <AppText
-            size="xs"
-            weight="semibold"
-            style={{
-              color: isDark ? appColors.slate[500] : appColors.slate[500],
-              marginBottom: 12,
-              marginLeft: 4,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            选择主题
-          </AppText>
-          {options.map(option => (
-            <ThemeOption
-              key={option.value}
-              mode={option.value}
-              label={option.label}
-              icon={option.icon}
-              description={option.description}
-              isSelected={themeMode === option.value}
-              onSelect={() => setThemeMode(option.value)}
-              previewColors={option.preview}
-            />
-          ))}
-        </AppView>
-
-        {/* 提示信息 */}
-        <AppView
+      {/* 当前主题预览 */}
+      <AppView style={{ marginBottom: 24 }}>
+        <AppText
+          size="xs"
+          weight="semibold"
           style={{
-            backgroundColor: isDark ? `${appColors.info.DEFAULT}10` : appColors.info.light,
-            borderRadius: 16,
-            padding: 16,
-            marginTop: 8,
-            marginBottom: 16,
+            color: isDark ? appColors.slate[500] : appColors.slate[500],
+            marginBottom: 12,
+            marginLeft: 4,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
           }}
         >
-          <Row items="start" style={{ gap: 12 }}>
-            <Icon name="info" size={22} color={appColors.info.DEFAULT} />
-            <Col style={{ flex: 1 }}>
-              <AppText size="sm" weight="medium" style={{ color: appColors.info.DEFAULT }}>
-                提示
+          当前预览
+        </AppText>
+        <AppView
+          style={{
+            backgroundColor: appColors.primary[500],
+            borderRadius: 24,
+            padding: 24,
+          }}
+        >
+          <Row items="center">
+            <AppView
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 18,
+                backgroundColor: 'rgba(255,255,255,0.15)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Icon name={isDark ? 'nights-stay' : 'wb-sunny'} size={28} color="#ffffff" />
+            </AppView>
+            <Col style={{ marginLeft: 16, flex: 1 }}>
+              <AppText size="md" weight="bold" style={{ color: '#ffffff' }}>
+                {options.find(o => o.value === themeMode)?.label}
               </AppText>
-              <AppText
-                size="xs"
-                style={{
-                  color: appColors.info.DEFAULT,
-                  opacity: 0.8,
-                  marginTop: 6,
-                  lineHeight: 20,
-                }}
-              >
-                选择深色模式可降低屏幕亮度，有助于在暗光环境下减少眼睛疲劳。跟随系统模式会根据设备设置自动切换。
+              <AppText size="sm" style={{ color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
+                已启用
               </AppText>
             </Col>
           </Row>
         </AppView>
-      </AppScrollView>
-    </AppScreen>
+      </AppView>
+
+      {/* 主题选项 */}
+      <AppView>
+        <AppText
+          size="xs"
+          weight="semibold"
+          style={{
+            color: isDark ? appColors.slate[500] : appColors.slate[500],
+            marginBottom: 12,
+            marginLeft: 4,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+          }}
+        >
+          选择主题
+        </AppText>
+        {options.map(option => (
+          <ThemeOption
+            key={option.value}
+            mode={option.value}
+            label={option.label}
+            icon={option.icon}
+            description={option.description}
+            isSelected={themeMode === option.value}
+            onSelect={() => setThemeMode(option.value)}
+            previewColors={option.preview}
+          />
+        ))}
+      </AppView>
+
+      {/* 提示信息 */}
+      <AppView
+        style={{
+          backgroundColor: isDark ? `${appColors.info.DEFAULT}10` : appColors.info.light,
+          borderRadius: 16,
+          padding: 16,
+          marginTop: 8,
+          marginBottom: 16,
+        }}
+      >
+        <Row items="start" style={{ gap: 12 }}>
+          <Icon name="info" size={22} color={appColors.info.DEFAULT} />
+          <Col style={{ flex: 1 }}>
+            <AppText size="sm" weight="medium" style={{ color: appColors.info.DEFAULT }}>
+              提示
+            </AppText>
+            <AppText
+              size="xs"
+              style={{
+                color: appColors.info.DEFAULT,
+                opacity: 0.8,
+                marginTop: 6,
+                lineHeight: 20,
+              }}
+            >
+              选择深色模式可降低屏幕亮度，有助于在暗光环境下减少眼睛疲劳。跟随系统模式会根据设备设置自动切换。
+            </AppText>
+          </Col>
+        </Row>
+      </AppView>
+    </PageScreen>
   );
 }

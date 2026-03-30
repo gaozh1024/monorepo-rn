@@ -50,6 +50,7 @@
 - [aliyun-push 0.1.0 Release Notes](./release-notes/aliyun-push-0.1.0.md)
 - [aliyun-speech 0.1.0 Release Notes](./release-notes/aliyun-speech-0.1.0.md)
 - [photo-album-picker 0.1.0 Release Notes](./release-notes/photo-album-picker-0.1.0.md)
+- [expo-starter 0.2.13 Release Notes](./release-notes/expo-starter-0.2.13.md)
 - [expo-starter 0.2.12 Release Notes](./release-notes/expo-starter-0.2.12.md)
 - [expo-starter 0.2.11 Release Notes](./release-notes/expo-starter-0.2.11.md)
 - [expo-starter 0.2.10 Release Notes](./release-notes/expo-starter-0.2.10.md)

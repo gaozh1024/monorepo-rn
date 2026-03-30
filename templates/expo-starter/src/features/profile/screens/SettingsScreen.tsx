@@ -1,216 +1,62 @@
 import React from 'react';
 import {
+  AppButton,
   AppText,
-  Icon,
-  AppPressable,
-  useAlert,
-  AppScreen,
   AppView,
-  AppScrollView,
-  Row,
   Col,
-  useTheme,
+  Icon,
+  Row,
+  Switch,
+  useAlert,
   useNavigation,
-  AppHeader,
+  useTheme,
 } from '@gaozh1024/rn-kit';
-import { useSessionStore } from '../../../store/session.store';
-import { useUIStore } from '../../../store/ui.store';
+import { ListItem, ListSection, PageScreen } from '../../../components/common';
 import {
   LANGUAGES,
   THEME_MODES,
   type Language,
   type ThemeMode,
 } from '../../../bootstrap/constants';
+import { appColors } from '../../../bootstrap/theme';
 import { appInfo } from '../../../data/mocks/app.mock';
 import type { RootNavigationProp } from '../../../navigation/types';
-import { appColors } from '../../../bootstrap/theme';
+import { useSessionStore } from '../../../store/session.store';
+import { useUIStore } from '../../../store/ui.store';
 
-/**
- * 设置项组件
- */
-function SettingItem({
-  icon,
-  label,
-  value,
-  onPress,
-  showDivider = true,
-  destructive = false,
-}: {
-  icon: string;
-  label: string;
-  value?: string;
-  onPress?: () => void;
-  showDivider?: boolean;
-  destructive?: boolean;
-}) {
-  const { isDark } = useTheme();
-
-  const iconBgColor = destructive
-    ? isDark
-      ? `${appColors.error.DEFAULT}15`
-      : appColors.error.light
-    : isDark
-      ? appColors.slate[700]
-      : appColors.slate[100];
-
-  const iconColor = destructive ? appColors.error.DEFAULT : appColors.primary[500];
-
-  const textColor = destructive
-    ? appColors.error.DEFAULT
-    : isDark
-      ? appColors.slate[200]
-      : appColors.slate[700];
-
-  return (
-    <AppPressable onPress={onPress}>
-      <Row
-        items="center"
-        style={{
-          paddingVertical: 16,
-          paddingHorizontal: 18,
-          borderBottomWidth: showDivider ? 1 : 0,
-          borderBottomColor: isDark ? appColors.slate[700] : appColors.slate[100],
-        }}
-      >
-        <AppView
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            backgroundColor: iconBgColor,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 16,
-          }}
-        >
-          <Icon name={icon} size={22} color={iconColor} />
-        </AppView>
-        <AppText size="sm" weight="medium" style={{ flex: 1, color: textColor }}>
-          {label}
-        </AppText>
-        {value && (
-          <AppText
-            size="xs"
-            style={{
-              color: isDark ? appColors.slate[500] : appColors.slate[400],
-              marginRight: 12,
-            }}
-          >
-            {value}
-          </AppText>
-        )}
-        <Icon
-          name="chevron-right"
-          size={22}
-          color={isDark ? appColors.slate[500] : appColors.slate[300]}
-        />
-      </Row>
-    </AppPressable>
-  );
-}
-
-/**
- * 开关设置项
- */
-function SwitchSettingItem({
-  icon,
-  label,
-  description,
-  enabled,
-  onToggle,
-  showDivider = true,
-}: {
-  icon: string;
-  label: string;
-  description?: string;
-  enabled: boolean;
-  onToggle: () => void;
-  showDivider?: boolean;
-}) {
+function SettingIcon({ icon, destructive = false }: { icon: string; destructive?: boolean }) {
   const { isDark } = useTheme();
 
   return (
-    <AppPressable onPress={onToggle}>
-      <Row
-        items="center"
-        style={{
-          paddingVertical: 16,
-          paddingHorizontal: 18,
-          borderBottomWidth: showDivider ? 1 : 0,
-          borderBottomColor: isDark ? appColors.slate[700] : appColors.slate[100],
-        }}
-      >
-        <AppView
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            backgroundColor: isDark ? appColors.slate[700] : appColors.slate[100],
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 16,
-          }}
-        >
-          <Icon name={icon} size={22} color={appColors.primary[500]} />
-        </AppView>
-        <Col style={{ flex: 1 }}>
-          <AppText
-            size="sm"
-            weight="medium"
-            style={{
-              color: isDark ? appColors.slate[200] : appColors.slate[700],
-            }}
-          >
-            {label}
-          </AppText>
-          {description && (
-            <AppText
-              size="xs"
-              style={{
-                color: isDark ? appColors.slate[500] : appColors.slate[400],
-                marginTop: 4,
-              }}
-            >
-              {description}
-            </AppText>
-          )}
-        </Col>
-        <AppView
-          style={{
-            width: 52,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: enabled
-              ? appColors.primary[500]
-              : isDark
-                ? appColors.slate[600]
-                : appColors.slate[300],
-            justifyContent: 'center',
-            paddingHorizontal: 4,
-          }}
-        >
-          <AppView
-            style={{
-              width: 24,
-              height: 24,
-              borderRadius: 12,
-              backgroundColor: '#ffffff',
-              transform: [{ translateX: enabled ? 20 : 0 }],
-            }}
-          />
-        </AppView>
-      </Row>
-    </AppPressable>
+    <AppView
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: destructive
+          ? isDark
+            ? `${appColors.error.DEFAULT}15`
+            : appColors.error.light
+          : isDark
+            ? appColors.slate[700]
+            : appColors.slate[100],
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Icon
+        name={icon}
+        size={22}
+        color={destructive ? appColors.error.DEFAULT : appColors.primary[500]}
+      />
+    </AppView>
   );
 }
 
-/**
- * 设置页 - 使用 AppHeader
- */
 export function SettingsScreen() {
   const navigation = useNavigation<RootNavigationProp>();
   const { logout } = useSessionStore();
-  const { themeMode, language, setThemeMode, setLanguage } = useUIStore();
+  const { themeMode, language } = useUIStore();
   const { confirm } = useAlert();
   const { isDark } = useTheme();
 
@@ -239,174 +85,218 @@ export function SettingsScreen() {
   };
 
   return (
-    <AppScreen
-      style={{
-        backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
-      }}
+    <PageScreen
+      title="设置"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ padding: 20, paddingBottom: 32 }}
     >
-      <AppHeader title="设置" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
-      <AppScrollView
-        flex
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          padding: 20,
-        }}
-      >
-        {/* 外观设置 */}
-        <AppText
-          size="xs"
-          weight="semibold"
-          style={{
-            color: isDark ? appColors.slate[500] : appColors.slate[500],
-            marginBottom: 12,
-            marginLeft: 4,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
+      <ListSection title="外观">
+        <ListItem
+          left={<SettingIcon icon="palette" />}
+          onPress={() => navigation.navigate('Theme')}
+          showDivider
+          right={
+            <Row items="center">
+              <AppText
+                size="xs"
+                style={{
+                  color: isDark ? appColors.slate[500] : appColors.slate[400],
+                  marginRight: 12,
+                }}
+              >
+                {themeLabelMap[themeMode]}
+              </AppText>
+              <Icon
+                name="chevron-right"
+                size={22}
+                color={isDark ? appColors.slate[500] : appColors.slate[300]}
+              />
+            </Row>
+          }
         >
-          外观
-        </AppText>
-        <AppView
-          style={{
-            backgroundColor: isDark ? appColors.slate[800] : '#ffffff',
-            borderRadius: 20,
-            overflow: 'hidden',
-            marginBottom: 24,
-            shadowColor: isDark ? '#000000' : appColors.slate[900],
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: isDark ? 0.25 : 0.04,
-            shadowRadius: 12,
-            elevation: 4,
-          }}
+          <AppText
+            size="sm"
+            weight="medium"
+            style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+          >
+            主题模式
+          </AppText>
+        </ListItem>
+        <ListItem
+          left={<SettingIcon icon="language" />}
+          onPress={() => navigation.navigate('Language')}
+          right={
+            <Row items="center">
+              <AppText
+                size="xs"
+                style={{
+                  color: isDark ? appColors.slate[500] : appColors.slate[400],
+                  marginRight: 12,
+                }}
+              >
+                {languageLabelMap[language]}
+              </AppText>
+              <Icon
+                name="chevron-right"
+                size={22}
+                color={isDark ? appColors.slate[500] : appColors.slate[300]}
+              />
+            </Row>
+          }
         >
-          <SettingItem
-            icon="palette"
-            label="主题模式"
-            value={themeLabelMap[themeMode]}
-            onPress={() => navigation.navigate('Theme')}
-            showDivider
-          />
-          <SettingItem
-            icon="language"
-            label="语言设置"
-            value={languageLabelMap[language]}
-            onPress={() => navigation.navigate('Language')}
-            showDivider={false}
-          />
-        </AppView>
+          <AppText
+            size="sm"
+            weight="medium"
+            style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+          >
+            语言设置
+          </AppText>
+        </ListItem>
+      </ListSection>
 
-        {/* 通知设置 */}
-        <AppText
-          size="xs"
-          weight="semibold"
-          style={{
-            color: isDark ? appColors.slate[500] : appColors.slate[500],
-            marginBottom: 12,
-            marginLeft: 4,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
-        >
-          通知
-        </AppText>
-        <AppView
-          style={{
-            backgroundColor: isDark ? appColors.slate[800] : '#ffffff',
-            borderRadius: 20,
-            overflow: 'hidden',
-            marginBottom: 24,
-            shadowColor: isDark ? '#000000' : appColors.slate[900],
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: isDark ? 0.25 : 0.04,
-            shadowRadius: 12,
-            elevation: 4,
-          }}
-        >
-          <SwitchSettingItem
-            icon="notifications-none"
-            label="推送通知"
-            description="接收应用更新和消息提醒"
-            enabled={notifications}
-            onToggle={() => setNotifications(!notifications)}
+      <AppView style={{ marginTop: 24 }}>
+        <ListSection title="通知">
+          <ListItem
+            left={<SettingIcon icon="notifications-none" />}
             showDivider
-          />
-          <SwitchSettingItem
-            icon="update"
-            label="自动更新"
-            description="Wi-Fi 环境下自动下载更新"
-            enabled={autoUpdate}
-            onToggle={() => setAutoUpdate(!autoUpdate)}
-            showDivider={false}
-          />
-        </AppView>
+            right={
+              <Switch checked={notifications} onChange={() => setNotifications(!notifications)} />
+            }
+          >
+            <Col style={{ flex: 1 }}>
+              <AppText
+                size="sm"
+                weight="medium"
+                style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+              >
+                推送通知
+              </AppText>
+              <AppText
+                size="xs"
+                style={{
+                  color: isDark ? appColors.slate[500] : appColors.slate[400],
+                  marginTop: 4,
+                }}
+              >
+                接收应用更新和消息提醒
+              </AppText>
+            </Col>
+          </ListItem>
+          <ListItem
+            left={<SettingIcon icon="update" />}
+            right={<Switch checked={autoUpdate} onChange={() => setAutoUpdate(!autoUpdate)} />}
+          >
+            <Col style={{ flex: 1 }}>
+              <AppText
+                size="sm"
+                weight="medium"
+                style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+              >
+                自动更新
+              </AppText>
+              <AppText
+                size="xs"
+                style={{
+                  color: isDark ? appColors.slate[500] : appColors.slate[400],
+                  marginTop: 4,
+                }}
+              >
+                Wi-Fi 环境下自动下载更新
+              </AppText>
+            </Col>
+          </ListItem>
+        </ListSection>
+      </AppView>
 
-        {/* 关于 */}
-        <AppText
-          size="xs"
-          weight="semibold"
-          style={{
-            color: isDark ? appColors.slate[500] : appColors.slate[500],
-            marginBottom: 12,
-            marginLeft: 4,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
-        >
-          关于
-        </AppText>
-        <AppView
-          style={{
-            backgroundColor: isDark ? appColors.slate[800] : '#ffffff',
-            borderRadius: 20,
-            overflow: 'hidden',
-            marginBottom: 24,
-            shadowColor: isDark ? '#000000' : appColors.slate[900],
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: isDark ? 0.25 : 0.04,
-            shadowRadius: 12,
-            elevation: 4,
-          }}
-        >
-          <SettingItem
-            icon="info-outline"
-            label="关于我们"
+      <AppView style={{ marginTop: 24 }}>
+        <ListSection title="关于">
+          <ListItem
+            left={<SettingIcon icon="info-outline" />}
             onPress={() => navigation.navigate('About')}
             showDivider
-          />
-          <SettingItem icon="description" label="用户协议" onPress={() => {}} showDivider />
-          <SettingItem icon="policy" label="隐私政策" onPress={() => {}} showDivider />
-          <SettingItem
-            icon="smartphone"
-            label="版本号"
-            value={`v${appInfo.version}`}
-            showDivider={false}
-          />
-        </AppView>
-
-        {/* 退出登录 */}
-        <AppView style={{ marginBottom: 32 }}>
-          <AppView
-            style={{
-              backgroundColor: isDark ? appColors.slate[800] : '#ffffff',
-              borderRadius: 20,
-              overflow: 'hidden',
-              shadowColor: isDark ? '#000000' : appColors.slate[900],
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: isDark ? 0.25 : 0.04,
-              shadowRadius: 12,
-              elevation: 4,
-            }}
+            right={
+              <Icon
+                name="chevron-right"
+                size={22}
+                color={isDark ? appColors.slate[500] : appColors.slate[300]}
+              />
+            }
           >
-            <SettingItem
-              icon="logout"
-              label="退出登录"
-              onPress={handleLogout}
-              showDivider={false}
-              destructive
-            />
-          </AppView>
-        </AppView>
-      </AppScrollView>
-    </AppScreen>
+            <AppText
+              size="sm"
+              weight="medium"
+              style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+            >
+              关于我们
+            </AppText>
+          </ListItem>
+          <ListItem
+            left={<SettingIcon icon="description" />}
+            onPress={() => {}}
+            showDivider
+            right={
+              <Icon
+                name="chevron-right"
+                size={22}
+                color={isDark ? appColors.slate[500] : appColors.slate[300]}
+              />
+            }
+          >
+            <AppText
+              size="sm"
+              weight="medium"
+              style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+            >
+              用户协议
+            </AppText>
+          </ListItem>
+          <ListItem
+            left={<SettingIcon icon="policy" />}
+            onPress={() => {}}
+            showDivider
+            right={
+              <Icon
+                name="chevron-right"
+                size={22}
+                color={isDark ? appColors.slate[500] : appColors.slate[300]}
+              />
+            }
+          >
+            <AppText
+              size="sm"
+              weight="medium"
+              style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+            >
+              隐私政策
+            </AppText>
+          </ListItem>
+          <ListItem
+            left={<SettingIcon icon="smartphone" />}
+            right={
+              <AppText
+                size="xs"
+                style={{ color: isDark ? appColors.slate[500] : appColors.slate[400] }}
+              >
+                v{appInfo.version}
+              </AppText>
+            }
+          >
+            <AppText
+              size="sm"
+              weight="medium"
+              style={{ color: isDark ? appColors.slate[200] : appColors.slate[700] }}
+            >
+              版本号
+            </AppText>
+          </ListItem>
+        </ListSection>
+      </AppView>
+
+      <AppView style={{ marginTop: 32 }}>
+        <AppButton variant="outline" color="error" size="lg" onPress={handleLogout}>
+          退出登录
+        </AppButton>
+      </AppView>
+    </PageScreen>
   );
 }

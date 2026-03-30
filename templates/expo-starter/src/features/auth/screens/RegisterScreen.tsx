@@ -4,7 +4,6 @@ import {
   AppView,
   AppText,
   AppInput,
-  AppPressable,
   Center,
   useNavigation,
   useTheme,
@@ -12,12 +11,13 @@ import {
   Row,
   AppScrollView,
   AppHeader,
+  AppButton,
 } from '@gaozh1024/rn-kit';
 import type { RootNavigationProp } from '../../../navigation/types';
 import { appColors } from '../../../bootstrap/theme';
 
 /**
- * 注册页 - 使用 AppHeader
+ * 注册页 - 使用 AppHeader 与 AppButton
  */
 export function RegisterScreen() {
   const navigation = useNavigation<RootNavigationProp>();
@@ -51,11 +51,7 @@ export function RegisterScreen() {
   };
 
   return (
-    <AppScreen
-      style={{
-        backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
-      }}
-    >
+    <AppScreen surface="background">
       <AppHeader title="注册账号" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
       <AppScrollView
         flex
@@ -196,29 +192,10 @@ export function RegisterScreen() {
             />
           </AppView>
 
-          {/* 注册按钮 */}
-          <AppPressable
-            onPress={handleRegister}
-            disabled={loading}
-            style={{
-              height: 56,
-              borderRadius: 16,
-              backgroundColor: appColors.primary[500],
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 8,
-              shadowColor: appColors.primary[500],
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.25,
-              shadowRadius: 16,
-              elevation: 8,
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
-            <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-              {loading ? '注册中...' : '注册'}
-            </AppText>
-          </AppPressable>
+          {/* 注册按钮 - 使用 AppButton */}
+          <AppButton size="lg" loading={loading} onPress={handleRegister} mt={8}>
+            {loading ? '注册中...' : '注册'}
+          </AppButton>
 
           {/* 登录链接 */}
           <Row center style={{ marginTop: 20, gap: 6 }}>
@@ -230,11 +207,9 @@ export function RegisterScreen() {
             >
               已有账号?
             </AppText>
-            <AppPressable onPress={goToLogin}>
-              <AppText size="sm" weight="semibold" style={{ color: appColors.primary[500] }}>
-                返回登录
-              </AppText>
-            </AppPressable>
+            <AppButton variant="ghost" size="sm" onPress={goToLogin}>
+              返回登录
+            </AppButton>
           </Row>
         </AppView>
       </AppScrollView>

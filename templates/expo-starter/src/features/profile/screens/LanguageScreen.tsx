@@ -1,17 +1,6 @@
 import React from 'react';
-import {
-  AppText,
-  Icon,
-  AppPressable,
-  AppScreen,
-  AppView,
-  AppScrollView,
-  Row,
-  Col,
-  useTheme,
-  useNavigation,
-  AppHeader,
-} from '@gaozh1024/rn-kit';
+import { AppText, Icon, AppPressable, AppView, Row, Col, useTheme } from '@gaozh1024/rn-kit';
+import { PageScreen } from '../../../components/common';
 import { useUIStore } from '../../../store/ui.store';
 import { LANGUAGES, type Language } from '../../../bootstrap/constants';
 import { appColors } from '../../../bootstrap/theme';
@@ -140,7 +129,6 @@ function LanguageOption({
 export function LanguageScreen() {
   const { language, setLanguage } = useUIStore();
   const { isDark } = useTheme();
-  const navigation = useNavigation();
 
   const options: {
     value: Language;
@@ -153,135 +141,126 @@ export function LanguageScreen() {
   ];
 
   return (
-    <AppScreen
-      style={{
-        backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
-      }}
+    <PageScreen
+      title="语言设置"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ padding: 20 }}
     >
-      <AppHeader title="语言设置" leftIcon="arrow-back" onLeftPress={() => navigation.goBack()} />
-      <AppScrollView
-        flex
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          padding: 20,
-        }}
-      >
-        {/* 当前语言 */}
-        <AppView style={{ marginBottom: 24 }}>
-          <AppText
-            size="xs"
-            weight="semibold"
-            style={{
-              color: isDark ? appColors.slate[500] : appColors.slate[500],
-              marginBottom: 12,
-              marginLeft: 4,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            当前语言
-          </AppText>
-          <AppView
-            style={{
-              backgroundColor: isDark ? `${appColors.primary[500]}15` : appColors.primary[50],
-              borderRadius: 20,
-              padding: 20,
-              borderWidth: 2,
-              borderColor: isDark ? `${appColors.primary[500]}30` : appColors.primary[200],
-            }}
-          >
-            <Row items="center">
-              <AppView
-                style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 20,
-                  backgroundColor: isDark ? `${appColors.primary[500]}25` : appColors.primary[100],
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginRight: 18,
-                }}
-              >
-                <AppText size="3xl">{options.find(o => o.value === language)?.flag}</AppText>
-              </AppView>
-              <Col style={{ flex: 1 }}>
-                <AppText size="md" weight="bold" style={{ color: appColors.primary[500] }}>
-                  {options.find(o => o.value === language)?.name}
-                </AppText>
-                <AppText
-                  size="sm"
-                  style={{
-                    color: isDark ? appColors.slate[400] : appColors.slate[500],
-                    marginTop: 4,
-                  }}
-                >
-                  {options.find(o => o.value === language)?.nativeName}
-                </AppText>
-              </Col>
-              <Icon name="check-circle" size={32} color={appColors.primary[500]} />
-            </Row>
-          </AppView>
-        </AppView>
-
-        {/* 可用语言 */}
-        <AppView>
-          <AppText
-            size="xs"
-            weight="semibold"
-            style={{
-              color: isDark ? appColors.slate[500] : appColors.slate[500],
-              marginBottom: 12,
-              marginLeft: 4,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            可用语言
-          </AppText>
-          {options.map(option => (
-            <LanguageOption
-              key={option.value}
-              code={option.value}
-              name={option.name}
-              nativeName={option.nativeName}
-              flag={option.flag}
-              isSelected={language === option.value}
-              onSelect={() => setLanguage(option.value)}
-            />
-          ))}
-        </AppView>
-
-        {/* 提示信息 */}
-        <AppView
+      {/* 当前语言 */}
+      <AppView style={{ marginBottom: 24 }}>
+        <AppText
+          size="xs"
+          weight="semibold"
           style={{
-            backgroundColor: isDark ? `${appColors.warning.DEFAULT}10` : appColors.warning.light,
-            borderRadius: 16,
-            padding: 16,
-            marginTop: 8,
-            marginBottom: 16,
+            color: isDark ? appColors.slate[500] : appColors.slate[500],
+            marginBottom: 12,
+            marginLeft: 4,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
           }}
         >
-          <Row items="start" style={{ gap: 12 }}>
-            <Icon name="translate" size={22} color={appColors.warning.DEFAULT} />
+          当前语言
+        </AppText>
+        <AppView
+          style={{
+            backgroundColor: isDark ? `${appColors.primary[500]}15` : appColors.primary[50],
+            borderRadius: 20,
+            padding: 20,
+            borderWidth: 2,
+            borderColor: isDark ? `${appColors.primary[500]}30` : appColors.primary[200],
+          }}
+        >
+          <Row items="center">
+            <AppView
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: 20,
+                backgroundColor: isDark ? `${appColors.primary[500]}25` : appColors.primary[100],
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: 18,
+              }}
+            >
+              <AppText size="3xl">{options.find(o => o.value === language)?.flag}</AppText>
+            </AppView>
             <Col style={{ flex: 1 }}>
-              <AppText size="sm" weight="medium" style={{ color: appColors.warning.DEFAULT }}>
-                更多语言即将到来
+              <AppText size="md" weight="bold" style={{ color: appColors.primary[500] }}>
+                {options.find(o => o.value === language)?.name}
               </AppText>
               <AppText
-                size="xs"
+                size="sm"
                 style={{
-                  color: appColors.warning.DEFAULT,
-                  opacity: 0.8,
-                  marginTop: 6,
-                  lineHeight: 20,
+                  color: isDark ? appColors.slate[400] : appColors.slate[500],
+                  marginTop: 4,
                 }}
               >
-                我们正在努力支持更多语言。如果您希望添加特定语言的支持，请通过反馈渠道告知我们。
+                {options.find(o => o.value === language)?.nativeName}
               </AppText>
             </Col>
+            <Icon name="check-circle" size={32} color={appColors.primary[500]} />
           </Row>
         </AppView>
-      </AppScrollView>
-    </AppScreen>
+      </AppView>
+
+      {/* 可用语言 */}
+      <AppView>
+        <AppText
+          size="xs"
+          weight="semibold"
+          style={{
+            color: isDark ? appColors.slate[500] : appColors.slate[500],
+            marginBottom: 12,
+            marginLeft: 4,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+          }}
+        >
+          可用语言
+        </AppText>
+        {options.map(option => (
+          <LanguageOption
+            key={option.value}
+            code={option.value}
+            name={option.name}
+            nativeName={option.nativeName}
+            flag={option.flag}
+            isSelected={language === option.value}
+            onSelect={() => setLanguage(option.value)}
+          />
+        ))}
+      </AppView>
+
+      {/* 提示信息 */}
+      <AppView
+        style={{
+          backgroundColor: isDark ? `${appColors.warning.DEFAULT}10` : appColors.warning.light,
+          borderRadius: 16,
+          padding: 16,
+          marginTop: 8,
+          marginBottom: 16,
+        }}
+      >
+        <Row items="start" style={{ gap: 12 }}>
+          <Icon name="translate" size={22} color={appColors.warning.DEFAULT} />
+          <Col style={{ flex: 1 }}>
+            <AppText size="sm" weight="medium" style={{ color: appColors.warning.DEFAULT }}>
+              更多语言即将到来
+            </AppText>
+            <AppText
+              size="xs"
+              style={{
+                color: appColors.warning.DEFAULT,
+                opacity: 0.8,
+                marginTop: 6,
+                lineHeight: 20,
+              }}
+            >
+              我们正在努力支持更多语言。如果您希望添加特定语言的支持，请通过反馈渠道告知我们。
+            </AppText>
+          </Col>
+        </Row>
+      </AppView>
+    </PageScreen>
   );
 }

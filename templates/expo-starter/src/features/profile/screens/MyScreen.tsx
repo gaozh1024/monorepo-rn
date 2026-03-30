@@ -1,101 +1,22 @@
 import React from 'react';
 import {
-  AppScrollView,
-  AppView,
-  AppText,
-  Icon,
-  AppPressable,
-  useNavigation,
-  Row,
-  Col,
-  useTheme,
+  AppButton,
   AppFocusedStatusBar,
+  AppPressable,
+  AppScrollView,
+  AppText,
+  AppView,
+  Col,
+  Icon,
+  Row,
+  useNavigation,
+  useTheme,
 } from '@gaozh1024/rn-kit';
-import { LogoIcon } from '../../../components/common/Logo';
-import { useSessionStore } from '../../../store/session.store';
-import type { RootNavigationProp } from '../../../navigation/types';
+import { ListItem, ListSection, LogoIcon } from '../../../components/common';
 import { appColors } from '../../../bootstrap/theme';
+import type { RootNavigationProp } from '../../../navigation/types';
+import { useSessionStore } from '../../../store/session.store';
 
-/**
- * 菜单项组件 - 带白色背景
- */
-function MenuItem({
-  icon,
-  label,
-  badge,
-  onPress,
-  showDivider = true,
-}: {
-  icon: string;
-  label: string;
-  badge?: string;
-  onPress?: () => void;
-  showDivider?: boolean;
-}) {
-  const { isDark } = useTheme();
-
-  return (
-    <AppPressable onPress={onPress}>
-      <Row
-        items="center"
-        style={{
-          paddingVertical: 16,
-          paddingHorizontal: 18,
-          borderBottomWidth: showDivider ? 1 : 0,
-          borderBottomColor: isDark ? appColors.slate[700] : appColors.slate[100],
-        }}
-      >
-        <AppView
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            backgroundColor: isDark ? appColors.slate[700] : appColors.slate[100],
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 16,
-          }}
-        >
-          <Icon name={icon} size={22} color={appColors.primary[500]} />
-        </AppView>
-        <AppText
-          size="sm"
-          weight="medium"
-          style={{
-            flex: 1,
-            color: isDark ? appColors.slate[100] : appColors.slate[800],
-          }}
-        >
-          {label}
-        </AppText>
-        {badge && (
-          <AppView
-            style={{
-              backgroundColor: appColors.error.DEFAULT,
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 12,
-              marginRight: 12,
-            }}
-          >
-            <AppText size="xs" weight="medium" style={{ color: '#ffffff' }}>
-              {badge}
-            </AppText>
-          </AppView>
-        )}
-        <Icon
-          name="chevron-right"
-          size={22}
-          color={isDark ? appColors.slate[500] : appColors.slate[300]}
-        />
-      </Row>
-    </AppPressable>
-  );
-}
-
-/**
- * 统计数字项
- */
 function StatItem({ value, label }: { value: string; label: string }) {
   const { isDark } = useTheme();
 
@@ -123,10 +44,25 @@ function StatItem({ value, label }: { value: string; label: string }) {
   );
 }
 
-/**
- * 我的页面 - 现代简约设计 v2
- * 修复StatusBar、列表背景区分
- */
+function MenuIcon({ icon }: { icon: string }) {
+  const { isDark } = useTheme();
+
+  return (
+    <AppView
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: isDark ? appColors.slate[700] : appColors.slate[100],
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Icon name={icon} size={22} color={appColors.primary[500]} />
+    </AppView>
+  );
+}
+
 export function MyScreen() {
   const navigation = useNavigation<RootNavigationProp>();
   const { user, logout } = useSessionStore();
@@ -149,9 +85,9 @@ export function MyScreen() {
         { icon: 'info-outline', label: '关于我们', key: 'about' },
       ],
     },
-  ];
+  ] as const;
 
-  const handleMenuPress = (key: string) => {
+  const handleMenuPress = (key: (typeof menuGroups)[number]['items'][number]['key']) => {
     switch (key) {
       case 'userInfo':
         navigation.navigate('UserInfo');
@@ -161,6 +97,8 @@ export function MyScreen() {
         break;
       case 'about':
         navigation.navigate('About');
+        break;
+      default:
         break;
     }
   };
@@ -173,9 +111,9 @@ export function MyScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           backgroundColor: isDark ? appColors.slate[950] : '#f1f5f9',
+          paddingBottom: 32,
         }}
       >
-        {/* 顶部渐变背景区域 */}
         <AppView
           style={{
             backgroundColor: appColors.primary[500],
@@ -186,12 +124,12 @@ export function MyScreen() {
             paddingHorizontal: 20,
           }}
         >
-          {/* Header */}
           <Row items="center" justify="between" style={{ marginBottom: 24 }}>
             <AppText size="lg" weight="bold" style={{ color: '#ffffff' }}>
               个人中心
             </AppText>
             <AppPressable
+              onPress={() => navigation.navigate('Settings')}
               style={{
                 width: 44,
                 height: 44,
@@ -206,7 +144,6 @@ export function MyScreen() {
           </Row>
         </AppView>
 
-        {/* 用户信息卡片 - 白色背景带阴影 */}
         <AppView style={{ paddingHorizontal: 20, marginTop: -76 }}>
           <AppView
             style={{
@@ -221,7 +158,6 @@ export function MyScreen() {
             }}
           >
             <Row items="center">
-              {/* 头像 */}
               <AppView
                 style={{
                   width: 72,
@@ -283,7 +219,6 @@ export function MyScreen() {
               </AppPressable>
             </Row>
 
-            {/* 分割线 */}
             <AppView
               style={{
                 height: 1,
@@ -292,75 +227,68 @@ export function MyScreen() {
               }}
             />
 
-            {/* 统计数据 */}
             <Row>
               <StatItem value="128" label="已完成" />
               <StatItem value="12" label="进行中" />
               <StatItem value="98%" label="好评率" />
             </Row>
           </AppView>
-        </AppView>
 
-        {/* 菜单列表 - 白色卡片背景 */}
-        <AppView style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          {menuGroups.map((group, groupIndex) => (
-            <AppView key={group.title} style={{ marginTop: groupIndex > 0 ? 24 : 0 }}>
-              <AppText
-                size="xs"
-                weight="semibold"
-                style={{
-                  color: isDark ? appColors.slate[500] : appColors.slate[500],
-                  marginBottom: 12,
-                  marginLeft: 4,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
-                }}
-              >
-                {group.title}
-              </AppText>
-              {/* 白色卡片容器 */}
-              <AppView
-                style={{
-                  backgroundColor: isDark ? appColors.slate[800] : '#ffffff',
-                  borderRadius: 20,
-                  overflow: 'hidden',
-                  shadowColor: isDark ? '#000000' : appColors.slate[900],
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: isDark ? 0.25 : 0.04,
-                  shadowRadius: 12,
-                  elevation: 4,
-                }}
-              >
-                {group.items.map((item, index) => (
-                  <MenuItem
-                    key={item.key}
-                    icon={item.icon}
-                    label={item.label}
-                    badge={item.badge}
-                    onPress={() => handleMenuPress(item.key)}
-                    showDivider={index < group.items.length - 1}
-                  />
-                ))}
+          <AppView style={{ marginTop: 24 }}>
+            {menuGroups.map((group, groupIndex) => (
+              <AppView key={group.title} style={{ marginTop: groupIndex > 0 ? 24 : 0 }}>
+                <ListSection title={group.title}>
+                  {group.items.map((item, index) => (
+                    <ListItem
+                      key={item.key}
+                      left={<MenuIcon icon={item.icon} />}
+                      onPress={() => handleMenuPress(item.key)}
+                      showDivider={index < group.items.length - 1}
+                      right={
+                        <Row items="center">
+                          {'badge' in item && item.badge ? (
+                            <AppView
+                              style={{
+                                backgroundColor: appColors.error.DEFAULT,
+                                paddingHorizontal: 10,
+                                paddingVertical: 4,
+                                borderRadius: 12,
+                                marginRight: 12,
+                              }}
+                            >
+                              <AppText size="xs" weight="medium" style={{ color: '#ffffff' }}>
+                                {item.badge}
+                              </AppText>
+                            </AppView>
+                          ) : null}
+                          <Icon
+                            name="chevron-right"
+                            size={22}
+                            color={isDark ? appColors.slate[500] : appColors.slate[300]}
+                          />
+                        </Row>
+                      }
+                    >
+                      <AppText
+                        size="sm"
+                        weight="medium"
+                        style={{
+                          color: isDark ? appColors.slate[100] : appColors.slate[800],
+                        }}
+                      >
+                        {item.label}
+                      </AppText>
+                    </ListItem>
+                  ))}
+                </ListSection>
               </AppView>
+            ))}
+
+            <AppView style={{ marginTop: 32 }}>
+              <AppButton variant="outline" color="error" size="lg" onPress={() => void logout()}>
+                退出登录
+              </AppButton>
             </AppView>
-          ))}
-
-          {/* 退出登录按钮 */}
-          <AppView style={{ marginTop: 32, marginBottom: 32 }}>
-            <AppPressable onPress={logout}>
-              <AppView
-                style={{
-                  backgroundColor: isDark ? `${appColors.error.DEFAULT}15` : appColors.error.light,
-                  borderRadius: 16,
-                  paddingVertical: 16,
-                  alignItems: 'center',
-                }}
-              >
-                <AppText size="sm" weight="semibold" style={{ color: appColors.error.DEFAULT }}>
-                  退出登录
-                </AppText>
-              </AppView>
-            </AppPressable>
           </AppView>
         </AppView>
       </AppScrollView>

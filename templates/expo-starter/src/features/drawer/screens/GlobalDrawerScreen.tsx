@@ -1,8 +1,18 @@
 import React from 'react';
-import { AppText, AppView, Icon, AppPressable, Row, Col, useTheme } from '@gaozh1024/rn-kit';
+import {
+  AppText,
+  AppView,
+  Icon,
+  AppPressable,
+  Row,
+  Col,
+  useNavigation,
+  useTheme,
+} from '@gaozh1024/rn-kit';
 import { useSessionStore } from '../../../store/session.store';
 import { LogoIcon } from '../../../components/common';
 import { appColors } from '../../../bootstrap/theme';
+import type { RootNavigationProp } from '../../../navigation/types';
 
 /**
  * 抽屉菜单项
@@ -117,33 +127,57 @@ function StatBadge({ value, label }: { value: string; label: string }) {
 export function GlobalDrawerScreen() {
   const { user } = useSessionStore();
   const { isDark } = useTheme();
+  const navigation = useNavigation<RootNavigationProp>();
 
   const quickActions = [
     {
+      key: 'userInfo',
       icon: 'person-outline',
       label: '个人资料',
       description: '查看和编辑信息',
       color: 'primary' as const,
     },
     {
+      key: 'files',
       icon: 'folder-open',
       label: '我的文件',
       description: '管理您的文档',
       color: 'info' as const,
     },
     {
+      key: 'favorites',
       icon: 'bookmark-border',
       label: '收藏夹',
       description: '快速访问重要内容',
       color: 'warning' as const,
     },
     {
+      key: 'share',
       icon: 'share',
       label: '分享应用',
       description: '推荐给好友使用',
       color: 'success' as const,
     },
-  ];
+  ] as const;
+
+  const handleQuickAction = (key: (typeof quickActions)[number]['key']) => {
+    switch (key) {
+      case 'userInfo':
+        navigation.navigate('UserInfo');
+        break;
+      case 'files':
+        navigation.navigate('Settings');
+        break;
+      case 'favorites':
+        navigation.navigate('About');
+        break;
+      case 'share':
+        navigation.navigate('About');
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <AppView
@@ -167,6 +201,7 @@ export function GlobalDrawerScreen() {
             快捷入口
           </AppText>
           <AppPressable
+            onPress={() => navigation.goBack()}
             style={{
               width: 36,
               height: 36,
@@ -236,11 +271,12 @@ export function GlobalDrawerScreen() {
 
         {quickActions.map(action => (
           <DrawerMenuItem
-            key={action.label}
+            key={action.key}
             icon={action.icon}
             label={action.label}
             description={action.description}
             color={action.color}
+            onPress={() => handleQuickAction(action.key)}
           />
         ))}
 

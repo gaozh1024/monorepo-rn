@@ -1,6 +1,12 @@
-import { createAPI, ErrorCode } from '@gaozh1024/rn-kit';
+import {
+  createAPI,
+  ErrorCode,
+  type ApiEndpointConfig,
+  type ApiErrorContext,
+  type ApiLogStage,
+} from '@gaozh1024/rn-kit';
 import { appConfig } from '../bootstrap/app-config';
-import type { ApiEndpointConfig } from '@gaozh1024/rn-kit';
+import { session } from './session';
 
 const SENSITIVE_FIELDS = new Set([
   'password',
@@ -20,7 +26,7 @@ function sanitizeObservabilityPayload(value: unknown): unknown {
     return value.map(item => sanitizeObservabilityPayload(item));
   }
 
-  if (!value || typeof value !== 'object') {
+  if (value == null || typeof value !== 'object') {
     return value;
   }
 
@@ -35,24 +41,27 @@ function sanitizeObservabilityPayload(value: unknown): unknown {
   );
 }
 
-/**
- * 创建应用 API 实例
- */
 export function createAppAPI<T extends Record<string, ApiEndpointConfig<any, any>>>(endpoints: T) {
   return createAPI({
     baseURL: appConfig.apiBaseURL,
     endpoints,
+    getHeaders: async () => {
+      const token = await session.getToken();
+      return token ? { Authorization: 'Bearer ' + token } : undefined;
+    },
     observability: {
       enabled: appConfig.env !== 'production',
       namespace: 'api',
       includeInput: true,
-      sanitize: value => sanitizeObservabilityPayload(value),
+      sanitize: (
+        value: unknown,
+        _meta: { stage: ApiLogStage; field: 'input' | 'responseData' | 'error' }
+      ) => sanitizeObservabilityPayload(value),
     },
-    onError: (error, context) => {
-      // 统一监听：401、toast、埋点、日志
+    onError: (error: unknown, context: ApiErrorContext) => {
       console.error('[API Error]', error, context);
     },
-    parseBusinessError: data => {
+    parseBusinessError: (data: unknown) => {
       const result = data as { success?: boolean; message?: string };
       if (result?.success === false) {
         return {

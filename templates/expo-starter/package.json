@@ -1,16 +1,16 @@
 {
   "name": "@gaozh1024/expo-starter",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Expo starter template based on @gaozh1024/rn-kit",
-  "main": "expo/AppEntry",
+  "main": "index.js",
   "files": [
     ".gitignore",
     "App.tsx",
+    "index.js",
     "README.md",
     "app.json",
     "assets",
     "babel.config.js",
-    "expo-env.d.ts",
     "global.css",
     "metro.config.js",
     "nativewind-env.d.ts",
@@ -38,7 +38,7 @@
   "license": "MIT",
   "dependencies": {
     "@expo/vector-icons": "~15.1.1",
-    "@gaozh1024/rn-kit": "^0.4.10",
+    "@gaozh1024/rn-kit": "^0.4.15",
     "@react-native-masked-view/masked-view": "~0.3.2",
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/native": "^7.1.33",

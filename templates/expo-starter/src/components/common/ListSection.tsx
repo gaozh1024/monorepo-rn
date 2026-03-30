@@ -1,5 +1,6 @@
 import React from 'react';
-import { AppText, AppView, Card, type CardProps } from '@gaozh1024/rn-kit';
+import { AppText, AppView, Card, type CardProps, useTheme } from '@gaozh1024/rn-kit';
+import { appColors } from '../../bootstrap/theme';
 
 export interface ListSectionProps {
   title?: string;
@@ -25,20 +26,39 @@ export function ListSection({
   cardClassName,
   cardProps,
 }: ListSectionProps) {
+  const { isDark } = useTheme();
+
   return (
-    <AppView className={['mt-4', className].filter(Boolean).join(' ')}>
+    <AppView className={className}>
       {title ? (
         <AppText
-          size="sm"
-          tone="muted"
-          className={['px-4 mb-2', titleClassName].filter(Boolean).join(' ')}
+          size="xs"
+          weight="semibold"
+          className={titleClassName}
+          style={{
+            color: appColors.slate[500],
+            marginBottom: 12,
+            marginLeft: 4,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+          }}
         >
           {title}
         </AppText>
       ) : null}
 
       <Card
-        className={['mx-4 overflow-hidden', cardClassName].filter(Boolean).join(' ')}
+        className={['overflow-hidden', cardClassName].filter(Boolean).join(' ')}
+        style={{
+          backgroundColor: isDark ? appColors.slate[800] : '#ffffff',
+          shadowColor: isDark ? '#000000' : appColors.slate[900],
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: isDark ? 0.25 : 0.04,
+          shadowRadius: 12,
+          elevation: 4,
+        }}
+        rounded="2xl"
+        noBorder
         {...cardProps}
       >
         {children}
