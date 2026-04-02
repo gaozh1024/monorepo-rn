@@ -25,6 +25,9 @@ npx create-expo-app@latest my-app --template @gaozh1024/expo-starter
 - ✅ 已内置 `expo-linear-gradient`，可直接使用 `GradientView`
 - ✅ 已内置 `@expo/vector-icons`，可稳定使用框架 `Icon`
 - ✅ 基于 Expo SDK 54 / React Native 0.81 依赖基线维护
+- ✅ 默认接入 `expo-secure-store` 作为持久化 storage 适配
+- ✅ 内置 deep linking 配置脚手架，可直接扩展 App Scheme 路由
+- ✅ 预留业务级 Provider 扩展位，便于接入用户态、推送、埋点等能力
 - ✅ 表单页已接入键盘收起交互，输入体验更一致
 - ✅ 开发环境已预配置日志浮层、错误边界与 API 自动打点
 - ✅ API 示例默认带敏感字段脱敏，便于发布前直接联调
@@ -60,13 +63,16 @@ expo-starter/
 │   │   └── providers.tsx         # 统一 Provider 配置
 │   ├── bootstrap/                # 启动配置层
 │   │   ├── app-config.ts         # 应用配置
+│   │   ├── storage.ts            # 持久化 storage 注入
 │   │   ├── theme.ts              # 主题配置
 │   │   └── constants.ts          # 常量定义
 │   ├── navigation/               # 导航定义
 │   │   ├── RootNavigator.tsx     # 根导航器（单层导航）
 │   │   ├── MainTabs.tsx          # 主 Tab 导航
+│   │   ├── linking.ts            # Deep linking 配置
 │   │   ├── routes.ts             # 路由常量
 │   │   └── types.ts              # 导航类型
+│   ├── providers/                # 业务级 Provider 扩展位
 │   ├── features/                 # 业务域
 │   │   ├── launch/               # 启动
 │   │   ├── auth/                 # 认证
@@ -111,50 +117,52 @@ pnpm install
 npx expo start
 ```
 
-## 持久化 storage 接入示例（推荐）
+## 持久化 storage
 
-模板里 `session.ts`、框架 logger 按钮位置等能力都会使用 `@gaozh1024/rn-kit` 导出的 `storage`。
+模板默认已经在 [`src/bootstrap/storage.ts`](./src/bootstrap/storage.ts) 中使用 `expo-secure-store` 注入了 `@gaozh1024/rn-kit` 的 storage 适配器。
 
-框架默认是内存 storage。
-如果你希望登录态、用户信息、日志按钮位置在应用重启后继续保留，推荐在项目启动时注入持久化实现：
-
-### 1. 安装 AsyncStorage
-
-```bash
-npx expo install @react-native-async-storage/async-storage
-```
-
-### 2. 新增启动文件
-
-```ts
-// src/bootstrap/storage.ts
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setStorageAdapter } from '@gaozh1024/rn-kit';
-
-setStorageAdapter({
-  getItem: key => AsyncStorage.getItem(key),
-  setItem: (key, value) => AsyncStorage.setItem(key, value),
-  removeItem: key => AsyncStorage.removeItem(key),
-});
-```
-
-### 3. 在应用入口最早执行
-
-```ts
-// App.tsx
-import 'react-native-gesture-handler';
-import 'react-native-reanimated';
-import './global.css';
-import './src/bootstrap/storage';
-```
-
-这样模板里的：
+这意味着以下能力在应用重启后可以继续保留：
 
 - `src/data/session.ts`
 - `createAPI(...getHeaders)`
-- logger 按钮位置持久化
+- Logger 浮层按钮位置
 
-都会自动走你注入的持久化 storage。
+如果你要替换成别的存储实现，只需要改这一处。
+
+## Deep Linking
+
+模板已经内置一个最小可用的 linking 配置，文件在 [`src/navigation/linking.ts`](./src/navigation/linking.ts)。
+
+默认使用 [`app.json`](./app.json) 里的 `scheme`:
+
+```json
+{
+  "expo": {
+    "scheme": "pantherstarter"
+  }
+}
+```
+
+当前示例支持：
+
+- `pantherstarter://launch`
+- `pantherstarter://login`
+- `pantherstarter://home`
+- `pantherstarter://my`
+- `pantherstarter://settings`
+
+如果你要扩展业务跳转，优先在 `src/navigation/linking.ts` 里补路由映射。
+
+## Provider 扩展位
+
+模板将业务级 Provider 单独放在 [`src/providers/AppProviders.tsx`](./src/providers/AppProviders.tsx)。
+
+推荐做法：
+
+- 根级 `src/root/providers.tsx` 只保留主题、导航、全局日志/错误边界这类稳定基础设施
+- 用户态、推送、埋点、实验平台、权限初始化等业务能力统一挂在 `AppProviders`
+
+这样模板升级时更容易和业务代码解耦。
 
 ## 依赖兼容性说明
 

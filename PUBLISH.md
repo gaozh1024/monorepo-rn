@@ -13,11 +13,18 @@
 ### 必跑验证
 
 ```bash
+pnpm verify:release
+```
+
+等价展开如下：
+
+```bash
 pnpm --dir packages/rn-kit typecheck
 pnpm --dir packages/rn-kit test
 pnpm --dir packages/rn-kit build
 pnpm --dir packages/aliyun-speech typecheck
 pnpm --dir packages/aliyun-speech build
+pnpm --dir packages/photo-album-picker test
 pnpm --dir packages/photo-album-picker typecheck
 pnpm --dir packages/photo-album-picker build
 pnpm --dir packages/aliyun-push typecheck

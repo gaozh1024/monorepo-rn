@@ -12,7 +12,7 @@ const theme = createTheme({
 });
 
 describe('Switch', () => {
-  it('应该在非受控模式下切换状态', () => {
+  it('应该在非受控模式下切换状态', async () => {
     vi.useFakeTimers();
 
     try {
@@ -29,12 +29,14 @@ describe('Switch', () => {
 
       const pressable = renderer!.root.findByType(AppPressable);
 
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
 
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(220);
+        await Promise.resolve();
       });
 
       expect(onChange).toHaveBeenCalledWith(true);
@@ -54,7 +56,7 @@ describe('Switch', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('应该在动画期间阻止重复点击', () => {
+  it('应该在动画期间阻止重复点击', async () => {
     vi.useFakeTimers();
 
     try {
@@ -71,25 +73,30 @@ describe('Switch', () => {
 
       const pressable = renderer!.root.findByType(AppPressable);
 
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
 
       expect(onChange).toHaveBeenCalledTimes(1);
 
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(220);
+        await Promise.resolve();
       });
 
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
 
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(220);
+        await Promise.resolve();
       });
 
       expect(onChange).toHaveBeenCalledTimes(2);
@@ -98,7 +105,7 @@ describe('Switch', () => {
     }
   });
 
-  it('应该根据 motionDuration 调整交互锁定时长', () => {
+  it('应该根据 motionDuration 调整交互锁定时长', async () => {
     vi.useFakeTimers();
 
     try {
@@ -115,28 +122,34 @@ describe('Switch', () => {
 
       const pressable = renderer!.root.findByType(AppPressable);
 
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
 
       expect(onChange).toHaveBeenCalledTimes(1);
 
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(99);
+        await Promise.resolve();
       });
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
       expect(onChange).toHaveBeenCalledTimes(1);
 
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(1);
+        await Promise.resolve();
       });
-      act(() => {
+      await act(async () => {
         pressable.props.onPress?.();
+        await Promise.resolve();
       });
       expect(onChange).toHaveBeenCalledTimes(2);
     } finally {

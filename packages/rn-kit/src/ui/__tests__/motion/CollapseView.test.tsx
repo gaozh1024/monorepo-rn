@@ -103,7 +103,7 @@ describe('CollapseView', () => {
     );
   });
 
-  it('unmountOnExit 开启时应在收起后卸载内容', () => {
+  it('unmountOnExit 开启时应在收起后卸载内容', async () => {
     let renderer: ReturnType<typeof create>;
 
     act(() => {
@@ -122,12 +122,13 @@ describe('CollapseView', () => {
 
     vi.mocked(withTiming).mockClear();
 
-    act(() => {
+    await act(async () => {
       renderer!.update(
         <CollapseView visible={false} unmountOnExit motionDuration={200}>
           <>内容</>
         </CollapseView>
       );
+      await Promise.resolve();
     });
 
     expect(withTiming).toHaveBeenCalledWith(

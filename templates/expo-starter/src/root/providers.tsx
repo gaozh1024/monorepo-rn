@@ -2,6 +2,8 @@ import React from 'react';
 import { useColorScheme } from 'react-native';
 import { AppProvider } from '@gaozh1024/rn-kit';
 import { lightTheme, darkTheme } from '../bootstrap/theme';
+import { appLinking } from '../navigation/linking';
+import { AppProviders } from '../providers/AppProviders';
 import { useUIStore } from '../store/ui.store';
 
 interface ProvidersProps {
@@ -22,6 +24,7 @@ export function Providers({ children }: ProvidersProps) {
       lightTheme={lightTheme}
       darkTheme={darkTheme}
       isDark={isDark}
+      linking={appLinking}
       enableLogger
       enableErrorBoundary
       loggerProps={{
@@ -36,7 +39,7 @@ export function Providers({ children }: ProvidersProps) {
         resetText: '重新加载',
       }}
     >
-      {children}
+      <AppProviders>{children}</AppProviders>
     </AppProvider>
   );
 }
