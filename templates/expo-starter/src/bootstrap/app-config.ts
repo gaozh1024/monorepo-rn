@@ -5,7 +5,7 @@
 export const appConfig = {
   appName: 'Panther Starter',
   env: 'mock',
-  version: '0.2.13',
+  version: '0.2.14',
   apiBaseURL: 'https://api.example.com',
   appScheme: 'pantherstarter',
   defaultLanguage: 'zh-CN',

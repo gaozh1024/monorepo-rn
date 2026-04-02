@@ -47,6 +47,7 @@
 
 版本发布记录：
 
+- [expo-starter 0.2.14 Release Notes](./release-notes/expo-starter-0.2.14.md)
 - [photo-album-picker 0.2.0 Release Notes](./release-notes/photo-album-picker-0.2.0.md)
 - [aliyun-push 0.1.0 Release Notes](./release-notes/aliyun-push-0.1.0.md)
 - [aliyun-speech 0.1.0 Release Notes](./release-notes/aliyun-speech-0.1.0.md)

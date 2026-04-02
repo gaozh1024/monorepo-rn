@@ -1,6 +1,6 @@
 {
   "name": "@gaozh1024/expo-starter",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "Expo starter template based on @gaozh1024/rn-kit",
   "main": "index.js",
   "files": [
@@ -29,6 +29,9 @@
     "access": "public"
   },
   "keywords": [
+    "@gaozh1024",
+    "@gaozh1024/expo-starter",
+    "expo-starter",
     "expo",
     "expo-template",
     "react-native",

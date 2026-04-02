@@ -58,6 +58,9 @@
     "react-native-zoom-toolkit": "^5.0.1"
   },
   "keywords": [
+    "@gaozh1024",
+    "@gaozh1024/photo-album-picker",
+    "photo-album-picker",
     "react-native",
     "expo",
     "photo",

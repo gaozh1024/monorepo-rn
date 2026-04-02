@@ -67,6 +67,9 @@
     "expo-linear-gradient": "~15.0.8"
   },
   "keywords": [
+    "@gaozh1024",
+    "@gaozh1024/rn-kit",
+    "rn-kit",
     "react-native",
     "framework",
     "ui",
