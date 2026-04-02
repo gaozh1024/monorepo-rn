@@ -95,6 +95,7 @@ function App() {
 
 ## 📄 文档
 
+- [移动端软件开发架构说明](./docs/01-入门指南/移动端软件开发架构说明.md) - 项目初始化、架构分层与框架使用总览
 - [框架文档](./packages/rn-kit/README.md) - `@gaozh1024/rn-kit` 详细使用文档
 - [语音包文档](./packages/aliyun-speech/README.md) - `@gaozh1024/aliyun-speech` 使用说明
 - [相册包文档](./packages/photo-album-picker/README.md) - `@gaozh1024/photo-album-picker` 使用说明
