@@ -1,11 +1,12 @@
 # 发布指南
 
-适用于以下五个包：
+适用于以下六个包：
 
 - `@gaozh1024/rn-kit`
 - `@gaozh1024/aliyun-speech`
 - `@gaozh1024/photo-album-picker`
 - `@gaozh1024/aliyun-push`
+- `@gaozh1024/hot-updater`
 - `@gaozh1024/expo-starter`
 
 ## 1. 发布前检查
@@ -29,6 +30,8 @@ pnpm --dir packages/photo-album-picker typecheck
 pnpm --dir packages/photo-album-picker build
 pnpm --dir packages/aliyun-push typecheck
 pnpm --dir packages/aliyun-push build
+pnpm --dir packages/hot-updater typecheck
+pnpm --dir packages/hot-updater build
 pnpm --dir templates/expo-starter lint
 ```
 
@@ -46,6 +49,9 @@ cd ../photo-album-picker
 npm pack --dry-run
 
 cd ../aliyun-push
+npm pack --dry-run
+
+cd ../hot-updater
 npm pack --dry-run
 
 cd ../../templates/expo-starter
@@ -67,6 +73,9 @@ npm_config_cache=/tmp/npm-cache npm pack --dry-run
 cd ../aliyun-push
 npm_config_cache=/tmp/npm-cache npm pack --dry-run
 
+cd ../hot-updater
+npm_config_cache=/tmp/npm-cache npm pack --dry-run
+
 cd ../../templates/expo-starter
 npm_config_cache=/tmp/npm-cache npm pack --dry-run
 ```
@@ -79,14 +88,15 @@ npm_config_cache=/tmp/npm-cache npm pack --dry-run
 2. `packages/aliyun-speech/package.json` 版本号（若本次涉及语音包）
 3. `packages/photo-album-picker/package.json` 版本号（若本次涉及相册包）
 4. `packages/aliyun-push/package.json` 版本号（若本次涉及推送包）
-5. `templates/expo-starter/package.json` 版本号
-6. 模板依赖的 `@gaozh1024/rn-kit` 版本范围
-7. `docs/release-notes/` 是否新增对应 release notes
-8. `docs/README.md` 是否新增文档入口
+5. `packages/hot-updater/package.json` 版本号（若本次涉及 OTA 包）
+6. `templates/expo-starter/package.json` 版本号
+7. 模板依赖的 `@gaozh1024/rn-kit` 版本范围
+8. `docs/release-notes/` 是否新增对应 release notes
+9. `docs/README.md` 是否新增文档入口
 
 推荐顺序：
 
-- 先确定 `rn-kit` / `aliyun-speech` / `photo-album-picker` / `aliyun-push` 版本
+- 先确定 `rn-kit` / `aliyun-speech` / `photo-album-picker` / `aliyun-push` / `hot-updater` 版本
 - 再同步模板依赖版本（如有）
 - 再补文档与 release notes
 
@@ -126,7 +136,14 @@ cd ../aliyun-push
 npm publish --access public
 ```
 
-### 3.6 发布模板包
+### 3.6 发布热更新包
+
+```bash
+cd ../hot-updater
+npm publish --access public
+```
+
+### 3.7 发布模板包
 
 模板依赖框架包，所以一定要在框架包成功发布后再发模板：
 
@@ -135,7 +152,7 @@ cd ../../templates/expo-starter
 npm publish --access public
 ```
 
-### 3.7 推荐安装方式
+### 3.8 推荐安装方式
 
 框架包：
 
@@ -161,6 +178,12 @@ pnpm add @gaozh1024/photo-album-picker
 pnpm add @gaozh1024/aliyun-push aliyun-react-native-push
 ```
 
+热更新包：
+
+```bash
+pnpm add @gaozh1024/hot-updater @hot-updater/react-native
+```
+
 模板包：
 
 ```bash
@@ -183,6 +206,9 @@ npm publish --tag beta --access public
 
 cd ../aliyun-push
 npm publish --tag beta --access public
+
+cd ../hot-updater
+npm publish --tag beta --access public
 ```
 
 如果模板也需要预发布，可以显式发 beta 版本号后再发布；否则建议模板仍等正式版统一发布。
@@ -194,6 +220,7 @@ npm view @gaozh1024/rn-kit versions --json | grep beta
 npm view @gaozh1024/aliyun-speech versions --json | grep beta
 npm view @gaozh1024/photo-album-picker versions --json | grep beta
 npm view @gaozh1024/aliyun-push versions --json | grep beta
+npm view @gaozh1024/hot-updater versions --json | grep beta
 ```
 
 安装 beta：
@@ -203,6 +230,7 @@ pnpm add @gaozh1024/rn-kit@beta
 pnpm add @gaozh1024/aliyun-speech@beta
 pnpm add @gaozh1024/photo-album-picker@beta
 pnpm add @gaozh1024/aliyun-push@beta
+pnpm add @gaozh1024/hot-updater@beta
 ```
 
 ## 5. Yalc 本地联调

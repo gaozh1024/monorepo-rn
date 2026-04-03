@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "platform": "android",
+  "channel": "production",
+  "updatedAt": "2026-04-01T12:00:00Z",
+  "release": {
+    "bundleId": "android-prod-20260401-1200-abcd1234",
+    "appVersion": "0.2.1",
+    "minNativeVersion": "0.2.1",
+    "force": false,
+    "notes": "修复聊天页崩溃并优化登录态恢复",
+    "url": "https://ota-cdn.xxx.com/bundles/android/production/android-prod-20260401-1200-abcd1234.zip",
+    "sha256": "replace-with-real-sha256",
+    "size": 18273645
+  }
+}

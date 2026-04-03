@@ -1,0 +1,58 @@
+{
+  "name": "@gaozh1024/hot-updater",
+  "version": "0.1.0",
+  "description": "OTA hot update helpers for Expo / React Native with manifest resolution, launch orchestration, provider hooks, and release scripts.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "docs",
+    "scripts",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "react-native": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hot-updater/expo": "^0.28.0"
+  },
+  "peerDependencies": {
+    "@gaozh1024/rn-kit": ">=0.4.15",
+    "@hot-updater/react-native": ">=0.28 <0.29",
+    "react": ">=18.2.0",
+    "react-native": ">=0.79 <0.82"
+  },
+  "devDependencies": {
+    "@gaozh1024/rn-kit": "workspace:*",
+    "@hot-updater/react-native": "^0.28.0",
+    "@types/react": "^19.2.14",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "keywords": [
+    "@gaozh1024",
+    "@gaozh1024/hot-updater",
+    "hot-updater",
+    "ota",
+    "react-native",
+    "expo",
+    "bundle",
+    "manifest"
+  ],
+  "license": "MIT"
+}

@@ -8,6 +8,7 @@
 | @gaozh1024/aliyun-speech      | 阿里云语音转文字包 | [README](../packages/aliyun-speech/README.md)      |
 | @gaozh1024/photo-album-picker | 相册选择包         | [README](../packages/photo-album-picker/README.md) |
 | @gaozh1024/aliyun-push        | 阿里云移动推送包   | [README](../packages/aliyun-push/README.md)        |
+| @gaozh1024/hot-updater        | OTA 热更新包       | [README](../packages/hot-updater/README.md)        |
 
 ---
 
@@ -48,6 +49,7 @@
 
 版本发布记录：
 
+- [hot-updater 0.1.0 Release Notes](./release-notes/hot-updater-0.1.0.md)
 - [expo-starter 0.2.14 Release Notes](./release-notes/expo-starter-0.2.14.md)
 - [photo-album-picker 0.2.0 Release Notes](./release-notes/photo-album-picker-0.2.0.md)
 - [aliyun-push 0.1.0 Release Notes](./release-notes/aliyun-push-0.1.0.md)
