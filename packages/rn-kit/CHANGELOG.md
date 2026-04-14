@@ -1,5 +1,28 @@
 # @gaozh1024/rn-kit
 
+## 0.4.17
+
+### Patch Changes
+
+- 修复 `AppImage` 通过 `style` 传入宽高时外层容器未正确获取尺寸的问题：
+  - 之前只从 `w`/`h` 或 `width`/`height` 属性读取尺寸，忽略 `style` 中的宽高，导致外层容器高度为 `undefined`，在 Android 上图片可能无法显示
+  - 新增尺寸解析优先级链：`w/h` > `width/height` > `style.width/height` > 默认值
+  - 三种传参方式现在效果等价：`w/h` 属性、`width/height` 属性、`style={{ width, height }}`
+- 补充 `AppImage` style fallback 单元测试
+- 同步 README 与 release notes
+
+## 0.4.16
+
+### Patch Changes
+
+- `AppHeader` 新增颜色覆盖能力：
+  - 支持 `titleColor`
+  - 支持 `subtitleColor`
+  - 支持 `leftIconColor`
+  - 支持 `rightIconColor`
+- 补充 `AppHeader` 颜色透传测试
+- 同步 README 与 release notes
+
 ## 0.4.15
 
 ### Patch Changes

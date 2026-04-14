@@ -1,5 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, type ImageStyle, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  type ImageStyle,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { useOptionalTheme } from '@/theme';
 import { cn } from '@/utils';
@@ -131,8 +137,8 @@ export function AppImage({
   maxH,
   rounded,
   source,
-  width = '100%',
-  height = 'auto',
+  width,
+  height,
   borderRadius = 'none',
   placeholder,
   errorPlaceholder,
@@ -184,8 +190,10 @@ export function AppImage({
     ],
     [resolvedRadius, style]
   );
-  const resolvedWidth = w ?? width;
-  const resolvedHeight = h ?? height;
+  // Dimension resolution priority: w/h > width/height > style.width/height > defaults
+  const flatStyle = style ? StyleSheet.flatten(style) : undefined;
+  const resolvedWidth = w ?? width ?? flatStyle?.width ?? '100%';
+  const resolvedHeight = h ?? height ?? flatStyle?.height ?? 'auto';
   const resolvedWrapperWidth = (w === undefined ? resolvedWidth : undefined) as ViewStyle['width'];
   const resolvedWrapperHeight = (
     (h === undefined && typeof resolvedHeight === 'number') ||

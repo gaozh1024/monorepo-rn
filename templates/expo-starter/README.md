@@ -340,6 +340,15 @@ npx expo start --android
 />
 ```
 
+尺寸解析优先级：`w/h` > `width/height` > `style.width/height` > 默认值。
+通过 `style` 传入的宽高也会自动提取到外层容器，以下写法等价：
+
+```tsx
+<AppImage source={{ uri }} w={72} h={72} />
+<AppImage source={{ uri }} width={72} height={72} />
+<AppImage source={{ uri }} style={{ width: 72, height: 72 }} />
+```
+
 加载中的卡片、资料区、列表占位，推荐直接使用统一骨架组件：
 
 ```tsx

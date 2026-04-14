@@ -15,9 +15,13 @@ export interface RightIcon {
 export interface AppHeaderProps extends PressMotionProps {
   title?: string;
   subtitle?: string;
+  titleColor?: string;
+  subtitleColor?: string;
   leftIcon?: string | null;
+  leftIconColor?: string;
   onLeftPress?: () => void;
   rightIcons?: RightIcon[];
+  rightIconColor?: string;
   transparent?: boolean;
   blur?: boolean;
   safeArea?: boolean;
@@ -32,9 +36,13 @@ export interface AppHeaderProps extends PressMotionProps {
 export function AppHeader({
   title,
   subtitle,
+  titleColor,
+  subtitleColor,
   leftIcon = 'chevron-left',
+  leftIconColor,
   onLeftPress,
   rightIcons = [],
+  rightIconColor,
   transparent = false,
   safeArea = true,
   style,
@@ -94,7 +102,7 @@ export function AppHeader({
                   motionDuration={motionDuration}
                   motionReduceMotion={motionReduceMotion}
                 >
-                  <Icon name={leftIcon} size={24} color={colors.text} />
+                  <Icon name={leftIcon} size={24} color={leftIconColor ?? colors.text} />
                 </AppPressable>
               )}
             </AppView>
@@ -108,7 +116,8 @@ export function AppHeader({
                   <AppText
                     size="lg"
                     weight="semibold"
-                    style={[styles.title, { color: colors.text }]}
+                    color={titleColor ?? colors.text}
+                    style={styles.title}
                     numberOfLines={1}
                   >
                     {title}
@@ -117,7 +126,8 @@ export function AppHeader({
                 {subtitle && (
                   <AppText
                     size="xs"
-                    style={[styles.subtitle, { color: colors.textMuted }]}
+                    color={subtitleColor ?? colors.textMuted}
+                    style={styles.subtitle}
                     numberOfLines={1}
                   >
                     {subtitle}
@@ -137,7 +147,7 @@ export function AppHeader({
                   motionReduceMotion={motionReduceMotion}
                 >
                   <AppView>
-                    <Icon name={icon.icon} size={24} color={colors.text} />
+                    <Icon name={icon.icon} size={24} color={rightIconColor ?? colors.text} />
                     {icon.badge ? (
                       <AppView style={styles.badge}>
                         <AppText size="xs" color="white" style={styles.badgeText}>

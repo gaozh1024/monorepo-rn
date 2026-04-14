@@ -5,6 +5,7 @@ import { act, create } from 'react-test-renderer';
 import { ThemeProvider } from '@/theme';
 import { AppHeader } from '../components/AppHeader';
 import { AppScreen } from '@/ui/layout/SafeScreen';
+import { AppText, Icon } from '@/ui';
 
 vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({
@@ -144,5 +145,33 @@ describe('AppHeader', () => {
     expect(flattenStyle(backgroundNode!.props.style)).toMatchObject({
       backgroundColor: '#ff0000',
     });
+  });
+
+  it('应支持自定义标题、副标题和图标颜色', () => {
+    let tree: ReturnType<typeof create>;
+
+    act(() => {
+      tree = create(
+        <ThemeProvider light={theme}>
+          <AppHeader
+            title="标题"
+            subtitle="副标题"
+            titleColor="#112233"
+            subtitleColor="#445566"
+            leftIconColor="#778899"
+            rightIconColor="#aabbcc"
+            rightIcons={[{ icon: 'search', onPress: vi.fn() }]}
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const texts = tree!.root.findAllByType(AppText);
+    const icons = tree!.root.findAllByType(Icon);
+
+    expect(texts.find(node => node.props.children === '标题')?.props.color).toBe('#112233');
+    expect(texts.find(node => node.props.children === '副标题')?.props.color).toBe('#445566');
+    expect(icons[0]?.props.color).toBe('#778899');
+    expect(icons[1]?.props.color).toBe('#aabbcc');
   });
 });

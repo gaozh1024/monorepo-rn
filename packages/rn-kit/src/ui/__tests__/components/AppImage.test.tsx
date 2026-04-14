@@ -77,4 +77,26 @@ describe('AppImage', () => {
     expect(wrapper.props.rounded).toBe('xl');
     expect(wrapper.props.bg).toBe('primary-500');
   });
+
+  it('应该从 style 中提取宽高作为 wrapper 的 fallback', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <AppImage
+          source={{ uri: 'https://example.com/photo.png' }}
+          style={{ width: 300, height: 200 }}
+        />
+      );
+    });
+
+    const wrapper = renderer!.root.findByType(AppView);
+    const wrapperStyle = wrapper.props.style;
+    const flatStyle = Array.isArray(wrapperStyle)
+      ? Object.assign({}, ...wrapperStyle)
+      : wrapperStyle;
+
+    expect(flatStyle.width).toBe(300);
+    expect(flatStyle.height).toBe(200);
+  });
 });
