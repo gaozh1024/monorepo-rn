@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "packageName": "@gaozh1024/expo-starter",
+  "version": "0.2.15",
+  "role": "template",
+  "summary": "Canonical Expo starter template for Panther-based apps, showing the recommended project structure, provider layout, navigation, storage wiring, and theme usage.",
+  "entrypoints": [
+    {
+      "path": ".",
+      "kind": "runtime",
+      "recommended": true
+    }
+  ],
+  "installation": {
+    "packageManagerCommand": "npx create-expo-app@latest my-app --template @gaozh1024/expo-starter",
+    "projectTypes": ["template"],
+    "peerDependencies": {}
+  },
+  "recommendedUsage": {
+    "minimumSetup": [
+      "Follow the template dependency baseline for Expo SDK 54 / React Native 0.81 unless intentionally targeting another verified baseline.",
+      "Keep NativeWind, Expo image dependencies, storage injection, and navigation packages aligned with the template.",
+      "Use expo install for Expo-managed native dependencies when recreating the template in a new project."
+    ]
+  },
+  "stableApis": ["RootApp", "RootNavigator", "AppProviders", "createAPI integration", "PageScreen"],
+  "compatibilityNotes": [
+    "The current template baseline targets Expo SDK 54 and React Native 0.81.",
+    "The template is a reference implementation, not an API surface.",
+    "Storage, linking, app bootstrap, and observability wiring are intentionally shown in real files rather than abstract docs alone."
+  ],
+  "antiPatterns": [
+    "Treating the template as proof that any newer Expo-native package version will be safe in the same app.",
+    "Flattening all provider layers into a single app file instead of preserving the stable root-vs-business provider split.",
+    "Ignoring the template's AppScreen conventions and then diagnosing safe-area or theme issues as component bugs."
+  ],
+  "canonicalExamples": [
+    {
+      "name": "root-provider-bootstrap",
+      "path": "templates/expo-starter/src/recipes/minimal-bootstrap.tsx"
+    },
+    {
+      "name": "business-providers-boundary",
+      "path": "templates/expo-starter/src/root/providers.tsx"
+    },
+    {
+      "name": "api-integration",
+      "path": "templates/expo-starter/src/recipes/api-auth.ts"
+    }
+  ],
+  "docs": ["README.md", "AI_USAGE.md"]
+}

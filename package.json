@@ -3,6 +3,9 @@
   "private": true,
   "description": "React Native Monorepo - Core packages for building React Native apps",
   "scripts": {
+    "ai:generate": "node scripts/generate-ai-artifacts.mjs",
+    "ai:check": "node scripts/check-ai-artifacts.mjs",
+    "ai:verify": "pnpm ai:generate && pnpm ai:check",
     "build": "pnpm -r --if-present build",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",

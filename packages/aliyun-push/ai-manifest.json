@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "packageName": "@gaozh1024/aliyun-push",
+  "version": "0.1.0",
+  "role": "integration-plugin",
+  "summary": "Aliyun mobile push integration package with runtime service APIs, React provider, and Expo config plugin support.",
+  "entrypoints": [
+    {
+      "path": ".",
+      "kind": "runtime",
+      "recommended": true
+    },
+    {
+      "path": "./plugin",
+      "kind": "plugin",
+      "recommended": false
+    },
+    {
+      "path": "./plugin/withAliyunPush",
+      "kind": "plugin",
+      "recommended": false
+    },
+    {
+      "path": "./package.json",
+      "kind": "runtime",
+      "recommended": false
+    }
+  ],
+  "installation": {
+    "packageManagerCommand": "pnpm add @gaozh1024/aliyun-push",
+    "projectTypes": ["expo", "react-native"],
+    "peerDependencies": {
+      "aliyun-react-native-push": ">=1 <2",
+      "expo": ">=53 <55",
+      "react": ">=18.2.0",
+      "react-native": ">=0.79 <0.82"
+    }
+  },
+  "recommendedUsage": {
+    "minimumSetup": [
+      "Install aliyun-react-native-push alongside this package.",
+      "If using Expo, configure the @gaozh1024/aliyun-push/plugin entry in app.json or app.config.ts.",
+      "Run expo prebuild and install iOS pods after plugin setup when native projects are involved."
+    ],
+    "canonicalTemplate": "templates/expo-starter"
+  },
+  "stableApis": [
+    "normalizeAliyunPushConfig",
+    "AliyunPushProvider",
+    "useAliyunPush",
+    "initAliyunPush",
+    "bindAliyunPushAccount",
+    "registerAliyunPushCallbacks",
+    "setAliyunPushLogger"
+  ],
+  "compatibilityNotes": [
+    "The recommended path targets Expo prebuild or development build projects.",
+    "The package separates three layers: runtime service, React provider, and Expo config plugin.",
+    "Expo is optional only when the consuming app is willing to manage native setup manually."
+  ],
+  "antiPatterns": [
+    "Committing push vendor secrets directly into repository-tracked config files.",
+    "Expecting the package runtime to replace all native configuration work in non-Expo bare apps.",
+    "Mixing provider-managed account binding with unrelated custom binding logic without a clear source of truth."
+  ],
+  "canonicalExamples": [
+    {
+      "name": "push-provider",
+      "path": "packages/aliyun-push/src/provider.tsx"
+    },
+    {
+      "name": "push-service-api",
+      "path": "packages/aliyun-push/src/service.ts"
+    },
+    {
+      "name": "expo-config-plugin",
+      "path": "packages/aliyun-push/plugin/withAliyunPush.js"
+    }
+  ],
+  "docs": ["README.md", "AI_USAGE.md"]
+}

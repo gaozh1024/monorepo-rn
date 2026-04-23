@@ -8,6 +8,8 @@
   "files": [
     "dist",
     "README.md",
+    "AI_USAGE.md",
+    "ai-manifest.json",
     "LICENSE"
   ],
   "exports": {

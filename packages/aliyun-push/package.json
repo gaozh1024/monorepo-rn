@@ -9,6 +9,8 @@
     "dist",
     "plugin",
     "README.md",
+    "AI_USAGE.md",
+    "ai-manifest.json",
     "CHANGELOG.md",
     "LICENSE"
   ],

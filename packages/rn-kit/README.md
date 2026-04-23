@@ -1648,6 +1648,43 @@ const api = createAPI({
 
 - [框架文档](../../docs/README.md) - 完整文档索引
 
+## 🤖 AI 初始化
+
+如果你希望安装完成后，让 AI 助手在业务项目根目录直接看到 Panther 的接入规则，可以执行：
+
+```bash
+npx @gaozh1024/rn-kit init-ai
+```
+
+默认会同步：
+
+- `AGENTS.md`
+- `.github/copilot-instructions.md`
+
+如果你还希望生成 Cursor 规则文件：
+
+```bash
+npx @gaozh1024/rn-kit init-ai --include cursor
+```
+
+可用参数：
+
+```bash
+npx @gaozh1024/rn-kit init-ai --target ./my-app
+npx @gaozh1024/rn-kit init-ai --check
+npx @gaozh1024/rn-kit init-ai --dry-run
+```
+
+行为说明：
+
+- 该命令是**幂等**的，可以重复执行
+- 如果目标文件不存在，会自动创建
+- 如果目标文件已存在，会只更新 `<!-- panther:init-ai:start -->` 到 `<!-- panther:init-ai:end -->` 之间的受管区块
+- 不会无限追加相同内容
+- 如果 marker 损坏，会报错而不是盲写
+
+这个命令的作用不是接管你的项目文档，而是把 Panther 的关键框架约束同步到消费项目入口，减少 AI 在接入时的误判。
+
 ## 📱 状态栏使用说明
 
 ### 1. 全局默认行为

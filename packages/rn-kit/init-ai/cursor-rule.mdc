@@ -1,0 +1,6 @@
+# Panther Framework Rule
+
+- Prefer `AppProvider` over a hand-assembled default provider stack.
+- In Expo projects, install native dependencies with `expo install`.
+- If Panther UI styles appear missing, first inspect NativeWind and Tailwind configuration.
+- Prefer the Panther starter template structure for provider boundaries, page containers, and `createAPI` integration.

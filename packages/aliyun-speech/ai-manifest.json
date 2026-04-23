@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "packageName": "@gaozh1024/aliyun-speech",
+  "version": "0.1.0",
+  "role": "feature-package",
+  "summary": "Aliyun real-time speech-to-text package with protocol core, headless hook, and optional default UI for Expo or React Native apps.",
+  "entrypoints": [
+    {
+      "path": ".",
+      "kind": "runtime",
+      "recommended": true
+    },
+    {
+      "path": "./package.json",
+      "kind": "runtime",
+      "recommended": false
+    }
+  ],
+  "installation": {
+    "packageManagerCommand": "pnpm add @gaozh1024/aliyun-speech",
+    "projectTypes": ["expo", "react-native"],
+    "peerDependencies": {
+      "@siteed/audio-studio": ">=3 <4",
+      "expo": ">=53 <55",
+      "expo-audio": ">=1 <2",
+      "react": ">=18.2.0",
+      "react-native": ">=0.79 <0.82"
+    }
+  },
+  "recommendedUsage": {
+    "minimumSetup": [
+      "Install @siteed/audio-studio and expo-audio alongside this package.",
+      "Configure microphone permission and @siteed/audio-studio plugin settings in Expo app.json or app.config.ts.",
+      "Provide token refresh from the server side instead of relying on a static client token."
+    ],
+    "canonicalTemplate": "templates/expo-starter"
+  },
+  "stableApis": [
+    "initializeAliyunSpeech",
+    "refreshAliyunSpeechTokenIfNeeded",
+    "AliyunSpeechTranscriber",
+    "useAliyunVoiceToText",
+    "VoiceToTextInput",
+    "ensureMicrophonePermission"
+  ],
+  "compatibilityNotes": [
+    "The default recorder implementation is based on @siteed/audio-studio and expo-audio.",
+    "Current package peer dependencies target Expo >=53 <55 and React Native >=0.79 <0.82.",
+    "The package is designed with a headless-first boundary: protocol core, hook, then optional UI."
+  ],
+  "antiPatterns": [
+    "Hard-coding a production Aliyun token or appKey in client code.",
+    "Skipping microphone permission configuration and expecting runtime recording to work.",
+    "Using the package UI component when the app actually needs a fully custom voice input flow."
+  ],
+  "canonicalExamples": [
+    {
+      "name": "speech-hook-surface",
+      "path": "packages/aliyun-speech/src/hooks.ts"
+    },
+    {
+      "name": "speech-default-ui",
+      "path": "packages/aliyun-speech/src/components/VoiceToTextInput.tsx"
+    },
+    {
+      "name": "speech-protocol-core",
+      "path": "packages/aliyun-speech/src/core/AliyunSpeechTranscriber.ts"
+    }
+  ],
+  "docs": ["README.md", "AI_USAGE.md"]
+}

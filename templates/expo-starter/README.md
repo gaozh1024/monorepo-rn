@@ -117,6 +117,16 @@ pnpm install
 npx expo start
 ```
 
+## AI / Recipe 参考
+
+模板内新增了一组最小参考文件，放在 [`src/recipes/`](./src/recipes/)：
+
+- `minimal-bootstrap.tsx`：最小 `AppProvider` 接入
+- `theme-toggle.tsx`：受控主题切换模式
+- `api-auth.ts`：带 token 头、脱敏 observability 的 API 工厂模式
+
+这些文件不会自动参与模板运行时，只作为可复制、可被 AI 直接引用的参考实现存在。
+
 ## 持久化 storage
 
 模板默认已经在 [`src/bootstrap/storage.ts`](./src/bootstrap/storage.ts) 中使用 `expo-secure-store` 注入了 `@gaozh1024/rn-kit` 的 storage 适配器。
