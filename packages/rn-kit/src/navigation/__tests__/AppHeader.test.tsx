@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react-native';
 import { act, create } from 'react-test-renderer';
+import { View } from 'react-native';
 import { ThemeProvider } from '@/theme';
 import { AppHeader } from '../components/AppHeader';
 import { AppScreen } from '@/ui/layout/SafeScreen';
@@ -173,5 +174,17 @@ describe('AppHeader', () => {
     expect(texts.find(node => node.props.children === '副标题')?.props.color).toBe('#445566');
     expect(icons[0]?.props.color).toBe('#778899');
     expect(icons[1]?.props.color).toBe('#aabbcc');
+  });
+
+  it('应支持使用自定义标题节点替换默认标题区', () => {
+    const { getByTestId, queryByText } = render(
+      <ThemeProvider light={theme}>
+        <AppHeader title="标题" subtitle="副标题" titleNode={<View testID="custom-title" />} />
+      </ThemeProvider>
+    );
+
+    expect(getByTestId('custom-title')).toBeTruthy();
+    expect(queryByText('标题')).toBeNull();
+    expect(queryByText('副标题')).toBeNull();
   });
 });

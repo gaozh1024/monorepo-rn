@@ -18,6 +18,75 @@ export interface PhotoAlbumCropOptions {
   quality?: number;
 }
 
+export interface PhotoAlbumUiTexts {
+  /** 相册按钮默认文案 */
+  buttonText?: string;
+  /** 相册页标题 */
+  albumTitle?: string;
+  /** 权限标题 */
+  permissionTitle?: string;
+  /** 权限说明 */
+  permissionDescription?: string;
+  /** 权限按钮文案 */
+  permissionAllowButton?: string;
+  /** 重试按钮文案 */
+  retryButton?: string;
+  /** 取消按钮文案 */
+  cancelButton?: string;
+  /** 预览按钮文案 */
+  previewButton?: string;
+  /** 完成按钮文案 */
+  completeButton?: string;
+  /** 已选数量文案模板 */
+  selectedCountText?: string;
+  /** 预览页已选数量文案模板 */
+  previewSelectedCountText?: string;
+  /** 预览页索引文案模板 */
+  previewIndexText?: string;
+  /** 预览页视频标识文案模板 */
+  previewVideoBadgeText?: string;
+  /** 返回按钮文案 */
+  backButton?: string;
+  /** 裁剪标题 */
+  cropTitle?: string;
+  /** 裁剪确认按钮文案 */
+  cropConfirmButton?: string;
+  /** 裁剪保存中按钮文案 */
+  cropSavingButton?: string;
+  /** 圆形裁剪提示 */
+  cropCircleHint?: string;
+  /** 矩形裁剪提示 */
+  cropRectHint?: string;
+  /** 裁剪缺少图片提示 */
+  cropMissingPhoto?: string;
+  /** 视频时长提示标题 */
+  durationLimitAlertTitle?: string;
+  /** 视频时长提示内容模板 */
+  durationLimitAlertMessage?: string;
+  /** 打开相册失败提示 */
+  openAlbumError?: string;
+  /** 请求权限失败提示 */
+  permissionRequestError?: string;
+  /** 检查权限失败提示 */
+  permissionCheckError?: string;
+  /** 加载照片失败提示 */
+  loadPhotosError?: string;
+  /** 加载更多失败提示 */
+  loadMorePhotosError?: string;
+}
+
+export interface PhotoAlbumUiTheme {
+  /** 权限页“允许访问”按钮背景色 */
+  permissionButtonBackgroundColor?: string;
+}
+
+export interface PhotoAlbumUiConfig {
+  /** 文案配置 */
+  texts?: PhotoAlbumUiTexts;
+  /** 样式配置 */
+  theme?: PhotoAlbumUiTheme;
+}
+
 export interface PhotoAlbumOpenOptions {
   /** 最大选择数量，未传时默认 9 */
   maxSelection?: number;
@@ -31,6 +100,8 @@ export interface PhotoAlbumOpenOptions {
   quality?: number;
   /** 传入即启用裁剪流程；当前仅支持图片单选 */
   crop?: PhotoAlbumCropOptions;
+  /** UI 配置 */
+  uiConfig?: PhotoAlbumUiConfig;
 }
 
 export interface MediaPickerOptions {
@@ -159,6 +230,8 @@ export interface PhotoAlbumOptions {
   spacing?: number;
   /** 是否显示选中计数 */
   showSelectedCount?: boolean;
+  /** UI 配置 */
+  uiConfig?: PhotoAlbumUiConfig;
 }
 
 export interface PhotoAlbumGridProps extends PhotoAlbumOptions {
@@ -206,6 +279,7 @@ export interface PhotoAlbumRouteParams {
   allowsMultipleSelection?: boolean;
   mediaTypes?: PhotoAlbumMediaType[];
   routeNames?: Partial<MediaPickerRouteNames>;
+  uiConfig?: PhotoAlbumUiConfig;
 }
 
 export interface PhotoCropRouteParams {
@@ -214,6 +288,7 @@ export interface PhotoCropRouteParams {
   quality?: number;
   callbackId?: string;
   routeNames?: Partial<MediaPickerRouteNames>;
+  uiConfig?: PhotoAlbumUiConfig;
 }
 
 export interface DefaultPhotoAlbumParamList {

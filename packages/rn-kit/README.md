@@ -1060,6 +1060,26 @@ const headerMotion = useCollapsibleHeaderMotion({
 />
 ```
 
+如果你需要把标题区域替换成自定义组件，可以直接传 `titleNode`：
+
+```tsx
+<AppHeader
+  leftIcon="arrow-back"
+  titleNode={
+    <AppView row items="center" gap={2}>
+      <Icon name="sparkles" size={18} color="#f59e0b" />
+      <AppText weight="semibold">自定义标题</AppText>
+    </AppView>
+  }
+/>
+```
+
+说明：
+
+- 传入 `titleNode` 时，会直接替换默认的 `title` / `subtitle` 文本区域
+- 不传 `titleNode` 时，仍保持原来的 `title` / `subtitle` 行为
+- `collapsibleMotion.titleStyle` 仍会作用在标题包裹层上
+
 #### 6. 高级布局动画预设
 
 `Presence` / `MotionView` / `StaggerItem` / `AppList` 现在支持更高层的布局动画封装：

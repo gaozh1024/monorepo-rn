@@ -166,7 +166,7 @@ npx expo start
 
 ## 依赖兼容性说明
 
-当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护，配套 `@gaozh1024/rn-kit ^0.4.15`。
+当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护，配套 `@gaozh1024/rn-kit ^0.4.18`。
 
 如果你准备把 `@gaozh1024/rn-kit` 接入到其他 Expo 项目，建议：
 

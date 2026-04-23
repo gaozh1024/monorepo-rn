@@ -29,7 +29,7 @@ pnpm add @gaozh1024/photo-album-picker
 - `expo-image-manipulator`: `~14.0.8`
 - `expo-media-library`: `~18.2.1`
 
-当前 npm 包版本：`0.2.0`
+当前 npm 包版本：`0.3.0`
 
 ### 必需依赖
 
@@ -48,7 +48,7 @@ pnpm add react-native-zoom-toolkit
 ### Expo 54 推荐安装示例
 
 ```bash
-pnpm add @gaozh1024/photo-album-picker@^0.2.0
+pnpm add @gaozh1024/photo-album-picker@^0.3.0
 pnpm add @gaozh1024/rn-kit @react-navigation/native @shopify/flash-list
 npx expo install expo-image expo-image-manipulator expo-media-library
 npx expo install react-native-safe-area-context react-native-gesture-handler react-native-reanimated
@@ -259,6 +259,87 @@ function ChatToolbar() {
 ```
 
 同时你也要在导航里注册同名页面。
+
+### 5. 自定义权限按钮颜色和多语言文案
+
+默认文案是中文。你可以通过 `options.uiConfig` 统一覆盖整个相册流程里的文案，并单独修改权限页“允许访问”按钮的背景色。
+
+```tsx
+<PhotoAlbumButton
+  onPhotosSelected={handlePhotosSelected}
+  options={{
+    maxSelection: 9,
+    mediaType: 'all',
+    uiConfig: {
+      theme: {
+        permissionButtonBackgroundColor: '#16a34a',
+      },
+      texts: {
+        buttonText: 'Choose Media',
+        albumTitle: 'Album',
+        permissionTitle: 'Photo access required',
+        permissionDescription: 'Allow photo access in system settings',
+        permissionAllowButton: 'Allow Access',
+        retryButton: 'Retry',
+        cancelButton: 'Cancel',
+        previewButton: 'Preview',
+        completeButton: 'Done',
+        selectedCountText: 'Selected {selectedCount}{maxSelectionPart} items',
+        previewSelectedCountText: 'Selected {selectedCount}{maxSelectionPart}',
+        previewIndexText: '{current} / {total}',
+        previewVideoBadgeText: 'Video {duration}',
+        backButton: 'Back',
+        cropTitle: 'Crop Image',
+        cropConfirmButton: 'Done',
+        cropSavingButton: 'Saving',
+        cropCircleHint: 'Move and zoom the image into the circle',
+        cropRectHint: 'Move and zoom the image to adjust the crop area',
+        cropMissingPhoto: 'No image available for cropping',
+        durationLimitAlertTitle: 'Notice',
+        durationLimitAlertMessage: 'Video duration must not exceed {maxDuration} seconds',
+      },
+    },
+  }}
+/>
+```
+
+支持的 `texts` 字段：
+
+- `buttonText`
+- `albumTitle`
+- `permissionTitle`
+- `permissionDescription`
+- `permissionAllowButton`
+- `retryButton`
+- `cancelButton`
+- `previewButton`
+- `completeButton`
+- `selectedCountText`
+- `previewSelectedCountText`
+- `previewIndexText`
+- `previewVideoBadgeText`
+- `backButton`
+- `cropTitle`
+- `cropConfirmButton`
+- `cropSavingButton`
+- `cropCircleHint`
+- `cropRectHint`
+- `cropMissingPhoto`
+- `durationLimitAlertTitle`
+- `durationLimitAlertMessage`
+- `openAlbumError`
+- `permissionRequestError`
+- `permissionCheckError`
+- `loadPhotosError`
+- `loadMorePhotosError`
+
+模板变量说明：
+
+- `selectedCountText` 可用 `{selectedCount}`、`{maxSelectionPart}`
+- `previewSelectedCountText` 可用 `{selectedCount}`、`{maxSelectionPart}`
+- `previewIndexText` 可用 `{current}`、`{total}`
+- `previewVideoBadgeText` 可用 `{duration}`
+- `durationLimitAlertMessage` 可用 `{maxDuration}`
 
 ## 🖼️ 直接使用网格组件
 

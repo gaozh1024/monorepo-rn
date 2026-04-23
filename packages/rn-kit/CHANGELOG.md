@@ -1,5 +1,14 @@
 # @gaozh1024/rn-kit
 
+## 0.4.18
+
+### Patch Changes
+
+- `AppHeader` 新增 `titleNode`，支持直接渲染自定义标题节点，而不再只能传字符串标题
+- 保持 `title` / `subtitle` 现有文本标题行为不变，兼容已有页面
+- 补充 `AppHeader` 自定义标题节点测试
+- 同步 README 与 release notes
+
 ## 0.4.17
 
 ### Patch Changes

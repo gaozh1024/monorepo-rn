@@ -3,7 +3,11 @@ import {
   createCroppedPhotoAlbumItem,
   DEFAULT_PHOTO_ALBUM_MEDIA_TYPES,
   DEFAULT_PHOTO_ALBUM_OPEN_OPTIONS,
+  DEFAULT_PHOTO_ALBUM_UI_TEXTS,
+  DEFAULT_PHOTO_ALBUM_UI_THEME,
+  formatPhotoAlbumText,
   normalizeOpenOptions,
+  resolvePhotoAlbumUiConfig,
   resolveMediaTypes,
 } from './photoAlbumFlow';
 import type { PhotoAlbumItem } from '../types';
@@ -117,6 +121,81 @@ describe('photoAlbumFlow', () => {
         mediaType: 'all',
         allowsMultipleSelection: true,
       });
+    });
+
+    it('keeps uiConfig on normalized options', () => {
+      expect(
+        normalizeOpenOptions({
+          uiConfig: {
+            texts: {
+              albumTitle: 'Album',
+            },
+            theme: {
+              permissionButtonBackgroundColor: '#ff4d4f',
+            },
+          },
+        })
+      ).toEqual({
+        maxSelection: 9,
+        mediaType: 'all',
+        allowsMultipleSelection: true,
+        uiConfig: {
+          texts: {
+            albumTitle: 'Album',
+          },
+          theme: {
+            permissionButtonBackgroundColor: '#ff4d4f',
+          },
+        },
+      });
+    });
+  });
+
+  describe('resolvePhotoAlbumUiConfig', () => {
+    it('returns Chinese defaults when no config is provided', () => {
+      expect(resolvePhotoAlbumUiConfig()).toEqual({
+        texts: DEFAULT_PHOTO_ALBUM_UI_TEXTS,
+        theme: DEFAULT_PHOTO_ALBUM_UI_THEME,
+      });
+    });
+
+    it('merges custom texts and theme over defaults', () => {
+      expect(
+        resolvePhotoAlbumUiConfig({
+          texts: {
+            albumTitle: 'Album',
+            completeButton: 'Done',
+          },
+          theme: {
+            permissionButtonBackgroundColor: '#1677ff',
+          },
+        })
+      ).toEqual({
+        texts: {
+          ...DEFAULT_PHOTO_ALBUM_UI_TEXTS,
+          albumTitle: 'Album',
+          completeButton: 'Done',
+        },
+        theme: {
+          ...DEFAULT_PHOTO_ALBUM_UI_THEME,
+          permissionButtonBackgroundColor: '#1677ff',
+        },
+      });
+    });
+  });
+
+  describe('formatPhotoAlbumText', () => {
+    it('replaces placeholders with runtime values', () => {
+      expect(
+        formatPhotoAlbumText('Selected {count} / {total}', {
+          count: 2,
+          total: 9,
+        })
+      ).toBe('Selected 2 / 9');
+    });
+
+    it('falls back to empty string for missing placeholders', () => {
+      expect(formatPhotoAlbumText('Video {duration}', {})).toBe('Video ');
     });
   });
 

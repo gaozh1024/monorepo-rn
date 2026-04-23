@@ -9,14 +9,16 @@ import {
 } from '@gaozh1024/rn-kit';
 
 export interface PageScreenProps extends Omit<AppScrollViewProps, 'children'> {
-  title: string;
+  title?: string;
+  titleNode?: React.ReactNode;
   children: React.ReactNode;
   onBack?: () => void;
-  headerProps?: Omit<AppHeaderProps, 'title' | 'onLeftPress'>;
+  headerProps?: Omit<AppHeaderProps, 'title' | 'titleNode' | 'onLeftPress'>;
 }
 
 export function PageScreen({
   title,
+  titleNode,
   children,
   onBack,
   headerProps,
@@ -30,6 +32,7 @@ export function PageScreen({
     <AppScreen surface="background">
       <AppHeader
         title={title}
+        titleNode={titleNode}
         leftIcon="arrow-back"
         onLeftPress={onBack || (() => navigation.goBack())}
         {...headerProps}

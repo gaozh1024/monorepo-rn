@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { type StyleProp, type ViewStyle, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useThemeColors } from '@/theme';
@@ -14,6 +15,7 @@ export interface RightIcon {
 
 export interface AppHeaderProps extends PressMotionProps {
   title?: string;
+  titleNode?: ReactNode;
   subtitle?: string;
   titleColor?: string;
   subtitleColor?: string;
@@ -35,6 +37,7 @@ export interface AppHeaderProps extends PressMotionProps {
 
 export function AppHeader({
   title,
+  titleNode,
   subtitle,
   titleColor,
   subtitleColor,
@@ -112,26 +115,30 @@ export function AppHeader({
                 testID={testID ? `${testID}-title-wrap` : undefined}
                 style={titleAnimatedStyle}
               >
-                {title && (
-                  <AppText
-                    size="lg"
-                    weight="semibold"
-                    color={titleColor ?? colors.text}
-                    style={styles.title}
-                    numberOfLines={1}
-                  >
-                    {title}
-                  </AppText>
-                )}
-                {subtitle && (
-                  <AppText
-                    size="xs"
-                    color={subtitleColor ?? colors.textMuted}
-                    style={styles.subtitle}
-                    numberOfLines={1}
-                  >
-                    {subtitle}
-                  </AppText>
+                {titleNode ?? (
+                  <>
+                    {title && (
+                      <AppText
+                        size="lg"
+                        weight="semibold"
+                        color={titleColor ?? colors.text}
+                        style={styles.title}
+                        numberOfLines={1}
+                      >
+                        {title}
+                      </AppText>
+                    )}
+                    {subtitle && (
+                      <AppText
+                        size="xs"
+                        color={subtitleColor ?? colors.textMuted}
+                        style={styles.subtitle}
+                        numberOfLines={1}
+                      >
+                        {subtitle}
+                      </AppText>
+                    )}
+                  </>
                 )}
               </Animated.View>
             </AppView>

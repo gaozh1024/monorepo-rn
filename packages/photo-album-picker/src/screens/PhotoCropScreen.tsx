@@ -12,7 +12,7 @@ import {
   getPhotoAlbumCompleteCallback,
 } from '../internal/photoAlbumCallbackRegistry';
 import { mediaPickerColors } from '../constants';
-import { createCroppedPhotoAlbumItem } from '../utils/photoAlbumFlow';
+import { createCroppedPhotoAlbumItem, resolvePhotoAlbumUiConfig } from '../utils/photoAlbumFlow';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HEADER_ROW_HEIGHT = 48;
@@ -70,12 +70,14 @@ export function PhotoCropScreen({ route, navigation }: PhotoCropScreenProps) {
   const photo = route?.params?.photo;
   const cropOptions = route?.params?.crop;
   const callbackId = route?.params?.callbackId;
+  const uiConfig = React.useMemo(
+    () => resolvePhotoAlbumUiConfig(route?.params?.uiConfig),
+    [route?.params?.uiConfig]
+  );
   const quality = route?.params?.quality ?? cropOptions?.quality ?? 1;
   const aspect = cropOptions?.aspect ?? [1, 1];
   const isCircleCrop = cropOptions?.shape === 'circle';
-  const footerHint = isCircleCrop
-    ? '拖动和缩放图片，使主体位于圆形区域内'
-    : '拖动和缩放图片，调整裁剪区域';
+  const footerHint = isCircleCrop ? uiConfig.texts.cropCircleHint : uiConfig.texts.cropRectHint;
   const headerHeight = insets.top + HEADER_ROW_HEIGHT;
   const footerHeight = Math.max(insets.bottom, 16) + FOOTER_MIN_HEIGHT;
   const cropBox = React.useMemo(
@@ -170,7 +172,7 @@ export function PhotoCropScreen({ route, navigation }: PhotoCropScreenProps) {
         ]}
       >
         <View style={styles.emptyContainer}>
-          <AppText>未找到可裁剪图片</AppText>
+          <AppText>{uiConfig.texts.cropMissingPhoto}</AppText>
         </View>
       </View>
     );
@@ -185,12 +187,12 @@ export function PhotoCropScreen({ route, navigation }: PhotoCropScreenProps) {
           </AppPressable>
 
           <AppText size="lg" weight="semibold" style={{ color: '#ffffff' }}>
-            裁剪图片
+            {uiConfig.texts.cropTitle}
           </AppText>
 
           <AppPressable onPress={handleConfirm} style={styles.headerButton} disabled={saving}>
             <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-              {saving ? '保存中' : '完成'}
+              {saving ? uiConfig.texts.cropSavingButton : uiConfig.texts.cropConfirmButton}
             </AppText>
           </AppPressable>
         </View>

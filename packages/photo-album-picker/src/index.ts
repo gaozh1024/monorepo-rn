@@ -18,6 +18,10 @@ export {
   createCroppedPhotoAlbumItem,
   DEFAULT_PHOTO_ALBUM_MEDIA_TYPES,
   DEFAULT_PHOTO_ALBUM_OPEN_OPTIONS,
+  DEFAULT_PHOTO_ALBUM_UI_TEXTS,
+  DEFAULT_PHOTO_ALBUM_UI_THEME,
+  resolvePhotoAlbumUiConfig,
+  formatPhotoAlbumText,
 } from './utils/photoAlbumFlow';
 
 export type {
@@ -35,6 +39,9 @@ export type {
   PhotoAlbumRouteParams,
   PhotoCropRouteParams,
   DefaultPhotoAlbumParamList,
+  PhotoAlbumUiConfig,
+  PhotoAlbumUiTexts,
+  PhotoAlbumUiTheme,
 } from './types';
 
 export type {

@@ -1,10 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { AppPressable, AppText, Center, Icon } from '@gaozh1024/rn-kit';
 import { mediaPickerColors, MEDIA_PICKER_ROUTES } from '../constants';
 import type { MediaPickerRouteNames, PhotoAlbumButtonProps, PhotoAlbumMediaType } from '../types';
 import { registerPhotoAlbumCompleteCallback } from '../internal/photoAlbumCallbackRegistry';
-import { normalizeOpenOptions } from '../utils/photoAlbumFlow';
+import { normalizeOpenOptions, resolvePhotoAlbumUiConfig } from '../utils/photoAlbumFlow';
 
 const DEFAULT_MEDIA_TYPES: PhotoAlbumMediaType[] = ['photo', 'video'];
 
@@ -15,7 +15,7 @@ interface PhotoAlbumButtonNavigation {
 export function PhotoAlbumButton({
   onPhotosSelected,
   onError,
-  buttonText = '从相册选择',
+  buttonText,
   disabled = false,
   options,
   maxSelection = 9,
@@ -24,10 +24,12 @@ export function PhotoAlbumButton({
   routeNames,
 }: PhotoAlbumButtonProps) {
   const navigation = useNavigation<PhotoAlbumButtonNavigation>();
+  const uiConfig = useMemo(() => resolvePhotoAlbumUiConfig(options?.uiConfig), [options?.uiConfig]);
   const resolvedRouteNames: MediaPickerRouteNames = {
     photoAlbum: routeNames?.photoAlbum ?? MEDIA_PICKER_ROUTES.PHOTO_ALBUM,
     photoCrop: routeNames?.photoCrop ?? MEDIA_PICKER_ROUTES.PHOTO_CROP,
   };
+  const resolvedButtonText = buttonText ?? uiConfig.texts.buttonText;
 
   const handlePress = useCallback(() => {
     try {
@@ -44,7 +46,7 @@ export function PhotoAlbumButton({
         routeNames: resolvedRouteNames,
       });
     } catch (error) {
-      onError?.(error instanceof Error ? error : new Error('打开相册失败'));
+      onError?.(error instanceof Error ? error : new Error(uiConfig.texts.openAlbumError));
     }
   }, [
     allowsMultipleSelection,
@@ -54,6 +56,7 @@ export function PhotoAlbumButton({
     onError,
     onPhotosSelected,
     options,
+    uiConfig.texts.openAlbumError,
     resolvedRouteNames,
   ]);
 
@@ -76,7 +79,7 @@ export function PhotoAlbumButton({
         <Icon name="photo-library" size={18} color="#ffffff" />
       </Center>
       <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-        {buttonText}
+        {resolvedButtonText}
       </AppText>
     </AppPressable>
   );

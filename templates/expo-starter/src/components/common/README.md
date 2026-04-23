@@ -44,6 +44,21 @@ import { Logo, LogoIcon } from '@/components/common';
 </PageScreen>
 ```
 
+如果中间标题区需要放自定义组件，也可以改用 `titleNode`：
+
+```tsx
+<PageScreen
+  titleNode={
+    <AppView row items="center" gap={2}>
+      <Icon name="sparkles" size={18} />
+      <AppText weight="semibold">品牌标题</AppText>
+    </AppView>
+  }
+>
+  <AppText>页面内容</AppText>
+</PageScreen>
+```
+
 约定：
 
 - `AppScreen` 保持默认 `top={false}`

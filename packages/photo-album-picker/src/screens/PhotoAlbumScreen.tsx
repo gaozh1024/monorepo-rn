@@ -3,12 +3,22 @@ import { Alert, StyleSheet } from 'react-native';
 import { AppHeader, AppScreen, useTheme } from '@gaozh1024/rn-kit';
 import { mediaPickerColors, MEDIA_PICKER_ROUTES } from '../constants';
 import { PhotoAlbumGrid } from '../components/PhotoAlbumGrid';
-import type { MediaPickerRouteNames, PhotoAlbumScreenProps, PhotoAlbumItem } from '../types';
+import type {
+  MediaPickerRouteNames,
+  PhotoAlbumScreenProps,
+  PhotoAlbumItem,
+  PhotoAlbumUiConfig,
+} from '../types';
 import {
   clearPhotoAlbumCompleteCallback,
   getPhotoAlbumCompleteCallback,
 } from '../internal/photoAlbumCallbackRegistry';
-import { normalizeOpenOptions, resolveMediaTypes } from '../utils/photoAlbumFlow';
+import {
+  formatPhotoAlbumText,
+  normalizeOpenOptions,
+  resolveMediaTypes,
+  resolvePhotoAlbumUiConfig,
+} from '../utils/photoAlbumFlow';
 
 /**
  * 相册选择器页面
@@ -25,6 +35,25 @@ import { normalizeOpenOptions, resolveMediaTypes } from '../utils/photoAlbumFlow
 export function PhotoAlbumScreen({ route, navigation }: PhotoAlbumScreenProps) {
   const { isDark } = useTheme();
   const callbackId = route?.params?.callbackId;
+  const mergedUiConfig = React.useMemo<PhotoAlbumUiConfig>(
+    () => ({
+      texts: {
+        ...route?.params?.uiConfig?.texts,
+        ...route?.params?.options?.uiConfig?.texts,
+      },
+      theme: {
+        ...route?.params?.uiConfig?.theme,
+        ...route?.params?.options?.uiConfig?.theme,
+      },
+    }),
+    [
+      route?.params?.options?.uiConfig?.texts,
+      route?.params?.options?.uiConfig?.theme,
+      route?.params?.uiConfig?.texts,
+      route?.params?.uiConfig?.theme,
+    ]
+  );
+  const uiConfig = React.useMemo(() => resolvePhotoAlbumUiConfig(mergedUiConfig), [mergedUiConfig]);
   const openOptions = React.useMemo(
     () =>
       normalizeOpenOptions(route?.params?.options, {
@@ -67,7 +96,12 @@ export function PhotoAlbumScreen({ route, navigation }: PhotoAlbumScreenProps) {
         );
 
         if (overLimitVideo) {
-          Alert.alert('提示', `视频时长不能超过 ${maxVideoDuration} 秒`);
+          Alert.alert(
+            uiConfig.texts.durationLimitAlertTitle,
+            formatPhotoAlbumText(uiConfig.texts.durationLimitAlertMessage, {
+              maxDuration: maxVideoDuration,
+            })
+          );
           return;
         }
       }
@@ -82,6 +116,7 @@ export function PhotoAlbumScreen({ route, navigation }: PhotoAlbumScreenProps) {
           quality: openOptions.quality,
           callbackId,
           routeNames,
+          uiConfig,
         });
         return;
       }
@@ -99,6 +134,7 @@ export function PhotoAlbumScreen({ route, navigation }: PhotoAlbumScreenProps) {
       openOptions.maxVideoDuration,
       openOptions.quality,
       routeNames,
+      uiConfig,
     ]
   );
 
@@ -123,7 +159,7 @@ export function PhotoAlbumScreen({ route, navigation }: PhotoAlbumScreenProps) {
       bg={isDark ? mediaPickerColors.slate[900] : mediaPickerColors.slate[50]}
     >
       <AppHeader
-        title="相册"
+        title={uiConfig.texts.albumTitle}
         onLeftPress={handleCancel}
         style={[
           styles.header,
@@ -141,6 +177,7 @@ export function PhotoAlbumScreen({ route, navigation }: PhotoAlbumScreenProps) {
         mediaTypes={mediaTypes}
         numColumns={4}
         spacing={2}
+        uiConfig={uiConfig}
         onComplete={handleComplete}
         onCancel={handleCancel}
         onPermissionDenied={() => {

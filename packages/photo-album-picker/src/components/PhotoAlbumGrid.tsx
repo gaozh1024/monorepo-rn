@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePhotoAlbum } from '../hooks/usePhotoAlbum';
 import type { PhotoAlbumGridProps, PhotoAlbumItem, PhotoAlbumMediaType } from '../types';
 import { mediaPickerColors } from '../constants';
+import { formatPhotoAlbumText, resolvePhotoAlbumUiConfig } from '../utils/photoAlbumFlow';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -170,6 +171,7 @@ export function PhotoAlbumGrid({
   numColumns = 4,
   spacing = 2,
   showSelectedCount = true,
+  uiConfig,
   onComplete,
   onCancel,
   onSelectionChange,
@@ -180,6 +182,7 @@ export function PhotoAlbumGrid({
 }: PhotoAlbumGridProps) {
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
+  const resolvedUiConfig = useMemo(() => resolvePhotoAlbumUiConfig(uiConfig), [uiConfig]);
   const [previewIndex, setPreviewIndex] = React.useState<number | null>(null);
   const prefetchedUrisRef = React.useRef<Set<string>>(new Set());
   const previewListRef = React.useRef<FlatList<PhotoAlbumItem>>(null);
@@ -209,6 +212,7 @@ export function PhotoAlbumGrid({
     selectedCount,
   } = usePhotoAlbum({
     ...albumOptions,
+    uiTexts: resolvedUiConfig.texts,
   });
 
   const selectedPhotos = useMemo(() => getSelectedPhotos(), [getSelectedPhotos]);
@@ -228,6 +232,30 @@ export function PhotoAlbumGrid({
   const previewHeaderHeight = 48 + insets.top;
   const previewFooterHeight = 60 + Math.max(insets.bottom, 12);
   const previewContentHeight = SCREEN_HEIGHT - previewHeaderHeight - previewFooterHeight;
+  const toolbarSelectedCountText = useMemo(
+    () =>
+      formatPhotoAlbumText(resolvedUiConfig.texts.selectedCountText, {
+        selectedCount,
+        maxSelectionPart: maxSelection < Infinity ? `/${maxSelection}` : '',
+      }),
+    [maxSelection, resolvedUiConfig.texts.selectedCountText, selectedCount]
+  );
+  const previewSelectedCountText = useMemo(
+    () =>
+      formatPhotoAlbumText(resolvedUiConfig.texts.previewSelectedCountText, {
+        selectedCount,
+        maxSelectionPart: maxSelection < Infinity ? ` / ${maxSelection}` : '',
+      }),
+    [maxSelection, resolvedUiConfig.texts.previewSelectedCountText, selectedCount]
+  );
+  const previewIndexText = useMemo(() => {
+    if (previewIndex === null) return '';
+
+    return formatPhotoAlbumText(resolvedUiConfig.texts.previewIndexText, {
+      current: previewIndex + 1,
+      total: photos.length,
+    });
+  }, [photos.length, previewIndex, resolvedUiConfig.texts.previewIndexText]);
 
   // 通知外部加载状态变化
   React.useEffect(() => {
@@ -516,7 +544,7 @@ export function PhotoAlbumGrid({
                   color: isDark ? mediaPickerColors.slate[300] : mediaPickerColors.slate[600],
                 }}
               >
-                取消
+                {resolvedUiConfig.texts.cancelButton}
               </AppText>
             </AppPressable>
           </View>
@@ -534,7 +562,7 @@ export function PhotoAlbumGrid({
                     color: disabled ? mediaPickerColors.slate[400] : mediaPickerColors.primary[500],
                   }}
                 >
-                  预览
+                  {resolvedUiConfig.texts.previewButton}
                 </AppText>
               </AppPressable>
 
@@ -557,7 +585,7 @@ export function PhotoAlbumGrid({
                   weight="semibold"
                   style={{ color: disabled ? mediaPickerColors.slate[400] : '#ffffff' }}
                 >
-                  完成
+                  {resolvedUiConfig.texts.completeButton}
                 </AppText>
               </AppPressable>
             </View>
@@ -567,14 +595,24 @@ export function PhotoAlbumGrid({
         <View pointerEvents="none" style={styles.toolbarCenterOverlay}>
           {selectedCount > 0 && (
             <AppText size="md" weight="medium">
-              已选 {selectedCount}
-              {maxSelection < Infinity ? `/${maxSelection}` : ''} 张
+              {toolbarSelectedCountText}
             </AppText>
           )}
         </View>
       </View>
     );
-  }, [selectedCount, maxSelection, isDark, onCancel, openSelectedPreview, handleComplete]);
+  }, [
+    selectedCount,
+    isDark,
+    onCancel,
+    openSelectedPreview,
+    handleComplete,
+    resolvedUiConfig.texts.cancelButton,
+    resolvedUiConfig.texts.completeButton,
+    resolvedUiConfig.texts.previewButton,
+    toolbarBottomInset,
+    toolbarSelectedCountText,
+  ]);
 
   /**
    * 权限请求界面
@@ -609,7 +647,7 @@ export function PhotoAlbumGrid({
             { color: isDark ? mediaPickerColors.slate[200] : mediaPickerColors.slate[700] },
           ]}
         >
-          需要访问相册权限
+          {resolvedUiConfig.texts.permissionTitle}
         </AppText>
         <AppText
           size="sm"
@@ -618,7 +656,7 @@ export function PhotoAlbumGrid({
             { color: isDark ? mediaPickerColors.slate[400] : mediaPickerColors.slate[500] },
           ]}
         >
-          请在设置中允许访问您的照片
+          {resolvedUiConfig.texts.permissionDescription}
         </AppText>
         <AppPressable
           onPress={async () => {
@@ -629,10 +667,15 @@ export function PhotoAlbumGrid({
               onPermissionDenied?.();
             }
           }}
-          style={styles.permissionButton}
+          style={[
+            styles.permissionButton,
+            {
+              backgroundColor: resolvedUiConfig.theme.permissionButtonBackgroundColor,
+            },
+          ]}
         >
           <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-            允许访问
+            {resolvedUiConfig.texts.permissionAllowButton}
           </AppText>
         </AppPressable>
       </Center>
@@ -648,7 +691,7 @@ export function PhotoAlbumGrid({
         </AppText>
         <AppPressable onPress={refresh} style={styles.retryButton}>
           <AppText size="md" style={{ color: mediaPickerColors.primary[500] }}>
-            重试
+            {resolvedUiConfig.texts.retryButton}
           </AppText>
         </AppPressable>
       </Center>
@@ -719,7 +762,7 @@ export function PhotoAlbumGrid({
             </AppPressable>
 
             <AppText size="md" weight="medium" style={{ color: '#ffffff' }}>
-              {previewIndex !== null ? `${previewIndex + 1} / ${photos.length}` : ''}
+              {previewIndexText}
             </AppText>
 
             <AppPressable onPress={handlePreviewToggleSelect} style={styles.previewHeaderButton}>
@@ -765,7 +808,9 @@ export function PhotoAlbumGrid({
                     <View pointerEvents="none" style={styles.previewVideoBadge}>
                       <Icon name="play-arrow" size={18} color="#ffffff" />
                       <AppText size="sm" weight="medium" style={{ color: '#ffffff' }}>
-                        视频 {item.duration ? formatDuration(item.duration) : ''}
+                        {formatPhotoAlbumText(resolvedUiConfig.texts.previewVideoBadgeText, {
+                          duration: item.duration ? formatDuration(item.duration) : '',
+                        }).trim()}
                       </AppText>
                     </View>
                   ) : null}
@@ -803,14 +848,13 @@ export function PhotoAlbumGrid({
             ]}
           >
             <AppText size="sm" style={{ color: 'rgba(255,255,255,0.85)' }}>
-              已选 {selectedCount}
-              {maxSelection < Infinity ? ` / ${maxSelection}` : ''}
+              {previewSelectedCountText}
             </AppText>
 
             <View style={styles.toolbarActions}>
               <AppPressable onPress={closePreview} style={styles.toolbarButton}>
                 <AppText size="md" style={{ color: '#ffffff' }}>
-                  返回
+                  {resolvedUiConfig.texts.backButton}
                 </AppText>
               </AppPressable>
 
@@ -828,7 +872,7 @@ export function PhotoAlbumGrid({
                 ]}
               >
                 <AppText size="md" weight="semibold" style={{ color: '#ffffff' }}>
-                  完成
+                  {resolvedUiConfig.texts.completeButton}
                 </AppText>
               </AppPressable>
             </View>

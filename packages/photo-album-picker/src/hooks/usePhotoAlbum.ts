@@ -7,7 +7,7 @@ import {
   MediaTypeValue,
   SortByValue,
 } from 'expo-media-library';
-import type { PhotoAlbumItem } from '../types';
+import type { PhotoAlbumItem, PhotoAlbumUiTexts } from '../types';
 
 const MAX_CURSOR_STALL_RETRIES = 2;
 const MAX_PAGE_SIZE_MULTIPLIER = 4;
@@ -45,6 +45,11 @@ export interface UsePhotoAlbumOptions {
   mediaType?: MediaTypeValue[];
   /** 排序字段 */
   sortBy?: SortByValue[];
+  /** UI 文案配置 */
+  uiTexts?: Pick<
+    PhotoAlbumUiTexts,
+    'permissionRequestError' | 'permissionCheckError' | 'loadPhotosError' | 'loadMorePhotosError'
+  >;
 }
 
 export interface UsePhotoAlbumReturn {
@@ -101,6 +106,7 @@ export function usePhotoAlbum(options: UsePhotoAlbumOptions = {}): UsePhotoAlbum
     loadMoreCount = 240,
     mediaType = DEFAULT_MEDIA_TYPES,
     sortBy = DEFAULT_SORT_BY,
+    uiTexts,
   } = options;
 
   const [photos, setPhotos] = useState<PhotoAlbumItem[]>([]);
@@ -156,10 +162,12 @@ export function usePhotoAlbum(options: UsePhotoAlbumOptions = {}): UsePhotoAlbum
       setPermissionStatus(status);
       return status === 'granted';
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('请求权限失败'));
+      setError(
+        err instanceof Error ? err : new Error(uiTexts?.permissionRequestError ?? '请求权限失败')
+      );
       return false;
     }
-  }, []);
+  }, [uiTexts?.permissionRequestError]);
 
   /**
    * 检查权限状态
@@ -170,10 +178,12 @@ export function usePhotoAlbum(options: UsePhotoAlbumOptions = {}): UsePhotoAlbum
       setPermissionStatus(status);
       return status === 'granted';
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('检查权限失败'));
+      setError(
+        err instanceof Error ? err : new Error(uiTexts?.permissionCheckError ?? '检查权限失败')
+      );
       return false;
     }
-  }, []);
+  }, [uiTexts?.permissionCheckError]);
 
   /**
    * 加载照片
@@ -206,10 +216,10 @@ export function usePhotoAlbum(options: UsePhotoAlbumOptions = {}): UsePhotoAlbum
           totalCount: result.totalCount,
         };
       } catch (err) {
-        throw err instanceof Error ? err : new Error('加载照片失败');
+        throw err instanceof Error ? err : new Error(uiTexts?.loadPhotosError ?? '加载照片失败');
       }
     },
-    [initialLoadCount, mediaType, sortBy]
+    [initialLoadCount, mediaType, sortBy, uiTexts?.loadPhotosError]
   );
 
   const applyPageResult = useCallback(
@@ -300,12 +310,12 @@ export function usePhotoAlbum(options: UsePhotoAlbumOptions = {}): UsePhotoAlbum
       endCursorRef.current = result.endCursor;
       applyPageResult(result, undefined, initialLoadCount, true);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('加载照片失败'));
+      setError(err instanceof Error ? err : new Error(uiTexts?.loadPhotosError ?? '加载照片失败'));
     } finally {
       isFetchingRef.current = false;
       setInitialLoading(false);
     }
-  }, [fetchPhotos, initialLoadCount]);
+  }, [applyPageResult, fetchPhotos, initialLoadCount, uiTexts?.loadPhotosError]);
 
   /**
    * 加载更多
@@ -362,12 +372,14 @@ export function usePhotoAlbum(options: UsePhotoAlbumOptions = {}): UsePhotoAlbum
         });
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('加载更多照片失败'));
+      setError(
+        err instanceof Error ? err : new Error(uiTexts?.loadMorePhotosError ?? '加载更多照片失败')
+      );
     } finally {
       isFetchingRef.current = false;
       setLoadingMore(false);
     }
-  }, [applyPageResult, fetchPhotos, loadMoreCount, logPagination]);
+  }, [applyPageResult, fetchPhotos, loadMoreCount, logPagination, uiTexts?.loadMorePhotosError]);
 
   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const photoMap = useMemo(() => new Map(photos.map(photo => [photo.id, photo])), [photos]);
