@@ -36,6 +36,11 @@
     "packages/*",
     "templates/*"
   ],
+  "pnpm": {
+    "overrides": {
+      "react-native-worklets": "0.5.1"
+    }
+  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write"

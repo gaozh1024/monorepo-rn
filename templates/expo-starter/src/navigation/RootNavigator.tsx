@@ -15,6 +15,11 @@ import { AboutScreen } from '../features/profile/screens/AboutScreen';
 import { useSessionStore } from '../store/session.store';
 import { ROUTES } from './routes';
 
+const fadeEntryScreenOptions = {
+  animation: 'fade' as const,
+  headerShown: false,
+};
+
 /**
  * 根导航器 - 单层导航配置，无 header 配置
  *
@@ -31,7 +36,11 @@ export function RootNavigator() {
           <StackNavigator.Screen name={ROUTES.LAUNCH} component={LaunchScreen} />
         ) : (
           <>
-            <StackNavigator.Screen name={ROUTES.LOGIN} component={LoginScreen} />
+            <StackNavigator.Screen
+              name={ROUTES.LOGIN}
+              component={LoginScreen}
+              options={fadeEntryScreenOptions}
+            />
             <StackNavigator.Screen name={ROUTES.REGISTER} component={RegisterScreen} />
             <StackNavigator.Screen name={ROUTES.FORGOT_PASSWORD} component={ForgotPasswordScreen} />
           </>
@@ -44,7 +53,11 @@ export function RootNavigator() {
   return (
     <StackNavigator screenOptions={{ headerShown: false }}>
       {/* Tab 主页面 */}
-      <StackNavigator.Screen name={ROUTES.MAIN_TABS} component={MainTabs} />
+      <StackNavigator.Screen
+        name={ROUTES.MAIN_TABS}
+        component={MainTabs}
+        options={fadeEntryScreenOptions}
+      />
 
       {/* 全局抽屉页 */}
       <StackNavigator.Screen name={ROUTES.GLOBAL_DRAWER} component={GlobalDrawerScreen} />
