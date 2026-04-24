@@ -29,7 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@gaozh1024/rn-kit": ">=0.4.15",
+    "@gaozh1024/rn-kit": ">=0.4.20",
     "@react-navigation/native": ">=7.0.0",
     "@shopify/flash-list": ">=2.0.0",
     "expo": ">=54 <55",

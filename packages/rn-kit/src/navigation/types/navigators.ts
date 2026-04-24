@@ -10,6 +10,8 @@ import type {
   DrawerScreenOptions,
 } from './screens';
 
+type StackScreenOptionsResolver = (props: any) => StackScreenOptions;
+
 /**
  * 堆栈导航器 Props
  */
@@ -17,7 +19,7 @@ export interface StackNavigatorProps {
   /** 初始路由名称 */
   initialRouteName?: string;
   /** 屏幕选项配置 */
-  screenOptions?: StackScreenOptions;
+  screenOptions?: StackScreenOptions | StackScreenOptionsResolver;
   /** 子元素 */
   children?: React.ReactNode;
 }

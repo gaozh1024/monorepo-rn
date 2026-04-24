@@ -32,7 +32,7 @@ npm install @gaozh1024/aliyun-push aliyun-react-native-push
 
 - `expo`
 
-> `@expo/config-plugins` 无需单独安装，通常由 `expo` 提供。
+> `@expo/config-plugins` 无需单独安装。本包已声明兼容 Expo 53-54 的插件依赖，常规项目只需安装 `expo` 即可。
 
 ## 适用场景
 

@@ -1,5 +1,17 @@
 # @gaozh1024/rn-kit
 
+## 0.4.20
+
+### Patch Changes
+
+- Fix the StackNavigator direct-children regression by restoring React Navigation's native Screen component while keeping the default slide transition overridable.
+
+## 0.4.19
+
+### Patch Changes
+
+- Fix StackNavigator transition defaults so screen-level animation options such as `fade` can override the default slide transition.
+
 ## 0.4.18
 
 ### Patch Changes

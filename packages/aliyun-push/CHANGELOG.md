@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+### Patch Changes
+
+- Fix Expo config plugin packaging for pnpm consumers and refresh release preparation docs.
+
 ## 0.1.0
 
 - 初始版本

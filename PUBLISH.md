@@ -82,6 +82,29 @@ npm_config_cache=/tmp/npm-cache npm pack --dry-run
 
 ## 2. 版本同步原则
 
+推荐优先使用 changeset 管理版本，而不是手工只改单个 `package.json`：
+
+```bash
+pnpm changeset
+pnpm version-packages
+```
+
+如果这次只发布 `@gaozh1024/aliyun-push`，推荐流程：
+
+```bash
+# 1. 记录 patch/minor 变更
+pnpm changeset
+
+# 2. 落版本号与 CHANGELOG
+pnpm version-packages
+
+# 3. 回归验证
+pnpm verify:release
+
+# 4. 单包打包检查
+pnpm --dir packages/aliyun-push pack --pack-destination /tmp/aliyun-push-pack
+```
+
 发布前请同步检查：
 
 1. `packages/rn-kit/package.json` 版本号
@@ -99,6 +122,7 @@ npm_config_cache=/tmp/npm-cache npm pack --dry-run
 - 先确定 `rn-kit` / `aliyun-speech` / `photo-album-picker` / `aliyun-push` / `hot-updater` 版本
 - 再同步模板依赖版本（如有）
 - 再补文档与 release notes
+- 如果走 CI 发布，确保 `.github/workflows/release.yml` 指向当前 monorepo 的真实包与 `changeset publish`
 
 ## 3. 正式版发布
 

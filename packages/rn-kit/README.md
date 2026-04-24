@@ -1309,6 +1309,12 @@ import {
 
 > 默认情况下，框架已关闭底部导航“选中横条”指示器；如需开启，可通过 `tabBarOptions.showActiveIndicator` 或自定义 `BottomTabBar` 打开。
 
+`StackNavigator` 默认使用 `slide_from_right` 动画；如果单个页面需要淡入等不同转场，可以直接在 `StackNavigator.Screen` 上覆盖：
+
+```tsx
+<StackNavigator.Screen name="MainTabs" component={MainTabs} options={{ animation: 'fade' }} />
+```
+
 ```tsx
 <TabNavigator
   tabBarOptions={{

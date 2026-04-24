@@ -1,4 +1,5 @@
 import type { TextStyle, ViewStyle } from 'react-native';
+import type { StackNavigationOptions } from '@react-navigation/stack';
 
 /**
  * 屏幕选项类型
@@ -7,31 +8,10 @@ import type { TextStyle, ViewStyle } from 'react-native';
 
 /**
  * 屏幕选项配置 - 堆栈
+ *
+ * 直接复用 React Navigation 的官方类型，确保动画与转场配置可以完整透传。
  */
-export interface StackScreenOptions {
-  /** 标题 */
-  title?: string;
-  /** 是否显示头部 */
-  headerShown?: boolean;
-  /** 自定义头部 */
-  header?: (props: any) => React.ReactElement | null;
-  /** 动画类型 */
-  animation?:
-    | 'default'
-    | 'fade'
-    | 'slide_from_right'
-    | 'slide_from_left'
-    | 'slide_from_bottom'
-    | 'none';
-  /** 是否支持全屏手势返回（主要用于 iOS） */
-  fullScreenGestureEnabled?: boolean;
-  /** 自定义后退按钮标题（iOS） */
-  headerBackTitle?: string;
-  /** 是否显示后退按钮 */
-  headerBackVisible?: boolean;
-  /** 内容样式 */
-  contentStyle?: object;
-}
+export type StackScreenOptions = StackNavigationOptions;
 
 /**
  * 屏幕选项配置 - 标签

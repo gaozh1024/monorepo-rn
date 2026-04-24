@@ -6,7 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { TabNavigator } from '../navigators';
+import { StackNavigator, TabNavigator } from '../navigators';
 import { BottomTabBar } from '../components/BottomTabBar';
 import { ThemeProvider, createTheme } from '@/theme';
 
@@ -43,6 +43,48 @@ describe('导航器模块', () => {
   it('应该导出 createDrawerScreens', async () => {
     const { createDrawerScreens } = await import('../navigators');
     expect(typeof createDrawerScreens).toBe('function');
+  });
+
+  it('StackNavigator 默认应该使用 slide_from_right 动画而不是固定插值器', async () => {
+    const { __getLastStackNavigatorProps } = await import('@react-navigation/stack');
+
+    render(
+      <ThemeProvider light={theme}>
+        <StackNavigator>
+          <StackNavigator.Screen name="Home" component={() => null} />
+        </StackNavigator>
+      </ThemeProvider>
+    );
+
+    const navigatorProps = __getLastStackNavigatorProps();
+    const resolvedOptions = navigatorProps.screenOptions({
+      route: { key: 'Home-key', name: 'Home', params: undefined },
+      navigation: {},
+      theme: {},
+    });
+
+    expect(resolvedOptions.headerShown).toBe(false);
+    expect(resolvedOptions.animation).toBe('slide_from_right');
+    expect(resolvedOptions.cardStyleInterpolator).toBeUndefined();
+  });
+
+  it('StackNavigator.Screen 的 animation=fade 应该覆盖默认右滑动画', async () => {
+    const { __getLastStackScreenProps } = await import('@react-navigation/stack');
+
+    render(
+      <ThemeProvider light={theme}>
+        <StackNavigator>
+          <StackNavigator.Screen
+            name="MainTabs"
+            component={() => null}
+            options={{ animation: 'fade' }}
+          />
+        </StackNavigator>
+      </ThemeProvider>
+    );
+
+    const screenProps = __getLastStackScreenProps();
+    expect(screenProps[0].options).toEqual({ animation: 'fade' });
   });
 
   it('TabNavigator 默认应该使用 BottomTabBar', async () => {

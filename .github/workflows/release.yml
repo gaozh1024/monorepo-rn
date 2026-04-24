@@ -19,18 +19,18 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 8
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm run build
+      - name: Verify release
+        run: pnpm verify:release
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -40,10 +40,6 @@ jobs:
           prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
 
       - name: Publish to npm
-        run: |
-          cd packages/core && npm publish --access public || true
-          cd ../theme && npm publish --access public || true
-          cd ../ui && npm publish --access public || true
-          cd ../utils && npm publish --access public || true
+        run: pnpm exec changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

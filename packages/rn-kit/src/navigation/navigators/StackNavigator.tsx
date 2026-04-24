@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { createStackNavigator, TransitionPresets } from '../vendor/stack';
+import { createStackNavigator } from '../vendor/stack';
 import type { StackParamList, StackNavigatorProps, StackRouteConfig } from '../types';
 
 const NativeStack = createStackNavigator<StackParamList>();
@@ -14,8 +14,32 @@ const NativeStack = createStackNavigator<StackParamList>();
 /** 默认屏幕选项 */
 const defaultScreenOptions = {
   headerShown: false,
-  ...TransitionPresets.SlideFromRightIOS,
 };
+
+/** 默认转场选项 */
+const defaultTransitionOptions = {
+  animation: 'slide_from_right',
+} as const;
+
+function shouldClearInheritedDefaultAnimation(options?: Record<string, unknown>) {
+  return (
+    options?.animation == null &&
+    (options?.presentation != null ||
+      options?.cardStyleInterpolator != null ||
+      options?.gestureDirection != null ||
+      options?.transitionSpec != null ||
+      options?.headerStyleInterpolator != null)
+  );
+}
+
+function mergeNavigatorScreenOptions(options?: Record<string, unknown>) {
+  return {
+    ...defaultScreenOptions,
+    ...defaultTransitionOptions,
+    ...(shouldClearInheritedDefaultAnimation(options) ? { animation: undefined } : null),
+    ...options,
+  };
+}
 
 /**
  * 堆栈导航器组件
@@ -44,7 +68,11 @@ export function StackNavigator({ initialRouteName, screenOptions, children }: St
   return (
     <NativeStack.Navigator
       initialRouteName={initialRouteName}
-      screenOptions={{ ...defaultScreenOptions, ...screenOptions }}
+      screenOptions={callbackProps => {
+        const resolvedOptions =
+          typeof screenOptions === 'function' ? screenOptions(callbackProps) : screenOptions;
+        return mergeNavigatorScreenOptions(resolvedOptions);
+      }}
     >
       {children}
     </NativeStack.Navigator>
