@@ -15,7 +15,7 @@ import { AboutScreen } from '../features/profile/screens/AboutScreen';
 import { useSessionStore } from '../store/session.store';
 import { ROUTES } from './routes';
 
-const fadeEntryScreenOptions = {
+const fadeScreenOptions = {
   animation: 'fade' as const,
   headerShown: false,
 };
@@ -39,7 +39,7 @@ export function RootNavigator() {
             <StackNavigator.Screen
               name={ROUTES.LOGIN}
               component={LoginScreen}
-              options={fadeEntryScreenOptions}
+              options={fadeScreenOptions}
             />
             <StackNavigator.Screen name={ROUTES.REGISTER} component={RegisterScreen} />
             <StackNavigator.Screen name={ROUTES.FORGOT_PASSWORD} component={ForgotPasswordScreen} />
@@ -56,7 +56,7 @@ export function RootNavigator() {
       <StackNavigator.Screen
         name={ROUTES.MAIN_TABS}
         component={MainTabs}
-        options={fadeEntryScreenOptions}
+        options={fadeScreenOptions}
       />
 
       {/* 全局抽屉页 */}
