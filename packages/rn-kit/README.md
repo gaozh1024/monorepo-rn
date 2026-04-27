@@ -653,7 +653,7 @@ logger.error('登录失败', { code: 401 });
 
 #### 开发日志 / 可观测性基础设施
 
-框架现在内置了一套**开发态可观测性基础设施**，目标是帮助排查问题，而不是直接做线上监控平台。
+框架现在内置了一套**开发态可观测性基础设施**，同时提供可接生产监控的 `createTelemetryClient` 抽象。默认不会绑定任何监控厂商，也不会在没有 transport 时产生副作用。
 
 默认能力：
 
@@ -662,6 +662,13 @@ logger.error('登录失败', { code: 401 });
 - Console Transport：CLI 中按 level 彩色输出
 - `LogOverlay`：App 内浮动日志面板
 - 浮层增强：level 筛选 / namespace 筛选 / 导出当前日志 / 按钮可拖动吸边并按当前 storage 实现恢复位置
+
+生产可观测抽象：
+
+- `createTelemetryClient({ transports })`：把事件发送到业务自己的监控服务
+- 默认 noop：没有 transport 或 `enabled: false` 时不会发送任何事件
+- 支持 `sanitize`：发送前可统一脱敏 token、手机号、用户资料等敏感字段
+- transport 隔离：单个 transport 抛错不会影响业务流程或 API 请求结果
 
 ##### 1. 最简单用法：直接跟随 `AppProvider`
 
@@ -778,6 +785,42 @@ import { AppErrorBoundary, LoggerProvider } from '@gaozh1024/rn-kit';
   </AppErrorBoundary>
 </LoggerProvider>;
 ```
+
+##### 4. 生产 telemetry transport
+
+如果要接入线上监控，请优先使用 `createTelemetryClient` 包一层业务 transport，而不是在组件里直接调用厂商 SDK。下面示例只演示接口形态，不绑定具体服务：
+
+```tsx
+import { createTelemetryClient } from '@gaozh1024/rn-kit';
+
+const telemetry = createTelemetryClient({
+  transports: [
+    async event => {
+      await fetch('https://collector.example.com/events', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(event),
+      });
+    },
+  ],
+});
+
+await telemetry.emit(
+  {
+    name: 'login.submit',
+    category: 'auth',
+    attributes: { userId: 'u_1', token: 'secret' },
+  },
+  {
+    sanitize: event => ({
+      ...event,
+      attributes: { ...event.attributes, token: '[REDACTED]' },
+    }),
+  }
+);
+```
+
+注意：`createTelemetryClient` 会吞掉 transport 异常并可写入 logger warning，因此监控服务短暂不可用不会阻断用户操作。
 
 ### 🪝 Hooks
 
@@ -1519,7 +1562,14 @@ import { DrawerContent, DrawerNavigator } from '@gaozh1024/rn-kit';
 ### 🔌 API 工厂
 
 ```tsx
-import { createAPI, createApiLoggerTransport, z, storage, ErrorCode } from '@gaozh1024/rn-kit';
+import {
+  createAPI,
+  createApiLoggerTransport,
+  createTelemetryClient,
+  storage,
+  ErrorCode,
+} from '@gaozh1024/rn-kit';
+import { z } from 'zod';
 
 const api = createAPI({
   baseURL: 'https://api.example.com',
@@ -1681,6 +1731,26 @@ const api = createAPI({
       method: 'GET',
       path: '/profile',
     },
+  },
+});
+```
+
+生产环境建议同时配置 `sanitize`，自定义 transport 收到的是脱敏后的事件；transport 抛错也不会影响 API 请求结果：
+
+```tsx
+const api = createAPI({
+  baseURL: 'https://api.example.com',
+  observability: {
+    enabled: true,
+    transports: [event => sendToCollector(event)],
+    sanitize: (value, meta) => {
+      if (meta.field === 'input') return '[REDACTED_INPUT]';
+      if (meta.field === 'responseData') return '[REDACTED_RESPONSE]';
+      return value;
+    },
+  },
+  endpoints: {
+    getProfile: { method: 'GET', path: '/profile' },
   },
 });
 ```

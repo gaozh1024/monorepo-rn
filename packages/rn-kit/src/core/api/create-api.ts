@@ -306,23 +306,19 @@ async function notifyAndTrackError(
   const enhanced = await notifyError(error, context, endpoint, config);
 
   if (observability.enabled) {
-    await Promise.all(
-      observability.transports.map(transport =>
-        transport({
-          stage: 'error',
-          endpointName: payload.endpointName,
-          path: payload.path,
-          method: payload.method,
-          url: payload.url,
-          input: payload.input,
-          response: payload.response,
-          responseData: payload.responseData,
-          statusCode: payload.statusCode,
-          durationMs: payload.durationMs,
-          error: enhanced,
-        })
-      )
-    );
+    await observability.emit({
+      stage: 'error',
+      endpointName: payload.endpointName,
+      path: payload.path,
+      method: payload.method,
+      url: payload.url,
+      input: payload.input,
+      response: payload.response,
+      responseData: payload.responseData,
+      statusCode: payload.statusCode,
+      durationMs: payload.durationMs,
+      error: enhanced,
+    });
   }
 
   return enhanced;
@@ -405,18 +401,14 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
       const startAt = Date.now();
 
       if (observability.enabled) {
-        await Promise.all(
-          observability.transports.map(transport =>
-            transport({
-              stage: 'request',
-              endpointName: name,
-              path: ep.path,
-              method: ep.method,
-              url,
-              input,
-            })
-          )
-        );
+        await observability.emit({
+          stage: 'request',
+          endpointName: name,
+          path: ep.path,
+          method: ep.method,
+          url,
+          input,
+        });
       }
 
       let response: Response;
@@ -529,22 +521,18 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
           const parsed = ep.output.parse(data);
 
           if (observability.enabled) {
-            await Promise.all(
-              observability.transports.map(transport =>
-                transport({
-                  stage: 'response',
-                  endpointName: name,
-                  path: ep.path,
-                  method: ep.method,
-                  url,
-                  input,
-                  response,
-                  responseData: parsed,
-                  statusCode: response.status,
-                  durationMs: Date.now() - startAt,
-                })
-              )
-            );
+            await observability.emit({
+              stage: 'response',
+              endpointName: name,
+              path: ep.path,
+              method: ep.method,
+              url,
+              input,
+              response,
+              responseData: parsed,
+              statusCode: response.status,
+              durationMs: Date.now() - startAt,
+            });
           }
 
           return parsed;
@@ -571,22 +559,18 @@ export function createAPI<TEndpoints extends Record<string, ApiEndpointConfig<an
       }
 
       if (observability.enabled) {
-        await Promise.all(
-          observability.transports.map(transport =>
-            transport({
-              stage: 'response',
-              endpointName: name,
-              path: ep.path,
-              method: ep.method,
-              url,
-              input,
-              response,
-              responseData: data,
-              statusCode: response.status,
-              durationMs: Date.now() - startAt,
-            })
-          )
-        );
+        await observability.emit({
+          stage: 'response',
+          endpointName: name,
+          path: ep.path,
+          method: ep.method,
+          url,
+          input,
+          response,
+          responseData: data,
+          statusCode: response.status,
+          durationMs: Date.now() - startAt,
+        });
       }
 
       return data;

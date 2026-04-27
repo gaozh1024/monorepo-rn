@@ -51,7 +51,8 @@
     "AppButton",
     "createAPI",
     "useToggle",
-    "SegmentedTabs"
+    "SegmentedTabs",
+    "createTelemetryClient"
   ],
   "compatibilityNotes": [
     "Current compatibility guidance targets Expo >=53 <55 and React Native >=0.79 <0.82.",
@@ -61,7 +62,8 @@
   "antiPatterns": [
     "Installing Expo-native peer dependencies with plain npm latest versions instead of expo install.",
     "Treating missing styles as a ThemeProvider issue before checking NativeWind and Tailwind configuration.",
-    "Rebuilding the whole app tree to switch theme when passing isDark to AppProvider or ThemeProvider is sufficient."
+    "Rebuilding the whole app tree to switch theme when passing isDark to AppProvider or ThemeProvider is sufficient.",
+    "Do not call vendor monitoring SDKs directly from scattered components; wrap them behind createTelemetryClient transports."
   ],
   "canonicalExamples": [
     {

@@ -535,6 +535,95 @@ describe('createAPI', () => {
     );
   });
 
+  it('should sanitize custom observability transport payloads', async () => {
+    const transport = vi.fn();
+    const api = createAPI({
+      baseURL: 'https://api.example.com',
+      fetcher: vi.fn(
+        async () =>
+          new Response(JSON.stringify({ token: 'server-secret' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+      ) as typeof fetch,
+      observability: {
+        enabled: true,
+        includeResponseData: true,
+        transports: [transport],
+        sanitize: (value, meta) => {
+          if (meta.field === 'input') return { redactedInput: true };
+          if (meta.field === 'responseData') return { redactedResponse: true };
+          return value;
+        },
+      },
+      endpoints: {
+        getToken: {
+          method: 'POST',
+          path: '/token',
+        },
+      },
+    });
+
+    await expect(api.getToken({ token: 'client-secret' })).resolves.toEqual({
+      token: 'server-secret',
+    });
+
+    expect(transport).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        stage: 'request',
+        input: { redactedInput: true },
+      })
+    );
+    expect(transport).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        stage: 'response',
+        input: { redactedInput: true },
+        responseData: { redactedResponse: true },
+      })
+    );
+  });
+
+  it('should not let observability transport failures break API calls', async () => {
+    const logger = {
+      log: vi.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    };
+    const api = createAPI({
+      baseURL: 'https://api.example.com',
+      fetcher: vi.fn(
+        async () =>
+          new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+      ) as typeof fetch,
+      observability: {
+        enabled: true,
+        logger,
+        transports: [() => Promise.reject(new Error('collector down'))],
+      },
+      endpoints: {
+        getProfile: {
+          method: 'GET',
+          path: '/profile',
+        },
+      },
+    });
+
+    await expect(api.getProfile()).resolves.toEqual({ ok: true });
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Telemetry transport failed',
+      expect.objectContaining({ error: 'collector down' }),
+      'api'
+    );
+  });
+
   it('应该通过全局 logger 自动记录网络请求日志', async () => {
     const logger = {
       log: vi.fn(),

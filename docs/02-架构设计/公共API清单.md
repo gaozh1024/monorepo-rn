@@ -96,11 +96,15 @@
 
 ### 3.2 API 子模块
 
-| 导出项              | 类型     | 稳定性  | 备注         |
-| ------------------- | -------- | ------- | ------------ |
-| `ApiEndpointConfig` | type     | ✅ 稳定 | API 端点配置 |
-| `ApiConfig`         | type     | ✅ 稳定 | API 全局配置 |
-| `createAPI`         | function | ✅ 稳定 | API 创建函数 |
+| 导出项                     | 类型     | 稳定性  | 备注                                  |
+| -------------------------- | -------- | ------- | ------------------------------------- |
+| `ApiEndpointConfig`        | type     | ✅ 稳定 | API 端点配置                          |
+| `ApiConfig`                | type     | ✅ 稳定 | API 全局配置                          |
+| `ApiObservabilityConfig`   | type     | ✅ 稳定 | API 打点配置                          |
+| `ApiLogEvent`              | type     | ✅ 稳定 | API request/response/error 事件类型   |
+| `ApiLogTransport`          | type     | ✅ 稳定 | API 打点 transport 类型               |
+| `createAPI`                | function | ✅ 稳定 | API 创建函数                          |
+| `createApiLoggerTransport` | function | ✅ 稳定 | 将 API 打点事件写入 logger 的 adapter |
 
 ### 3.3 Storage 子模块
 
@@ -138,7 +142,19 @@
 | `useAsyncState`        | hook | ✅ 稳定 | 已迁移到 hooks 主入口 |
 | `UseAsyncState`        | type | ✅ 稳定 | 已迁移到 hooks 主入口 |
 
-### 3.5 三方库二次导出 (deprecated 兼容导出)
+### 3.5 Telemetry 子模块
+
+| 导出项                      | 类型     | 稳定性  | 备注                                 |
+| --------------------------- | -------- | ------- | ------------------------------------ |
+| `TelemetryEvent`            | type     | ✅ 稳定 | 生产可观测事件基础类型               |
+| `TelemetryTransport`        | type     | ✅ 稳定 | 生产可观测 transport 类型            |
+| `TelemetryClient`           | type     | ✅ 稳定 | 可复用 telemetry client 接口         |
+| `TelemetryClientConfig`     | type     | ✅ 稳定 | telemetry client 配置                |
+| `TelemetrySanitizer`        | type     | ✅ 稳定 | 事件级脱敏函数                       |
+| `createTelemetryClient`     | function | ✅ 稳定 | 创建安全 telemetry client，默认 noop |
+| `createNoopTelemetryClient` | function | ✅ 稳定 | 显式 noop telemetry client           |
+
+### 3.6 三方库二次导出 (deprecated 兼容导出)
 
 | 导出项        | 来源                    | 稳定性        | 备注                                     |
 | ------------- | ----------------------- | ------------- | ---------------------------------------- |

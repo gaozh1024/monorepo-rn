@@ -1,5 +1,6 @@
 import { isDevelopment } from '@/utils';
 import { getGlobalLogger } from '../logger';
+import { createTelemetryClient } from '../telemetry';
 import type { AppError } from '../error';
 import type { ApiLogEvent, ApiLogStage, ApiLogTransport, ApiObservabilityConfig } from './types';
 
@@ -11,6 +12,36 @@ function defaultSanitize(
 ) {
   if (!sanitize) return value;
   return sanitize(value, { stage, field });
+}
+
+function sanitizeApiLogEvent(event: ApiLogEvent, sanitize: ApiObservabilityConfig['sanitize']) {
+  if (!sanitize) return event;
+
+  return {
+    ...event,
+    input: defaultSanitize(event.input, sanitize, event.stage, 'input'),
+    responseData: defaultSanitize(event.responseData, sanitize, event.stage, 'responseData'),
+    error: event.error
+      ? (defaultSanitize(
+          {
+            code: event.error.code,
+            message: event.error.message,
+            statusCode: event.error.statusCode,
+            retryable: event.error.retryable,
+          },
+          sanitize,
+          event.stage,
+          'error'
+        ) as AppError)
+      : undefined,
+  };
+}
+
+function createApiTelemetryTransport(
+  transport: ApiLogTransport,
+  sanitize: ApiObservabilityConfig['sanitize']
+): ApiLogTransport {
+  return event => transport(sanitizeApiLogEvent(event, sanitize));
 }
 
 function resolveMessage(event: ApiLogEvent) {
@@ -89,12 +120,24 @@ export function createApiLoggerTransport(
 
 export function resolveApiObservability(config?: ApiObservabilityConfig) {
   const enabled = config?.enabled ?? isDevelopment();
-  if (!enabled) {
-    return { enabled, transports: [] as ApiLogTransport[] };
-  }
+  const transports = enabled
+    ? [
+        createApiLoggerTransport(config),
+        ...(config?.transports ?? []).map(transport =>
+          createApiTelemetryTransport(transport, config?.sanitize)
+        ),
+      ]
+    : [];
+  const telemetry = createTelemetryClient<ApiLogEvent>({
+    enabled,
+    transports,
+    logger: config?.logger ?? getGlobalLogger(),
+    namespace: config?.namespace ?? 'api',
+  });
 
   return {
     enabled,
-    transports: [createApiLoggerTransport(config), ...(config?.transports ?? [])],
+    transports,
+    emit: telemetry.emit,
   };
 }

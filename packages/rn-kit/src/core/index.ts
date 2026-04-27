@@ -16,3 +16,5 @@ export * from './storage';
 export * from './hooks';
 
 export * from './logger';
+
+export * from './telemetry';

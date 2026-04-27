@@ -9,6 +9,7 @@ Panther Expo Framework core package for app bootstrap, theme, UI, navigation hel
 - Use this package as the default foundation for a new Panther-based app.
 - Use AppProvider when you need a ready-made app bootstrap that includes theme, navigation, overlays, status bar, and development-time observability.
 - Use createAPI when you want the framework's typed API factory and its observability integration.
+- Use createTelemetryClient when you need to forward sanitized production telemetry to an app-owned collector.
 - Use SegmentedTabs for page-local menu/status/category switching when the selected background should slide horizontally between options.
 
 ## When Not To Use
@@ -50,12 +51,14 @@ Panther Expo Framework core package for app bootstrap, theme, UI, navigation hel
 - Prefer the stable public API `createAPI` when it matches the use case.
 - Prefer the stable public API `useToggle` when it matches the use case.
 - Prefer the stable public API `SegmentedTabs` when it matches the use case.
+- Prefer the stable public API `createTelemetryClient` when it matches the use case.
 
 ## Anti-Patterns
 
 - Installing Expo-native peer dependencies with plain npm latest versions instead of expo install.
 - Treating missing styles as a ThemeProvider issue before checking NativeWind and Tailwind configuration.
 - Rebuilding the whole app tree to switch theme when passing isDark to AppProvider or ThemeProvider is sufficient.
+- Do not call vendor monitoring SDKs directly from scattered components; wrap them behind createTelemetryClient transports.
 
 ## Common Failure Cases
 
