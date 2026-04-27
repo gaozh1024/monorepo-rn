@@ -55,6 +55,7 @@ async function main() {
   const output = requireArg(args, 'output');
   const notes = args.notes ?? '';
   const force = args.force === 'true';
+  const disabled = args.disabled === 'true';
   const file = args.file;
 
   let sha256 = args.sha256;
@@ -76,6 +77,7 @@ async function main() {
       appVersion,
       minNativeVersion,
       force,
+      disabled,
       notes,
       url,
       sha256: sha256 ?? 'replace-with-real-sha256',

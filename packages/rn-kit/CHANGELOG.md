@@ -1,5 +1,12 @@
 # @gaozh1024/rn-kit
 
+## 0.5.0
+
+### Minor Changes
+
+- Add `SegmentedTabs`, a page-local animated Tab/Menu switcher with a horizontally sliding selected indicator, controlled/uncontrolled value support, style overrides, disabled options, and timing/spring motion configuration.
+- Document `SegmentedTabs` usage, styling hooks, and motion options.
+
 ## 0.4.20
 
 ### Patch Changes

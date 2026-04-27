@@ -36,6 +36,7 @@ https://ota-cdn.xxx.com/manifest/ios/staging.json
     "appVersion": "0.2.1",
     "minNativeVersion": "0.2.1",
     "force": false,
+    "disabled": false,
     "notes": "修复聊天页崩溃并优化登录态恢复",
     "url": "https://ota-cdn.xxx.com/bundles/android/production/android-prod-20260401-1200-abcd1234.zip",
     "sha256": "replace-with-real-sha256",
@@ -57,7 +58,8 @@ https://ota-cdn.xxx.com/manifest/ios/staging.json
 - `bundleId`: 本次 OTA 唯一标识，必须比当前 bundle 新
 - `appVersion`: 目标底包版本，必须与当前原生版本一致
 - `minNativeVersion`: 最低支持的原生版本
-- `force`: 是否强更
+- `force`: 是否强更；缺省时按 `false` 处理
+- `disabled`: 是否临时下线该 release；为 `true` 时客户端不会下载该更新，可选，缺省为 `false`
 - `notes`: 更新说明，可选
 - `url`: OTA zip 包下载地址
 - `sha256`: OTA zip 包哈希，可选但强烈建议提供
@@ -68,11 +70,12 @@ https://ota-cdn.xxx.com/manifest/ios/staging.json
 客户端收到 manifest 后，会按以下规则判断是否更新：
 
 1. `release` 不存在则不更新
-2. `platform` 不匹配则不更新
-3. `channel` 不匹配则不更新
-4. `release.appVersion !== 当前原生版本` 则不更新
-5. `当前原生版本 < minNativeVersion` 则不更新
-6. `release.bundleId === 当前 bundleId` 则不更新
+2. `release.disabled === true` 则不更新
+3. `platform` 不匹配则不更新
+4. `channel` 不匹配则不更新
+5. `release.appVersion !== 当前原生版本` 则不更新
+6. `当前原生版本 < minNativeVersion` 则不更新
+7. `release.bundleId === 当前 bundleId` 则不更新
 
 满足以上条件后，才会进入下载流程。
 

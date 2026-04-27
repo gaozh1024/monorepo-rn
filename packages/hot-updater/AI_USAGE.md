@@ -14,12 +14,12 @@ OTA hot update helper package for business apps, built around manifest fetch, up
 
 - Do not use this package if the team expects a complete hosted OTA platform with upload, CDN, and release governance included.
 - Do not assume the framework should decide the app's startup navigation or prompt UX.
-- Do not assume Android integration is finished just because the package is installed.
+- Do not assume Android integration is finished just because the package is installed or the plugin ran; verify the generated MainApplication.kt.
 
 ## Recommended Entry
 
 - Create a hotUpdater instance and context once, then call startup checks from the business launch flow.
-- Keep wrapApp for resolver and native integration, but prefer launch-page-driven update checks over a default full-screen update flow.
+- Keep wrapApp as a required resolver/native integration step, but prefer launch-page-driven update checks over a default full-screen update flow.
 - Inject the app's own dialog components through provider prompt handlers when product UX matters.
 
 ## Install Prerequisites
@@ -30,7 +30,7 @@ OTA hot update helper package for business apps, built around manifest fetch, up
 ## Required Project Setup
 
 - Configure a manifestBaseURL and a manifest hosting strategy.
-- For Android, patch MainApplication.kt as required by the underlying hot updater integration.
+- For Android, verify the underlying plugin patched MainApplication.kt, or patch it manually when the app template is not matched.
 - For iOS, verify AppDelegate.swift uses HotUpdater.bundleURL() on release builds when the underlying plugin expects it.
 
 ## Minimal Working Example
@@ -51,11 +51,11 @@ OTA hot update helper package for business apps, built around manifest fetch, up
 
 - Treating this package as responsible for OSS upload, CDN refresh, analytics, or business-page routing.
 - Blocking the entire app startup on optional update checks or slow manifest fetches.
-- Skipping required Android native entry changes and assuming downloaded bundles will apply correctly.
+- Skipping verification of required Android native entry changes and assuming downloaded bundles will apply correctly.
 
 ## Common Failure Cases
 
-- Android downloads succeed but the updated bundle is not used on cold start because MainApplication.kt was not patched.
+- Android downloads succeed but the updated bundle is not used on cold start because MainApplication.kt was not patched or the generated patch was not verified.
 - Teams expect the library to provide business-specific update dialogs and startup routing out of the box.
 - Manifest requests are cached too aggressively because the host project did not include cache-busting or release discipline.
 
@@ -64,6 +64,7 @@ OTA hot update helper package for business apps, built around manifest fetch, up
 - This package is built on top of @hot-updater/react-native and related tooling.
 - The framework layer handles update orchestration, but business projects still own startup UX and product decisions.
 - iOS native wiring may be mostly handled by the underlying plugin, but the resulting AppDelegate.swift should still be verified.
+- A disabled manifest release (`release.disabled: true`) is treated as no update and can be used to pause a bad OTA.
 
 ## See Also
 

@@ -30,6 +30,7 @@ pnpm --dir packages/photo-album-picker typecheck
 pnpm --dir packages/photo-album-picker build
 pnpm --dir packages/aliyun-push typecheck
 pnpm --dir packages/aliyun-push build
+pnpm --dir packages/hot-updater test
 pnpm --dir packages/hot-updater typecheck
 pnpm --dir packages/hot-updater build
 pnpm --dir templates/expo-starter lint

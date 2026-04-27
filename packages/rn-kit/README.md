@@ -221,6 +221,7 @@ import {
   AppImage,
   AppList,
   GradientView,
+  SegmentedTabs,
   PageDrawer, // 数据展示 / 页面级抽屉
   Checkbox,
   Radio,
@@ -312,6 +313,7 @@ import {
 | `AppButton`     | 按钮                             | `flex` / 外边距 / 尺寸 / `rounded`                                                                 | `size` 继续控制默认内边距；快捷参数主要用于外层排版                                               |
 | `Card`          | 卡片容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 另有 `noShadow` / `noBorder` / `noRadius`                                                         |
 | `AppList`       | 高级列表组件                     | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | 和 `AppFlatList` 保持一致，适合直接承载业务空态/错态/骨架                                         |
+| `SegmentedTabs` | 滑块式 Tab/Menu 切换条           | 外层支持：`flex` / 外边距 / 尺寸；滑块支持 `indicatorStyle` / `indicatorInset`                     | 适合页面内分类、状态筛选；点击后底层 `Animated.View` 会左右滑动到选中项                           |
 | `AppInput`      | 输入框                           | 外层支持：`flex` / 外边距；输入容器支持：尺寸 / `rounded` / `bg` / `surface`                       | 更细粒度仍推荐配合 `containerStyle` / `inputStyle`                                                |
 | `Checkbox`      | 复选框                           | 外层支持：`flex` / 间距 / `gap` / 尺寸 / `rounded` / `bg` / `surface`                              | 适合直接扩展点击热区、间距和标签排版                                                              |
 | `Radio`         | 单选框                           | 外层支持：`flex` / 间距 / `gap` / 尺寸 / `rounded` / `bg` / `surface`                              | 与 `Checkbox` 保持一致，便于统一表单行样式                                                        |
@@ -326,6 +328,62 @@ import {
 | `Progress`      | 进度条                           | 外层支持：`flex` / 外边距 / 尺寸；轨道支持：`rounded` / `bg` / `surface`                           | `size` 继续负责默认高度语义，`h` 可用于显式覆盖                                                   |
 | `SafeScreen`    | 底层安全区容器                   | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=true` / `bottom=true`，安全区 inset 会自动并入 padding                                  |
 | `AppScreen`     | 页面语义容器                     | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=false` / `bottom=true`，更适合带 `AppHeader` 的页面                                     |
+
+`SegmentedTabs` 示例：
+
+```tsx
+const tabs = [
+  { label: '全部', value: 'all' },
+  { label: '待处理', value: 'pending' },
+  { label: '已完成', value: 'done' },
+];
+
+<SegmentedTabs
+  options={tabs}
+  value={status}
+  onChange={nextStatus => setStatus(nextStatus)}
+  indicatorColor="#f38b32"
+  backgroundColor="#f3f4f6"
+  indicatorStyle={{ shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 }}
+  style={{ width: 280 }}
+/>;
+```
+
+`SegmentedTabs` 适合页面内分类、状态筛选、顶部 menu 等场景；它不是导航容器，也不会创建路由。点击选项时，组件会根据选中索引更新底层 `Animated.View` 的 `translateX` 与宽度，从而得到左右滑动的选中块效果。
+
+常用 Props：
+
+| Prop                                                     | 说明                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------- |
+| `options`                                                | 选项数组：`{ label, value, icon?, disabled?, accessibilityLabel? }` |
+| `value` / `defaultValue`                                 | 受控 / 非受控当前值，`value` 支持 `string` 或 `number`              |
+| `onChange`                                               | 切换回调：`(value, option, index) => void`                          |
+| `size`                                                   | 尺寸预设：`sm` / `md` / `lg`                                        |
+| `rounded`                                                | 圆角预设，默认 `full`                                               |
+| `indicatorInset`                                         | 滑块与容器边缘间距，默认 `3`                                        |
+| `indicatorColor`                                         | 选中滑块颜色，默认主题主色                                          |
+| `backgroundColor`                                        | 容器背景色，默认主题分割线色                                        |
+| `activeTintColor` / `inactiveTintColor`                  | 选中 / 未选中文字色                                                 |
+| `animated`                                               | 是否启用滑块移动动画，默认 `true`                                   |
+| `motionDuration`                                         | timing 动画时长                                                     |
+| `motionSpringPreset`                                     | spring 动画预设：`snappy` / `smooth` / `bouncy`                     |
+| `style` / `indicatorStyle`                               | 容器 / 滑块样式覆盖                                                 |
+| `itemStyle` / `activeItemStyle`                          | 选项 / 选中选项样式覆盖                                             |
+| `labelStyle` / `activeLabelStyle` / `disabledLabelStyle` | 标签样式覆盖                                                        |
+| `renderLabel` / `renderItem`                             | 自定义标签或整个选项内容渲染                                        |
+
+自定义内容示例：
+
+```tsx
+<SegmentedTabs
+  options={tabs}
+  value={status}
+  onChange={nextStatus => setStatus(nextStatus)}
+  renderItem={({ option, selected }) => (
+    <AppText weight={selected ? 'bold' : 'medium'}>{option.label}</AppText>
+  )}
+/>
+```
 
 > 说明：`className` 依然走 NativeWind；上表中的快捷参数本身已经由框架直接转换为内联 `style`。
 
@@ -1126,7 +1184,7 @@ const headerMotion = useCollapsibleHeaderMotion({
 
 #### 7. Spring 动画配置
 
-`Progress` / `Switch` / `Checkbox` / `Radio` 现在支持：
+`Progress` / `Switch` / `Checkbox` / `Radio` / `SegmentedTabs` 现在支持：
 
 - `motionSpringPreset`
 
@@ -1140,6 +1198,7 @@ const headerMotion = useCollapsibleHeaderMotion({
 <Progress value={72} motionSpringPreset="smooth" />
 <Switch checked={enabled} onChange={setEnabled} motionSpringPreset="bouncy" />
 <Checkbox checked motionSpringPreset="smooth" />
+<SegmentedTabs options={tabs} value={tab} onChange={nextTab => setTab(nextTab)} motionSpringPreset="snappy" />
 ```
 
 未传 `motionSpringPreset` 时，仍默认使用 timing 动画。
@@ -1148,7 +1207,7 @@ const headerMotion = useCollapsibleHeaderMotion({
 
 - 反馈：`Alert` / `Toast` / overlay alert / overlay toast
 - 表单：`Switch` / `Checkbox` / `Radio` / `Select` / `Picker` / `DatePicker`
-- 展示：`Progress` / `Card` / `AppList` / `PageDrawer` / `AppButton`
+- 展示：`Progress` / `Card` / `AppList` / `PageDrawer` / `AppButton` / `SegmentedTabs`
 - 导航：`AppHeader` / `BottomTabBar` / `DrawerContent`
 
 其中 `Alert` / `Toast` 以及 overlay alert 也支持组件级显隐动画控制：

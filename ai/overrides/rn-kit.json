@@ -4,7 +4,8 @@
   "whenToUse": [
     "Use this package as the default foundation for a new Panther-based app.",
     "Use AppProvider when you need a ready-made app bootstrap that includes theme, navigation, overlays, status bar, and development-time observability.",
-    "Use createAPI when you want the framework's typed API factory and its observability integration."
+    "Use createAPI when you want the framework's typed API factory and its observability integration.",
+    "Use SegmentedTabs for page-local menu/status/category switching when the selected background should slide horizontally between options."
   ],
   "whenNotToUse": [
     "Do not use this package if you only need a single isolated capability that already exists as a smaller dedicated package.",
@@ -29,7 +30,8 @@
     "AppScreen",
     "AppButton",
     "createAPI",
-    "useToggle"
+    "useToggle",
+    "SegmentedTabs"
   ],
   "antiPatterns": [
     "Installing Expo-native peer dependencies with plain npm latest versions instead of expo install.",
@@ -39,7 +41,8 @@
   "commonFailureCases": [
     "AppView, AppButton, or AppHeader render without styles because NativeWind Babel config, Tailwind content paths, or safelist are incomplete.",
     "Expo projects resolve incompatible native package versions because dependencies were installed without expo install.",
-    "AppImage usage fails in older projects upgraded to newer rn-kit because expo-image was not added."
+    "AppImage usage fails in older projects upgraded to newer rn-kit because expo-image was not added.",
+    "SegmentedTabs appears not to move its selected indicator if the container has not measured yet; ensure it is rendered with a non-zero width via layout, w, or style.width."
   ],
   "compatibilityNotes": [
     "Current compatibility guidance targets Expo >=53 <55 and React Native >=0.79 <0.82.",
@@ -58,6 +61,10 @@
     {
       "name": "controlled-theme-toggle",
       "path": "templates/expo-starter/src/recipes/theme-toggle.tsx"
+    },
+    {
+      "name": "segmented-tabs-switcher",
+      "path": "templates/expo-starter/src/recipes/segmented-tabs.tsx"
     }
   ]
 }

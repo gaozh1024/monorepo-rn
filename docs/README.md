@@ -50,11 +50,14 @@
 
 版本发布记录：
 
+- [rn-kit 0.5.0 Release Notes](./release-notes/rn-kit-0.5.0.md)
+- [expo-starter 0.2.16 Release Notes](./release-notes/expo-starter-0.2.16.md)
 - [rn-kit 0.4.20 Release Notes](./release-notes/rn-kit-0.4.20.md)
 - [rn-kit 0.4.19 Release Notes](./release-notes/rn-kit-0.4.19.md)
 - [rn-kit 0.4.18 Release Notes](./release-notes/rn-kit-0.4.18.md)
 - [expo-starter 0.2.15 Release Notes](./release-notes/expo-starter-0.2.15.md)
 - [photo-album-picker 0.3.0 Release Notes](./release-notes/photo-album-picker-0.3.0.md)
+- [hot-updater 0.1.1 Release Notes](./release-notes/hot-updater-0.1.1.md)
 - [hot-updater 0.1.0 Release Notes](./release-notes/hot-updater-0.1.0.md)
 - [aliyun-push 0.1.1 Release Notes](./release-notes/aliyun-push-0.1.1.md)
 - [expo-starter 0.2.14 Release Notes](./release-notes/expo-starter-0.2.14.md)

@@ -124,6 +124,7 @@ npx expo start
 - `minimal-bootstrap.tsx`：最小 `AppProvider` 接入
 - `theme-toggle.tsx`：受控主题切换模式
 - `api-auth.ts`：带 token 头、脱敏 observability 的 API 工厂模式
+- `segmented-tabs.tsx`：页面内筛选 / 分类切换的滑块式 `SegmentedTabs` 示例
 
 这些文件不会自动参与模板运行时，只作为可复制、可被 AI 直接引用的参考实现存在。
 
@@ -176,7 +177,7 @@ npx expo start
 
 ## 依赖兼容性说明
 
-当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护，配套 `@gaozh1024/rn-kit ^0.4.18`。
+当前模板以 **Expo SDK 54.0.x + React Native 0.81.x** 为基线维护，配套 `@gaozh1024/rn-kit ^0.5.0`。
 
 如果你准备把 `@gaozh1024/rn-kit` 接入到其他 Expo 项目，建议：
 

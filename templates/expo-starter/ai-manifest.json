@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "packageName": "@gaozh1024/expo-starter",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "role": "template",
   "summary": "Canonical Expo starter template for Panther-based apps, showing the recommended project structure, provider layout, navigation, storage wiring, and theme usage.",
   "entrypoints": [
@@ -46,6 +46,10 @@
     {
       "name": "api-integration",
       "path": "templates/expo-starter/src/recipes/api-auth.ts"
+    },
+    {
+      "name": "segmented-tabs-switcher",
+      "path": "templates/expo-starter/src/recipes/segmented-tabs.tsx"
     }
   ],
   "docs": ["README.md", "AI_USAGE.md"]

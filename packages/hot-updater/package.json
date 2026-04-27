@@ -1,6 +1,6 @@
 {
   "name": "@gaozh1024/hot-updater",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "OTA hot update helpers for Expo / React Native with manifest resolution, launch orchestration, provider hooks, and release scripts.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,6 +28,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "tsc --noEmit",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -48,7 +48,7 @@ export const hotUpdater = createOssHotUpdater({
 export const { HotUpdaterProvider, useHotUpdaterContext } = createHotUpdaterContext(hotUpdater);
 ```
 
-入口仍然建议保留：
+入口必须保留 `wrapApp`：
 
 ```ts
 const AppWithHotUpdater = hotUpdater.wrapApp(App);
@@ -56,14 +56,14 @@ const AppWithHotUpdater = hotUpdater.wrapApp(App);
 export default AppWithHotUpdater;
 ```
 
-这里主要是为了复用 `resolver` 和原生 `HotUpdater.wrap(...)` 接入；真正的启动检查建议放到业务启动页，而不是依赖默认全屏更新页。
+这里不只是 UI 建议：底层 `HotUpdater.checkForUpdate(...)` 依赖 `HotUpdater.wrap(...)` 注册 resolver。没有这一层，`checkForUpdates()` / `startLaunchUpdateCheck()` 这类运行时检查会无法使用底层 resolver。真正的启动检查仍建议放到业务启动页，而不是依赖默认全屏更新页。
 
 ## Android 额外要求
 
-当前这个框架不会自动修改 Android 的 `MainApplication.kt`。  
-如果使用者只安装库、不补原生入口，OTA 可能会出现“下载成功但冷启动不生效”。
+底层 `@hot-updater/react-native` plugin 会尝试自动 patch Android 原生入口，但不同 RN / Expo / New Architecture 模板差异较大，业务项目必须核对最终 `MainApplication.kt`。
+如果最终原生入口没有接上 OTA bundle 路径，可能会出现“下载成功但冷启动不生效”。
 
-Android 侧至少需要补这两处：
+Android 侧至少需要确认这两类接入已经存在：
 
 ```kotlin
 import com.hotupdater.HotUpdater
@@ -77,7 +77,7 @@ override val reactHost: ReactHost
   }
 ```
 
-`@hot-updater/react-native` 的 plugin 负责的是它自己的基础接入，不等于会替业务项目补完整个 `MainApplication.kt`。
+`@hot-updater/react-native` 的 plugin 负责尝试基础接入；如果模板没有被命中，仍需要业务项目手动补齐。
 
 ## iOS 额外要求
 
@@ -241,6 +241,7 @@ export const hotUpdater = createOssHotUpdater({
 - manifest 地址规则：
   - `{manifestBaseURL}/{platform}/{channel}.json`
 - manifest 请求建议加 cache-buster，避免固定路径 JSON 被缓存
+- `release.disabled === true` 时客户端不会下载该 release，可用于临时下线异常 OTA
 - 日志统一走 `hot-updater` namespace，可刷入业务 logger 浮层
 
 ## 框架负责
@@ -258,3 +259,14 @@ export const hotUpdater = createOssHotUpdater({
 - 业务弹窗样式
 - 业务埋点
 - 启动页、登录页、首页的业务跳转逻辑
+
+## Release 验证 Checklist
+
+发布 OTA 前至少验证：
+
+- Release 包可以正常启动，Dev 模式不作为 OTA 生效依据
+- manifest 404 / 网络失败时不会阻塞进入 App
+- 非强更可以后台下载，下载完成后按业务弹窗提示
+- 强更可以下载并触发 reload
+- Android 冷启动后 `bundleId` 发生预期变化，确认 `MainApplication.kt` 原生入口已生效
+- 回滚或临时下线时，manifest 设置 `release.disabled: true` 后客户端不会继续下载该 release

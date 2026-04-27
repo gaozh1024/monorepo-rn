@@ -6,7 +6,8 @@ export interface OtaManifestRelease {
   bundleId: string;
   appVersion: string;
   minNativeVersion: string;
-  force: boolean;
+  force?: boolean;
+  disabled?: boolean;
   notes?: string;
   url: string;
   sha256?: string;

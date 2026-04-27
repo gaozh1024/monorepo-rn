@@ -9,6 +9,7 @@ Panther Expo Framework core package for app bootstrap, theme, UI, navigation hel
 - Use this package as the default foundation for a new Panther-based app.
 - Use AppProvider when you need a ready-made app bootstrap that includes theme, navigation, overlays, status bar, and development-time observability.
 - Use createAPI when you want the framework's typed API factory and its observability integration.
+- Use SegmentedTabs for page-local menu/status/category switching when the selected background should slide horizontally between options.
 
 ## When Not To Use
 
@@ -48,6 +49,7 @@ Panther Expo Framework core package for app bootstrap, theme, UI, navigation hel
 - Prefer the stable public API `AppButton` when it matches the use case.
 - Prefer the stable public API `createAPI` when it matches the use case.
 - Prefer the stable public API `useToggle` when it matches the use case.
+- Prefer the stable public API `SegmentedTabs` when it matches the use case.
 
 ## Anti-Patterns
 
@@ -60,6 +62,7 @@ Panther Expo Framework core package for app bootstrap, theme, UI, navigation hel
 - AppView, AppButton, or AppHeader render without styles because NativeWind Babel config, Tailwind content paths, or safelist are incomplete.
 - Expo projects resolve incompatible native package versions because dependencies were installed without expo install.
 - AppImage usage fails in older projects upgraded to newer rn-kit because expo-image was not added.
+- SegmentedTabs appears not to move its selected indicator if the container has not measured yet; ensure it is rendered with a non-zero width via layout, w, or style.width.
 
 ## Compatibility Baseline
 

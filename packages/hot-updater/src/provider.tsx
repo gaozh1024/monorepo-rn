@@ -216,6 +216,11 @@ export function createHotUpdaterContext(
           return;
         }
 
+        if (result.status === 'error') {
+          hasStartedLaunchUpdateRef.current = false;
+          return;
+        }
+
         if (result.shouldPromptReload) {
           hotUpdaterLogger('info', '[HotUpdater] 冷启动检测到已有已下载更新，立即应用更新', {
             message: result.message,
@@ -229,6 +234,9 @@ export function createHotUpdaterContext(
           message: null,
           progress: 0,
         });
+      } catch (error) {
+        hasStartedLaunchUpdateRef.current = false;
+        throw error;
       } finally {
         unsubscribe();
       }

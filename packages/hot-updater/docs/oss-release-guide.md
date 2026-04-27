@@ -59,6 +59,8 @@ https://ota-cdn.xxx.com/manifest/ios/production.json
 
 ## 推荐命令
 
+先按 `release-scripts.md` 在业务项目配置 `ota:*` scripts，或直接执行 `node node_modules/@gaozh1024/hot-updater/scripts/prepare-release.mjs`。配置 scripts 后可运行：
+
 ```bash
 npm run ota:prepare -- \
   --platform android \

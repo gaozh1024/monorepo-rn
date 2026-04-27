@@ -9,6 +9,7 @@ export interface ResolveUpdateDecision {
     | 'channel-mismatch'
     | 'app-version-mismatch'
     | 'min-native-version-not-satisfied'
+    | 'release-disabled'
     | 'bundle-already-installed'
     | 'update-available';
   details: Record<string, unknown>;
@@ -60,6 +61,19 @@ export function resolveUpdateDecisionFromManifest(
         manifestPlatform: manifest.platform,
         manifestChannel: manifest.channel,
         updatedAt: manifest.updatedAt,
+      },
+    };
+  }
+
+  if (release.disabled === true) {
+    return {
+      update: null,
+      reason: 'release-disabled',
+      details: {
+        bundleId: release.bundleId,
+        appVersion: release.appVersion,
+        platform: manifest.platform,
+        channel: manifest.channel,
       },
     };
   }
@@ -121,7 +135,7 @@ export function resolveUpdateDecisionFromManifest(
   return {
     update: {
       id: release.bundleId,
-      shouldForceUpdate: release.force,
+      shouldForceUpdate: release.force === true,
       status: 'UPDATE',
       fileUrl: release.url,
       fileHash: release.sha256 ?? null,
@@ -130,7 +144,7 @@ export function resolveUpdateDecisionFromManifest(
     reason: 'update-available',
     details: {
       bundleId: release.bundleId,
-      force: release.force,
+      force: release.force === true,
       url: release.url,
       appVersion: release.appVersion,
       minNativeVersion: release.minNativeVersion,

@@ -4,7 +4,7 @@
 
 当前推荐的业务接入方式，不是依赖默认全屏更新页，而是：
 
-1. App 入口保留 `hotUpdater.wrapApp(App)`
+1. App 入口必须保留 `hotUpdater.wrapApp(App)`
 2. 项目创建自己的 `HotUpdaterProvider`
 3. 在启动页调用 `startLaunchUpdateCheck()`
 4. 非强更后台下载
@@ -18,17 +18,14 @@
 2. `app.json` 已配置 `@hot-updater/react-native` plugin
 3. `babel.config.js` 已加入 `hot-updater/babel-plugin`
 4. 首个支持 OTA 的原生底包已重新编译并发布
-5. Android 原生入口已接入 `HotUpdater.getJSBundleFile(...)`
+5. Android 原生入口已确认接入 `HotUpdater.getJSBundleFile(...)` / `jsBundleFilePath`
 
 ## Android 原生接入
 
-当前这个业务框架 `@gaozh1024/hot-updater` 本身还没有提供 Expo config plugin，也不会自动修改 `MainApplication.kt`。  
-也就是说：
+当前 `@gaozh1024/hot-updater` 本身不提供额外 Expo config plugin；底层 `@hot-updater/react-native` plugin 会尝试自动 patch `MainApplication.kt`。
+但不同 RN / Expo / New Architecture 模板差异较大，业务项目必须核对最终原生文件。
 
-- `app.json` 里的 `@hot-updater/react-native` plugin 只负责它自己的基础配置
-- 但你项目里的 Android 入口仍然需要手动接一次
-
-至少要保证这两件事存在：
+至少要保证这两类接入存在：
 
 1. `getJSBundleFile()` 返回 OTA bundle 路径
 2. `ReactHost` 注册给 `HotUpdater`
@@ -47,7 +44,7 @@ override val reactHost: ReactHost
   }
 ```
 
-如果你的 `MainApplication.kt` 没有这两处，即使：
+如果最终 `MainApplication.kt` 没有命中这些接入，即使：
 
 - manifest 正常
 - zip 正常下载
@@ -107,7 +104,7 @@ export const hotUpdater = createOssHotUpdater({
 });
 ```
 
-如果 manifest 是固定 JSON 路径，优先使用 `createOssHotUpdater`。  
+如果 manifest 是固定 JSON 路径，优先使用 `createOssHotUpdater`。
 只有在 manifest 获取逻辑很特殊时，才退回 `createHotUpdater(...)`。
 
 ## 第二步：创建 Provider
@@ -187,7 +184,7 @@ export function HotUpdaterProvider({ children }: { children: React.ReactNode }) 
 export { useHotUpdaterContext };
 ```
 
-## 第三步：入口保留 wrapApp
+## 第三步：入口必须保留 wrapApp
 
 ```ts
 const AppWithHotUpdater = hotUpdater.wrapApp(App);
@@ -195,10 +192,10 @@ const AppWithHotUpdater = hotUpdater.wrapApp(App);
 export default AppWithHotUpdater;
 ```
 
-这里的作用主要是：
+这里的作用是：
 
 - 挂接 `HotUpdater.wrap(...)`
-- 复用 resolver
+- 注册底层 resolver；否则 `HotUpdater.checkForUpdate(...)` 无法知道如何获取 manifest
 - 保证原生更新运行时逻辑完整
 
 ## 第四步：启动页触发并行检查
@@ -282,3 +279,12 @@ manifest 是固定路径 JSON，不建议强缓存。推荐至少做一项：
 2. 服务端 / CDN 为 manifest 配置 `Cache-Control: no-cache`
 
 `bundle.zip` 则可以长期缓存，因为它天然是带 `bundleId` 的不可变资源。
+
+## Release 验证 Checklist
+
+- 使用 Release 包验证，Dev 模式只会返回“热更新仅在 Release 包中生效”
+- manifest 404 / 网络失败时，启动页仍能继续进入业务流程
+- 非强更：后台下载完成后按 `optionalUpdatePromptHandler` 提示或标记下次应用
+- 强更：下载完成后触发 reload
+- Android：重启后 `bundleId` 变化，确认原生入口确实使用 OTA bundle
+- 临时下线：manifest 中 `release.disabled: true` 后客户端不再下载该 release
