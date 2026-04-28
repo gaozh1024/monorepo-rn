@@ -1,10 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import {
   useMotionConfig,
   type PressMotionPreset,
@@ -12,9 +7,9 @@ import {
   type SheetMotionProps,
 } from '@/ui/motion';
 import { Icon } from '@/ui/display';
-import { AppPressable, AppText, AppView } from '@/ui/primitives';
+import { AppPressable, AppScrollView, AppText, AppView } from '@/ui/primitives';
 import { cn } from '@/utils';
-import { BottomSheetModal } from './BottomSheetModal';
+import { BottomSheetModal } from './BottomSheetModal.web';
 import { type FormThemeColors, useFormThemeColors } from './useFormTheme';
 import {
   type CommonLayoutProps,
@@ -26,10 +21,6 @@ import {
 } from '../utils/layout-shortcuts';
 import { useOptionalTheme } from '@/theme';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
-
-// Give React Native a short window to emit `onMomentumScrollBegin` before snapping
-// a drag that ended without momentum.
-const SCROLL_END_DRAG_MOMENTUM_DELAY_MS = 32;
 
 export type PickerValue = string | number;
 
@@ -107,144 +98,29 @@ function normalizeValues(columns: PickerColumn[], values?: PickerValue[]) {
   });
 }
 
-interface WheelPickerColumnProps {
+interface WebPickerColumnProps {
   colors: FormThemeColors;
   column: PickerColumn;
+  columnIndex: number;
   motionPreset: PressMotionPreset;
   motionDuration?: number;
   motionReduceMotion?: boolean;
   onChange: (value: PickerValue) => void;
-  rowHeight: number;
   selectedValue?: PickerValue;
   showDivider?: boolean;
-  visibleRows: number;
 }
 
-function WheelPickerColumn({
+function WebPickerColumn({
   colors,
   column,
+  columnIndex,
   motionPreset,
   motionDuration,
   motionReduceMotion,
   onChange,
-  rowHeight,
   selectedValue,
   showDivider = false,
-  visibleRows,
-}: WheelPickerColumnProps) {
-  const scrollRef = useRef<ScrollView | null>(null);
-  const isMomentumScrollingRef = useRef(false);
-  const pendingDragEndOffsetYRef = useRef<number | null>(null);
-  const dragEndFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const paddingRows = Math.floor(visibleRows / 2);
-  const selectedIndex = Math.max(
-    0,
-    column.options.findIndex(option => option.value === selectedValue)
-  );
-
-  const scrollToIndex = useCallback(
-    (index: number, animated: boolean) => {
-      scrollRef.current?.scrollTo?.({ y: index * rowHeight, animated });
-    },
-    [rowHeight]
-  );
-
-  const selectNearestEnabled = useCallback(
-    (targetIndex: number) => {
-      if (column.options.length === 0) return;
-
-      const maxIndex = column.options.length - 1;
-      const clampedIndex = Math.max(0, Math.min(maxIndex, targetIndex));
-      const exactOption = column.options[clampedIndex];
-
-      if (exactOption && !exactOption.disabled) {
-        onChange(exactOption.value);
-        scrollToIndex(clampedIndex, true);
-        return;
-      }
-
-      for (let distance = 1; distance <= maxIndex; distance += 1) {
-        const prevIndex = clampedIndex - distance;
-        if (prevIndex >= 0) {
-          const prevOption = column.options[prevIndex];
-          if (prevOption && !prevOption.disabled) {
-            onChange(prevOption.value);
-            scrollToIndex(prevIndex, true);
-            return;
-          }
-        }
-
-        const nextIndex = clampedIndex + distance;
-        if (nextIndex <= maxIndex) {
-          const nextOption = column.options[nextIndex];
-          if (nextOption && !nextOption.disabled) {
-            onChange(nextOption.value);
-            scrollToIndex(nextIndex, true);
-            return;
-          }
-        }
-      }
-    },
-    [column.options, onChange, scrollToIndex]
-  );
-
-  const snapToNearestEnabledOffset = useCallback(
-    (offsetY: number) => {
-      selectNearestEnabled(Math.round(offsetY / rowHeight));
-    },
-    [rowHeight, selectNearestEnabled]
-  );
-
-  const clearDragEndFallback = useCallback(() => {
-    if (dragEndFallbackTimerRef.current !== null) {
-      clearTimeout(dragEndFallbackTimerRef.current);
-      dragEndFallbackTimerRef.current = null;
-    }
-  }, []);
-
-  const handleMomentumScrollBegin = useCallback(() => {
-    isMomentumScrollingRef.current = true;
-    pendingDragEndOffsetYRef.current = null;
-    clearDragEndFallback();
-  }, [clearDragEndFallback]);
-
-  const handleMomentumScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offsetY = event.nativeEvent.contentOffset?.y ?? 0;
-
-      isMomentumScrollingRef.current = false;
-      pendingDragEndOffsetYRef.current = null;
-      clearDragEndFallback();
-      snapToNearestEnabledOffset(offsetY);
-    },
-    [clearDragEndFallback, snapToNearestEnabledOffset]
-  );
-
-  const handleScrollEndDrag = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offsetY = event.nativeEvent.contentOffset?.y ?? 0;
-
-      pendingDragEndOffsetYRef.current = offsetY;
-      clearDragEndFallback();
-      dragEndFallbackTimerRef.current = setTimeout(() => {
-        const pendingOffsetY = pendingDragEndOffsetYRef.current;
-
-        dragEndFallbackTimerRef.current = null;
-        if (pendingOffsetY === null || isMomentumScrollingRef.current) return;
-
-        pendingDragEndOffsetYRef.current = null;
-        snapToNearestEnabledOffset(pendingOffsetY);
-      }, SCROLL_END_DRAG_MOMENTUM_DELAY_MS);
-    },
-    [clearDragEndFallback, snapToNearestEnabledOffset]
-  );
-
-  useEffect(() => {
-    scrollToIndex(selectedIndex, false);
-  }, [scrollToIndex, selectedIndex]);
-
-  useEffect(() => clearDragEndFallback, [clearDragEndFallback]);
-
+}: WebPickerColumnProps) {
   return (
     <AppView
       flex
@@ -261,117 +137,49 @@ function WheelPickerColumn({
         </AppView>
       )}
 
-      <AppView
-        style={[
-          styles.wheelViewport,
-          {
-            height: rowHeight * visibleRows,
-            backgroundColor: colors.surface,
-          },
-        ]}
+      <AppScrollView
+        testID={`picker-column-${column.key}`}
+        accessibilityRole="list"
+        style={styles.columnOptions}
+        showsVerticalScrollIndicator
       >
-        <ScrollView
-          ref={scrollRef}
-          showsVerticalScrollIndicator={false}
-          snapToInterval={rowHeight}
-          decelerationRate="fast"
-          onMomentumScrollBegin={handleMomentumScrollBegin}
-          onMomentumScrollEnd={handleMomentumScrollEnd}
-          onScrollEndDrag={handleScrollEndDrag}
-          contentContainerStyle={{ paddingVertical: rowHeight * paddingRows }}
-        >
-          {column.options.map((option, index) => {
-            const selected = option.value === selectedValue;
-
-            return (
-              <AppPressable
-                key={`${column.key}-${String(option.value)}-${index}`}
-                disabled={option.disabled}
-                onPress={() => {
-                  if (option.disabled) return;
-                  onChange(option.value);
-                  scrollToIndex(index, true);
-                }}
-                style={[
-                  styles.optionButton,
-                  {
-                    height: rowHeight,
-                    opacity: option.disabled ? 0.35 : selected ? 1 : 0.72,
-                  },
-                ]}
-                motionPreset={motionPreset}
-                motionDuration={motionDuration}
-                motionReduceMotion={motionReduceMotion}
+        {column.options.map((option, index) => {
+          const selected = option.value === selectedValue;
+          return (
+            <AppPressable
+              key={`${column.key}-${String(option.value)}-${index}`}
+              testID={`picker-option-${columnIndex}-${String(option.value)}`}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: Boolean(option.disabled), selected }}
+              disabled={option.disabled}
+              onPress={() => {
+                if (!option.disabled) onChange(option.value);
+              }}
+              style={[
+                styles.optionButton,
+                {
+                  opacity: option.disabled ? 0.35 : selected ? 1 : 0.72,
+                  backgroundColor: selected ? colors.primarySurface : 'transparent',
+                },
+              ]}
+              motionPreset={motionPreset}
+              motionDuration={motionDuration}
+              motionReduceMotion={motionReduceMotion}
+            >
+              <AppText
+                className={cn(selected ? 'font-semibold' : undefined)}
+                style={{ color: selected ? colors.primary : colors.text }}
               >
-                <AppText
-                  className={cn(selected ? 'font-semibold' : undefined)}
-                  style={{ color: selected ? colors.primary : colors.text }}
-                >
-                  {option.label}
-                </AppText>
-              </AppPressable>
-            );
-          })}
-        </ScrollView>
-
-        <AppView
-          pointerEvents="none"
-          style={[
-            styles.fadeMask,
-            {
-              top: 0,
-              height: rowHeight * paddingRows,
-            },
-          ]}
-        >
-          {[0.92, 0.72, 0.48, 0.24].map(opacity => (
-            <AppView
-              key={`top-${opacity}`}
-              flex
-              style={{ backgroundColor: colors.surface, opacity }}
-            />
-          ))}
-        </AppView>
-
-        <AppView
-          pointerEvents="none"
-          style={[
-            styles.fadeMask,
-            {
-              bottom: 0,
-              height: rowHeight * paddingRows,
-            },
-          ]}
-        >
-          {[0.24, 0.48, 0.72, 0.92].map(opacity => (
-            <AppView
-              key={`bottom-${opacity}`}
-              flex
-              style={{ backgroundColor: colors.surface, opacity }}
-            />
-          ))}
-        </AppView>
-
-        <AppView
-          pointerEvents="none"
-          style={[
-            styles.selectionOverlay,
-            {
-              top: rowHeight * paddingRows,
-              height: rowHeight,
-              borderColor: colors.divider,
-              backgroundColor: colors.primarySurface,
-            },
-          ]}
-        />
-      </AppView>
+                {option.label}
+              </AppText>
+            </AppPressable>
+          );
+        })}
+      </AppScrollView>
     </AppView>
   );
 }
 
-/**
- * Picker - 通用多列滚轮选择器，适用于日期、省市区等多列选择场景
- */
 export function Picker({
   flex,
   m,
@@ -406,8 +214,6 @@ export function Picker({
   defaultTempValue,
   onTempChange,
   onOpen,
-  rowHeight = 40,
-  visibleRows = 5,
   motionPreset,
   motionDistance,
   motionOverlayOpacity,
@@ -428,7 +234,6 @@ export function Picker({
   const resolvedBgColor =
     resolveSurfaceColor(surface, theme, isDark) ?? resolveNamedColor(bg, theme, isDark);
   const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
-
   const isControlledTemp = tempValue !== undefined;
   const tempValues = useMemo(
     () => (isControlledTemp ? normalizeValues(columns, tempValue) : internalTempValues),
@@ -452,7 +257,6 @@ export function Picker({
   const displayText = useMemo(() => {
     if (!value || value.length === 0) return placeholder;
     if (renderDisplayText) return renderDisplayText(selectedOptions);
-
     const labels = selectedOptions.map(option => option?.label).filter(Boolean);
     return labels.length > 0 ? labels.join(' / ') : placeholder;
   }, [placeholder, renderDisplayText, selectedOptions, value]);
@@ -460,11 +264,9 @@ export function Picker({
   const setTempValues = useCallback(
     (nextValues: PickerValue[]) => {
       const normalized = normalizeValues(columns, nextValues);
-      if (isControlledTemp) {
-        onTempChange?.(normalized);
-        return;
+      if (!isControlledTemp) {
+        setInternalTempValues(normalized);
       }
-      setInternalTempValues(normalized);
       onTempChange?.(normalized);
     },
     [columns, isControlledTemp, onTempChange]
@@ -479,9 +281,10 @@ export function Picker({
     [setTempValues, tempValues]
   );
 
+  const close = useCallback(() => setVisible(false), []);
+
   const openModal = useCallback(() => {
     const normalized = normalizeValues(columns, tempValue ?? value ?? defaultTempValue);
-
     if (!isControlledTemp) {
       setInternalTempValues(normalized);
     }
@@ -504,11 +307,16 @@ export function Picker({
       ]}
     >
       <AppPressable
-        className={cn(
-          'flex-row items-center justify-between px-4 py-3 rounded-lg',
-          disabled ? 'opacity-60' : '',
-          className
-        )}
+        testID="picker-trigger"
+        accessibilityRole="button"
+        accessibilityState={{ disabled, expanded: visible }}
+        row
+        items="center"
+        justify="between"
+        px={16}
+        py={12}
+        rounded={rounded ?? 'lg'}
+        className={cn(disabled ? 'opacity-60' : '', className)}
         style={[
           styles.trigger,
           resolveSizingStyle({ h, minW, minH, maxW, maxH }),
@@ -533,7 +341,7 @@ export function Picker({
 
       <BottomSheetModal
         visible={visible}
-        onRequestClose={() => setVisible(false)}
+        onRequestClose={close}
         overlayColor={colors.overlay}
         surfaceColor={colors.surface}
         closeOnBackdropPress
@@ -555,8 +363,9 @@ export function Picker({
             style={[styles.header, { borderBottomColor: colors.divider }]}
           >
             <AppPressable
-              onPress={() => setVisible(false)}
-              className="py-1"
+              testID="picker-cancel"
+              onPress={close}
+              py={4}
               pressedClassName="opacity-70"
               motionPreset={resolvedMotionPreset}
               motionDuration={motionDuration}
@@ -568,8 +377,9 @@ export function Picker({
               {pickerTitle}
             </AppText>
             <AppPressable
+              testID="picker-confirm"
               onPress={handleConfirm}
-              className="py-1"
+              py={4}
               pressedClassName="opacity-70"
               motionPreset={resolvedMotionPreset}
               motionDuration={motionDuration}
@@ -583,18 +393,17 @@ export function Picker({
 
           <AppView row>
             {columns.map((column, index) => (
-              <WheelPickerColumn
+              <WebPickerColumn
                 key={column.key}
                 colors={colors}
                 column={column}
+                columnIndex={index}
                 motionPreset={resolvedMotionPreset}
                 motionDuration={motionDuration}
                 motionReduceMotion={motionReduceMotion}
                 onChange={nextValue => updateColumnValue(index, nextValue)}
-                rowHeight={rowHeight}
                 selectedValue={tempValues[index]}
                 showDivider={index < columns.length - 1}
-                visibleRows={visibleRows}
               />
             ))}
           </AppView>
@@ -604,7 +413,7 @@ export function Picker({
               className="px-4 py-3"
               style={[styles.footer, { borderTopColor: colors.divider }]}
             >
-              {renderFooter({ close: () => setVisible(false), setTempValues, tempValues })}
+              {renderFooter({ close, setTempValues, tempValues })}
             </AppView>
           )}
         </>
@@ -626,24 +435,14 @@ const styles = StyleSheet.create({
   columnDivider: {
     borderRightWidth: 0.5,
   },
-  wheelViewport: {
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  fadeMask: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-  },
-  selectionOverlay: {
-    position: 'absolute',
-    left: 8,
-    right: 8,
-    borderRadius: 12,
-    borderWidth: 0.5,
+  columnOptions: {
+    maxHeight: 320,
   },
   optionButton: {
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 10,
   },
 });

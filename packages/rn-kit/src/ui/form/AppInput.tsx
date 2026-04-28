@@ -4,21 +4,14 @@ import {
   TextInputProps,
   View,
   StyleSheet,
+  Platform,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import { AppView, AppText } from '@/ui/primitives';
 import { useThemeColors } from '@/theme';
-import { cn } from '@/utils';
-import {
-  type CommonLayoutProps,
-  type LayoutSurface,
-  resolveLayoutStyle,
-  resolveRoundedStyle,
-  resolveSizingStyle,
-  resolveSpacingStyle,
-} from '../utils/layout-shortcuts';
+import { type CommonLayoutProps, type LayoutSurface } from '../utils/layout-shortcuts';
 import { useOptionalTheme } from '@/theme';
 import { resolveNamedColor, resolveSurfaceColor } from '../utils/theme-color';
 
@@ -105,6 +98,14 @@ const CONTAINER_STYLE_KEYS = new Set<keyof ViewStyle>([
   'borderBottomRightRadius',
 ]);
 
+const webInputFocusReset =
+  Platform.OS === 'web'
+    ? ({
+        outlineStyle: 'none',
+        outlineWidth: 0,
+      } as unknown as TextStyle)
+    : undefined;
+
 function splitInputStyles(style?: StyleProp<TextStyle>) {
   const flattened = StyleSheet.flatten(style) ?? {};
   const nextContainerStyle: ViewStyle = {};
@@ -181,12 +182,17 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
 
     return (
       <AppView
-        className={cn('flex-col gap-1', className)}
-        style={[
-          resolveLayoutStyle({ flex }),
-          resolveSpacingStyle({ m, mx, my, mt, mb, ml, mr }),
-          resolveSizingStyle({ w }),
-        ]}
+        flex={flex}
+        m={m}
+        mx={mx}
+        my={my}
+        mt={mt}
+        mb={mb}
+        ml={ml}
+        mr={mr}
+        w={w}
+        gap={4}
+        className={className}
       >
         {label && (
           <AppText size="sm" weight="medium" style={{ color: colors.textSecondary }}>
@@ -197,12 +203,16 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
           testID={props.testID ? `${props.testID}-container` : undefined}
           row
           items="center"
-          className="rounded-lg px-3"
+          px={12}
+          h={h}
+          minW={minW}
+          minH={minH}
+          maxW={maxW}
+          maxH={maxH}
+          rounded={rounded ?? 'lg'}
           style={[
             styles.inputContainer,
             resolvedBgColor ? { backgroundColor: resolvedBgColor } : undefined,
-            resolveSizingStyle({ h, minW, minH, maxW, maxH }),
-            resolveRoundedStyle(rounded),
             resolvedStyles.containerStyle,
             containerStyle,
             {
@@ -215,8 +225,14 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
           {leftIcon && <View style={styles.icon}>{leftIcon}</View>}
           <TextInput
             ref={ref}
-            className="flex-1 py-3 text-base"
-            style={[styles.input, { color: colors.text }, resolvedStyles.inputStyle, inputStyle]}
+            className=""
+            style={[
+              styles.input,
+              webInputFocusReset,
+              { color: colors.text },
+              resolvedStyles.inputStyle,
+              inputStyle,
+            ]}
             placeholderTextColor={colors.textMuted}
             editable={!disabled}
             onFocus={e => {
@@ -251,8 +267,13 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   input: {
-    padding: 0,
+    flex: 1,
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingLeft: 0,
+    paddingRight: 0,
     margin: 0,
+    fontSize: 16,
   },
   icon: {
     marginHorizontal: 4,

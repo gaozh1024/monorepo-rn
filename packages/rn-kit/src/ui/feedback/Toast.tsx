@@ -1,4 +1,4 @@
-import Animated from 'react-native-reanimated';
+import { PresenceSurface } from '../motion/components/PresenceSurface';
 import { AppView, AppText } from '../primitives';
 import { useOptionalTheme } from '@/theme';
 import { useMotionConfig, type PresenceMotionProps } from '../motion';
@@ -67,7 +67,7 @@ export function Toast({
   const currentPalette = palette[type];
 
   return (
-    <Animated.View style={presence.animatedStyle}>
+    <PresenceSurface style={presence.animatedStyle}>
       <AppView
         testID={testID}
         className="px-4 py-3 rounded-lg"
@@ -75,6 +75,6 @@ export function Toast({
       >
         <AppText style={{ color: currentPalette.textColor }}>{message}</AppText>
       </AppView>
-    </Animated.View>
+    </PresenceSurface>
   );
 }

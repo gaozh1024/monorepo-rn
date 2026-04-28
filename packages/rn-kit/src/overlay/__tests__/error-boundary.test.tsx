@@ -25,6 +25,14 @@ function RecoverableCrashHarness() {
   );
 }
 
+function flattenStyle(style: any): Record<string, any> {
+  if (!style) return {};
+  if (Array.isArray(style)) {
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  return style;
+}
+
 describe('AppErrorBoundary', () => {
   it('应该捕获渲染错误并写入 logger', () => {
     const entries: LogEntry[] = [];
@@ -63,6 +71,13 @@ describe('AppErrorBoundary', () => {
     );
 
     expect(getByText('页面发生异常')).toBeTruthy();
+    expect(flattenStyle(getByTestId('app-error-boundary-reset').props.style)).toMatchObject({
+      paddingTop: 12,
+      paddingBottom: 12,
+      paddingLeft: 16,
+      paddingRight: 16,
+      borderRadius: 12,
+    });
     fireEvent.press(getByTestId('app-error-boundary-reset'));
 
     expect(getByTestId('recovered')).toBeTruthy();

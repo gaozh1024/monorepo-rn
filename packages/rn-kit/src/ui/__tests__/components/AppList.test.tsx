@@ -4,7 +4,7 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { act, create } from 'react-test-renderer';
 import { FlatList, TouchableWithoutFeedback } from 'react-native';
 import { AppList } from '../../display/AppList';
-import { AppText } from '../../primitives';
+import { AppPressable, AppText } from '../../primitives';
 import { ThemeProvider, createTheme } from '@/theme';
 
 const theme = createTheme({
@@ -82,6 +82,25 @@ describe('AppList', () => {
     expect(getByText('请稍后重试')).toBeTruthy();
     fireEvent.press(getByText('再试一次'));
     expect(onRetry).toHaveBeenCalled();
+  });
+
+  it('错误重试按钮应该用内联快捷参数提供点击区域', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <AppList data={[]} renderItem={() => null} error={new Error('')} onRetry={vi.fn()} />
+        </ThemeProvider>
+      );
+    });
+
+    const retryButton = renderer!.root.findByType(AppPressable);
+
+    expect(retryButton.props.mt).toBe(24);
+    expect(retryButton.props.px).toBe(16);
+    expect(retryButton.props.py).toBe(8);
+    expect(retryButton.props.rounded).toBe('lg');
   });
 
   it('应该支持将组件类型作为 ListFooterComponent 传入', () => {

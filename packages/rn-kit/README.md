@@ -25,6 +25,10 @@
 
 这样页面切换、主题切换时，状态栏会自动跟随全局主题变化。
 
+## 🌐 Web support
+
+`rn-kit` publishes a browser bundle and maintains a Web support matrix for Expo Web / React Native Web usage. See [docs/web-support-matrix.md](./docs/web-support-matrix.md) for supported components, conditional requirements, known limitations, and release verification commands.
+
 ## 📦 安装
 
 ```bash
@@ -277,9 +281,12 @@ import {
   - 开启 `dismissKeyboardOnPressOutside` 时默认补上 `keyboardShouldPersistTaps="handled"`
 - `KeyboardDismissView` 适合非页面容器、自定义布局场景下单独包裹使用
 - `KeyboardInsetView` 适合底部输入栏 / 评论框 / 聊天输入区的键盘避让
-- `AppInput` 的尺寸控制建议：
+- `AppInput` 的尺寸与样式控制建议：
   - `style={{ height: 56 }}` 会作用到输入框外层容器
-  - 更明确的写法可以使用 `containerStyle` / `inputStyle`
+  - `h` / `minH` / `maxH` / `rounded` / `bg` / `surface` 作用于输入容器
+  - 文本字号、行高、文本内边距等更细粒度样式请使用 `inputStyle`
+  - 输入容器边框、背景、圆角等覆盖请使用 `containerStyle`
+  - Web 端已内置原生 `input:focus` outline reset，只保留 rn-kit 外层 focus 边框
 - 表单类触发器补充说明：
   - `AppInput` / `Select` / `Picker` / `DatePicker` 现已支持一套“外层基础快捷参数”
   - 常用场景：
@@ -297,37 +304,37 @@ import {
 
 #### 容器快捷参数支持矩阵
 
-| 组件            | 默认行为                         | 支持快捷参数                                                                                       | 补充说明                                                                                          |
-| --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `AppView`       | 基础容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 通用容器基座                                                                                      |
-| `Row`           | `row`，默认 `items="center"`     | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                                                            |
-| `Col`           | 纵向布局，默认 `items="stretch"` | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                                                            |
-| `Center`        | 强制居中，默认不撑满             | 继承 `AppView` 大部分快捷参数                                                                      | 内部固定 `center`，需要铺满时请显式传 `flex`                                                      |
-| `AppScrollView` | 滚动容器                         | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | `row` / `items` / `justify` 作用于 `contentContainerStyle`                                        |
-| `AppFlatList`   | 虚拟列表容器                     | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | 保持原生 `FlatListProps<T>`，适合常规高性能列表场景                                               |
-| `AppPressable`  | 可点击容器                       | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 适合作为“可点击的 `AppView`”，保留 `pressedClassName`，且兼容原生 `style(state)`                  |
-| `AppText`       | 基础文本                         | `flex` / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                  | 仅保留适合文本的快捷参数，不支持 `row/gap/items/justify` 等容器语义                               |
-| `GradientView`  | 渐变背景容器                     | 布局 / 间距 / 尺寸 / `rounded`                                                                     | 适合页面头图、Banner、渐变卡片容器                                                                |
-| `AppImage`      | 图片组件                         | 外层支持：`flex` / 外边距 / 尺寸 / `rounded` / `bg` / `surface`                                    | 保留 `width/height/borderRadius` 兼容写法，并新增快捷别名；`style` 中的宽高也会自动提取到外层容器 |
-| `Icon`          | 图标组件                         | 外层支持：`flex` / 间距 / 尺寸 / `rounded` / `bg` / `surface`                                      | 适合做图标按钮、徽标入口、状态图标容器                                                            |
-| `AppButton`     | 按钮                             | `flex` / 外边距 / 尺寸 / `rounded`                                                                 | `size` 继续控制默认内边距；快捷参数主要用于外层排版                                               |
-| `Card`          | 卡片容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 另有 `noShadow` / `noBorder` / `noRadius`                                                         |
-| `AppList`       | 高级列表组件                     | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | 和 `AppFlatList` 保持一致，适合直接承载业务空态/错态/骨架                                         |
-| `SegmentedTabs` | 滑块式 Tab/Menu 切换条           | 外层支持：`flex` / 外边距 / 尺寸；滑块支持 `indicatorStyle` / `indicatorInset`                     | 适合页面内分类、状态筛选；点击后底层 `Animated.View` 会左右滑动到选中项                           |
-| `AppInput`      | 输入框                           | 外层支持：`flex` / 外边距；输入容器支持：尺寸 / `rounded` / `bg` / `surface`                       | 更细粒度仍推荐配合 `containerStyle` / `inputStyle`                                                |
-| `Checkbox`      | 复选框                           | 外层支持：`flex` / 间距 / `gap` / 尺寸 / `rounded` / `bg` / `surface`                              | 适合直接扩展点击热区、间距和标签排版                                                              |
-| `Radio`         | 单选框                           | 外层支持：`flex` / 间距 / `gap` / 尺寸 / `rounded` / `bg` / `surface`                              | 与 `Checkbox` 保持一致，便于统一表单行样式                                                        |
-| `Switch`        | 开关                             | 外层支持：`flex` / 外边距；轨道支持：`rounded`                                                     | 尺寸仍建议优先使用 `size`，`style` 继续可用于细调轨道                                             |
-| `Slider`        | 滑块                             | 外层支持：`flex` / 外边距 / 宽度；轨道支持：`rounded` / `bg` / `surface`                           | 更适合直接控制组件占位宽度与轨道观感                                                              |
-| `CheckboxGroup` | 复选组                           | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 组容器本身按 `AppView` 思路工作，子项仍使用 `Checkbox`                                            |
-| `RadioGroup`    | 单选组                           | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 组容器本身按 `AppView` 思路工作，子项仍使用 `Radio`                                               |
-| `Select`        | 选项选择器                       | 外层支持：`flex` / 外边距；触发器支持：尺寸 / `rounded` / `bg` / `surface`                         | 适合单选 / 多选列表型选择                                                                         |
-| `Picker`        | 通用多列滚轮选择器               | 外层支持：`flex` / 外边距；触发器支持：尺寸 / `rounded` / `bg` / `surface`                         | 适合省市区、级联、多列滚轮选择                                                                    |
-| `DatePicker`    | 日期滚轮选择器                   | 继承 `Picker` 的同一套基础快捷参数                                                                 | 仅封装日期语义与快捷按钮                                                                          |
-| `FormItem`      | 表单项容器                       | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 适合统一表单块容器、说明区、帮助文案区                                                            |
-| `Progress`      | 进度条                           | 外层支持：`flex` / 外边距 / 尺寸；轨道支持：`rounded` / `bg` / `surface`                           | `size` 继续负责默认高度语义，`h` 可用于显式覆盖                                                   |
-| `SafeScreen`    | 底层安全区容器                   | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=true` / `bottom=true`，安全区 inset 会自动并入 padding                                  |
-| `AppScreen`     | 页面语义容器                     | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=false` / `bottom=true`，更适合带 `AppHeader` 的页面                                     |
+| 组件            | 默认行为                         | 支持快捷参数                                                                                       | 补充说明                                                                                           |
+| --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `AppView`       | 基础容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 通用容器基座                                                                                       |
+| `Row`           | `row`，默认 `items="center"`     | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                                                             |
+| `Col`           | 纵向布局，默认 `items="stretch"` | 继承 `AppView` 全部快捷参数                                                                        | `justify` 默认 `start`                                                                             |
+| `Center`        | 强制居中，默认不撑满             | 继承 `AppView` 大部分快捷参数                                                                      | 内部固定 `center`，需要铺满时请显式传 `flex`                                                       |
+| `AppScrollView` | 滚动容器                         | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | `row` / `items` / `justify` 作用于 `contentContainerStyle`                                         |
+| `AppFlatList`   | 虚拟列表容器                     | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | 保持原生 `FlatListProps<T>`，适合常规高性能列表场景                                                |
+| `AppPressable`  | 可点击容器                       | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 适合作为“可点击的 `AppView`”，保留 `pressedClassName`，且兼容原生 `style(state)`                   |
+| `AppText`       | 基础文本                         | `flex` / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                  | 仅保留适合文本的快捷参数，不支持 `row/gap/items/justify` 等容器语义                                |
+| `GradientView`  | 渐变背景容器                     | 布局 / 间距 / 尺寸 / `rounded`                                                                     | 适合页面头图、Banner、渐变卡片容器                                                                 |
+| `AppImage`      | 图片组件                         | 外层支持：`flex` / 外边距 / 尺寸 / `rounded` / `bg` / `surface`                                    | 保留 `width/height/borderRadius` 兼容写法，并新增快捷别名；`style` 中的宽高也会自动提取到外层容器  |
+| `Icon`          | 图标组件                         | 外层支持：`flex` / 间距 / 尺寸 / `rounded` / `bg` / `surface`                                      | 适合做图标按钮、徽标入口、状态图标容器                                                             |
+| `AppButton`     | 按钮                             | `flex` / 外边距 / 尺寸 / `rounded`                                                                 | `size` 继续控制默认内边距；快捷参数主要用于外层排版                                                |
+| `Card`          | 卡片容器                         | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 另有 `noShadow` / `noBorder` / `noRadius`                                                          |
+| `AppList`       | 高级列表组件                     | 外层支持：`flex` / 外边距 / 尺寸 / `bg` / `surface` / `rounded`；内容区支持：布局 / 内边距 / `gap` | 和 `AppFlatList` 保持一致，适合直接承载业务空态/错态/骨架                                          |
+| `SegmentedTabs` | 滑块式 Tab/Menu 切换条           | 外层支持：`flex` / 外边距 / 尺寸；滑块支持 `indicatorStyle` / `indicatorInset`                     | 适合页面内分类、状态筛选；点击后底层 `Animated.View` 会左右滑动到选中项                            |
+| `AppInput`      | 输入框                           | 外层支持：`flex` / 外边距 / `w`；输入容器支持：尺寸 / `rounded` / `bg` / `surface`                 | 内置布局、内边距、圆角和字号不依赖 `className`；更细粒度仍推荐配合 `containerStyle` / `inputStyle` |
+| `Checkbox`      | 复选框                           | 外层支持：`flex` / 间距 / `gap` / 尺寸 / `rounded` / `bg` / `surface`                              | 适合直接扩展点击热区、间距和标签排版                                                               |
+| `Radio`         | 单选框                           | 外层支持：`flex` / 间距 / `gap` / 尺寸 / `rounded` / `bg` / `surface`                              | 与 `Checkbox` 保持一致，便于统一表单行样式                                                         |
+| `Switch`        | 开关                             | 外层支持：`flex` / 外边距；轨道支持：`rounded`                                                     | 尺寸仍建议优先使用 `size`，`style` 继续可用于细调轨道                                              |
+| `Slider`        | 滑块                             | 外层支持：`flex` / 外边距 / 宽度；轨道支持：`rounded` / `bg` / `surface`                           | 更适合直接控制组件占位宽度与轨道观感                                                               |
+| `CheckboxGroup` | 复选组                           | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 组容器本身按 `AppView` 思路工作，子项仍使用 `Checkbox`                                             |
+| `RadioGroup`    | 单选组                           | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 组容器本身按 `AppView` 思路工作，子项仍使用 `Radio`                                                |
+| `Select`        | 选项选择器                       | 外层支持：`flex` / 外边距；触发器支持：尺寸 / `rounded` / `bg` / `surface`                         | 适合单选 / 多选列表型选择                                                                          |
+| `Picker`        | 通用多列滚轮选择器               | 外层支持：`flex` / 外边距；触发器支持：尺寸 / `rounded` / `bg` / `surface`                         | 适合省市区、级联、多列滚轮选择                                                                     |
+| `DatePicker`    | 日期滚轮选择器                   | 继承 `Picker` 的同一套基础快捷参数                                                                 | 仅封装日期语义与快捷按钮                                                                           |
+| `FormItem`      | 表单项容器                       | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 适合统一表单块容器、说明区、帮助文案区                                                             |
+| `Progress`      | 进度条                           | 外层支持：`flex` / 外边距 / 尺寸；轨道支持：`rounded` / `bg` / `surface`                           | `size` 继续负责默认高度语义，`h` 可用于显式覆盖                                                    |
+| `SafeScreen`    | 底层安全区容器                   | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=true` / `bottom=true`，安全区 inset 会自动并入 padding                                   |
+| `AppScreen`     | 页面语义容器                     | 布局 / 间距 / 尺寸 / `bg` / `surface` / `rounded` / `className`                                    | 默认 `top=false` / `bottom=true`，更适合带 `AppHeader` 的页面                                      |
 
 `SegmentedTabs` 示例：
 
@@ -386,6 +393,8 @@ const tabs = [
 ```
 
 > 说明：`className` 依然走 NativeWind；上表中的快捷参数本身已经由框架直接转换为内联 `style`。
+>
+> Web / App 样式一致性约定：框架内置组件的关键布局、点击热区、输入框内边距、圆角和字号不应只依赖 `className`。`className` 仍可用于业务侧追加装饰样式；如果该样式影响可用性或移动端 Web 首屏体验，请优先使用快捷参数、`style`、`containerStyle` 或 `inputStyle`。
 
 #### Button 颜色语义
 
@@ -1021,6 +1030,12 @@ import { Presence } from '@gaozh1024/rn-kit';
 - `motionDistance`
 - `motionReduceMotion`
 
+Web 端说明：
+
+- `Presence` / `MotionView` / `StaggerItem` 在 Web 上使用 CSS-backed presence transition，不依赖 Reanimated Web shared value 推进到 `opacity: 1`，因此 `visible={true}` 的内容不会因为动画驱动未运行而停留在透明状态。
+- 初始 `visible={true}` 会直接以最终可见样式渲染；后续 `false -> true` / `true -> false` 切换仍按 opacity / transform / duration 做浏览器原生过渡。
+- 如果导航已经负责 screen mount/unmount，持久 screen 内容通常不需要再用 `Presence visible={useIsFocused()}` 包一层；如果业务确实这么做，Web 端现在也会按最终可见状态收敛。
+
 #### 3. 列表错峰动画
 
 ```tsx
@@ -1225,6 +1240,8 @@ const headerMotion = useCollapsibleHeaderMotion({
 
 如果同时传入 `motionEntering` / `motionExiting` / `motionLayout`，则显式传入值优先。
 
+> Web 端兼容性：显隐类 presence 动画（`Presence` / `MotionView` / `StaggerItem`）使用 CSS transition 适配；`motionEntering` / `motionExiting` / `motionLayout` 这类 Reanimated layout animation 对象只在原生端透传，Web 端会在框架内部丢弃，避免把 Reanimated-only 对象传给 React Native Web host 组件。
+
 #### 7. Spring 动画配置
 
 `Progress` / `Switch` / `Checkbox` / `Radio` / `SegmentedTabs` 现在支持：
@@ -1262,7 +1279,7 @@ const headerMotion = useCollapsibleHeaderMotion({
 - `motionDistance`
 - `motionReduceMotion`
 
-`Presence` / `MotionView` / `StaggerItem` 额外支持基于 reanimated 的布局级动画透传：
+`Presence` / `MotionView` / `StaggerItem` 额外支持基于 reanimated 的布局级动画透传（原生端生效；Web 端显隐动画走 CSS transition，布局动画对象会被安全丢弃）：
 
 - `motionEntering`
 - `motionExiting`

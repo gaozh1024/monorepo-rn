@@ -42,7 +42,7 @@ export function LoadingModal({
           <ActivityIndicator size="large" color="#fff" />
           {text && <AppText className="text-white mt-3 text-sm">{text}</AppText>}
           {showCloseButton && onRequestClose && (
-            <AppPressable testID="loading-close" className="mt-3 p-1" onPress={onRequestClose}>
+            <AppPressable testID="loading-close" mt={12} p={4} onPress={onRequestClose}>
               <Icon name="close" size="md" color="#ffffff" />
             </AppPressable>
           )}

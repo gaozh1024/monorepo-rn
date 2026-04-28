@@ -5,9 +5,10 @@ import type { RootStackParamList } from './types';
 
 const schemePrefix = `${appConfig.appScheme}://`;
 const expoPrefix = `exp+${appConfig.appScheme}://`;
+const webPrefix = typeof window === 'undefined' ? undefined : window.location.origin;
 
 export const appLinking: LinkingOptions<RootStackParamList> = {
-  prefixes: [schemePrefix, expoPrefix],
+  prefixes: [schemePrefix, expoPrefix, ...(webPrefix ? [webPrefix] : [])],
   config: {
     screens: {
       [ROUTES.LAUNCH]: 'launch',
@@ -21,6 +22,7 @@ export const appLinking: LinkingOptions<RootStackParamList> = {
         },
       },
       [ROUTES.GLOBAL_DRAWER]: 'drawer',
+      [ROUTES.WEB_SMOKE]: 'web-smoke',
       [ROUTES.MY_MAIN]: 'profile',
       [ROUTES.USER_INFO]: 'me',
       [ROUTES.SETTINGS]: 'settings',

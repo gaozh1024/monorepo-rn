@@ -12,7 +12,14 @@ export {
 } from './color';
 
 // 平台工具
-export { isDevelopment } from './platform';
+export {
+  isDevelopment,
+  isWeb,
+  isNative,
+  supportsHover,
+  supportsFinePointer,
+  prefersReducedMotion,
+} from './platform';
 
 // 日期工具
 export { formatDate, formatRelativeTime } from './date/index';

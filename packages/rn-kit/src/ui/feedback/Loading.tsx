@@ -97,7 +97,8 @@ export function Loading({
       {showCloseButton && onClose && (
         <AppPressable
           testID={testID ? `${testID}-close` : 'loading-close'}
-          className="mt-1 p-1"
+          mt={4}
+          p={4}
           onPress={onClose}
         >
           <Icon name="close" size="md" color={color || 'white'} />

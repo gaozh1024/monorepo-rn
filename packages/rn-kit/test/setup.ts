@@ -40,7 +40,8 @@ const shouldIgnoreTestNoise = (value: string) =>
   value.includes('react-test-renderer is deprecated') ||
   value.includes('An update to Switch inside a test was not wrapped in act') ||
   value.includes('An update to AppPressable inside a test was not wrapped in act') ||
-  value.includes('An update to CollapseView inside a test was not wrapped in act');
+  value.includes('An update to CollapseView inside a test was not wrapped in act') ||
+  value.includes('An update to BottomSheetModal inside a test was not wrapped in act');
 
 beforeAll(() => {
   vi.spyOn(console, 'error').mockImplementation((message?: unknown, ...args: unknown[]) => {
@@ -274,7 +275,11 @@ vi.mock('@testing-library/react-native', async () => {
         queryByText,
         getByPlaceholderText,
         queryByPlaceholderText,
-        unmount: () => renderer.unmount(),
+        unmount: () => {
+          act(() => {
+            renderer.unmount();
+          });
+        },
         rerender: (nextUi: React.ReactElement) => {
           act(() => {
             renderer.update(nextUi);
@@ -299,7 +304,11 @@ vi.mock('@testing-library/react-native', async () => {
       });
       return {
         result,
-        unmount: () => renderer?.unmount(),
+        unmount: () => {
+          act(() => {
+            renderer?.unmount();
+          });
+        },
         rerender: () => {
           act(() => {
             renderer.update(React.createElement(WrappedComponent));
@@ -757,6 +766,8 @@ vi.mock('react-native-gesture-handler', () => {
   };
 
   return {
+    GestureHandlerRootView: ({ children, ...props }: { children?: React.ReactNode }) =>
+      React.createElement('GestureHandlerRootView', props, children),
     GestureDetector: ({ children }: { children?: React.ReactNode }) =>
       React.createElement(React.Fragment, null, children),
     Gesture: {

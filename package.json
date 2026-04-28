@@ -18,7 +18,8 @@
     "yalc:publish": "pnpm -r --filter='@gaozh1024/*' exec yalc publish",
     "yalc:push": "pnpm -r --filter='@gaozh1024/*' exec yalc push",
     "yalc:update": "pnpm -r --filter='@gaozh1024/*' exec yalc push --replace",
-    "prepare": "husky"
+    "prepare": "husky",
+    "verify:web": "pnpm --dir packages/rn-kit typecheck && pnpm --dir packages/rn-kit test && pnpm --dir packages/rn-kit build && pnpm --dir templates/expo-starter lint"
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",

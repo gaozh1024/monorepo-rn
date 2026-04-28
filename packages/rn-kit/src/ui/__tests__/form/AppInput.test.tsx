@@ -5,6 +5,14 @@ import { fireEvent } from '@testing-library/react-native';
 import { AppInput, AppTextInput } from '../../form/AppInput';
 import { renderWithTheme } from './test-utils';
 
+function flattenStyle(style: any): Record<string, any> {
+  if (!style) return {};
+  if (Array.isArray(style)) {
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  return StyleSheet.flatten(style) ?? {};
+}
+
 describe('AppInput', () => {
   it('应该兼容导出 AppTextInput', () => {
     const { getByTestId } = renderWithTheme(<AppTextInput testID="text-input" value="" />);
@@ -53,7 +61,7 @@ describe('AppInput', () => {
     );
 
     const input = getByTestId('input');
-    const inputStyle = StyleSheet.flatten(input.props.style);
+    const inputStyle = flattenStyle(input.props.style);
 
     expect(inputStyle.height).toBeUndefined();
     expect(getByTestId('input-container')).toBeTruthy();
@@ -64,22 +72,35 @@ describe('AppInput', () => {
       <AppInput testID="input" value="" h={52} rounded="full" bg="primary-500" />
     );
 
-    const style = getByTestId('input-container').props.style;
+    const style = flattenStyle(getByTestId('input-container').props.style);
 
-    expect(style).toEqual(
-      expect.arrayContaining([
-        expect.arrayContaining([
-          expect.objectContaining({
-            height: 52,
-          }),
-          expect.objectContaining({
-            borderRadius: 9999,
-          }),
-          expect.objectContaining({
-            backgroundColor: '#f38b32',
-          }),
-        ]),
-      ])
-    );
+    expect(style).toMatchObject({
+      height: 52,
+      borderRadius: 9999,
+      backgroundColor: '#f38b32',
+    });
+  });
+
+  it('内置布局不依赖 className 注入', () => {
+    const { getByTestId } = renderWithTheme(<AppInput testID="input" value="" />);
+
+    const container = getByTestId('input-container');
+    const containerStyle = flattenStyle(container.props.style);
+    const inputStyle = flattenStyle(getByTestId('input').props.style);
+
+    expect(container.props.className).toBeFalsy();
+    expect(containerStyle).toMatchObject({
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingLeft: 12,
+      paddingRight: 12,
+      borderRadius: 12,
+    });
+    expect(inputStyle).toMatchObject({
+      flex: 1,
+      paddingTop: 12,
+      paddingBottom: 12,
+      fontSize: 16,
+    });
   });
 });

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import Animated from 'react-native-reanimated';
+import { PresenceSurface } from './PresenceSurface';
 import { usePresenceMotion } from '../hooks/usePresenceMotion';
 import { resolveMotionLayoutProps } from '../layout';
 import type { PresencePreset } from '../types';
@@ -67,8 +67,8 @@ export function Presence({
   if (!presence.mounted) return null;
 
   return (
-    <Animated.View style={presence.animatedStyle} {...layoutAnimationProps}>
+    <PresenceSurface style={presence.animatedStyle} {...layoutAnimationProps}>
       {children}
-    </Animated.View>
+    </PresenceSurface>
   );
 }

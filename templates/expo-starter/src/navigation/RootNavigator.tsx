@@ -6,6 +6,7 @@ import { RegisterScreen } from '../features/auth/screens/RegisterScreen';
 import { ForgotPasswordScreen } from '../features/auth/screens/ForgotPasswordScreen';
 import { MainTabs } from './MainTabs';
 import { GlobalDrawerScreen } from '../features/drawer/screens/GlobalDrawerScreen';
+import { WebSmokeScreen } from '../features/web-smoke/screens/WebSmokeScreen';
 import { MyScreen } from '../features/profile/screens/MyScreen';
 import { UserInfoScreen } from '../features/profile/screens/UserInfoScreen';
 import { SettingsScreen } from '../features/profile/screens/SettingsScreen';
@@ -43,6 +44,7 @@ export function RootNavigator() {
             />
             <StackNavigator.Screen name={ROUTES.REGISTER} component={RegisterScreen} />
             <StackNavigator.Screen name={ROUTES.FORGOT_PASSWORD} component={ForgotPasswordScreen} />
+            <StackNavigator.Screen name={ROUTES.WEB_SMOKE} component={WebSmokeScreen} />
           </>
         )}
       </StackNavigator>
@@ -61,6 +63,7 @@ export function RootNavigator() {
 
       {/* 全局抽屉页 */}
       <StackNavigator.Screen name={ROUTES.GLOBAL_DRAWER} component={GlobalDrawerScreen} />
+      <StackNavigator.Screen name={ROUTES.WEB_SMOKE} component={WebSmokeScreen} />
 
       {/* 我的页面组 */}
       <StackNavigator.Screen name={ROUTES.MY_MAIN} component={MyScreen} />

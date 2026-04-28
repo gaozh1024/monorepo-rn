@@ -566,3 +566,12 @@ export function LoginScreen() {
 ## 许可证
 
 MIT
+
+## Web smoke route
+
+This starter includes a Web smoke route at `/web-smoke`. It renders representative `@gaozh1024/rn-kit` components through the package entry so package exports, Web variants, NativeWind, Reanimated/Worklets, Gesture Handler, overlays, forms, and navigation can be checked in a real Expo Web runtime.
+
+```bash
+pnpm web
+# open http://localhost:8081/web-smoke
+```

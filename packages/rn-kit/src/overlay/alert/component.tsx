@@ -3,9 +3,10 @@
  * @module overlay/alert/component
  */
 
-import Animated from 'react-native-reanimated';
+import { PresenceSurface } from '@/ui/motion/components/PresenceSurface';
 import { Modal, StyleSheet } from 'react-native';
 import { AppView, AppText, AppPressable } from '@/ui';
+import { useThemeColors } from '@/theme';
 import { useMotionConfig, usePresenceMotion } from '@/ui/motion';
 import type { AlertOptions } from './types';
 
@@ -35,6 +36,7 @@ export function AlertModal({
   onCancel,
 }: AlertModalProps) {
   const motionConfig = useMotionConfig();
+  const colors = useThemeColors();
   const presence = usePresenceMotion({
     visible,
     preset: motionPreset ?? motionConfig.defaultPresencePreset ?? 'dialog',
@@ -51,21 +53,41 @@ export function AlertModal({
   return (
     <Modal transparent visible={presence.mounted} animationType="none">
       <AppView style={styles.container}>
-        <Animated.View style={[styles.overlay, presence.overlayAnimatedStyle]} />
-        <Animated.View style={[styles.alertBox, presence.animatedStyle]}>
+        <PresenceSurface style={[styles.overlay, presence.overlayAnimatedStyle]} />
+        <PresenceSurface style={[styles.alertBox, presence.animatedStyle]}>
           {title && <AppText className="text-lg font-semibold text-center mb-2">{title}</AppText>}
           {message && <AppText className="text-gray-600 text-center mb-4">{message}</AppText>}
           <AppView row gap={3} className="mt-2">
             {showCancel && (
-              <AppPressable onPress={onCancel} className="flex-1 py-3 bg-gray-100 rounded-lg">
-                <AppText className="text-center text-gray-700">{cancelText || '取消'}</AppText>
+              <AppPressable
+                onPress={onCancel}
+                flex
+                py={12}
+                items="center"
+                justify="center"
+                rounded="lg"
+                style={{ backgroundColor: '#f3f4f6' }}
+              >
+                <AppText style={{ color: '#374151', textAlign: 'center' }}>
+                  {cancelText || '取消'}
+                </AppText>
               </AppPressable>
             )}
-            <AppPressable onPress={onConfirm} className="flex-1 py-3 bg-primary-500 rounded-lg">
-              <AppText className="text-center text-white">{confirmText || '确定'}</AppText>
+            <AppPressable
+              onPress={onConfirm}
+              flex
+              py={12}
+              items="center"
+              justify="center"
+              rounded="lg"
+              style={{ backgroundColor: colors.primary }}
+            >
+              <AppText style={{ color: '#ffffff', textAlign: 'center' }}>
+                {confirmText || '确定'}
+              </AppText>
             </AppPressable>
           </AppView>
-        </Animated.View>
+        </PresenceSurface>
       </AppView>
     </Modal>
   );

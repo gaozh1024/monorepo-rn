@@ -110,4 +110,20 @@ describe('AppButton', () => {
     expect(button.props.mt).toBe(12);
     expect(button.props.rounded).toBe('full');
   });
+
+  it('应该用内联快捷参数提供 Web 关键布局和尺寸', () => {
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(<AppButton size="lg">Web Button</AppButton>);
+    });
+
+    const button = renderer!.root.findByType(AppPressable);
+
+    expect(button.props.row).toBe(true);
+    expect(button.props.items).toBe('center');
+    expect(button.props.justify).toBe('center');
+    expect(button.props.px).toBe(24);
+    expect(button.props.py).toBe(16);
+  });
 });

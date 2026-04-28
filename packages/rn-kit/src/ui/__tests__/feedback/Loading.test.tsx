@@ -4,6 +4,14 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { act } from 'react-test-renderer';
 import { Loading } from '../../feedback/Loading';
 
+function flattenStyle(style: any): Record<string, any> {
+  if (!style) return {};
+  if (Array.isArray(style)) {
+    return style.filter(Boolean).reduce((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  return style;
+}
+
 describe('Loading', () => {
   it('应该显示加载指示器', () => {
     const { getByTestId } = render(<Loading visible testID="loading" />);
@@ -33,6 +41,14 @@ describe('Loading', () => {
 
       act(() => {
         vi.advanceTimersByTime(30_000);
+      });
+
+      expect(flattenStyle(getByTestId('loading-close').props.style)).toMatchObject({
+        marginTop: 4,
+        paddingTop: 4,
+        paddingBottom: 4,
+        paddingLeft: 4,
+        paddingRight: 4,
       });
 
       fireEvent.press(getByTestId('loading-close'));

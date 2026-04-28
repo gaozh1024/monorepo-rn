@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import Animated from 'react-native-reanimated';
+import { PresenceSurface } from '@/ui/motion/components/PresenceSurface';
 import { AppView, AppText } from '@/ui';
 import { useOptionalTheme } from '@/theme';
 import { useMotionConfig, usePresenceMotion } from '@/ui/motion';
@@ -88,7 +88,7 @@ export function ToastItemView({
   };
 
   return (
-    <Animated.View style={presence.animatedStyle}>
+    <PresenceSurface style={presence.animatedStyle}>
       <AppView
         testID={`toast-item-${type}`}
         className={`${bgStyles[type]} px-4 py-3 rounded-lg mb-2 mx-4 shadow-lg`}
@@ -98,6 +98,6 @@ export function ToastItemView({
           {message}
         </AppText>
       </AppView>
-    </Animated.View>
+    </PresenceSurface>
   );
 }

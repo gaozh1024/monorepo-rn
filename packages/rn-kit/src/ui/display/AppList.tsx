@@ -199,7 +199,10 @@ function ErrorState({
       {onRetry && (
         <AppPressable
           onPress={onRetry}
-          className="mt-6 px-4 py-2 rounded-lg"
+          mt={24}
+          px={16}
+          py={8}
+          rounded="lg"
           style={[
             styles.retryButton,
             { backgroundColor: colors.cardElevated, borderColor: colors.border },

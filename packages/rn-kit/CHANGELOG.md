@@ -1,5 +1,12 @@
 # @gaozh1024/rn-kit
 
+## Unreleased
+
+### Patch Changes
+
+- Harden `AppInput` Web/mobile parity by moving built-in input layout, padding, radius and font-size styles off NativeWind-only `className` paths; document the Web focus-outline reset and style override guidance.
+- Make `Presence`, `MotionView`, `StaggerItem`, Toast and Alert presence surfaces safe on React Native Web by using CSS-backed Web transitions and dropping Reanimated-only layout animation props from Web host components.
+
 ## 0.5.0
 
 ### Minor Changes

@@ -23,6 +23,9 @@ export const ROUTES = {
   // 全局抽屉页
   GLOBAL_DRAWER: 'GlobalDrawer',
 
+  // Web smoke
+  WEB_SMOKE: 'WebSmoke',
+
   // 我的页面组（二级页面，与 MainTabs 同级）
   MY_MAIN: 'MyMain',
   USER_INFO: 'UserInfo',

@@ -141,6 +141,11 @@ export function AppButton({
   const resolvedMotionPreset = motionPreset ?? motionConfig.defaultPressPreset ?? 'soft';
 
   const sizeClasses = { sm: 'px-3 py-2', md: 'px-4 py-3', lg: 'px-6 py-4' };
+  const sizeSpacing = {
+    sm: { px: 12, py: 8 },
+    md: { px: 16, py: 12 },
+    lg: { px: 24, py: 16 },
+  } satisfies Record<NonNullable<AppButtonProps['size']>, { px: number; py: number }>;
   const buttonColors: Record<AppButtonColor, string> = {
     primary: theme.colors.primary?.[500] || '#f38b32',
     secondary: theme.colors.secondary?.[500] || '#3b82f6',
@@ -193,6 +198,11 @@ export function AppButton({
       maxW={maxW}
       maxH={maxH}
       rounded={rounded ?? 'lg'}
+      row
+      items="center"
+      justify="center"
+      px={sizeSpacing[size].px}
+      py={sizeSpacing[size].py}
       onPress={onPress ? handlePress : undefined}
       disabled={isDisabled}
       motionPreset={resolvedMotionPreset}

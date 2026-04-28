@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Modal, TouchableOpacity, StyleSheet, GestureResponderEvent } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { PresenceSurface } from '../motion/components/PresenceSurface';
 import { AppView, AppText } from '@/ui/primitives';
 import { useTheme } from '@/theme';
 import { cn } from '@/utils';
@@ -106,7 +106,7 @@ export function Alert({
       statusBarTranslucent
     >
       <AppView className="flex-1" center>
-        <Animated.View
+        <PresenceSurface
           style={[
             StyleSheet.absoluteFillObject,
             {
@@ -115,7 +115,7 @@ export function Alert({
             presence.overlayAnimatedStyle,
           ]}
         />
-        <Animated.View
+        <PresenceSurface
           className="rounded-xl mx-8 min-w-[280px]"
           style={[{ backgroundColor: modalBgColor }, presence.animatedStyle]}
         >
@@ -198,7 +198,7 @@ export function Alert({
               </AppView>
             )}
           </AppView>
-        </Animated.View>
+        </PresenceSurface>
       </AppView>
     </Modal>
   );

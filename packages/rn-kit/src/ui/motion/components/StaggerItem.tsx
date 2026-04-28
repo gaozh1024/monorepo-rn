@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import Animated from 'react-native-reanimated';
+import { PresenceSurface } from './PresenceSurface';
 import type { StaggerMotionProps } from '../props';
 import { useStaggerMotion } from '../hooks/useStaggerMotion';
 import { resolveMotionLayoutProps } from '../layout';
@@ -66,8 +66,8 @@ export function StaggerItem({
   if (!motion.mounted) return null;
 
   return (
-    <Animated.View style={motion.animatedStyle} {...layoutAnimationProps}>
+    <PresenceSurface style={motion.animatedStyle} {...layoutAnimationProps}>
       {children}
-    </Animated.View>
+    </PresenceSurface>
   );
 }

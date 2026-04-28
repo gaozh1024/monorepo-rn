@@ -6,6 +6,8 @@
  */
 
 import React from 'react';
+import { Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ThemeProvider, type ThemeConfig } from '@/theme';
 import { NavigationProvider, type NavigationProviderProps } from '@/navigation';
@@ -73,6 +75,8 @@ export interface AppProviderProps extends Omit<NavigationProviderProps, 'childre
   enableStatusBar?: boolean;
   /** 是否启用安全区域（默认 true） */
   enableSafeArea?: boolean;
+  /** 是否启用手势根容器（默认 true，Web/Native 手势组件都需要） */
+  enableGestureHandlerRootView?: boolean;
   /** 自定义亮色主题 */
   lightTheme?: ThemeConfig;
   /** 自定义暗色主题 */
@@ -199,8 +203,9 @@ export function AppProvider({
   enableTheme = true,
   enableLogger = isDevelopment(),
   enableErrorBoundary = isDevelopment(),
-  enableStatusBar = true,
+  enableStatusBar = Platform.OS !== 'web',
   enableSafeArea = true,
+  enableGestureHandlerRootView = true,
   lightTheme = defaultLightTheme,
   darkTheme = defaultDarkTheme,
   defaultDark = false,
@@ -277,9 +282,14 @@ export function AppProvider({
     content = <MotionConfigProvider {...motion}>{content}</MotionConfigProvider>;
   }
 
-  // 4. SafeArea - 最外层
+  // 4. SafeArea - 外层
   if (enableSafeArea) {
     content = <SafeAreaProvider initialMetrics={initialWindowMetrics}>{content}</SafeAreaProvider>;
+  }
+
+  // 5. Gesture root - 最外层，保证 Drawer/Sheet 等手势在 Web/Native 都有根容器
+  if (enableGestureHandlerRootView) {
+    content = <GestureHandlerRootView style={{ flex: 1 }}>{content}</GestureHandlerRootView>;
   }
 
   return <>{content}</>;

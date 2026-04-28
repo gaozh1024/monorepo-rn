@@ -24,6 +24,7 @@ export type RootStackParamList = {
 
   // 全局抽屉页
   GlobalDrawer: undefined;
+  WebSmoke: undefined;
 
   // 我的页面组（二级页面，与 MainTabs 同级）
   MyMain: undefined;

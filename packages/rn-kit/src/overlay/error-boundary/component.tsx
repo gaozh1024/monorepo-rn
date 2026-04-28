@@ -54,7 +54,9 @@ function DefaultFallback({
       <AppPressable
         testID="app-error-boundary-reset"
         onPress={onReset}
-        className="px-4 py-3 rounded-lg"
+        px={16}
+        py={12}
+        rounded="lg"
         style={{ borderWidth: 0.5 }}
       >
         <AppText weight="semibold">{resetText}</AppText>

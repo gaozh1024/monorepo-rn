@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
+import { ScrollView } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 import { act, create } from 'react-test-renderer';
 import { Picker } from '../../form/Picker';
@@ -14,6 +15,15 @@ vi.mock('../../motion/hooks/useSheetMotion', () => ({
   useSheetMotion: useSheetMotionMock,
 }));
 
+const createScrollEvent = (offsetY: number) =>
+  ({
+    nativeEvent: {
+      contentOffset: {
+        y: offsetY,
+      },
+    },
+  }) as any;
+
 describe('Picker', () => {
   beforeEach(() => {
     useSheetMotionMock.mockReset();
@@ -27,6 +37,47 @@ describe('Picker', () => {
       close: vi.fn(),
     }));
   });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const renderWheelPicker = (
+    options = [
+      { label: '第一项', value: 'first' },
+      { label: '第二项', value: 'second' },
+      { label: '第三项', value: 'third' },
+    ],
+    defaultTempValue: string[] = ['first']
+  ) => {
+    const onTempChange = vi.fn();
+    let renderer: ReturnType<typeof create>;
+
+    act(() => {
+      renderer = create(
+        <ThemeProvider light={theme}>
+          <Picker
+            columns={[
+              {
+                key: 'wheel',
+                options,
+              },
+            ]}
+            defaultTempValue={defaultTempValue}
+            onTempChange={onTempChange}
+            rowHeight={40}
+          />
+        </ThemeProvider>
+      );
+    });
+
+    const getScrollView = () => renderer!.root.findByType(ScrollView);
+
+    return {
+      getScrollView,
+      onTempChange,
+    };
+  };
 
   it('应该支持通用多列选择', () => {
     const onChange = vi.fn();
@@ -161,5 +212,86 @@ describe('Picker', () => {
       borderRadius: 9999,
       backgroundColor: '#f38b32',
     });
+  });
+
+  it('惯性滚动时应该只在 momentum 结束后吸附一次', () => {
+    vi.useFakeTimers();
+    const { getScrollView, onTempChange } = renderWheelPicker();
+
+    act(() => {
+      getScrollView().props.onScrollEndDrag(createScrollEvent(80));
+      getScrollView().props.onMomentumScrollBegin();
+    });
+
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
+    expect(onTempChange).not.toHaveBeenCalled();
+
+    act(() => {
+      getScrollView().props.onMomentumScrollEnd(createScrollEvent(80));
+    });
+
+    expect(onTempChange).toHaveBeenCalledTimes(1);
+    expect(onTempChange).toHaveBeenLastCalledWith(['third']);
+  });
+
+  it('非惯性拖拽结束后应该延迟吸附到最近选项', () => {
+    vi.useFakeTimers();
+    const { getScrollView, onTempChange } = renderWheelPicker();
+
+    act(() => {
+      getScrollView().props.onScrollEndDrag(createScrollEvent(40));
+    });
+    expect(onTempChange).not.toHaveBeenCalled();
+
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(onTempChange).toHaveBeenCalledTimes(1);
+    expect(onTempChange).toHaveBeenLastCalledWith(['second']);
+  });
+
+  it('连续惯性滚动不应该复用上一次手势的待处理状态', () => {
+    vi.useFakeTimers();
+    const { getScrollView, onTempChange } = renderWheelPicker();
+
+    act(() => {
+      getScrollView().props.onScrollEndDrag(createScrollEvent(80));
+      getScrollView().props.onMomentumScrollBegin();
+      getScrollView().props.onMomentumScrollEnd(createScrollEvent(80));
+    });
+
+    act(() => {
+      getScrollView().props.onScrollEndDrag(createScrollEvent(40));
+      getScrollView().props.onMomentumScrollBegin();
+      getScrollView().props.onMomentumScrollEnd(createScrollEvent(40));
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(onTempChange).toHaveBeenCalledTimes(2);
+    expect(onTempChange).toHaveBeenNthCalledWith(1, ['third']);
+    expect(onTempChange).toHaveBeenNthCalledWith(2, ['second']);
+  });
+
+  it('滚动停在禁用项时仍应该选择最近的可用项', () => {
+    vi.useFakeTimers();
+    const { getScrollView, onTempChange } = renderWheelPicker(
+      [
+        { label: '可用前项', value: 'prev' },
+        { label: '禁用项', value: 'disabled', disabled: true },
+        { label: '可用后项', value: 'next' },
+      ],
+      ['next']
+    );
+
+    act(() => {
+      getScrollView().props.onScrollEndDrag(createScrollEvent(40));
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(onTempChange).toHaveBeenCalledTimes(1);
+    expect(onTempChange).toHaveBeenLastCalledWith(['prev']);
   });
 });
